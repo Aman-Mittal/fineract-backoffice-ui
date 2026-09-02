@@ -37,46 +37,36 @@ import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { provideIonicTesting } from '../../testing/ionic-testing';
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 
 describe('ClientViewComponent', () => {
   let component: ClientViewComponent;
   let fixture: ComponentFixture<ClientViewComponent>;
-  let clientServiceSpy: jasmine.SpyObj<ClientService>;
-  let notesServiceSpy: jasmine.SpyObj<NotesService>;
-  let addressServiceSpy: jasmine.SpyObj<ClientsAddressService>;
-  let documentServiceSpy: jasmine.SpyObj<DocumentsService>;
-  let familyMemberServiceSpy: jasmine.SpyObj<ClientFamilyMemberService>;
-  let identifierServiceSpy: jasmine.SpyObj<ClientIdentifierService>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let shareAccountServiceSpy: jasmine.SpyObj<ShareAccountService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let clientServiceSpy: SpyObj<ClientService>;
+  let notesServiceSpy: SpyObj<NotesService>;
+  let addressServiceSpy: SpyObj<ClientsAddressService>;
+  let documentServiceSpy: SpyObj<DocumentsService>;
+  let familyMemberServiceSpy: SpyObj<ClientFamilyMemberService>;
+  let identifierServiceSpy: SpyObj<ClientIdentifierService>;
+  let authServiceSpy: SpyObj<AuthService>;
+  let shareAccountServiceSpy: SpyObj<ShareAccountService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    clientServiceSpy = jasmine.createSpyObj('ClientService', [
-      'getClientsClientId',
-      'getClientsClientIdAccounts',
-    ]);
-    notesServiceSpy = jasmine.createSpyObj('NotesService', [
+    clientServiceSpy = createSpyObj(['getClientsClientId', 'getClientsClientIdAccounts']);
+    notesServiceSpy = createSpyObj([
       'postResourceTypeResourceIdNotes',
       'getResourceTypeResourceIdNotes',
     ]);
-    addressServiceSpy = jasmine.createSpyObj('ClientsAddressService', [
-      'getClientClientidAddresses',
-    ]);
-    documentServiceSpy = jasmine.createSpyObj('DocumentsService', [
-      'getEntityTypeEntityIdDocuments',
-    ]);
-    familyMemberServiceSpy = jasmine.createSpyObj('ClientFamilyMemberService', [
-      'getClientsClientIdFamilymembers',
-    ]);
-    identifierServiceSpy = jasmine.createSpyObj('ClientIdentifierService', [
-      'getClientsClientIdIdentifiers',
-    ]);
+    addressServiceSpy = createSpyObj(['getClientClientidAddresses']);
+    documentServiceSpy = createSpyObj(['getEntityTypeEntityIdDocuments']);
+    familyMemberServiceSpy = createSpyObj(['getClientsClientIdFamilymembers']);
+    identifierServiceSpy = createSpyObj(['getClientsClientIdIdentifiers']);
 
-    shareAccountServiceSpy = jasmine.createSpyObj('ShareAccountService', ['getAccountsType']);
-    shareAccountServiceSpy.getAccountsType.and.returnValue(of({ pageItems: [] }) as any);
+    shareAccountServiceSpy = createSpyObj(['getAccountsType']);
+    shareAccountServiceSpy.getAccountsType.mockReturnValue(of({ pageItems: [] }) as any);
 
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
+    authServiceSpy = Object.assign(createSpyObj<AuthService>(['hasPermission']), {
       currentUser: signal({
         username: 'mifos',
         base64EncodedAuthenticationKey: 'key',
@@ -87,7 +77,7 @@ describe('ClientViewComponent', () => {
         permissions: ['ALL_FUNCTIONS'],
       }),
     });
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [ClientViewComponent, TranslateModule.forRoot()],
@@ -114,7 +104,7 @@ describe('ClientViewComponent', () => {
       ],
     }).compileComponents();
 
-    clientServiceSpy.getClientsClientId.and.returnValue(
+    clientServiceSpy.getClientsClientId.mockReturnValue(
       of({
         id: 123,
         accountNo: 'CL00123',
@@ -126,18 +116,18 @@ describe('ClientViewComponent', () => {
       }) as any,
     );
 
-    clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
+    clientServiceSpy.getClientsClientIdAccounts.mockReturnValue(
       of({
         loanAccounts: [] as any,
         savingsAccounts: [] as any,
       }) as any,
     );
 
-    addressServiceSpy.getClientClientidAddresses.and.returnValue(of([]) as any);
-    documentServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(of([]) as any);
-    familyMemberServiceSpy.getClientsClientIdFamilymembers.and.returnValue(of([]) as any);
-    identifierServiceSpy.getClientsClientIdIdentifiers.and.returnValue(of([]) as any);
-    notesServiceSpy.getResourceTypeResourceIdNotes.and.returnValue(of([]) as any);
+    addressServiceSpy.getClientClientidAddresses.mockReturnValue(of([]) as any);
+    documentServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(of([]) as any);
+    familyMemberServiceSpy.getClientsClientIdFamilymembers.mockReturnValue(of([]) as any);
+    identifierServiceSpy.getClientsClientIdIdentifiers.mockReturnValue(of([]) as any);
+    notesServiceSpy.getResourceTypeResourceIdNotes.mockReturnValue(of([]) as any);
 
     fixture = TestBed.createComponent(ClientViewComponent);
     component = fixture.componentInstance;
@@ -162,7 +152,7 @@ describe('ClientViewComponent', () => {
      * to the savings screen.
      */
     beforeEach(() => {
-      clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
+      clientServiceSpy.getClientsClientIdAccounts.mockReturnValue(
         of({
           loanAccounts: [] as any,
           savingsAccounts: [
@@ -185,7 +175,7 @@ describe('ClientViewComponent', () => {
     });
 
     it('treats an account with no deposit type as savings, which is what it is', () => {
-      clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
+      clientServiceSpy.getClientsClientIdAccounts.mockReturnValue(
         of({ savingsAccounts: [{ id: 11, accountNo: '11' }] as any }) as any,
       );
       component.loadClientAccounts();
@@ -196,7 +186,7 @@ describe('ClientViewComponent', () => {
 
   describe('share accounts', () => {
     beforeEach(() => {
-      shareAccountServiceSpy.getAccountsType.and.returnValue(
+      shareAccountServiceSpy.getAccountsType.mockReturnValue(
         of({
           pageItems: [
             { id: 1, accountNo: '000000001', clientId: 123, productName: 'Shares' },

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientChargesListComponent } from './client-charges-list.component';
 import { ClientChargesService } from '../../../api';
@@ -29,19 +30,19 @@ import { DialogService } from '../../../core/services/dialog.service';
 describe('ClientChargesListComponent', () => {
   let component: ClientChargesListComponent;
   let fixture: ComponentFixture<ClientChargesListComponent>;
-  let serviceSpy: jasmine.SpyObj<ClientChargesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let dialogService: jasmine.SpyObj<DialogService>;
+  let serviceSpy: SpyObj<ClientChargesService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ClientChargesService', [
+    serviceSpy = createSpyObj([
       'getClientsClientIdCharges',
       'deleteClientsClientIdChargesChargeId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
-    dialogService.confirm.and.resolveTo(true);
-    serviceSpy.getClientsClientIdCharges.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getClientsClientIdCharges.mockReturnValue(
       of({
         pageItems: [{ id: 1, name: 'Fee', amount: 100 }],
       }) as unknown as ReturnType<ClientChargesService['getClientsClientIdCharges']>,
@@ -69,11 +70,11 @@ describe('ClientChargesListComponent', () => {
   it('should load client charges on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdCharges).toHaveBeenCalledWith(1);
-    expect(component.charges()).toHaveSize(1);
+    expect(component.charges()).toHaveLength(1);
   });
 
   it('should delete after confirmation and reload', async () => {
-    serviceSpy.deleteClientsClientIdChargesChargeId.and.returnValue(
+    serviceSpy.deleteClientsClientIdChargesChargeId.mockReturnValue(
       of({}) as unknown as ReturnType<ClientChargesService['deleteClientsClientIdChargesChargeId']>,
     );
 
@@ -85,7 +86,7 @@ describe('ClientChargesListComponent', () => {
   });
 
   it('should not delete when cancelled', async () => {
-    dialogService.confirm.and.resolveTo(false);
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5, name: 'X' });
     await fixture.whenStable();
     expect(serviceSpy.deleteClientsClientIdChargesChargeId).not.toHaveBeenCalled();

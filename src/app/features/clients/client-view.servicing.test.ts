@@ -38,6 +38,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { CLIENT_STATUS } from './client-servicing.model';
 
 /**
@@ -56,7 +57,7 @@ import { CLIENT_STATUS } from './client-servicing.model';
 describe('ClientViewComponent — servicing commands', () => {
   let component: ClientViewComponent;
   let fixture: ComponentFixture<ClientViewComponent>;
-  let clientServiceSpy: jasmine.SpyObj<ClientService>;
+  let clientServiceSpy: SpyObj<ClientService>;
   let overlay: FakeOverlayAdapter;
 
   const CLIENT_ID = 123;
@@ -86,43 +87,35 @@ describe('ClientViewComponent — servicing commands', () => {
     const adapters = provideFakeAdapters();
     overlay = adapters.overlay;
 
-    clientServiceSpy = jasmine.createSpyObj('ClientService', [
+    clientServiceSpy = createSpyObj([
       'getClientsClientId',
       'getClientsClientIdAccounts',
       'getClientsTemplate',
       'postClientsClientId',
     ]);
-    clientServiceSpy.getClientsClientId.and.returnValue(of(client) as any);
-    clientServiceSpy.getClientsClientIdAccounts.and.returnValue(
+    clientServiceSpy.getClientsClientId.mockReturnValue(of(client) as any);
+    clientServiceSpy.getClientsClientIdAccounts.mockReturnValue(
       of({ loanAccounts: [], savingsAccounts: [] }) as any,
     );
-    clientServiceSpy.getClientsTemplate.and.returnValue(of({ officeOptions: [] }) as any);
-    clientServiceSpy.postClientsClientId.and.returnValue(of({ clientId: CLIENT_ID }) as any);
+    clientServiceSpy.getClientsTemplate.mockReturnValue(of({ officeOptions: [] }) as any);
+    clientServiceSpy.postClientsClientId.mockReturnValue(of({ clientId: CLIENT_ID }) as any);
 
-    const notesServiceSpy = jasmine.createSpyObj('NotesService', [
+    const notesServiceSpy = createSpyObj([
       'postResourceTypeResourceIdNotes',
       'getResourceTypeResourceIdNotes',
     ]);
-    notesServiceSpy.getResourceTypeResourceIdNotes.and.returnValue(of([]) as any);
+    notesServiceSpy.getResourceTypeResourceIdNotes.mockReturnValue(of([]) as any);
 
-    const addressServiceSpy = jasmine.createSpyObj('ClientsAddressService', [
-      'getClientClientidAddresses',
-    ]);
-    addressServiceSpy.getClientClientidAddresses.and.returnValue(of([]) as any);
-    const documentServiceSpy = jasmine.createSpyObj('DocumentsService', [
-      'getEntityTypeEntityIdDocuments',
-    ]);
-    documentServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(of([]) as any);
-    const familyMemberServiceSpy = jasmine.createSpyObj('ClientFamilyMemberService', [
-      'getClientsClientIdFamilymembers',
-    ]);
-    familyMemberServiceSpy.getClientsClientIdFamilymembers.and.returnValue(of([]) as any);
-    const identifierServiceSpy = jasmine.createSpyObj('ClientIdentifierService', [
-      'getClientsClientIdIdentifiers',
-    ]);
-    identifierServiceSpy.getClientsClientIdIdentifiers.and.returnValue(of([]) as any);
+    const addressServiceSpy = createSpyObj(['getClientClientidAddresses']);
+    addressServiceSpy.getClientClientidAddresses.mockReturnValue(of([]) as any);
+    const documentServiceSpy = createSpyObj(['getEntityTypeEntityIdDocuments']);
+    documentServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(of([]) as any);
+    const familyMemberServiceSpy = createSpyObj(['getClientsClientIdFamilymembers']);
+    familyMemberServiceSpy.getClientsClientIdFamilymembers.mockReturnValue(of([]) as any);
+    const identifierServiceSpy = createSpyObj(['getClientsClientIdIdentifiers']);
+    identifierServiceSpy.getClientsClientIdIdentifiers.mockReturnValue(of([]) as any);
 
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['hasPermission'], {
+    const authServiceSpy = Object.assign(createSpyObj<AuthService>(['hasPermission']), {
       currentUser: signal({
         username: 'mifos',
         base64EncodedAuthenticationKey: 'key',
@@ -150,7 +143,7 @@ describe('ClientViewComponent — servicing commands', () => {
         { provide: ClientFamilyMemberService, useValue: familyMemberServiceSpy },
         { provide: ClientIdentifierService, useValue: identifierServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: Router, useValue: createSpyObj(['navigate']) },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -167,7 +160,7 @@ describe('ClientViewComponent — servicing commands', () => {
 
   /** The (clientId, body, command) triple of the most recent command post. */
   function lastCommand(): { clientId: number; body: any; command: string } {
-    const args = clientServiceSpy.postClientsClientId.calls.mostRecent().args;
+    const args = clientServiceSpy.postClientsClientId.mock.lastCall!;
     return { clientId: args[0] as number, body: args[1] as any, command: args[2] as string };
   }
 
@@ -258,13 +251,13 @@ describe('ClientViewComponent — servicing commands', () => {
 
     it('treats both pending states as awaiting an answer, so an on-hold client can be recovered', async () => {
       await setUp(clientResponse({ status: { id: CLIENT_STATUS.TRANSFER_ON_HOLD } }));
-      expect(component.isTransferPending()).toBeTrue();
+      expect(component.isTransferPending()).toBe(true);
 
       await setUp(clientResponse({ status: { id: CLIENT_STATUS.TRANSFER_IN_PROGRESS } }));
-      expect(component.isTransferPending()).toBeTrue();
+      expect(component.isTransferPending()).toBe(true);
 
       await setUp();
-      expect(component.isTransferPending()).toBeFalse();
+      expect(component.isTransferPending()).toBe(false);
     });
   });
 
@@ -321,10 +314,10 @@ describe('ClientViewComponent — servicing commands', () => {
 
     it('offers servicing actions only while the client is live', async () => {
       await setUp();
-      expect(component.canServiceClient()).toBeTrue();
+      expect(component.canServiceClient()).toBe(true);
 
       await setUp(clientResponse({ status: { id: CLIENT_STATUS.CLOSED } }));
-      expect(component.canServiceClient()).toBeFalse();
+      expect(component.canServiceClient()).toBe(false);
     });
   });
 

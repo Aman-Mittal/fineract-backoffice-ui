@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,7 +29,7 @@ import { DocumentsService, DocumentData } from '../../../api';
 describe('ClientDocumentsListComponent', () => {
   let component: ClientDocumentsListComponent;
   let fixture: ComponentFixture<ClientDocumentsListComponent>;
-  let documentsServiceSpy: jasmine.SpyObj<DocumentsService>;
+  let documentsServiceSpy: SpyObj<DocumentsService>;
 
   const mockDocs: DocumentData[] = [
     { id: 1, name: 'ID Card', fileName: 'id.jpg', type: 'image/jpeg' },
@@ -36,7 +37,7 @@ describe('ClientDocumentsListComponent', () => {
   ];
 
   beforeEach(async () => {
-    documentsServiceSpy = jasmine.createSpyObj('DocumentsService', [
+    documentsServiceSpy = createSpyObj([
       'getEntityTypeEntityIdDocuments',
       'getEntityTypeEntityIdDocumentsDocumentIdAttachment',
       'deleteEntityTypeEntityIdDocumentsDocumentId',
@@ -58,48 +59,49 @@ describe('ClientDocumentsListComponent', () => {
   });
 
   it('should create and load client documents on init', () => {
-    documentsServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(
+    documentsServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(
       of(mockDocs) as unknown as Observable<never>,
     );
     fixture.detectChanges();
 
     expect(component).toBeTruthy();
     expect(component.documents()).toEqual(mockDocs);
-    expect(component.isLoading()).toBeFalse();
+    expect(component.isLoading()).toBe(false);
   });
 
   it('should handle error when loading documents fails', () => {
-    spyOn(console, 'error');
-    documentsServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(
+    vi.spyOn(console, 'error');
+    documentsServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(
       throwError(() => new Error('Load Error')) as unknown as Observable<never>,
     );
 
     fixture.detectChanges();
 
-    expect(component.isLoading()).toBeFalse();
+    expect(component.isLoading()).toBe(false);
     expect(console.error).toHaveBeenCalled();
   });
 
   it('should download attachment successfully', () => {
-    documentsServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(
+    documentsServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(
       of(mockDocs) as unknown as Observable<never>,
     );
     const mockBlob = new Blob(['dummy content'], { type: 'image/jpeg' });
-    documentsServiceSpy.getEntityTypeEntityIdDocumentsDocumentIdAttachment.and.returnValue(
+    documentsServiceSpy.getEntityTypeEntityIdDocumentsDocumentIdAttachment.mockReturnValue(
       of(mockBlob) as unknown as Observable<never>,
     );
 
     fixture.detectChanges();
 
-    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:url');
-    spyOn(window.URL, 'revokeObjectURL');
+    vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:url');
+    vi.spyOn(window.URL, 'revokeObjectURL');
 
     // Create a mock anchor element to spy on
     const mockAnchor = document.createElement('a');
-    spyOn(mockAnchor, 'click');
-    spyOn(document, 'createElement').and.callFake((tagName: string) => {
+    const originalCreateElement = document.createElement;
+    vi.spyOn(mockAnchor, 'click');
+    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
       if (tagName === 'a') return mockAnchor;
-      return document.createElement(tagName);
+      return originalCreateElement.call(document, tagName);
     });
 
     component.onDownload(1);
@@ -114,11 +116,11 @@ describe('ClientDocumentsListComponent', () => {
   });
 
   it('should handle error when download attachment fails', () => {
-    spyOn(console, 'error');
-    documentsServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(
+    vi.spyOn(console, 'error');
+    documentsServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(
       of(mockDocs) as unknown as Observable<never>,
     );
-    documentsServiceSpy.getEntityTypeEntityIdDocumentsDocumentIdAttachment.and.returnValue(
+    documentsServiceSpy.getEntityTypeEntityIdDocumentsDocumentIdAttachment.mockReturnValue(
       throwError(() => new Error('Download Error')) as unknown as Observable<never>,
     );
 
@@ -129,13 +131,13 @@ describe('ClientDocumentsListComponent', () => {
   });
 
   it('should delete document if user confirms deletion', () => {
-    documentsServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(
+    documentsServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(
       of(mockDocs) as unknown as Observable<never>,
     );
-    documentsServiceSpy.deleteEntityTypeEntityIdDocumentsDocumentId.and.returnValue(
+    documentsServiceSpy.deleteEntityTypeEntityIdDocumentsDocumentId.mockReturnValue(
       of(null) as unknown as Observable<never>,
     );
-    spyOn(window, 'confirm').and.returnValue(true);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
 
     fixture.detectChanges();
     component.onDelete(2);
@@ -149,10 +151,10 @@ describe('ClientDocumentsListComponent', () => {
   });
 
   it('should not delete document if user cancels deletion', () => {
-    documentsServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(
+    documentsServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(
       of(mockDocs) as unknown as Observable<never>,
     );
-    spyOn(window, 'confirm').and.returnValue(false);
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     fixture.detectChanges();
     component.onDelete(2);
@@ -162,14 +164,14 @@ describe('ClientDocumentsListComponent', () => {
   });
 
   it('should handle error when delete document fails', () => {
-    spyOn(console, 'error');
-    documentsServiceSpy.getEntityTypeEntityIdDocuments.and.returnValue(
+    vi.spyOn(console, 'error');
+    documentsServiceSpy.getEntityTypeEntityIdDocuments.mockReturnValue(
       of(mockDocs) as unknown as Observable<never>,
     );
-    documentsServiceSpy.deleteEntityTypeEntityIdDocumentsDocumentId.and.returnValue(
+    documentsServiceSpy.deleteEntityTypeEntityIdDocumentsDocumentId.mockReturnValue(
       throwError(() => new Error('Delete Error')) as unknown as Observable<never>,
     );
-    spyOn(window, 'confirm').and.returnValue(true);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
 
     fixture.detectChanges();
     component.onDelete(2);

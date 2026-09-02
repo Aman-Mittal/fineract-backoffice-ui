@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientTransactionsListComponent } from './client-transactions-list.component';
 import { ClientTransactionService } from '../../../api';
@@ -29,17 +30,17 @@ import { DialogService } from '../../../core/services/dialog.service';
 describe('ClientTransactionsListComponent', () => {
   let component: ClientTransactionsListComponent;
   let fixture: ComponentFixture<ClientTransactionsListComponent>;
-  let serviceSpy: jasmine.SpyObj<ClientTransactionService>;
-  let dialogService: jasmine.SpyObj<DialogService>;
+  let serviceSpy: SpyObj<ClientTransactionService>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ClientTransactionService', [
+    serviceSpy = createSpyObj([
       'getClientsClientIdTransactions',
       'postClientsClientIdTransactionsTransactionId',
     ]);
-    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
-    dialogService.confirm.and.resolveTo(true);
-    serviceSpy.getClientsClientIdTransactions.and.returnValue(
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getClientsClientIdTransactions.mockReturnValue(
       of({
         pageItems: [{ id: 1, amount: 100, reversed: false }],
       }) as unknown as ReturnType<ClientTransactionService['getClientsClientIdTransactions']>,
@@ -66,11 +67,11 @@ describe('ClientTransactionsListComponent', () => {
   it('should load client transactions on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdTransactions).toHaveBeenCalledWith(1);
-    expect(component.transactions()).toHaveSize(1);
+    expect(component.transactions()).toHaveLength(1);
   });
 
   it('should undo a transaction after confirmation and reload', async () => {
-    serviceSpy.postClientsClientIdTransactionsTransactionId.and.returnValue(
+    serviceSpy.postClientsClientIdTransactionsTransactionId.mockReturnValue(
       of({}) as unknown as ReturnType<
         ClientTransactionService['postClientsClientIdTransactionsTransactionId']
       >,
@@ -88,7 +89,7 @@ describe('ClientTransactionsListComponent', () => {
   });
 
   it('should not undo when cancelled', async () => {
-    dialogService.confirm.and.resolveTo(false);
+    dialogService.confirm.mockResolvedValue(false);
     component.onUndo({ id: 7 });
     await fixture.whenStable();
     expect(serviceSpy.postClientsClientIdTransactionsTransactionId).not.toHaveBeenCalled();

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientNoteFormComponent } from './client-note-form.component';
 import { NotesService } from '../../../api';
@@ -28,16 +29,16 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('ClientNoteFormComponent', () => {
   let component: ClientNoteFormComponent;
   let fixture: ComponentFixture<ClientNoteFormComponent>;
-  let noteServiceSpy: jasmine.SpyObj<NotesService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let noteServiceSpy: SpyObj<NotesService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    noteServiceSpy = jasmine.createSpyObj('NotesService', [
+    noteServiceSpy = createSpyObj([
       'getResourceTypeResourceIdNotesNoteId',
       'putResourceTypeResourceIdNotesNoteId',
       'postResourceTypeResourceIdNotes',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [ClientNoteFormComponent, TranslateModule.forRoot()],
@@ -59,12 +60,12 @@ describe('ClientNoteFormComponent', () => {
 
   it('should create in add mode', () => {
     expect(component).toBeTruthy();
-    expect(component.isEditMode).toBeFalse();
+    expect(component.isEditMode).toBe(false);
     expect(component.clientId).toBe(7);
   });
 
   it('should post a NoteCreateRequest on submit', () => {
-    noteServiceSpy.postResourceTypeResourceIdNotes.and.returnValue(
+    noteServiceSpy.postResourceTypeResourceIdNotes.mockReturnValue(
       of({}) as unknown as ReturnType<NotesService['postResourceTypeResourceIdNotes']>,
     );
     component.note.set({ note: 'Follow up next week' });
@@ -74,7 +75,7 @@ describe('ClientNoteFormComponent', () => {
     expect(noteServiceSpy.postResourceTypeResourceIdNotes).toHaveBeenCalledWith(
       'clients',
       7,
-      jasmine.objectContaining({ note: 'Follow up next week' }),
+      expect.objectContaining({ note: 'Follow up next week' }),
     );
   });
 });

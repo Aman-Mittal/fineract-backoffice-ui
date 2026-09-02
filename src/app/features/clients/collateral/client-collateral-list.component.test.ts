@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientCollateralListComponent } from './client-collateral-list.component';
 import { ClientCollateralManagementService } from '../../../api';
@@ -29,19 +30,19 @@ import { DialogService } from '../../../core/services/dialog.service';
 describe('ClientCollateralListComponent', () => {
   let component: ClientCollateralListComponent;
   let fixture: ComponentFixture<ClientCollateralListComponent>;
-  let serviceSpy: jasmine.SpyObj<ClientCollateralManagementService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let dialogService: jasmine.SpyObj<DialogService>;
+  let serviceSpy: SpyObj<ClientCollateralManagementService>;
+  let routerSpy: SpyObj<Router>;
+  let dialogService: SpyObj<DialogService>;
 
   beforeEach(async () => {
-    serviceSpy = jasmine.createSpyObj('ClientCollateralManagementService', [
+    serviceSpy = createSpyObj([
       'getClientsClientIdCollaterals',
       'deleteClientsClientIdCollateralsCollateralId',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogService = jasmine.createSpyObj('DialogService', ['confirm']);
-    dialogService.confirm.and.resolveTo(true);
-    serviceSpy.getClientsClientIdCollaterals.and.returnValue(
+    routerSpy = createSpyObj(['navigate']);
+    dialogService = createSpyObj(['confirm']);
+    dialogService.confirm.mockResolvedValue(true);
+    serviceSpy.getClientsClientIdCollaterals.mockReturnValue(
       of([{ id: 1, name: 'Gold', quantity: 5 }]) as unknown as ReturnType<
         ClientCollateralManagementService['getClientsClientIdCollaterals']
       >,
@@ -69,11 +70,11 @@ describe('ClientCollateralListComponent', () => {
   it('should load client collaterals on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getClientsClientIdCollaterals).toHaveBeenCalledWith(1);
-    expect(component.collaterals()).toHaveSize(1);
+    expect(component.collaterals()).toHaveLength(1);
   });
 
   it('should delete after confirmation and reload', async () => {
-    serviceSpy.deleteClientsClientIdCollateralsCollateralId.and.returnValue(
+    serviceSpy.deleteClientsClientIdCollateralsCollateralId.mockReturnValue(
       of({}) as unknown as ReturnType<
         ClientCollateralManagementService['deleteClientsClientIdCollateralsCollateralId']
       >,
@@ -87,7 +88,7 @@ describe('ClientCollateralListComponent', () => {
   });
 
   it('should not delete when cancelled', async () => {
-    dialogService.confirm.and.resolveTo(false);
+    dialogService.confirm.mockResolvedValue(false);
     component.onDelete({ id: 5, name: 'Y' });
     await fixture.whenStable();
     expect(serviceSpy.deleteClientsClientIdCollateralsCollateralId).not.toHaveBeenCalled();

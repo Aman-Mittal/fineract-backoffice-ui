@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,10 +32,10 @@ import { provideIonicTesting } from '../../testing/ionic-testing';
 describe('ClientActionDialogComponent', () => {
   let component: ClientActionDialogComponent;
   let fixture: ComponentFixture<ClientActionDialogComponent>;
-  let modalControllerSpy: jasmine.SpyObj<ModalController>;
-  let codesServiceSpy: jasmine.SpyObj<CodesService>;
-  let codeValuesServiceSpy: jasmine.SpyObj<CodeValuesService>;
-  let businessDateServiceSpy: jasmine.SpyObj<BusinessDateManagementService>;
+  let modalControllerSpy: SpyObj<ModalController>;
+  let codesServiceSpy: SpyObj<CodesService>;
+  let codeValuesServiceSpy: SpyObj<CodeValuesService>;
+  let businessDateServiceSpy: SpyObj<BusinessDateManagementService>;
 
   const defaultDialogData: ClientActionDialogData = {
     title: 'Activate Client',
@@ -43,12 +44,10 @@ describe('ClientActionDialogComponent', () => {
   };
 
   const setupTestBed = (data: ClientActionDialogData) => {
-    modalControllerSpy = jasmine.createSpyObj<ModalController>('ModalController', ['dismiss']);
-    codesServiceSpy = jasmine.createSpyObj('CodesService', ['getCodesNameCodeName']);
-    codeValuesServiceSpy = jasmine.createSpyObj('CodeValuesService', ['getCodesCodeIdCodevalues']);
-    businessDateServiceSpy = jasmine.createSpyObj('BusinessDateManagementService', [
-      'getBusinessdate',
-    ]);
+    modalControllerSpy = createSpyObj<ModalController>(['dismiss']);
+    codesServiceSpy = createSpyObj(['getCodesNameCodeName']);
+    codeValuesServiceSpy = createSpyObj(['getCodesCodeIdCodevalues']);
+    businessDateServiceSpy = createSpyObj(['getBusinessdate']);
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), ClientActionDialogComponent],
@@ -61,7 +60,7 @@ describe('ClientActionDialogComponent', () => {
       ],
     }).compileComponents();
 
-    businessDateServiceSpy.getBusinessdate.and.returnValue(of([]) as unknown as Observable<never>);
+    businessDateServiceSpy.getBusinessdate.mockReturnValue(of([]) as unknown as Observable<never>);
 
     fixture = TestBed.createComponent(ClientActionDialogComponent);
     component = fixture.componentInstance;
@@ -78,14 +77,14 @@ describe('ClientActionDialogComponent', () => {
     it('should create and configure simple layout without reason', () => {
       expect(component).toBeTruthy();
       expect(component.dateLabel).toBe('ACTIONS.ACTIVATION_DATE');
-      expect(component.showReasonDropdown).toBeFalse();
-      expect(component.isValid).toBeTrue();
+      expect(component.showReasonDropdown).toBe(false);
+      expect(component.isValid).toBe(true);
     });
 
     it('should close dialog with data on confirmation', () => {
       component.onConfirm();
       expect(modalControllerSpy.dismiss).toHaveBeenCalledWith({
-        actionDate: jasmine.any(String),
+        actionDate: expect.any(String),
         reasonId: undefined,
         note: '',
       });
@@ -98,11 +97,11 @@ describe('ClientActionDialogComponent', () => {
 
     it('should be invalid if actionDate is null/falsy', () => {
       component.actionDate.set(null as unknown as string);
-      expect(component.isValid).toBeFalse();
+      expect(component.isValid).toBe(false);
     });
 
     it('should use the business date for the action date and maximum', () => {
-      businessDateServiceSpy.getBusinessdate.and.returnValue(
+      businessDateServiceSpy.getBusinessdate.mockReturnValue(
         of([{ type: 'BUSINESS_DATE', date: [2026, 1, 5] }]) as unknown as Observable<never>,
       );
 
@@ -122,10 +121,10 @@ describe('ClientActionDialogComponent', () => {
 
     beforeEach(() => {
       setupTestBed(rejectData);
-      codesServiceSpy.getCodesNameCodeName.and.returnValue(
+      codesServiceSpy.getCodesNameCodeName.mockReturnValue(
         of({ id: 10, name: 'ClientRejectReason' }) as unknown as Observable<never>,
       );
-      codeValuesServiceSpy.getCodesCodeIdCodevalues.and.returnValue(
+      codeValuesServiceSpy.getCodesCodeIdCodevalues.mockReturnValue(
         of([
           { id: 101, name: 'Duplicate Client' },
           { id: 102, name: 'Other' },
@@ -137,18 +136,18 @@ describe('ClientActionDialogComponent', () => {
     it('should fetch and populate reject reason options', () => {
       expect(codesServiceSpy.getCodesNameCodeName).toHaveBeenCalledWith('ClientRejectReason');
       expect(codeValuesServiceSpy.getCodesCodeIdCodevalues).toHaveBeenCalledWith(10);
-      expect(component.reasonOptions()).toHaveSize(2);
-      expect(component.showReasonDropdown).toBeTrue();
+      expect(component.reasonOptions()).toHaveLength(2);
+      expect(component.showReasonDropdown).toBe(true);
       expect(component.reasonLabel).toBe('ACTIONS.REJECTION_REASON');
     });
 
     it('should be invalid initially because reasonId is not set', () => {
-      expect(component.isValid).toBeFalse();
+      expect(component.isValid).toBe(false);
     });
 
     it('should become valid when reasonId is set', () => {
       component.reasonId = 101;
-      expect(component.isValid).toBeTrue();
+      expect(component.isValid).toBe(true);
     });
 
     it('should pass reasonId and note to close event on confirm', () => {
@@ -156,7 +155,7 @@ describe('ClientActionDialogComponent', () => {
       component.note = 'Rejecting due to duplicates';
       component.onConfirm();
       expect(modalControllerSpy.dismiss).toHaveBeenCalledWith({
-        actionDate: jasmine.any(String),
+        actionDate: expect.any(String),
         reasonId: 101,
         note: 'Rejecting due to duplicates',
       });

@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientDocumentFormComponent } from './client-document-form.component';
 import { DocumentsService } from '../../../api';
@@ -28,16 +29,16 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('ClientDocumentFormComponent', () => {
   let component: ClientDocumentFormComponent;
   let fixture: ComponentFixture<ClientDocumentFormComponent>;
-  let documentServiceSpy: jasmine.SpyObj<DocumentsService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let documentServiceSpy: SpyObj<DocumentsService>;
+  let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    documentServiceSpy = jasmine.createSpyObj('DocumentsService', [
+    documentServiceSpy = createSpyObj([
       'getEntityTypeEntityIdDocumentsDocumentId',
       'putEntityTypeEntityIdDocumentsDocumentId',
       'postEntityTypeEntityIdDocuments',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [ClientDocumentFormComponent, TranslateModule.forRoot()],
@@ -62,7 +63,7 @@ describe('ClientDocumentFormComponent', () => {
   });
 
   it('should upload with the new postEntityTypeEntityIdDocuments signature', () => {
-    documentServiceSpy.postEntityTypeEntityIdDocuments.and.returnValue(
+    documentServiceSpy.postEntityTypeEntityIdDocuments.mockReturnValue(
       of({}) as unknown as ReturnType<DocumentsService['postEntityTypeEntityIdDocuments']>,
     );
     const file = new File(['hello'], 'passport.pdf', { type: 'application/pdf' });
