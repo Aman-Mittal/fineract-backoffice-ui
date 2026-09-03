@@ -78,7 +78,7 @@ System admins handle security, audit, and infrastructure. The UI supports:
 - **UI Components:** Ionic (`@ionic/angular` v8, Material Design mode)
 - **Backend Integration:** Fineract REST API (e.g. `/fineract-provider/api/v1/`)
 - **Authentication:** Fineract-based auth (basic auth or token-based)
-- **Testing:** Karma + Jasmine (unit), Playwright (e2e)
+- **Testing:** Vitest (unit), Playwright (e2e)
 - **Deployment:** Designed to run alongside Fineract (e.g. Docker, reverse proxy)
 
 ---
@@ -130,7 +130,7 @@ Access the app at `http://localhost:4200` (or the configured port).
 ### Testing & Quality
 
 ```bash
-# Run unit tests (Karma + Jasmine)
+# Run unit tests (Vitest)
 npm test -- --watch=false
 
 # Run end-to-end tests (Playwright)

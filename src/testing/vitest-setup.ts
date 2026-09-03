@@ -20,11 +20,10 @@
 /**
  * Browser APIs jsdom does not implement, stubbed for the Vitest runner.
  *
- * Karma ran the suite in a real Chrome, so every DOM API the app or Ionic touched simply
- * existed. Vitest's default environment is jsdom, which is a DOM *implementation* rather than a
- * browser: it has no layout, so anything measuring or scrolling is absent, and a handful of
- * newer globals are simply not there. Each stub below exists because a real spec failed without
- * it, and each is written to be honest about what it does not do.
+ * Vitest's default environment is jsdom, which is a DOM *implementation* rather than a browser:
+ * it has no layout, so anything measuring or scrolling is absent, and a handful of newer globals
+ * are simply not there. Each stub below exists because a real spec failed without it, and each is
+ * written to be honest about what it does not do.
  *
  * The alternative to stubbing is Vitest's browser mode, which runs the suite in a real Chrome
  * via Playwright and needs none of this. That is the better long-run answer and is recorded as

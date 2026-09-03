@@ -847,7 +847,7 @@ both the local check and CI:
 #### Scope: `--production` flag
 
 The `--production` flag restricts the scan to the `dependencies` block of `package.json`
-only. `devDependencies` (TypeScript compiler, Karma, Prettier, Playwright, etc.) are
+only. `devDependencies` (TypeScript compiler, Vitest, Prettier, Playwright, etc.) are
 excluded because they are **never bundled into the production build** served to users.
 However, contributors should still prefer Category A licences for dev tooling as a matter
 of good hygiene.

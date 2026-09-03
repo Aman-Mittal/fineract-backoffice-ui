@@ -31,13 +31,13 @@ enforced server-side (see `security.md`).
 
 ## Common commands
 
-| Task       | Command                     |
-| ---------- | --------------------------- |
-| Dev server | `npm start`                 |
-| Unit tests | `npm test -- --watch=false` |
-| Lint       | `npm run lint`              |
-| Format     | `npm run format`            |
-| Prod build | `npm run build`             |
+| Task       | Command                              |
+| ---------- | ------------------------------------ |
+| Dev server | `npm start`                          |
+| Unit tests | `npm test -- --watch=false` (Vitest) |
+| Lint       | `npm run lint`                       |
+| Format     | `npm run format`                     |
+| Prod build | `npm run build`                      |
 
 ## Conventions
 

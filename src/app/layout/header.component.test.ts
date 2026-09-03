@@ -54,10 +54,8 @@ describe('HeaderComponent', () => {
     });
 
     // Pinned, not inherited from the harness. The header renders a different set of controls
-    // either side of the breakpoint, and Karma runs specs in an iframe narrower than the
-    // browser window — so the real ViewportService reports "mobile" under ChromeHeadless and
-    // "desktop" under a headed run, and these assertions passed or failed on which browser CI
-    // happened to use.
+    // either side of the breakpoint. Pinning the value keeps these assertions independent of
+    // the test environment's viewport.
     isMobile = signal(false);
 
     await TestBed.configureTestingModule({
