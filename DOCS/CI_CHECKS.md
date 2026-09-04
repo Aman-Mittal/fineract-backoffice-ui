@@ -33,7 +33,7 @@ npm run i18n:check
 npm run check:icons
 npm run check:a11y-names
 npm run api:surface
-npm test -- --watch=false --browsers=ChromeHeadless
+npm test -- --watch=false
 npm run build
 bash scripts/check-license.sh
 npm run ga:check       # advisory today — see "GA readiness" below
@@ -158,20 +158,11 @@ children, and the check accepts it.
 ### `test`
 
 ```bash
-npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+npm test -- --watch=false
 ```
 
-Karma + Jasmine. Coverage is uploaded as an artifact for 7 days.
-
-The project is named explicitly because a bare `ng test` does **not** run both
-workspace projects. `angular.json` declares two — `fineract-backoffice-ui` and the
-`fineract-mfe` placeholder — with no default, and the CLI resolved that to
-`fineract-mfe` alone: 1 spec file, 2 tests, exit code 0. The app's 775 specs never
-ran, and because the run passed, nothing pointed at it.
-
-A suite that silently tests nothing is worse than no suite, so treat the printed
-total as the check: the app run ends in `TOTAL: 775 SUCCESS`-order numbers, not
-`TOTAL: 2`.
+Runs the application unit suite on Vitest. The project is named explicitly so the command does
+not resolve to the microfrontend placeholder's separate unit-test target.
 
 `npm run test:mfe` runs the microfrontend placeholder's two tests on Vitest. It has its own
 unit-test target because Angular scopes each target to one workspace project.

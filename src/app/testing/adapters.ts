@@ -164,8 +164,8 @@ export class FakeI18nAdapter implements I18nAdapter {
  * In-memory {@link StorageAdapter}.
  *
  * Replaces the `spyOn(localStorage, 'setItem')` pattern the storage specs used, which asserted
- * on the browser API rather than on what the service meant, and left real entries behind on
- * the karma origin when a spy was forgotten.
+ * on the browser API rather than on what the service meant, and left real entries behind in the
+ * shared browser origin when a spy was forgotten.
  */
 export class FakeStorageAdapter implements StorageAdapter {
   readonly values = new Map<StorageKey, string>();

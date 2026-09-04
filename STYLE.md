@@ -183,8 +183,8 @@ Ionic components inherit the Fineract palette automatically.
 
 ## Testing
 
-- **Runner**: Karma + Jasmine (`npm test`). The `jest.config.ts` in the repo root is unused.
-- **Unit Tests**: Every service and complex component should have a corresponding `spec.ts`.
+- **Runner**: Vitest (`npm test`). The `jest.config.ts` in the repo root is unused.
+- **Unit Tests**: Every service and complex component should have a corresponding `test.ts`.
 - **Test Coverage**: Aim for at least 80% statement coverage.
 - **Ionic in TestBed**: Components that use Ionic overlays — directly, or via `NotificationService`
   / `DialogService` — need Ionic's providers, or they fail with

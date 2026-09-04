@@ -28,8 +28,8 @@ describe('WebStorageAdapter', () => {
     TestBed.configureTestingModule({});
     adapter = TestBed.inject(WebStorageAdapter);
 
-    // The karma origin is shared by every spec in the run, so leaving entries behind would
-    // make later specs depend on the order they ran in.
+    // Storage is shared by every spec in the run, so leaving entries behind would make later
+    // specs depend on the order they ran in.
     for (const entry of Object.values(STORAGE_KEYS)) {
       localStorage.removeItem(entry.key);
       sessionStorage.removeItem(entry.key);

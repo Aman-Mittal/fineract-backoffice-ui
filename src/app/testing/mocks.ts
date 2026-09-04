@@ -18,22 +18,17 @@
  */
 
 /**
- * The Vitest counterparts of `jasmine.SpyObj<T>` and `jasmine.createSpyObj`.
+ * Typed Vitest mocks for partially mocked services.
  *
- * These exist so the Karma-to-Vitest migration (DOCS/adr/0004-vitest-migration.md) is a
- * mechanical rename at 358 type annotations and 413 construction sites across 172 specs,
- * rather than 172 individual decisions about how to type a partial mock. Vitest ships
- * `MockedObject<T>`, but it describes an object where *every* member is already a mock, which
- * is not what a spec that lists four methods of a fifty-method generated API service has.
+ * Vitest ships `MockedObject<T>`, but it describes an object where *every* member is already a
+ * mock. That does not fit a spec that lists four methods of a fifty-method generated API
+ * service.
  *
  * ## The soundness this deliberately preserves
  *
  * `SpyObj<T>` claims every member of `T` while {@link createSpyObj} only creates the ones it
- * was given. That is unsound, and it is unsound in exactly the way `jasmine.SpyObj<T>` already
- * was — reaching for an unlisted method returned `undefined` under Jasmine too. Reproducing the
- * existing degree of unsoundness is the point: a migration that also tightened types would
- * produce compile errors that look like migration breakage but are really pre-existing gaps in
- * the specs, and separating the two afterwards is far more work than it sounds.
+ * was given. This is intentionally unsound: reaching for an unlisted method returns `undefined`.
+ * Tightening the type would surface existing gaps in specs and should be an independent change.
  *
  * Tightening this is worth doing — as its own change, against a suite that is already green on
  * the new runner, where every error it surfaces is unambiguously a spec that was lying.
@@ -54,9 +49,7 @@ export type SpyObj<T> = {
 /**
  * Builds a mock of `T` exposing the named methods, each a `vi.fn()`.
  *
- * Unlike `jasmine.createSpyObj` this takes no name string. Jasmine used it to label the spy in
- * failure output; Vitest reports the variable the mock is bound to, so the argument carried no
- * diagnostic value and dropping it removes a redundant literal from 413 call sites.
+ * The factory takes no name string because Vitest reports the variable the mock is bound to.
  *
  * ```ts
  * let clients: SpyObj<ClientsService>;

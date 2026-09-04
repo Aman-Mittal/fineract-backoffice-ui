@@ -87,7 +87,7 @@ describe('permissionGuard', () => {
 
   beforeEach(() => {
     // Once per test, not inside `setup()` — the RBAC-off case calls that a second time, and
-    // Jasmine refuses to spy on an already-spied method.
+    // spying on an already-spied method throws.
     vi.spyOn(console, 'warn');
     setup();
   });

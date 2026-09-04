@@ -23,10 +23,9 @@ import { defineConfig } from 'vitest/config';
  * Runner configuration merged into the one `@angular/build:unit-test` generates.
  *
  * The single reason this file exists: `@ionic/angular` reaches `@ionic/core/components` as a
- * *directory* import, which Node's ESM resolver rejects outright. Under Karma that never
- * surfaced, because the bundler resolved it; under Vitest the package is externalised by
- * default and handed to Node, so every spec that touches Ionic — which is most of them —
- * fails to load with "Directory import ... is not supported".
+ * *directory* import, which Node's ESM resolver rejects outright. Vitest externalises the
+ * package by default and hands it to Node, so every Ionic-touching spec fails to load with
+ * "Directory import ... is not supported".
  *
  * Inlining the package puts resolution back in Vite's hands, where the directory import is
  * understood. This is a property of how Ionic ships, not of any spec, so it belongs in the

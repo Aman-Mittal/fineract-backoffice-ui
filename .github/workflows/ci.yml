@@ -186,13 +186,6 @@ jobs:
       # the same version package.json does.
       - name: Verify the declared version
         run: npm run check:version
-      # Karma is deprecated and the suite is migrating to Vitest one batch at a time. During
-      # that window both runners are wired up, and the risk is not that migrating is hard — it
-      # is that new specs keep landing on the runner being removed, so the finish line recedes.
-      # This lets the Karma set shrink and never grow. See DOCS/adr/0004-vitest-migration.md.
-      - name: Verify no new tests were added to the deprecated Karma runner
-        run: npm run check:test-runner
-
   test:
     name: Unit Tests
     needs: dependencies
@@ -230,24 +223,10 @@ jobs:
           key: ${{ runner.os }}-angular-test-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-angular-test-
-      - name: Run Tests with Coverage
-        # The legacy runner has no work once the Karma baseline reaches zero. Its complete
-        # removal, including its configuration and dependencies, follows in a separate change.
-        if: ${{ hashFiles('src/**/*.spec.ts', 'projects/**/*.spec.ts') != '' }}
-        run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
-      # During migration this complements Karma; after the baseline reaches zero it is the
-      # complete unit suite.
-      - name: Run migrated tests on Vitest
+      - name: Run unit tests on Vitest
         run: npm run test:unit
       - name: Run microfrontend tests on Vitest
         run: npm run test:mfe
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: ${{ always() && hashFiles('src/**/*.spec.ts', 'projects/**/*.spec.ts') != '' }}
-        with:
-          name: coverage-report
-          path: coverage/fineract-backoffice-ui/
-          retention-days: 7
 
   api-client-drift:
     name: API Client Drift Check

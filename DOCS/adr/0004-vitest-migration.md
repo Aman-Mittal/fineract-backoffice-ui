@@ -133,10 +133,13 @@ Vitest can run in a real Chrome via Playwright, which would delete `vitest-setup
 restore Karma's fidelity. It is slower and heavier. That trade should be decided against a fully
 migrated suite rather than made a precondition for migrating, so it is deliberately left open.
 
-## Migration state
+## Completion
 
-At the time of writing: **30 migrated, 192 remaining**. Karma runs 921 tests and Vitest 270 —
-1,191 in total, the same as before the split, so nothing was lost in the move. The Vitest half
-includes Ionic component rendering.
+The final Karma specs migrated in PR #476. The temporary Karma runner configuration, migration
+ratchet and codemod were removed afterwards; Vitest is now the sole unit-test runner.
 
-`npm run check:test-runner` prints the current figure.
+## Original migration state
+
+At the time this ADR was written: **30 migrated, 192 remaining**. Karma ran 921 tests and Vitest
+270 — 1,191 in total, the same as before the split, so nothing was lost in the move. The Vitest
+half included Ionic component rendering.
