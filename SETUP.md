@@ -57,22 +57,26 @@ CLI, which can be a different major version.
     ```
 
 2.  **Run the application**:
-    - **Local Development**:
-      ```bash
-      npm start
-      ```
-    - **Mifos Sandbox**:
-      ```bash
-      npm run start:sandbox
-      ```
-      Access the UI at `https://localhost:4200`.
 
-3.  **Connecting to a Sandbox**:
-    Update `src/environments/environment.ts` with your sandbox URL:
-
-    ```typescript
-    fineractApiUrl: 'https://demo.mifos.io/fineract-provider/api/v1';
+    ```bash
+    npm start
     ```
+
+    Access the UI at `https://localhost:4200`.
+
+3.  **Connect to Fineract**:
+
+    Configuration is loaded from `public/config.json` at runtime; do not edit an environment file
+    to configure a deployment.
+
+    For a local Fineract instance listening on `https://127.0.0.1:8443`, choose **Local Proxy
+    Server** (`/fineract-provider/api/v1`) on the sign-in page. `proxy.conf.json` forwards that path
+    to Fineract and avoids cross-origin requests.
+
+    For a deployed or remote instance, set `fineractApiUrl` in `config.json`. An absolute URL must
+    also appear in `allowedApiOrigins`, because the selected endpoint receives the user's
+    credentials. The same-origin `/api/v1` path used by the Docker deployment is the preferred
+    production setup; see `README.md`.
 
 4.  **Run unit tests**:
 
@@ -83,8 +87,12 @@ CLI, which can be a different major version.
 5.  **Run end-to-end tests**:
 
     ```bash
-    npm run test:e2e
+    npx playwright install chromium # first run only
+    npm run test:e2e -- --project=mocked
     ```
+
+    The mocked project needs no Fineract instance. See `DOCS/E2E_TESTING.md` for the Docker-backed
+    project and focused runs.
 
 6.  **Run linting**:
 

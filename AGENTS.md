@@ -52,7 +52,6 @@ Angular CLI.
 | Install a clean dependency tree          | `npm ci`                                  |
 | Generate local HTTPS certificates (once) | `./scripts/setup-ssl.sh`                  |
 | Dev server                               | `npm start`                               |
-| Sandbox dev server                       | `npm run start:sandbox`                   |
 | App unit tests (Vitest)                  | `npm run test:unit`                       |
 | Microfrontend unit tests                 | `npm run test:mfe`                        |
 | Mocked Playwright tests                  | `npm run test:e2e -- --project=mocked`    |
@@ -164,10 +163,10 @@ Third-party surfaces the application must be able to replace are reached through
 
 ## RBAC and feature flags
 
-### `environment.rbacEnabled`
+### `rbacEnabled`
 
-A build-time boolean read directly from `src/environments/environment.ts`,
-`environment.prod.ts`, and `environment.sandbox.ts` (default: `true`).
+A runtime boolean loaded from `config.json` by `ConfigService` (default: `true`). A deployment can
+change it without rebuilding the application.
 
 - **`true`** — the sidebar filters navigation by user permissions and institution config;
   permission/institution directives enforce their checks.

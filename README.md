@@ -135,6 +135,9 @@ see [Project Setup Guide](SETUP.md) to connect a local Fineract instance or a sa
 # Run unit tests (Vitest)
 npm test -- --watch=false
 
+# Install the Chromium binary used by the next command (first run)
+npx playwright install chromium
+
 # Run the fast, mocked browser tests (no Fineract backend required)
 npm run test:e2e -- --project=mocked
 
