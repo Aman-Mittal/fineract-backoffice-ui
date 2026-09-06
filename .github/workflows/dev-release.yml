@@ -69,8 +69,18 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # `npm run test:unit`, matching ci.yml's Unit Tests job, rather than the Karma-era
+      # invocation this step carried. The suite runs on Vitest now (Karma and Jasmine are gone
+      # from package.json entirely), and the two flags that came with it both misfire:
+      #
+      #   --browsers=ChromeHeadless  puts the Angular unit-test builder into real-browser mode,
+      #                              which resolves @vitest/browser-{playwright,webdriverio,
+      #                              preview}. None is installed, so the step failed before a
+      #                              single test ran. "ChromeHeadless" is not a valid instance
+      #                              name there either — that mode names browsers "chromium".
+      #   --watch=false              a Karma flag; the builder does not watch here anyway.
       - name: Test
-        run: npm run test -- --watch=false --browsers=ChromeHeadless
+        run: npm run test:unit
 
       - name: Build
         run: npm run build -- --configuration production --base-href /fineract-backoffice-ui/
