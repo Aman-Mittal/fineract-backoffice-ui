@@ -18,3 +18,13 @@ Captured against a clean worktree of `apache/main` served with `ng serve`, backe
 - `mobile-dashboard-2col-390.png` — 390x844
 - `profile-read-only.png` — 1366x900
 - `advanced-client-search-single-field.png` — 1366x900
+
+## Loan capability-gap evidence, 2026-09-06
+
+Captured against two real Active loans (one cumulative, one progressive) seeded into a local
+`apache/fineract` stack via the repository's own `e2e/utils/seed-api.ts` helpers. 1366x900.
+
+- `loan-actions-progressive.png` — the Actions menu on a progressive Active loan (17 entries)
+- `loan-actions-cumulative.png` — the same menu on a cumulative Active loan (14 entries)
+- `loan-transactions-tab.png` — the Transactions tab; the only row-level affordance is view
+- `loan-delinquency-tab.png` — the read-only delinquency tab on a regular loan
