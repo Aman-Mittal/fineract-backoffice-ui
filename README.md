@@ -66,3 +66,14 @@ interest-recalculating loan carrying one pause (2026-08-17 to 2026-08-27).
 - `interest-pause-overwrite-reverted.png` — the same screen once that GET landed: back to
   Aug 17 / Aug 27, with no indication anything was discarded.
 - `interest-pause-overwrite.webm` — the run end to end.
+
+## Date shift west of Greenwich (#496), 2026-09-06
+
+Captured at 1440x950 from a Chromium context pinned to `America/New_York`, at 07:31 local —
+nowhere near midnight, so the shift is not an edge-of-day artifact. Closing an Active group,
+leaving the dialog's own default date untouched, against the local docker stack.
+
+- `date-utc-shift-dialog-shows-today.png` — the Close Group dialog reading "Sep 6, 2026", the
+  browser's local date, on the run that then sent `05 September 2026`.
+- `date-utc-shift-before.webm` — `main` at `e6b31e4d`: the platform recorded `[2026, 9, 5]`.
+- `date-utc-shift-after.webm` — the same action on the fix branch: `[2026, 9, 6]`.
