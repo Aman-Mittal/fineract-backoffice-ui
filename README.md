@@ -50,3 +50,19 @@ Captured at 1440x950 against the local docker stack (`apache/fineract:latest`,
   reloaded tranche carries the new date and principal.
 - `disbursement-tranche-edit-before.webm` / `disbursement-tranche-edit-fixed.webm` —
   the same run recorded end to end.
+
+## Interest-pause edit screen, 2026-09-06
+
+Captured at 1440x950 against the local docker stack, loan 26 — a progressive,
+interest-recalculating loan carrying one pause (2026-08-17 to 2026-08-27).
+
+- `interest-pause-edit-nan-blank.png` — `/loans/26/interest-pauses/edit/abc`: the card says
+  "Edit Interest Pause" but both pickers sit on today, not on the stored pause.
+- `interest-pause-edit-nan-duplicated.png` — the list after saving that screen: two pauses,
+  because the save went out as a create.
+- `interest-pause-edit-nan.webm` — the run end to end.
+- `interest-pause-overwrite-picked.png` — dates the user chose while the populating GET was
+  still in flight (Oct 10 / Oct 20).
+- `interest-pause-overwrite-reverted.png` — the same screen once that GET landed: back to
+  Aug 17 / Aug 27, with no indication anything was discarded.
+- `interest-pause-overwrite.webm` — the run end to end.
