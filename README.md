@@ -36,3 +36,17 @@ schedule so the platform would accept the refund.
 
 - `refund-by-cash-menu.png` — the action offered on an advance-paid Active loan
 - `refund-by-cash-form.png` — the shared transaction form under the `refundByCash` type
+
+## PR #509 — disbursement tranche edit, 2026-09-06
+
+Captured at 1440x950 against the local docker stack (`apache/fineract:latest`,
+`sha256:6da0292e`) on loan 24, a two-tranche loan on a `multiDisburseLoan` product.
+
+- `disbursement-tranche-raw-array.png` — the loaded tranche on `main`: the expected
+  disbursement text box shows `2026,8,25`, the raw year/month/day array.
+- `disbursement-tranche-save-rejected.png` — Save on `main`: 400, `principal` and
+  `note` reported as unsupported parameters.
+- `disbursement-tranche-save-fixed.png` — Save on the PR branch: 200, and the
+  reloaded tranche carries the new date and principal.
+- `disbursement-tranche-edit-before.webm` / `disbursement-tranche-edit-fixed.webm` —
+  the same run recorded end to end.
