@@ -28,3 +28,11 @@ Captured against two real Active loans (one cumulative, one progressive) seeded 
 - `loan-actions-cumulative.png` — the same menu on a cumulative Active loan (14 entries)
 - `loan-transactions-tab.png` — the Transactions tab; the only row-level affordance is view
 - `loan-delinquency-tab.png` — the read-only delinquency tab on a regular loan
+
+## Refund by Cash (PR for #506)
+
+Captured end to end against a local `apache/fineract` stack, on a loan deliberately paid ahead of
+schedule so the platform would accept the refund.
+
+- `refund-by-cash-menu.png` — the action offered on an advance-paid Active loan
+- `refund-by-cash-form.png` — the shared transaction form under the `refundByCash` type
