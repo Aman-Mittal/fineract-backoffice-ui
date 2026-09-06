@@ -77,3 +77,22 @@ leaving the dialog's own default date untouched, against the local docker stack.
   browser's local date, on the run that then sent `05 September 2026`.
 - `date-utc-shift-before.webm` — `main` at `e6b31e4d`: the platform recorded `[2026, 9, 5]`.
 - `date-utc-shift-after.webm` — the same action on the fix branch: `[2026, 9, 6]`.
+
+## Guided tour revamp, 2026-09-06
+
+Captured against the local docker stack. The "before" pair is `apache/main` at `55abe539`
+served alongside the branch, so both frames are the same screen at the same moment.
+
+- `guide-wrong-tour-before.png` — 1440x900, `/accounting` on `main`: the Guide opens
+  "Welcome to Fineract Backoffice … the key areas of the dashboard", Step 1 of 2. The page
+  behind it is also blank, which is a separate defect.
+- `guide-wrong-tour-after.png` — the same screen on the branch: "Accounting", Step 1 of 5.
+- `guide-mobile-bottom-sheet.png` — 412x915, the card as a full-width bottom sheet, opened
+  from the header's overflow menu.
+- `guide-dashboard-occluded-before.png` — 1440x900, the dashboard's System Status step with
+  77.6% of its own subject painted over by the card.
+- `guide-dashboard-occluded-after.png` — the same step after the fix: 0% covered.
+- `guide-dark-highlight.png` — the highlight outline in dark mode, measured at 8.72:1 against
+  the surface behind it.
+- `blank-section-landing.png` — `/accounting` with no tour open: an empty `main`.
+- `audit-trails-redirect.png` — where `/security/audit-trails` actually lands.
