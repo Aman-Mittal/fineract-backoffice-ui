@@ -52282,7 +52282,7 @@
           "joiningDate": { "type": "string" },
           "lastname": { "type": "string" },
           "locale": { "type": "string" },
-          "mobileNo": { "type": "string", "pattern": "^\\+?[0-9]{7,15}$" },
+          "mobileNo": { "type": "string" },
           "officeId": { "type": "integer", "format": "int64" }
         },
         "required": ["firstname", "lastname", "officeId"]
@@ -52328,7 +52328,7 @@
           "isLoanOfficer": { "type": "boolean" },
           "joiningDate": { "type": "string" },
           "lastname": { "type": "string" },
-          "mobileNo": { "type": "string", "pattern": "^\\+?[0-9]{7,15}$" },
+          "mobileNo": { "type": "string" },
           "officeId": { "type": "integer", "format": "int64" }
         }
       },
