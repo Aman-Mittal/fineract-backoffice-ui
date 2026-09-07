@@ -38,6 +38,8 @@ import { TranslatePipe } from '../../../core/adapters';
           class="step"
           [class.step-done]="i < currentIndex()"
           [class.step-active]="i === currentIndex()"
+          [attr.aria-label]="label | appTranslate"
+          [attr.aria-current]="i === currentIndex() ? 'step' : null"
         >
           <span class="step-marker">
             @if (i < currentIndex()) {
@@ -107,6 +109,26 @@ import { TranslatePipe } from '../../../core/adapters';
         height: 2px;
         margin: 0 12px;
         background: var(--border-color, #ccc);
+      }
+      @media (max-width: 600px) {
+        .step {
+          min-width: 0;
+        }
+        .step:last-child {
+          flex: 1;
+        }
+        .step-label {
+          display: none;
+        }
+        .step-active .step-label {
+          display: block;
+          min-width: 0;
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
+        .step-connector {
+          margin: 0 6px;
+        }
       }
     `,
   ],
