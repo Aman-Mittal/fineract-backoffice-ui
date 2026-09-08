@@ -110,7 +110,7 @@ import { TranslatePipe } from '../../../core/adapters';
         margin: 0 12px;
         background: var(--border-color, #ccc);
       }
-      @media (max-width: 600px) {
+      @media (max-width: 768px) {
         .step {
           min-width: 0;
         }
