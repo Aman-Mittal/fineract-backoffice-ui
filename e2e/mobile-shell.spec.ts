@@ -174,6 +174,38 @@ test.describe('the shell at a phone viewport', () => {
     expect(styles.labelFits).toBe(true);
   });
 
+  test('keeps every client-creation step reachable on a phone viewport', async ({ page }) => {
+    await page.route(/\/api\/v1\/offices/, (route) =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }),
+    );
+    await page.goto('/clients/create');
+
+    const stepper = page.locator('app-stepper .stepper');
+    await expect(stepper).toBeVisible();
+    await expect(stepper.locator('.step')).toHaveCount(3);
+    await expect(stepper.locator('.step-active')).toHaveAttribute('aria-current', 'step');
+    await expect(stepper.locator('.step-label').nth(0)).toBeVisible();
+    await expect(stepper.locator('.step-label').nth(1)).toBeHidden();
+    await expect(stepper.locator('.step-label').nth(2)).toBeHidden();
+
+    const layout = await stepper.evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+      viewportWidth: document.documentElement.clientWidth,
+      markerEdges: Array.from(element.querySelectorAll<HTMLElement>('.step-marker'), (marker) => {
+        const box = marker.getBoundingClientRect();
+        return { left: box.left, right: box.right };
+      }),
+    }));
+
+    expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth);
+    expect(layout.markerEdges).toHaveLength(3);
+    for (const edge of layout.markerEdges) {
+      expect(edge.left).toBeGreaterThanOrEqual(0);
+      expect(edge.right).toBeLessThanOrEqual(layout.viewportWidth);
+    }
+  });
+
   describe_drawer();
 
   test('renders tables as cards instead of a sideways scroll', async ({ page }) => {
