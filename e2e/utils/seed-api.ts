@@ -308,6 +308,24 @@ export async function seedClient(
   return { clientId, firstName, lastName, displayName: `${firstName} ${lastName}` };
 }
 
+export async function seedEntityClient(
+  api: APIRequestContext,
+  namePrefix = 'E2ESeedEntity',
+  officeId = 1,
+): Promise<SeededClient> {
+  const fullname = `${namePrefix}${seedSuffix()} Pvt Ltd`;
+  const { clientId } = await post<{ clientId: number }>(api, '/clients', {
+    officeId,
+    fullname,
+    legalFormId: 2,
+    active: true,
+    activationDate: fineractDate(),
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+  return { clientId, firstName: fullname, lastName: '', displayName: fullname };
+}
+
 export interface SeededFixedDeposit {
   accountId: number;
   clientId: number;

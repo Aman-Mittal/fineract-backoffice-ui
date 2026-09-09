@@ -18,6 +18,8 @@
  */
 
 import { test, expect } from './fixtures';
+import { login } from './utils/fineract-login';
+import { createApiContext, seedEntityClient } from './utils/seed-api';
 
 const HEAD_OFFICE = 'Head Office';
 
@@ -164,4 +166,18 @@ test.describe('Client Management', () => {
     // Wait for local filtering if any, or just check row
     await expect(page.locator('table')).toContainText(firstName);
   });
+});
+
+test('an entity client appears in the main client list', async ({ page }) => {
+  await login(page);
+  const api = await createApiContext();
+  let entity;
+  try {
+    entity = await seedEntityClient(api);
+  } finally {
+    await api.dispose();
+  }
+
+  await page.goto('/clients');
+  await expect(page.getByText(entity.displayName)).toBeVisible({ timeout: 10000 });
 });
