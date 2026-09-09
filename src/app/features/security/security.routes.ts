@@ -72,4 +72,11 @@ export const SECURITY_ROUTES: Routes = [
     loadComponent: () =>
       import('./audit-logs/audit-logs-list.component').then((m) => m.AuditLogsListComponent),
   },
+  {
+    // Leftover bookmarks and docs used this path. Without an alias the catch-all
+    // dumped people on the dashboard with no explanation.
+    path: 'audit-trails',
+    redirectTo: 'audits',
+    pathMatch: 'full',
+  },
 ];
