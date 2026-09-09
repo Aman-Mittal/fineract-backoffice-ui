@@ -355,11 +355,11 @@ import {
         color: var(--text-muted);
       }
       .widget-trend.highlight {
-        color: var(--warning-color);
+        color: var(--warning-text);
         font-weight: 600;
       }
       .healthy {
-        color: var(--success-color);
+        color: var(--success-text);
       }
       .dashboard-layout {
         display: grid;

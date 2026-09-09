@@ -26,12 +26,29 @@
      WCAG AA minimum for body-sized text; this clears it at 5.3:1. Keep
      --primary-color for accents, borders and text on light backgrounds. */
   --primary-strong: #2471a3;
+  /* Use wherever a palette colour is drawn as *text* on a page or card surface, as opposed to
+     as a fill behind white. The palette is chosen for fills, and a colour that reads well as a
+     button background is usually too light to read as words on white: --primary-color is 3.15:1
+     there, --warning-color 2.19:1 and --success-color 2.10:1, all short of the 4.5:1 WCAG AA
+     minimum. These carry the same hue at a weight that clears it.
+
+     Theme-scoped, because the requirement inverts: on the dark card the shipped palette values
+     already clear AA comfortably (5.29:1, 7.60:1 and 7.93:1) and darkening them would fail. The
+     dark block below restores the bright values deliberately. Same reasoning as
+     --guidance-highlight-color. */
+  --primary-text: #2471a3;
+  --warning-text: #b45309;
+  --success-text: #1e8449;
   --secondary-color: #2c3e50;
   --bg-color: #f0f2f5;
   --card-bg: #ffffff;
   --text-color: #333333;
   --text-muted: #666666;
   --error-color: #e74c3c;
+  /* The --primary-strong of the error palette: white on --error-color is 3.82:1, short of the
+     4.5:1 AA minimum for the Logout button's label. Not theme-scoped, because a fill carries its
+     own contrast against the white drawn on it whatever the page behind it is doing. */
+  --error-strong: #c0392b;
   --success-color: #2ecc71;
   --warning-color: #f39c12;
   /* The guided tour's highlight outline. Themed because one colour cannot serve both: measured
@@ -85,6 +102,11 @@
 [data-theme='dark'] {
   --primary-color: #3498db;
   --primary-dark: #2980b9;
+  /* The light theme darkens these to clear AA on white; on #1e1e1e the shipped palette values
+     are already 5.29:1, 7.60:1 and 7.93:1 and the darkened ones would fail. See :root above. */
+  --primary-text: #3498db;
+  --warning-text: #f39c12;
+  --success-text: #2ecc71;
   --secondary-color: #ecf0f1;
   --bg-color: #121212;
   --card-bg: #1e1e1e;

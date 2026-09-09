@@ -41,9 +41,16 @@ export const BRANDABLE_TOKENS: readonly string[] = [
   'text-color',
   'text-muted',
   'error-color',
+  'error-strong',
   'success-color',
   'warning-color',
   'border-color',
+  // The on-surface text variants. Brandable for the same reason their base colours are: a
+  // deployment that recolours the palette and cannot recolour these ends up with its own blue
+  // everywhere except the header title, which is the branding-coverage gap rather than a fix.
+  'primary-text',
+  'warning-text',
+  'success-text',
   // Shape and density
   'border-radius',
   'header-height',
@@ -71,6 +78,12 @@ const THEME_SCOPED = new Set([
   'text-color',
   'text-muted',
   'border-color',
+  // These invert between themes: dark on white in light, light on near-black in dark. A light
+  // value carried into dark mode paints navy text on a dark card, which is the same failure
+  // --secondary-color has.
+  'primary-text',
+  'warning-text',
+  'success-text',
 ]);
 
 /**
@@ -96,7 +109,7 @@ export const MIN_PRIMARY_CONTRAST = 4.5;
  * 4.5:1 AA threshold. No colour can fail, so a floor there would be unreachable code. The payoff
  * is in dark mode, where a lighter accent is normal and a white-only rule would forbid it.
  */
-const REQUIRES_WHITE_TEXT = new Set(['secondary-color', 'primary-strong']);
+const REQUIRES_WHITE_TEXT = new Set(['secondary-color', 'primary-strong', 'error-strong']);
 
 /** `#rgb` or `#rrggbb` — the two forms a colour input and a human both produce. */
 const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
