@@ -35,6 +35,14 @@ Closes #
 
 <!-- Add screenshots or a short recording for UI changes. Write "Not applicable" for non-UI changes. -->
 
+## AI assistance (optional)
+
+<!-- If generative AI materially assisted this contribution, optionally state the tool or model and
+the harness or workflow used. The contributor remains responsible for the submitted change. -->
+
+- Tool / model:
+- Harness / workflow:
+
 ## Checklist
 
 <!-- Check each item, or explain why it does not apply. -->
@@ -45,3 +53,4 @@ Closes #
 - [ ] I added or updated tests appropriate to this change, or explained why tests were not needed.
 - [ ] UI workflow changes include suitable e2e coverage, including real-backend testing where relevant.
 - [ ] Commits are signed — see [Commit Signing](CONTRIBUTING.md#commit-signing) in CONTRIBUTING.md.
+- [ ] I followed the [AI-assisted contributions guidance](CONTRIBUTING.md#ai-assisted-contributions).
