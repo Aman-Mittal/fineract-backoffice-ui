@@ -33,6 +33,9 @@ const TENANT_INPUT_SELECTOR = '#tenantId';
 const USERNAME_INPUT_SELECTOR = '#username';
 const PASSWORD_INPUT_SELECTOR = '#password';
 const CARD_SELECTOR = 'ion-card';
+const BANNER_SELECTOR = '.header';
+const CONTENT_SELECTOR = '.content-area';
+const TOAST_SELECTOR = 'ion-toast';
 const CARD_TITLE_SELECTOR = 'ion-card-title';
 const ACTIVE_MODAL_SELECTOR = 'ion-modal:not(.ion-datetime-button-overlay)';
 const BUTTON_ROLE = 'button';
@@ -61,6 +64,32 @@ const CLIENT_FORM_BASELINE = new Set([
   'role-img-alt|.help-icon[name="help-circle-outline"]',
 ]);
 const CREATE_OFFICE_DIALOG_BASELINE = new Set(['aria-allowed-attr|#office-parent >> #ion-sel-*']);
+/**
+ * Pre-existing failures in the banner and on the dashboard that this scan inherits rather than
+ * introduces. Both are unrelated to the contrast work in #484 and want their own fix.
+ *
+ * `role-img-alt` is the Ionic behaviour already carried in CLIENT_LIST_BASELINE: `ion-icon`
+ * renders with `role="img"` and no accessible name of its own. Every entry here is decorative
+ * beside a visible text label, so it is a naming defect rather than lost information.
+ *
+ * `scrollable-region-focusable` on `main` is a genuine keyboard-access finding and is listed
+ * here so it stays visible in the diff rather than disappearing. It is not caused by this
+ * change: `.content-area` scrolls today and did before.
+ */
+const SHELL_BASELINE = new Set([
+  'role-img-alt|.flip-rtl',
+  'role-img-alt|ion-icon[name="moon-outline"]',
+  'role-img-alt|ion-icon[name="settings-outline"]',
+  'role-img-alt|ion-icon[name="people-outline"]',
+  'role-img-alt|ion-icon[name="wallet-outline"]',
+  'role-img-alt|ion-icon[name="card-outline"]',
+  'role-img-alt|ion-icon[name="hardware-chip-outline"]',
+  'role-img-alt|ion-icon[name="time-outline"]',
+  'role-img-alt|ion-icon[name="checkmark-circle-outline"]',
+  'role-img-alt|.chart-card:nth-child(1) > ion-card-header > ion-card-title > ion-icon[name="pie-chart-outline"]',
+  'role-img-alt|.chart-card:nth-child(2) > ion-card-header > ion-card-title > ion-icon[name="pie-chart-outline"]',
+  'scrollable-region-focusable|main',
+]);
 
 function targetParts(target: unknown): string[] {
   if (Array.isArray(target)) {
@@ -79,6 +108,19 @@ function violationFingerprint(ruleId: string, target: unknown): string {
 }
 
 async function mockSession(page: Page): Promise<void> {
+  // Everything the dashboard widgets ask for beyond the specific routes below. Without it their
+  // requests fail, the app raises an error toast per failure, and the toast overlay sits on top
+  // of the page: axe then reports `color-contrast` as *incomplete* ("background color could not
+  // be determined because it is overlapped by another element") for almost every node rather
+  // than passing or failing it. A scan that cannot see the page is not a scan, which is what
+  // `expectScanWasNotBlind` below exists to catch.
+  //
+  // Registered first on purpose. Playwright matches routes in reverse registration order, so a
+  // catch-all added last would swallow the authentication and offices mocks too.
+  await page.route(/\/api\/v1\//, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+  });
+
   await page.route('**/config.json*', async (route) => {
     await route.fulfill({
       status: 200,
@@ -140,15 +182,37 @@ async function login(page: Page): Promise<void> {
   await expect(page).toHaveURL(DASHBOARD_ROUTE);
 }
 
+/**
+ * Asserts the scan actually evaluated the page rather than giving up on it.
+ *
+ * axe reports a rule it could not resolve as *incomplete* rather than as a pass or a violation,
+ * and an overlay covering the page puts almost every node there — the run then comes back with
+ * an empty `violations` array and asserts nothing at all. That is the failure mode this suite is
+ * most exposed to, because Ionic renders error toasts as full-width overlays and one unmocked
+ * request is enough to raise them.
+ *
+ * A green run with zero passes is the signature. Checking for passes turns it from a silent
+ * false negative into a failure that names the cause.
+ */
+function expectScanWasNotBlind(results: { passes: unknown[]; incomplete: unknown[] }): void {
+  expect(
+    results.passes.length,
+    'axe evaluated nothing on this page, so a green result here means nothing. An overlay ' +
+      '(usually an ion-toast from an unmocked request) is the usual cause; see mockSession.',
+  ).toBeGreaterThan(0);
+}
+
 async function expectNoBlockingAccessibilityViolations(
   page: Page,
-  include: string,
+  include: string | readonly string[],
   baseline: ReadonlySet<string>,
 ): Promise<void> {
-  const results = await new AxeBuilder({ page })
-    .include(include)
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze();
+  const builder = new AxeBuilder({ page });
+  for (const selector of typeof include === 'string' ? [include] : include) {
+    builder.include(selector);
+  }
+  const results = await builder.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expectScanWasNotBlind(results);
   const violations = results.violations
     .filter((violation) => violation.impact != null && BLOCKING_IMPACTS.has(violation.impact))
     .map((violation) => ({
@@ -194,6 +258,36 @@ test.describe('Runtime accessibility', () => {
     await expect(page.locator(CARD_TITLE_SELECTOR).first()).toContainText(CREATE_CLIENT_TITLE);
 
     await expectNoBlockingAccessibilityViolations(page, CARD_SELECTOR, CLIENT_FORM_BASELINE);
+  });
+
+  /**
+   * The banner and the routed content on the dashboard.
+   *
+   * The other tests here scope their scan to `ion-card` or to an open modal, so nothing outside a
+   * card had ever been scanned: not the header, and not the dashboard route at all.
+   * `color-contrast` is part of `wcag2aa` and has been running the whole time — it was simply
+   * never pointed anywhere it could see the application chrome, which is how six AA contrast
+   * failures in the shipped light theme went unreported (#484).
+   *
+   * `app-sidebar` is deliberately not in scope. It has two pre-existing blocking failures that
+   * have nothing to do with this change and should not be baselined away silently here:
+   * `role-img-alt` on around sixty `ion-icon` nav glyphs, the same Ionic behaviour already
+   * carried in CLIENT_LIST_BASELINE, and `scrollable-region-focusable` on the nav's own scroll
+   * container, which is a real keyboard-access bug. Both want their own issue and their own fix.
+   */
+  test('banner and dashboard content have no blocking violations', async ({ page }) => {
+    await page.goto(DASHBOARD_ROUTE);
+    await expect(page.locator(BANNER_SELECTOR)).toBeVisible();
+    await expect(page.locator(CARD_TITLE_SELECTOR).first()).toBeVisible();
+    // An overlay would put color-contrast into axe's `incomplete` bucket for the whole page and
+    // the assertion below would pass without having looked at anything.
+    await expect(page.locator(TOAST_SELECTOR)).toHaveCount(0);
+
+    await expectNoBlockingAccessibilityViolations(
+      page,
+      [BANNER_SELECTOR, CONTENT_SELECTOR],
+      SHELL_BASELINE,
+    );
   });
 
   test('create office dialog has no blocking violations', async ({ page }) => {

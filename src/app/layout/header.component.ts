@@ -388,7 +388,7 @@ type HeaderSearchResult =
         text-transform: uppercase;
       }
       .system-info .value {
-        color: var(--primary-color);
+        color: var(--primary-text);
         font-family: 'Roboto Mono', monospace;
       }
       .toggle-btn {
@@ -444,7 +444,7 @@ type HeaderSearchResult =
       .app-title {
         font-size: 1.25rem;
         font-weight: 600;
-        color: var(--primary-color);
+        color: var(--primary-text);
       }
       .header-actions {
         display: flex;
@@ -473,7 +473,7 @@ type HeaderSearchResult =
       }
       .logout-btn {
         padding: 0.5rem 1rem;
-        background-color: var(--error-color);
+        background-color: var(--error-strong);
         color: white;
         border: none;
         border-radius: 4px;
@@ -504,7 +504,7 @@ type HeaderSearchResult =
         align-items: center;
         gap: 6px;
         padding: 0.5rem 0.75rem;
-        background-color: var(--primary-dark);
+        background-color: var(--primary-strong);
         color: white;
         border: none;
         border-radius: 4px;
