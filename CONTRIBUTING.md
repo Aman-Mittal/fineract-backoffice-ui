@@ -130,6 +130,18 @@ New runtime dependencies must be **Apache Category A** compatible. CI enforces t
 or SSPL will fail the build. Declare packages you import directly in `package.json` rather than
 relying on transitive resolution, so the audit sees them.
 
+## AI-assisted contributions
+
+Generative AI tools may assist with contribution work, but they do not replace contributor
+accountability. The human submitting a change is responsible for its correctness, security,
+performance, maintainability, and for having the rights needed to contribute it to the ASF.
+
+Follow the ASF's [Generative Tooling Guidance](https://www.apache.org/legal/generative-tooling.html),
+including its guidance on third-party material and tool terms. Contributors are encouraged, but not
+required, to disclose material AI assistance in a pull request or commit message. A useful disclosure
+names the tool or model and the harness or workflow used. Disclosure does not transfer responsibility
+away from the contributor.
+
 ## Pull Request Guidelines
 
 - Provide a clear description of the changes.
