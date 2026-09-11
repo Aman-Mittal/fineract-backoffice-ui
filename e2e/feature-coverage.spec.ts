@@ -510,6 +510,12 @@ test.describe('Security', () => {
     await expect(page).toHaveURL('/security/audits');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Audit/i);
   });
+
+  test('leftover audit trails path lands on audits, not the dashboard', async ({ page }) => {
+    await page.goto('/security/audit-trails');
+    await expect(page).toHaveURL('/security/audits');
+    await expect(page.locator(CARD_TITLE).first()).toContainText(/Audit/i);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
