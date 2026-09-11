@@ -59,6 +59,7 @@ const BACKEND_SPECS = [
   'rbac-backend-restricted-user.spec.ts',
   'rbac-multi-permission.spec.ts',
   'client-transfer.spec.ts',
+  'client-legal-form-search.spec.ts',
   'deposit-account-servicing.spec.ts',
   'deposit-product-configuration.spec.ts',
   'full-demo.spec.ts',

@@ -231,7 +231,7 @@ export class ClientsListComponent {
               orderBy,
               sortOrder,
               false,
-              1,
+              undefined,
             )
             .pipe(
               tap(() => this.hasError.set(false)),
