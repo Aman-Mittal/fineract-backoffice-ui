@@ -74,6 +74,19 @@ describe('WcLoanProductFormComponent', () => {
     expect(component.repaymentFrequencyTypeOptions()).toHaveLength(1);
   });
 
+  it('should format an array close date when loading a product', () => {
+    serviceSpy.getWorkingCapitalLoanProductsProductId.mockReturnValue(
+      of({ closeDate: [2026, 1, 5] }) as unknown as ReturnType<
+        WorkingCapitalLoanProductsService['getWorkingCapitalLoanProductsProductId']
+      >,
+    );
+    component.productId = 42;
+
+    component.load();
+
+    expect(component.closeDate()).toBe('2026-01-05');
+  });
+
   it('should post on create and navigate to the list', () => {
     serviceSpy.postWorkingCapitalLoanProducts.mockReturnValue(
       of({}) as unknown as ReturnType<
