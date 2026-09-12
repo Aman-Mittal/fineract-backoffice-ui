@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, afterNextRender, computed, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -187,7 +187,9 @@ import {
               <!-- Submitted On Date -->
               <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
-                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -207,7 +209,9 @@ import {
               <!-- Activation Date -->
               <ion-item fill="outline" [appTooltip]="'HELP.ACTIVATION_DATE_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.ACTIVATION_DATE' | translate }}</ion-label>
-                <ion-datetime-button datetime="activationDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="activationDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -276,7 +280,9 @@ import {
                   <ion-label position="stacked">{{
                     'CLIENTS.DATE_OF_BIRTH' | translate
                   }}</ion-label>
-                  <ion-datetime-button datetime="dateOfBirth-picker"></ion-datetime-button>
+                  @if (pickersReady()) {
+                    <ion-datetime-button datetime="dateOfBirth-picker"></ion-datetime-button>
+                  }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
                       <ion-datetime
@@ -465,6 +471,21 @@ export class ClientFormComponent implements OnInit {
   readonly activationDate = signal(toIsoDate(new Date()));
   readonly dateOfBirth = signal<string | null>(null);
   readonly offices = signal<GetOfficesResponse[]>([]);
+
+  /**
+   * `ion-datetime-button` resolves its target `ion-datetime` exactly once, in `componentWillLoad`,
+   * through a global `getElementById`, and gives up for good when that lookup misses. The pickers
+   * it points at live inside `ion-modal[keepContentsMounted]`, whose contents Angular mounts later
+   * in the change-detection pass. On a first visit the button's lazy Ionic chunk is still loading,
+   * which delays it past that point; on a revisit the chunk is cached, the button initializes
+   * first, finds nothing, and renders a blank control that never opens (#541). Holding the buttons
+   * back one render puts the pickers in the DOM before the buttons look for them.
+   */
+  readonly pickersReady = signal(false);
+
+  constructor() {
+    afterNextRender(() => this.pickersReady.set(true));
+  }
 
   ngOnInit() {
     this.loadOffices();
