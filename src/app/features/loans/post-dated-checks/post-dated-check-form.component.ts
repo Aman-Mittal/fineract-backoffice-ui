@@ -46,6 +46,7 @@ import {
   formatDateToFineract,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Edit-only form for a post-dated check on a loan. Loads the existing check from the
@@ -119,7 +120,9 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'POST_DATED_CHECKS.DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="date-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="date-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -173,6 +176,9 @@ import {
   ],
 })
 export class PostDatedCheckFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly checkService = inject(RepaymentWithPostDatedChecksService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

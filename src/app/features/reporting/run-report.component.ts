@@ -60,6 +60,7 @@ import {
   ReportSelectOption,
   offersAllOption,
 } from './report-execution.service';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 const SUPPORTED_DISPLAY_TYPES = new Set(['select', 'date', 'text', 'none']);
 
@@ -228,11 +229,13 @@ interface ReportParameterView {
                   <div class="parameter-field">
                     <ion-item fill="outline" [attr.data-testid]="view.testId" [id]="view.controlId">
                       <ion-label position="stacked">{{ view.parameter.label }}</ion-label>
-                      <ion-datetime-button
-                        [id]="view.controlId + '-button'"
-                        [attr.data-testid]="view.testId + '-button'"
-                        [datetime]="view.datePickerId"
-                      ></ion-datetime-button>
+                      @if (pickersReady()) {
+                        <ion-datetime-button
+                          [id]="view.controlId + '-button'"
+                          [attr.data-testid]="view.testId + '-button'"
+                          [datetime]="view.datePickerId"
+                        ></ion-datetime-button>
+                      }
                       <ion-modal [keepContentsMounted]="true">
                         <ng-template>
                           <ion-datetime
@@ -424,6 +427,9 @@ interface ReportParameterView {
   ],
 })
 export class RunReportComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly reportExecution = inject(ReportExecutionService);
   private readonly download = inject(DOWNLOAD);
   private readonly route = inject(ActivatedRoute);

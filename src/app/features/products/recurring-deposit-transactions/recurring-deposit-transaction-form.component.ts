@@ -47,6 +47,7 @@ import {
   FINERACT_LOCALE,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Transaction form for a single recurring deposit account. The account id and command are read
@@ -93,7 +94,9 @@ import {
               <ion-label position="stacked">{{
                 'RECURRING_DEPOSIT_TRANSACTIONS.DATE' | translate
               }}</ion-label>
-              <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -175,6 +178,9 @@ import {
   ],
 })
 export class RecurringDepositTransactionFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly transactionsService = inject(RecurringDepositAccountTransactionsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

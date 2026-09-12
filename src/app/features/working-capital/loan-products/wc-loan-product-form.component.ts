@@ -58,6 +58,7 @@ import {
   formatDateToFineract,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Create / edit form for a working-capital loan product. Covers the core mandatory
@@ -488,7 +489,9 @@ import {
                     <ion-label position="stacked">{{
                       'WC_LOAN_PRODUCTS.START_DATE' | translate
                     }}</ion-label>
-                    <ion-datetime-button datetime="wc-product-start-date"></ion-datetime-button>
+                    @if (pickersReady()) {
+                      <ion-datetime-button datetime="wc-product-start-date"></ion-datetime-button>
+                    }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
@@ -508,7 +511,9 @@ import {
                     <ion-label position="stacked">{{
                       'WC_LOAN_PRODUCTS.CLOSE_DATE' | translate
                     }}</ion-label>
-                    <ion-datetime-button datetime="wc-product-close-date"></ion-datetime-button>
+                    @if (pickersReady()) {
+                      <ion-datetime-button datetime="wc-product-close-date"></ion-datetime-button>
+                    }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
@@ -600,6 +605,9 @@ import {
   ],
 })
 export class WcLoanProductFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly productService = inject(WorkingCapitalLoanProductsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

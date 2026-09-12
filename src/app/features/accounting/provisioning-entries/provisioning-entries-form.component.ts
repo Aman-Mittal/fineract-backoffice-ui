@@ -37,6 +37,7 @@ import {
   IonModal,
   IonSpinner,
 } from '@ionic/angular/standalone';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Generates a new provisioning entry for a given date, optionally creating the
@@ -74,7 +75,9 @@ import {
               <ion-label position="stacked">{{
                 'PROVISIONING_ENTRIES.DATE' | translate
               }}</ion-label>
-              <ion-datetime-button datetime="date-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="date-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -131,6 +134,9 @@ import {
   ],
 })
 export class ProvisioningEntriesFormComponent {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly entriesService = inject(ProvisioningEntriesService);
   private readonly router = inject(Router);
 

@@ -51,6 +51,7 @@ import {
   formatDateToFineract,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Handles WC loan lifecycle commands (approve, reject, undoapproval, disburse, undodisbursal)
@@ -92,7 +93,9 @@ import {
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.APPROVED_ON_DATE' | translate
                 }}</ion-label>
-                <ion-datetime-button datetime="approvedOnDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="approvedOnDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -124,9 +127,11 @@ import {
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.EXPECTED_DISBURSEMENT_DATE' | translate
                 }}</ion-label>
-                <ion-datetime-button
-                  datetime="expectedDisbursementDate-picker"
-                ></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button
+                    datetime="expectedDisbursementDate-picker"
+                  ></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -143,7 +148,11 @@ import {
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.ACTUAL_DISBURSEMENT_DATE' | translate
                 }}</ion-label>
-                <ion-datetime-button datetime="actualDisbursementDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button
+                    datetime="actualDisbursementDate-picker"
+                  ></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -187,7 +196,9 @@ import {
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.REJECTED_ON_DATE' | translate
                 }}</ion-label>
-                <ion-datetime-button datetime="rejectedOnDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="rejectedOnDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -208,7 +219,9 @@ import {
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.TRANSACTION_DATE' | translate
                 }}</ion-label>
-                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -279,9 +292,11 @@ import {
                 <ion-label position="stacked">{{
                   'WC_LOANS.ACTIONS.EFFECTIVE_DATE' | translate
                 }}</ion-label>
-                <ion-datetime-button
-                  datetime="paymentRateEffectiveDate-picker"
-                ></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button
+                    datetime="paymentRateEffectiveDate-picker"
+                  ></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -370,6 +385,9 @@ import {
   ],
 })
 export class WcLoanActionFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly loansService = inject(WorkingCapitalLoansService);
   private readonly transactionsService = inject(WorkingCapitalLoanTransactionsService);
   private readonly route = inject(ActivatedRoute);

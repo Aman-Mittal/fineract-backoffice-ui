@@ -53,6 +53,7 @@ import {
   FINERACT_LOCALE,
   formatDateToFineract,
 } from '../../core/utils/date-formatter';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 interface JournalEntryFilters {
   officeId?: number;
@@ -165,7 +166,9 @@ function defaultFilters(): JournalEntryFilters {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.FROM_DATE' | appTranslate }}</ion-label>
-                <ion-datetime-button datetime="journal-fromDate-picker" />
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="journal-fromDate-picker" />
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -180,7 +183,9 @@ function defaultFilters(): JournalEntryFilters {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'COMMON.TO_DATE' | appTranslate }}</ion-label>
-                <ion-datetime-button datetime="journal-toDate-picker" />
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="journal-toDate-picker" />
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -279,6 +284,9 @@ function defaultFilters(): JournalEntryFilters {
   ],
 })
 export class JournalEntriesListComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   /** True when the last load failed, so the table offers a retry instead of an empty list. */
   readonly hasError = signal(false);
 

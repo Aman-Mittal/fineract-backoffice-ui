@@ -54,6 +54,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Create form for a Working Capital Loan application. Required fields are
@@ -133,7 +134,9 @@ import {
               <ion-label position="stacked">{{
                 'WC_LOANS.SUBMITTED_ON_DATE' | translate
               }}</ion-label>
-              <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -151,7 +154,11 @@ import {
               <ion-label position="stacked">{{
                 'WC_LOANS.EXPECTED_DISBURSEMENT_DATE' | translate
               }}</ion-label>
-              <ion-datetime-button datetime="expectedDisbursementDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button
+                  datetime="expectedDisbursementDate-picker"
+                ></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -327,6 +334,9 @@ import {
   ],
 })
 export class WcLoanFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly loansService = inject(WorkingCapitalLoansService);
   private readonly nearBreachService = inject(WorkingCapitalNearBreachService);
   private readonly router = inject(Router);

@@ -46,6 +46,7 @@ import {
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { toIsoDate } from '../../core/utils/date-formatter';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 /**
  * Component for closing an accounting period for an office.
@@ -104,7 +105,9 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <!-- Closing Date -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Closing Date</ion-label>
-                <ion-datetime-button datetime="closingDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="closingDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -174,6 +177,9 @@ import { toIsoDate } from '../../core/utils/date-formatter';
   ],
 })
 export class AccountingClosureFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly closureService = inject(AccountingClosureService);
   private readonly officeService = inject(OfficesService);
   private readonly router = inject(Router);

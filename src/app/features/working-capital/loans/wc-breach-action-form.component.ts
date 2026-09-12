@@ -48,6 +48,7 @@ import {
   FINERACT_LOCALE,
   formatDateToFineract,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 const ACTIONS = WorkingCapitalLoanBreachActionData.ActionEnum;
 const FREQUENCY_TYPES = WorkingCapitalLoanBreachActionData.FrequencyTypeEnum;
@@ -117,7 +118,9 @@ const MINIMUM_PAYMENT_TYPES = WorkingCapitalLoanBreachActionData.MinimumPaymentT
                 <ion-label position="stacked">{{
                   'WC_LOANS.BREACH_ACTION.START_DATE' | appTranslate
                 }}</ion-label>
-                <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -138,7 +141,9 @@ const MINIMUM_PAYMENT_TYPES = WorkingCapitalLoanBreachActionData.MinimumPaymentT
                 <ion-label position="stacked">{{
                   'WC_LOANS.BREACH_ACTION.END_DATE' | appTranslate
                 }}</ion-label>
-                <ion-datetime-button datetime="endDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="endDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -254,6 +259,9 @@ const MINIMUM_PAYMENT_TYPES = WorkingCapitalLoanBreachActionData.MinimumPaymentT
   ],
 })
 export class WcBreachActionFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly breachActionsService = inject(WorkingCapitalLoanBreachActionsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

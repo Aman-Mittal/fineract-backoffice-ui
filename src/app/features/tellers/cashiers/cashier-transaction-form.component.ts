@@ -54,6 +54,7 @@ import {
   FINERACT_LOCALE,
   formatDateToFineract,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Which side of the vault the transaction moves cash to.
@@ -149,7 +150,9 @@ export type CashierTransactionCommand = 'allocate' | 'settle';
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'COMMON.DATE' | appTranslate }}</ion-label>
-                    <ion-datetime-button datetime="cashier-txn-date-picker"></ion-datetime-button>
+                    @if (pickersReady()) {
+                      <ion-datetime-button datetime="cashier-txn-date-picker"></ion-datetime-button>
+                    }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
@@ -213,6 +216,9 @@ export type CashierTransactionCommand = 'allocate' | 'settle';
   `,
 })
 export class CashierTransactionFormComponent {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly tellerService = inject(TellerCashManagementService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);

@@ -51,6 +51,7 @@ import {
   PutTellersRequest,
   GetOfficesResponse,
 } from '../../api';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 /**
  * Component for creating and editing branch tellers.
@@ -166,7 +167,11 @@ import {
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" [appTooltip]="'HELP.TELLER_START_DATE_DESC' | translate">
                     <ion-label position="stacked">{{ 'TELLERS.START_DATE' | translate }}</ion-label>
-                    <ion-datetime-button datetime="teller-start-date-picker"></ion-datetime-button>
+                    @if (pickersReady()) {
+                      <ion-datetime-button
+                        datetime="teller-start-date-picker"
+                      ></ion-datetime-button>
+                    }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
@@ -276,6 +281,9 @@ import {
   ],
 })
 export class TellerFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   /** Service for teller management API calls */
   private readonly tellerService = inject(TellerCashManagementService);
   /** Service for retrieving office hierarchy */

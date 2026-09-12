@@ -44,6 +44,7 @@ import {
   FINERACT_LOCALE,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-office-transaction-form',
@@ -128,7 +129,9 @@ import {
                 <ion-label position="stacked">{{
                   'OFFICE_TRANSACTIONS.DATE' | translate
                 }}</ion-label>
-                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -197,6 +200,9 @@ import {
   ],
 })
 export class OfficeTransactionFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);

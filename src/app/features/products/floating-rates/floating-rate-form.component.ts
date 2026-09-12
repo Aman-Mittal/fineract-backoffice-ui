@@ -47,6 +47,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /** A single editable rate period row in the form. */
 interface RatePeriodRow {
@@ -128,7 +129,9 @@ interface RatePeriodRow {
                     <ion-label position="stacked">{{
                       'FLOATING_RATES.FROM_DATE' | translate
                     }}</ion-label>
-                    <ion-datetime-button datetime="periodfromDate-picker"></ion-datetime-button>
+                    @if (pickersReady()) {
+                      <ion-datetime-button datetime="periodfromDate-picker"></ion-datetime-button>
+                    }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
@@ -225,6 +228,9 @@ interface RatePeriodRow {
   ],
 })
 export class FloatingRateFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly floatingRatesService = inject(FloatingRatesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

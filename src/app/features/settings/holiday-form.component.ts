@@ -47,6 +47,7 @@ import {
   PostHolidaysRequest,
   GetOfficesResponse,
 } from '../../api';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-holiday-form',
@@ -125,7 +126,9 @@ import {
                 [appTooltip]="'HELP.FROM_DATE_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'HOLIDAYS.FROM_DATE' | translate }}</ion-label>
-                <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -146,7 +149,9 @@ import {
                 [appTooltip]="'HELP.TO_DATE_DESC' | translate"
               >
                 <ion-label position="stacked">{{ 'HOLIDAYS.TO_DATE' | translate }}</ion-label>
-                <ion-datetime-button datetime="toDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="toDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -191,9 +196,11 @@ import {
                   <ion-label position="stacked">{{
                     'HOLIDAYS.REPAYMENTS_RESCHEDULED_TO' | translate
                   }}</ion-label>
-                  <ion-datetime-button
-                    datetime="repaymentsRescheduledTo-picker"
-                  ></ion-datetime-button>
+                  @if (pickersReady()) {
+                    <ion-datetime-button
+                      datetime="repaymentsRescheduledTo-picker"
+                    ></ion-datetime-button>
+                  }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
                       <ion-datetime
@@ -270,6 +277,9 @@ import {
   ],
 })
 export class HolidayFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly holidaysService = inject(HolidaysService);
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
