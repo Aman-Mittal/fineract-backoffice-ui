@@ -1,0 +1,37 @@
+{
+  "$comment": "Provenance for public/api/fineract.json. Written by .github/workflows/api-spec-sync.yml; do not edit by hand.",
+  "license": "Apache-2.0",
+  "schemaVersion": 1,
+  "fetchedAt": "2026-09-07T04:32:50.875Z",
+  "source": {
+    "project": "apache/fineract",
+    "method": "image",
+    "url": "/app/resources/static/fineract.json",
+    "image": {
+      "requested": "apache/fineract:latest",
+      "ref": "apache/fineract@sha256:4cb093541f74168f443b8b2747a60368acc0cf1a0c5cfee6e4635c9266fb9163",
+      "digest": "sha256:4cb093541f74168f443b8b2747a60368acc0cf1a0c5cfee6e4635c9266fb9163"
+    },
+    "commit": "unknown"
+  },
+  "spec": {
+    "path": "public/api/fineract.json",
+    "infoVersion": "1.16.0-SNAPSHOT",
+    "upstreamSha256": "904760198a9402b1fc84f272d3b693f130f7b01a91a8ccbab5cafb0e28455f6d",
+    "committedSha256": "71cfaef2188917c0545cf7070a8c30afb7aa5fbbd12b139b02cb3677042d74e9",
+    "committedBytes": 2141350,
+    "pathCount": 600,
+    "operationCount": 964,
+    "schemaCount": 1489
+  },
+  "generator": {
+    "tool": "openapi-generator-cli",
+    "version": "7.20.0",
+    "generatorName": "typescript-angular",
+    "preprocessor": "scripts/preprocess-spec.mjs",
+    "output": "src/app/api"
+  },
+  "workflow": {
+    "runUrl": "https://github.com/apache/fineract-backoffice-ui/actions/runs/34083338563"
+  }
+}
