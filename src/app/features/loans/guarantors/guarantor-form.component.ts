@@ -45,6 +45,7 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Create / edit form for a loan guarantor. The guarantor-type options come from the
@@ -178,7 +179,9 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'GUARANTORS.DOB' | translate }}</ion-label>
-              <ion-datetime-button datetime="dobDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="dobDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -231,6 +234,9 @@ import {
   ],
 })
 export class GuarantorFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly guarantorsService = inject(GuarantorsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

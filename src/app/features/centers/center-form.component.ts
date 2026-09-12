@@ -50,6 +50,7 @@ import {
   PutCentersCenterIdRequest,
   GetOfficesResponse,
 } from '../../api';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 /**
  * Component for creating and editing community centers.
@@ -132,7 +133,9 @@ import {
                   <ion-label position="stacked">{{
                     'COMMON.ACTIVATION_DATE' | translate
                   }}</ion-label>
-                  <ion-datetime-button datetime="activationDate-picker"></ion-datetime-button>
+                  @if (pickersReady()) {
+                    <ion-datetime-button datetime="activationDate-picker"></ion-datetime-button>
+                  }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
                       <ion-datetime
@@ -232,6 +235,9 @@ import {
   ],
 })
 export class CenterFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly centersService = inject(CentersService);
   private readonly officesService = inject(OfficesService);
   private readonly route = inject(ActivatedRoute);

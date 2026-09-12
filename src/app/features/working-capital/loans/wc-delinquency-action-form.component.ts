@@ -48,6 +48,7 @@ import {
   FINERACT_LOCALE,
   formatDateToFineract,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 const ACTIONS = WorkingCapitalLoanDelinquencyActionData.ActionEnum;
 const FREQUENCY_TYPES = WorkingCapitalLoanDelinquencyActionData.FrequencyTypeEnum;
@@ -117,7 +118,9 @@ const MINIMUM_PAYMENT_TYPES = WorkingCapitalLoanDelinquencyActionData.MinimumPay
                 <ion-label position="stacked">{{
                   'WC_LOANS.DELINQUENCY_ACTION.START_DATE' | appTranslate
                 }}</ion-label>
-                <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -138,7 +141,9 @@ const MINIMUM_PAYMENT_TYPES = WorkingCapitalLoanDelinquencyActionData.MinimumPay
                 <ion-label position="stacked">{{
                   'WC_LOANS.DELINQUENCY_ACTION.END_DATE' | appTranslate
                 }}</ion-label>
-                <ion-datetime-button datetime="endDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="endDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -256,6 +261,9 @@ const MINIMUM_PAYMENT_TYPES = WorkingCapitalLoanDelinquencyActionData.MinimumPay
   ],
 })
 export class WcDelinquencyActionFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly delinquencyActionsService = inject(WorkingCapitalLoanDelinquencyActionsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

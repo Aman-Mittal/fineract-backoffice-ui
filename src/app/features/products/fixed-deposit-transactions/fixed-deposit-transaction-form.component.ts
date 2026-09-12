@@ -47,6 +47,7 @@ import {
   FINERACT_LOCALE,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * One payment-type option as the transactions template actually returns it.
@@ -123,7 +124,9 @@ type DepositRequest = PostFixedDepositAccountsFixedDepositAccountIdTransactionsR
               <ion-label position="stacked">{{
                 'FIXED_DEPOSIT_TRANSACTIONS.DATE' | appTranslate
               }}</ion-label>
-              <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -212,6 +215,9 @@ type DepositRequest = PostFixedDepositAccountsFixedDepositAccountIdTransactionsR
   ],
 })
 export class FixedDepositTransactionFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly transactionsService = inject(FixedDepositAccountTransactionsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

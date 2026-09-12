@@ -47,6 +47,7 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 export interface AuditFilters {
   actionName: string;
@@ -132,9 +133,11 @@ export interface AuditFilters {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">Maker Date From</ion-label>
-                <ion-datetime-button
-                  datetime="activeFiltersmakerDateTimeFrom-picker"
-                ></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button
+                    datetime="activeFiltersmakerDateTimeFrom-picker"
+                  ></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -150,9 +153,11 @@ export interface AuditFilters {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">Maker Date To</ion-label>
-                <ion-datetime-button
-                  datetime="activeFiltersmakerDateTimeTo-picker"
-                ></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button
+                    datetime="activeFiltersmakerDateTimeTo-picker"
+                  ></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -263,6 +268,9 @@ export interface AuditFilters {
   ],
 })
 export class AuditLogsListComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   /** True when the last load failed, so the table offers a retry instead of an empty list. */
   readonly hasError = signal(false);
 

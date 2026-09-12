@@ -49,6 +49,7 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-collection-sheet',
@@ -103,7 +104,9 @@ import {
 
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'COLLECTION_SHEET.DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -185,6 +188,9 @@ import {
   ],
 })
 export class CollectionSheetComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private collectionSheetService = inject(CollectionSheetService);
   private officesService = inject(OfficesService);
   private notifications = inject(NotificationService);

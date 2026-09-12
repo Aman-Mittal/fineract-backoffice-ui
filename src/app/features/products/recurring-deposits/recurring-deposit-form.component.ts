@@ -57,6 +57,7 @@ import {
   FINERACT_LOCALE,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Component for creating and managing individual recurring deposit accounts.
@@ -190,7 +191,9 @@ import {
               <!-- Submitted On -->
               <ion-item fill="outline" [appTooltip]="'HELP.SUBMITTED_ON_DESC' | translate">
                 <ion-label position="stacked">{{ 'COMMON.SUBMITTED_ON' | translate }}</ion-label>
-                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -365,6 +368,9 @@ import {
   ],
 })
 export class RecurringDepositAccountFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   /** Service for term deposit operations */
   private readonly rdService = inject(RecurringDepositAccountService);
   /** Router for post-op navigation */

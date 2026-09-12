@@ -43,6 +43,7 @@ import {
   RetrieveLoansPointInTimeRequest,
   LoanPointInTimeData,
 } from '../../../api';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-loans-point-in-time',
@@ -75,7 +76,9 @@ import {
         <div class="search-form">
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'LOANS_POINT_IN_TIME.DATE' | translate }}</ion-label>
-            <ion-datetime-button datetime="searchDate-picker"></ion-datetime-button>
+            @if (pickersReady()) {
+              <ion-datetime-button datetime="searchDate-picker"></ion-datetime-button>
+            }
             <ion-modal [keepContentsMounted]="true">
               <ng-template>
                 <ion-datetime
@@ -199,6 +202,9 @@ import {
   ],
 })
 export class LoansPointInTimeComponent {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   searchDate = toIsoDate(new Date());
   loanIdsInput = '';
   readonly results = signal<LoanPointInTimeData[]>([]);

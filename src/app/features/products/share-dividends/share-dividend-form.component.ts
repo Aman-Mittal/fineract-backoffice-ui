@@ -41,6 +41,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Create form for a share product dividend. The share product id is read from the route
@@ -91,7 +92,11 @@ import {
               <ion-label position="stacked">{{
                 'SHARE_DIVIDENDS.PERIOD_START_DATE' | translate
               }}</ion-label>
-              <ion-datetime-button datetime="dividendPeriodStartDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button
+                  datetime="dividendPeriodStartDate-picker"
+                ></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -110,7 +115,9 @@ import {
               <ion-label position="stacked">{{
                 'SHARE_DIVIDENDS.PERIOD_END_DATE' | translate
               }}</ion-label>
-              <ion-datetime-button datetime="dividendPeriodEndDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="dividendPeriodEndDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -163,6 +170,9 @@ import {
   ],
 })
 export class ShareDividendFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly selfDividendService = inject(SelfDividendService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

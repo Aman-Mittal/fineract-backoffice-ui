@@ -52,6 +52,7 @@ import {
   formatArrayDate,
   toIsoDate,
 } from '../../core/utils/date-formatter';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 export interface MiniAccount {
   id: number;
@@ -365,7 +366,9 @@ export interface MiniAccount {
 
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'CLIENTS.VALID_FROM' | translate }}</ion-label>
-                  <ion-datetime-button datetime="validFrom-picker"></ion-datetime-button>
+                  @if (pickersReady()) {
+                    <ion-datetime-button datetime="validFrom-picker"></ion-datetime-button>
+                  }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
                       <ion-datetime
@@ -382,7 +385,9 @@ export interface MiniAccount {
 
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{ 'CLIENTS.VALID_TILL' | translate }}</ion-label>
-                  <ion-datetime-button datetime="validTill-picker"></ion-datetime-button>
+                  @if (pickersReady()) {
+                    <ion-datetime-button datetime="validTill-picker"></ion-datetime-button>
+                  }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
                       <ion-datetime
@@ -455,6 +460,9 @@ export interface MiniAccount {
   ],
 })
 export class StandingInstructionFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly instructionsService = inject(StandingInstructionsService);
   private readonly officesService = inject(OfficesService);
   private readonly clientService = inject(ClientService);

@@ -51,6 +51,7 @@ import {
   CodesService,
   CodeValuesService,
 } from '../../../api';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Component for requesting a loan rescheduling.
@@ -158,7 +159,9 @@ import {
               <!-- Submitted On Date -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Submitted On Date</ion-label>
-                <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -176,7 +179,9 @@ import {
               <!-- Adjusted Due Date (Optional) -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Adjusted Due Date (Optional)</ion-label>
-                <ion-datetime-button datetime="adjustedDueDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="adjustedDueDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -298,6 +303,9 @@ import {
   ],
 })
 export class RescheduleFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly rescheduleService = inject(RescheduleLoansService);
   private readonly loansService = inject(LoansService);
   private readonly codesService = inject(CodesService);

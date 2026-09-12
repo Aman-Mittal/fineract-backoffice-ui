@@ -46,6 +46,7 @@ import {
   FINERACT_LOCALE,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-business-dates',
@@ -93,7 +94,9 @@ import {
             </p>
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'BUSINESS_DATES.NEW_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="businessDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="businessDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -134,7 +137,9 @@ import {
             </p>
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'BUSINESS_DATES.NEW_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="cobDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="cobDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -191,6 +196,9 @@ import {
   ],
 })
 export class BusinessDatesComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private businessDateService = inject(BusinessDateManagementService);
   private notifications = inject(NotificationService);
 

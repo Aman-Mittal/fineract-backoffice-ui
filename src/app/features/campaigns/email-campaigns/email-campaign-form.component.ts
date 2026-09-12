@@ -40,6 +40,7 @@ import {
   IonSelectOption,
   IonTextarea,
 } from '@ionic/angular/standalone';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-email-campaign-form',
@@ -127,7 +128,9 @@ import {
 
             <ion-item fill="outline" class="full-width">
               <ion-label position="stacked">{{ 'EMAIL_CAMPAIGNS.SCHEDULE' | translate }}</ion-label>
-              <ion-datetime-button datetime="scheduledStartDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="scheduledStartDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -185,6 +188,9 @@ import {
   ],
 })
 export class EmailCampaignFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);

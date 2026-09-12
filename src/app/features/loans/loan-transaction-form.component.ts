@@ -52,6 +52,7 @@ import {
 } from '@ionic/angular/standalone';
 import { toIsoDate } from '../../core/utils/date-formatter';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   repayment: 'LOANS.REPAYMENT',
@@ -176,7 +177,9 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                         : ('COMMON.TRANSACTION_DATE' | translate)
                     }}
                   </ion-label>
-                  <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                  @if (pickersReady()) {
+                    <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                  }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
                       <ion-datetime
@@ -350,6 +353,9 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   ],
 })
 export class LoanTransactionFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly transactionService = inject(LoanTransactionsService);
   private readonly loansService = inject(LoansService);
   private readonly router = inject(Router);

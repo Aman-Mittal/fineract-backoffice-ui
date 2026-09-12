@@ -42,6 +42,7 @@ import {
   formatDateToFineract,
   toIsoDate,
 } from '../../core/utils/date-formatter';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 /**
  * Create / edit form for a group/center meeting. The entity type and entity id come
@@ -80,7 +81,9 @@ import {
           <form #meetingForm="ngForm" (ngSubmit)="onSubmit()" class="meeting-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'MEETINGS.MEETING_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="meetingDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="meetingDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -146,6 +149,9 @@ import {
   ],
 })
 export class MeetingFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly meetingsService = inject(MeetingsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

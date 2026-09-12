@@ -46,6 +46,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-client-family-member-form',
@@ -237,7 +238,9 @@ import {
                     <ion-label position="stacked">{{
                       'CLIENTS.DATE_OF_BIRTH' | translate
                     }}</ion-label>
-                    <ion-datetime-button datetime="family-dob-picker"></ion-datetime-button>
+                    @if (pickersReady()) {
+                      <ion-datetime-button datetime="family-dob-picker"></ion-datetime-button>
+                    }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
@@ -306,6 +309,9 @@ import {
   `,
 })
 export class ClientFamilyMemberFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly familyService = inject(ClientFamilyMemberService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);

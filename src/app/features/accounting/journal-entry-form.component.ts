@@ -54,6 +54,7 @@ import {
   IonTextarea,
 } from '@ionic/angular/standalone';
 import { toIsoDate } from '../../core/utils/date-formatter';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 /**
  * Component for creating manual accounting journal entries.
@@ -134,7 +135,9 @@ import { toIsoDate } from '../../core/utils/date-formatter';
               <!-- Transaction Date -->
               <ion-item fill="outline">
                 <ion-label position="stacked">Transaction Date</ion-label>
-                <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -336,6 +339,9 @@ import { toIsoDate } from '../../core/utils/date-formatter';
   ],
 })
 export class JournalEntryFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly journalService = inject(JournalEntriesService);
   private readonly glAccountService = inject(GeneralLedgerAccountService);
   private readonly officeService = inject(OfficesService);

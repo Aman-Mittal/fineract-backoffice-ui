@@ -46,6 +46,7 @@ import {
   FINERACT_LOCALE,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Parses a route segment that is meant to be a database id. Returns null for
@@ -97,7 +98,9 @@ function toRouteId(value: string | null): number | null {
               <ion-label position="stacked">{{
                 'INTEREST_PAUSES.START_DATE' | translate
               }}</ion-label>
-              <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -115,7 +118,9 @@ function toRouteId(value: string | null): number | null {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'INTEREST_PAUSES.END_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="endDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="endDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -169,6 +174,9 @@ function toRouteId(value: string | null): number | null {
   ],
 })
 export class InterestPauseFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly pauseService = inject(LoanInterestPauseService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

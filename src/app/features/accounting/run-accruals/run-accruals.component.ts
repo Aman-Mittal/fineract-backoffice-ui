@@ -39,6 +39,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Single action screen that triggers periodic accrual accounting up to a chosen date.
@@ -79,7 +80,9 @@ import {
           <form #accrualForm="ngForm" (ngSubmit)="onSubmit()" class="accrual-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'RUN_ACCRUALS.TILL_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="tillDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="tillDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -140,6 +143,9 @@ import {
   ],
 })
 export class RunAccrualsComponent {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly accrualService = inject(PeriodicAccrualAccountingService);
 
   tillDate: string | null = null;

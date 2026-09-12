@@ -47,6 +47,7 @@ import {
 } from '../../../core/utils/date-formatter';
 import { AdHocSearchQueryData, LoanProductData, OfficeData, SearchAPIService } from '../../../api';
 import { ColumnDef, DataTableComponent, HelpIconComponent } from '../../../shared';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /** The four amount-comparison shapes the platform's search endpoint understands. */
 type ComparisonCondition = 'between' | '<=' | '>=' | '<' | '>' | '=';
@@ -258,7 +259,9 @@ function buildSearchPayload(filters: PortfolioFilters, fromDate: string, toDate:
                   <ion-label position="stacked">{{
                     'ORGANIZATION.FROM_DATE' | appTranslate
                   }}</ion-label>
-                  <ion-datetime-button datetime="fromDate-picker" />
+                  @if (pickersReady()) {
+                    <ion-datetime-button datetime="fromDate-picker" />
+                  }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
                       <ion-datetime
@@ -278,7 +281,9 @@ function buildSearchPayload(filters: PortfolioFilters, fromDate: string, toDate:
                   <ion-label position="stacked">{{
                     'ORGANIZATION.TO_DATE' | appTranslate
                   }}</ion-label>
-                  <ion-datetime-button datetime="toDate-picker" />
+                  @if (pickersReady()) {
+                    <ion-datetime-button datetime="toDate-picker" />
+                  }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
                       <ion-datetime
@@ -503,6 +508,9 @@ function buildSearchPayload(filters: PortfolioFilters, fromDate: string, toDate:
   ],
 })
 export class LoanPortfolioSummaryComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly searchService = inject(SearchAPIService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18N);

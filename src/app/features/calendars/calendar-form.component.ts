@@ -44,6 +44,7 @@ import {
   formatDateToFineract,
   toIsoDate,
 } from '../../core/utils/date-formatter';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 /**
  * Create / edit form for a group/center calendar. The entity type and entity id come
@@ -95,7 +96,9 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'CALENDARS.START_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -165,6 +168,9 @@ import {
   ],
 })
 export class CalendarFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly calendarService = inject(CalendarService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

@@ -46,6 +46,7 @@ import {
   PutOfficesOfficeIdRequest,
   GetOfficesResponse,
 } from '../../../api';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-office-form',
@@ -122,7 +123,9 @@ import {
 
               <ion-item fill="outline" [appTooltip]="'HELP.OPENING_DATE_DESC' | translate">
                 <ion-label position="stacked">{{ 'OFFICES.OPENING_DATE' | translate }}</ion-label>
-                <ion-datetime-button datetime="openingDate-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="openingDate-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -182,6 +185,9 @@ import {
   ],
 })
 export class OfficeFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly officesService = inject(OfficesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

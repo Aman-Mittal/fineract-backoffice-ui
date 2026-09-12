@@ -47,6 +47,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
  * Create form for a loan charge. The available charge options come from the loan charges
@@ -110,7 +111,9 @@ import {
 
             <ion-item fill="outline">
               <ion-label position="stacked">{{ 'LOAN_CHARGES.DUE_DATE' | translate }}</ion-label>
-              <ion-datetime-button datetime="dueDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="dueDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -162,6 +165,9 @@ import {
   ],
 })
 export class LoanChargeFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly loanChargesService = inject(LoanChargesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

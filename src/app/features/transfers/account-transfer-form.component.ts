@@ -53,6 +53,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../core/utils/date-formatter';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 export interface MiniAccount {
   id: number;
@@ -295,7 +296,9 @@ export interface MiniAccount {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{ 'CLIENTS.TRANSFER_DATE' | translate }}</ion-label>
-                <ion-datetime-button datetime="transfer-date-picker"></ion-datetime-button>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="transfer-date-picker"></ion-datetime-button>
+                }
                 <ion-modal [keepContentsMounted]="true">
                   <ng-template>
                     <ion-datetime
@@ -387,6 +390,9 @@ export interface MiniAccount {
   ],
 })
 export class AccountTransferFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly transfersService = inject(AccountTransfersService);
   private readonly officesService = inject(OfficesService);
   private readonly clientService = inject(ClientService);

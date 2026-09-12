@@ -50,6 +50,7 @@ import {
   PostTellersTellerIdCashiersRequest,
   StaffData,
 } from '../../../api';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
   selector: 'app-cashier-form',
@@ -114,7 +115,11 @@ import {
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'TELLERS.START_DATE' | translate }}</ion-label>
-                    <ion-datetime-button datetime="cashier-start-date-picker"></ion-datetime-button>
+                    @if (pickersReady()) {
+                      <ion-datetime-button
+                        datetime="cashier-start-date-picker"
+                      ></ion-datetime-button>
+                    }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
@@ -132,7 +137,9 @@ import {
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
                     <ion-label position="stacked">{{ 'TELLERS.END_DATE' | translate }}</ion-label>
-                    <ion-datetime-button datetime="cashier-end-date-picker"></ion-datetime-button>
+                    @if (pickersReady()) {
+                      <ion-datetime-button datetime="cashier-end-date-picker"></ion-datetime-button>
+                    }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
@@ -211,6 +218,9 @@ import {
   `,
 })
 export class CashierFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly tellerService = inject(TellerCashManagementService);
   private readonly staffService = inject(StaffService);
   private readonly router = inject(Router);

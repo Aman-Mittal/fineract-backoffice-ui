@@ -47,6 +47,7 @@ import {
   FINERACT_LOCALE,
   formatDateToFineract,
 } from '../../../core/utils/date-formatter';
+import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /** Adds a charge to a single Working Capital loan, from the options offered by its template. */
 @Component({
@@ -110,7 +111,9 @@ import {
               <ion-label position="stacked">{{
                 'WC_LOANS.CHARGE.DUE_DATE' | appTranslate
               }}</ion-label>
-              <ion-datetime-button datetime="dueDate-picker"></ion-datetime-button>
+              @if (pickersReady()) {
+                <ion-datetime-button datetime="dueDate-picker"></ion-datetime-button>
+              }
               <ion-modal [keepContentsMounted]="true">
                 <ng-template>
                   <ion-datetime
@@ -162,6 +165,9 @@ import {
   ],
 })
 export class WcLoanChargeFormComponent implements OnInit {
+  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
+  readonly pickersReady = createPickersReady();
+
   private readonly chargesService = inject(WorkingCapitalLoanChargesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
