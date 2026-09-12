@@ -54,6 +54,7 @@ import {
 import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  formatArrayDate,
   formatDateToFineract,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
@@ -677,9 +678,7 @@ export class WcLoanProductFormComponent implements OnInit {
       if (data.closeDate) {
         const cd = data.closeDate as unknown as number[];
         this.closeDate.set(
-          Array.isArray(cd)
-            ? toIsoDate(new Date(cd[0], cd[1] - 1, cd[2]))
-            : toIsoDate(new Date(data.closeDate)),
+          Array.isArray(cd) ? formatArrayDate(cd) : toIsoDate(new Date(data.closeDate)),
         );
       }
     });
