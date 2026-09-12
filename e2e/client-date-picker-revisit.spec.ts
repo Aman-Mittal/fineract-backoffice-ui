@@ -145,7 +145,9 @@ test.describe('Client form date pickers', () => {
       await page.getByRole('button', { name: 'Next' }).click();
     };
 
-    await page.getByRole('link', { name: 'Clients' }).click();
+    // Reached by URL rather than through the sidebar, which is collapsed at phone width. The
+    // revisit that triggers the bug still happens in-app, via the list page's create button.
+    await page.goto('/clients');
     await expect(page).toHaveURL('/clients');
 
     // First client, created in full so the second visit starts from a torn-down form.

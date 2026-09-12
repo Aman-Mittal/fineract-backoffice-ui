@@ -50,7 +50,7 @@ const MOBILE_SPECS = ['mobile-shell.spec.ts'];
  * describe-level viewport guards, so the half that does not apply at the current width is
  * skipped rather than asserting the opposite of the intended behaviour.
  */
-const DUAL_VIEWPORT_SPECS = ['guidance-tour.spec.ts'];
+const DUAL_VIEWPORT_SPECS = ['guidance-tour.spec.ts', '**/*date-picker-revisit.spec.ts'];
 
 const BACKEND_SPECS = [
   'batch-api-operations.spec.ts',
