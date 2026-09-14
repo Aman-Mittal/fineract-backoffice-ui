@@ -30,6 +30,7 @@ import {
   ColumnDef,
 } from '../../shared';
 import { CentersService, GetCentersPageItems } from '../../api';
+import { TranslatePipe } from '../../core/adapters';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 
@@ -42,6 +43,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,
+    TranslatePipe,
     IonIcon,
     IonButton,
   ],
@@ -51,7 +53,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       (retry)="onRetry()"
       title="nav.centers"
       helpTextKey="HELP.CENTERS_DESC"
-      createButtonLabel="Create Center"
+      createButtonLabel="CENTERS.CREATE_CENTER"
       createPermission="CREATE_CENTER"
       [columns]="columns"
       [data]="centers()"
@@ -77,7 +79,7 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | translate"
-          title="Edit Center"
+          [title]="'CENTERS.EDIT_CENTER' | appTranslate"
           (click)="onEditCenter(center)"
         >
           <ion-icon name="create-outline"></ion-icon>
