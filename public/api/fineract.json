@@ -26808,7 +26808,7 @@
         "tags": ["Working Capital Loan Transactions"]
       },
       "post": {
-        "description": "Supported command query parameter: repayment, creditBalanceRefund, discountFee, discountFeeAdjustment",
+        "description": "Supported command query parameter: repayment, creditBalanceRefund, payoutRefund, goodwillCredit, discountFee, discountFeeAdjustment, chargeOff, undoChargeOff, writeOff, undoWriteOff, recoveryPayment",
         "operationId": "executeWorkingCapitalLoanTransactionByExternalId",
         "parameters": [
           {
@@ -28181,7 +28181,7 @@
         "tags": ["Working Capital Loan Transactions"]
       },
       "post": {
-        "description": "Supported command query parameter: repayment, creditBalanceRefund, discountFee, discountFeeAdjustment",
+        "description": "Supported command query parameter: repayment, creditBalanceRefund, payoutRefund, goodwillCredit, discountFee, discountFeeAdjustment, chargeOff, undoChargeOff, writeOff, undoWriteOff, recoveryPayment",
         "operationId": "executeWorkingCapitalLoanTransactionById",
         "parameters": [
           {
@@ -30823,7 +30823,8 @@
           "restartFrequency": { "type": "integer", "format": "int32" },
           "restartFrequencyEnum": { "type": "integer", "format": "int32" },
           "savingsCharge": { "type": "boolean" },
-          "taxGroup": { "$ref": "#/components/schemas/TaxGroup" }
+          "taxGroup": { "$ref": "#/components/schemas/TaxGroup" },
+          "workingCapitalLoanCharge": { "type": "boolean" }
         }
       },
       "ChargeData": {
@@ -33632,11 +33633,21 @@
           "fee": { "type": "number", "example": 10000.0 },
           "feeOutstanding": { "type": "number", "example": 10000.0 },
           "feePaid": { "type": "number", "example": 10000.0 },
+          "feeWrittenOff": {
+            "type": "number",
+            "description": "Fees moved out of the outstanding balance by a write-off",
+            "example": 0.0
+          },
           "id": { "type": "integer", "format": "int64", "example": 1 },
           "overpaymentAmount": { "type": "number", "example": 10000.0 },
           "penalty": { "type": "number", "example": 10000.0 },
           "penaltyOutstanding": { "type": "number", "example": 10000.0 },
           "penaltyPaid": { "type": "number", "example": 10000.0 },
+          "penaltyWrittenOff": {
+            "type": "number",
+            "description": "Penalties moved out of the outstanding balance by a write-off",
+            "example": 0.0
+          },
           "principal": {
             "type": "number",
             "description": "Total repayable principal: the disbursed amount plus the discount fee. Zero until disbursement, and zero again once a disbursal is undone.",
@@ -33645,6 +33656,11 @@
           "principalAdjustment": { "type": "number", "example": 0.0 },
           "principalOutstanding": { "type": "number", "example": 10000.0 },
           "principalPaid": { "type": "number", "example": 10000.0 },
+          "principalWrittenOff": {
+            "type": "number",
+            "description": "Principal moved out of the outstanding balance by a write-off",
+            "example": 10000.0
+          },
           "realizedIncomeFromDiscountFee": { "type": "number", "example": 10000.0 },
           "totalDisbursement": {
             "type": "number",
@@ -33655,8 +33671,23 @@
           "totalDiscountFeeAdjustment": { "type": "number", "example": 500.0 },
           "totalExpectedRepayment": { "type": "number", "example": 10000.0 },
           "totalOutstanding": { "type": "number", "example": 10000.0 },
+          "totalRecovered": {
+            "type": "number",
+            "description": "Collected after the write-off and recognized as recovery income",
+            "example": 2000.0
+          },
           "totalRepayment": { "type": "number", "example": 10000.0 },
-          "unrealizedIncomeFromDiscountFee": { "type": "number", "example": 10000.0 }
+          "totalWrittenOff": {
+            "type": "number",
+            "description": "Gross amount written off; not reduced by recoveries",
+            "example": 10000.0
+          },
+          "unrealizedIncomeFromDiscountFee": { "type": "number", "example": 10000.0 },
+          "writtenOffOutstanding": {
+            "type": "number",
+            "description": "Still recoverable (totalWrittenOff - totalRecovered); caps the next recovery payment",
+            "example": 8000.0
+          }
         }
       },
       "GetCentersAccountType": {
@@ -41740,7 +41771,7 @@
           "breachStartType": { "$ref": "#/components/schemas/StringEnumOptionData" },
           "calculatedAnnualEir": {
             "type": "number",
-            "description": "Annualized EIR: (1 + dailyEir)^365 − 1; null if schedule not yet generated",
+            "description": "Annualized EIR as a fraction (0.1691 = 16.91%): (1 + dailyEir)^npvDayCount − 1; null if schedule not yet generated. Note: periodPaymentRateHistory[].calculatedAnnualEir is a percentage",
             "example": 0.1691
           },
           "chargeOffReason": { "$ref": "#/components/schemas/CodeValueData" },
@@ -41848,6 +41879,12 @@
             "description": "List of originators associated with this loan",
             "items": { "$ref": "#/components/schemas/GetWorkingCapitalLoansLoanIdOriginatorData" }
           },
+          "overpaidOnDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date on which loan was overpaid otherwise null",
+            "example": "2024-01-14"
+          },
           "paymentAllocation": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/GetPaymentAllocation" }
@@ -41857,6 +41894,13 @@
             "type": "number",
             "description": "Daily expected payment amount from the amortization schedule; null if schedule not yet generated",
             "example": 116.67
+          },
+          "periodPaymentRateHistory": {
+            "type": "array",
+            "description": "Period payment rate change history, most recently booked first - which for a backdated change is not the same as effective-date order. Each entry carries the annual EIR (as a percentage, e.g. 43.756245 - unlike the top-level calculatedAnnualEir, which is a fraction), daily payment amount and segment term the amortization schedule computed when that change was booked; those are null for changes booked before the snapshot was introduced",
+            "items": {
+              "$ref": "#/components/schemas/WorkingCapitalLoanPeriodPaymentRateChangeData"
+            }
           },
           "principal": {
             "type": "number",
@@ -41933,6 +41977,7 @@
             "format": "date",
             "description": "Expected maturity date"
           },
+          "overpaidOnDate": { "type": "string", "format": "date", "description": "Overpaid date" },
           "rejectedByFirstname": { "type": "string", "example": "App" },
           "rejectedByLastname": { "type": "string", "example": "Administrator" },
           "rejectedByUsername": { "type": "string", "example": "admin" },
@@ -48561,7 +48606,7 @@
           },
           "transactionAmount": {
             "type": "number",
-            "description": "Transaction amount",
+            "description": "Transaction amount. For command=recoveryPayment it may not exceed the loan's writtenOffOutstanding",
             "example": 100.0
           },
           "transactionDate": {
@@ -53073,12 +53118,17 @@
       "WorkingCapitalLoanPeriodPaymentRateChangeData": {
         "type": "object",
         "properties": {
+          "calculatedAnnualEir": {
+            "type": "number",
+            "description": "Annual EIR of the segment this change opened, as a percentage (e.g. 43.756245), snapshotted when the change was booked"
+          },
           "createdDate": {
             "type": "string",
             "format": "date-time",
             "deprecated": true,
             "description": "Audit/system timestamp. Prefer submittedOnDate for the booking business/tenant date."
           },
+          "dailyPaymentAmount": { "type": "number" },
           "effectiveDate": { "type": "string", "format": "date" },
           "id": { "type": "integer", "format": "int64" },
           "loanId": { "type": "integer", "format": "int64" },
@@ -53086,6 +53136,7 @@
           "previousRate": { "type": "number" },
           "reversed": { "type": "boolean" },
           "reversedOnDate": { "type": "string", "format": "date" },
+          "segmentTerm": { "type": "integer", "format": "int32" },
           "submittedOnDate": { "type": "string", "format": "date" }
         }
       },
