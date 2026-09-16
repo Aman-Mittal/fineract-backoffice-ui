@@ -118,11 +118,17 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
       </form>
     </div>
     <div class="dialog-actions">
-      <ion-button fill="clear" (click)="onCancel()" [disabled]="isSaving()">
+      <ion-button
+        fill="clear"
+        data-testid="quick-product-cancel"
+        (click)="onCancel()"
+        [disabled]="isSaving()"
+      >
         {{ 'COMMON.CANCEL' | appTranslate }}
       </ion-button>
       <ion-button
         color="primary"
+        data-testid="quick-product-submit"
         [disabled]="productForm.invalid || isSaving()"
         (click)="onSubmit()"
       >

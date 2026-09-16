@@ -145,6 +145,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   >
                     <ion-label position="stacked">{{ 'LOANS.PRODUCT' | translate }}</ion-label>
                     <ion-select
+                      data-testid="loan-product-select"
                       [attr.aria-label]="'LOANS.PRODUCT' | translate"
                       interface="popover"
                       name="productId"
@@ -161,6 +162,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                     </ion-select>
                   </ion-item>
                   <ion-button
+                    data-testid="loan-create-product-trigger"
                     fill="clear"
                     type="button"
                     [attr.aria-label]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
