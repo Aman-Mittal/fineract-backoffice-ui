@@ -19,63 +19,55 @@
 
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { IonButton, IonInput, IonItem, IonLabel, IonSpinner, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonInput, IonItem, IonLabel, IonSpinner } from '@ionic/angular/standalone';
 import { LoanProductsService, PostLoanProductsRequest } from '../../api';
 import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
 import { NotificationService } from '../../core/services/notification.service';
+import { OVERLAY, TranslatePipe } from '../../core/adapters';
 
 const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
 
 @Component({
   selector: 'app-loan-product-quick-create-dialog',
   standalone: true,
-  imports: [
-    FormsModule,
-    TranslateModule,
-    IonButton,
-    IonInput,
-    IonItem,
-    IonLabel,
-    IonSpinner,
-  ],
+  imports: [FormsModule, TranslatePipe, IonButton, IonInput, IonItem, IonLabel, IonSpinner],
   template: `
     <h2 class="dialog-title">
-      {{ 'PRODUCTS.CREATE_LOAN_PRODUCT' | translate }}
+      {{ 'PRODUCTS.CREATE_LOAN_PRODUCT' | appTranslate }}
     </h2>
     <div class="dialog-content">
       <form #productForm="ngForm" (ngSubmit)="onSubmit()" class="quick-create-form">
         <ion-item fill="outline" class="full-width">
-          <ion-label position="stacked">{{ 'COMMON.NAME' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'COMMON.NAME' | appTranslate }}</ion-label>
           <ion-input
-            [attr.aria-label]="'COMMON.NAME' | translate"
+            [attr.aria-label]="'COMMON.NAME' | appTranslate"
             id="quick-product-name"
             data-testid="quick-product-name"
             name="name"
             [(ngModel)]="name"
             required
-            placeholder="{{ 'COMMON.NAME' | translate }}"
+            placeholder="{{ 'COMMON.NAME' | appTranslate }}"
           ></ion-input>
         </ion-item>
 
         <ion-item fill="outline" class="full-width">
-          <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'PRODUCTS.SHORT_NAME' | appTranslate }}</ion-label>
           <ion-input
-            [attr.aria-label]="'PRODUCTS.SHORT_NAME' | translate"
+            [attr.aria-label]="'PRODUCTS.SHORT_NAME' | appTranslate"
             id="quick-product-short-name"
             data-testid="quick-product-short-name"
             name="shortName"
             [(ngModel)]="shortName"
             required
             maxlength="4"
-            placeholder="{{ 'PRODUCTS.SHORT_NAME' | translate }}"
+            placeholder="{{ 'PRODUCTS.SHORT_NAME' | appTranslate }}"
           ></ion-input>
         </ion-item>
 
         <ion-item fill="outline" class="full-width">
-          <ion-label position="stacked">{{ 'PRODUCTS.PRINCIPAL' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'PRODUCTS.PRINCIPAL' | appTranslate }}</ion-label>
           <ion-input
-            [attr.aria-label]="'PRODUCTS.PRINCIPAL' | translate"
+            [attr.aria-label]="'PRODUCTS.PRINCIPAL' | appTranslate"
             id="quick-product-principal"
             data-testid="quick-product-principal"
             type="number"
@@ -86,9 +78,9 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
         </ion-item>
 
         <ion-item fill="outline" class="full-width">
-          <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_RATE' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'PRODUCTS.INTEREST_RATE' | appTranslate }}</ion-label>
           <ion-input
-            [attr.aria-label]="'PRODUCTS.INTEREST_RATE' | translate"
+            [attr.aria-label]="'PRODUCTS.INTEREST_RATE' | appTranslate"
             id="quick-product-interest-rate"
             data-testid="quick-product-interest-rate"
             type="number"
@@ -99,9 +91,9 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
         </ion-item>
 
         <ion-item fill="outline" class="full-width">
-          <ion-label position="stacked">{{ 'LOANS.REPAYMENTS_COUNT' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'LOANS.REPAYMENTS_COUNT' | appTranslate }}</ion-label>
           <ion-input
-            [attr.aria-label]="'LOANS.REPAYMENTS_COUNT' | translate"
+            [attr.aria-label]="'LOANS.REPAYMENTS_COUNT' | appTranslate"
             id="quick-product-repayments-count"
             data-testid="quick-product-repayments-count"
             type="number"
@@ -112,9 +104,9 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
         </ion-item>
 
         <ion-item fill="outline" class="full-width">
-          <ion-label position="stacked">{{ 'LOANS.REPAYMENT_EVERY' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'LOANS.REPAYMENT_EVERY' | appTranslate }}</ion-label>
           <ion-input
-            [attr.aria-label]="'LOANS.REPAYMENT_EVERY' | translate"
+            [attr.aria-label]="'LOANS.REPAYMENT_EVERY' | appTranslate"
             id="quick-product-repayment-every"
             data-testid="quick-product-repayment-every"
             type="number"
@@ -127,7 +119,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
     </div>
     <div class="dialog-actions">
       <ion-button fill="clear" (click)="onCancel()" [disabled]="isSaving()">
-        {{ 'COMMON.CANCEL' | translate }}
+        {{ 'COMMON.CANCEL' | appTranslate }}
       </ion-button>
       <ion-button
         color="primary"
@@ -136,9 +128,9 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
       >
         @if (isSaving()) {
           <ion-spinner name="crescent" slot="start"></ion-spinner>
-          {{ 'COMMON.SAVING' | translate }}
+          {{ 'COMMON.SAVING' | appTranslate }}
         } @else {
-          {{ 'COMMON.SAVE' | translate }}
+          {{ 'COMMON.SAVE' | appTranslate }}
         }
       </ion-button>
     </div>
@@ -166,7 +158,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
 })
 export class LoanProductQuickCreateDialogComponent {
   private readonly productService = inject(LoanProductsService);
-  private readonly modalController = inject(ModalController);
+  private readonly overlay = inject(OVERLAY);
   private readonly notifications = inject(NotificationService);
 
   name = '';
@@ -220,7 +212,7 @@ export class LoanProductQuickCreateDialogComponent {
 
     this.productService.postLoanproducts(request).subscribe({
       next: (response) => {
-        this.modalController.dismiss({ id: response.resourceId, ...response });
+        void this.overlay.dismissModal({ id: response.resourceId, ...response });
       },
       error: () => {
         this.notifications.error(OPERATION_FAILED_MESSAGE);
@@ -230,6 +222,6 @@ export class LoanProductQuickCreateDialogComponent {
   }
 
   onCancel(): void {
-    this.modalController.dismiss();
+    void this.overlay.dismissModal();
   }
 }

@@ -20,9 +20,7 @@
 import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoanProductQuickCreateDialogComponent } from './loan-product-quick-create-dialog.component';
-import { ModalController } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
-import { provideIonicTesting } from '../../testing/ionic-testing';
+import { provideFakeAdapters, FakeOverlayAdapter } from '../../testing/adapters';
 import { LoanProductsService, PostLoanProductsResponse } from '../../api';
 import { NotificationService } from '../../core/services/notification.service';
 import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
@@ -31,20 +29,20 @@ import { of, throwError } from 'rxjs';
 describe('LoanProductQuickCreateDialogComponent', () => {
   let component: LoanProductQuickCreateDialogComponent;
   let fixture: ComponentFixture<LoanProductQuickCreateDialogComponent>;
-  let mockModalController: SpyObj<ModalController>;
+  let overlay: FakeOverlayAdapter;
   let mockLoanProductsService: SpyObj<LoanProductsService>;
   let mockNotificationService: SpyObj<NotificationService>;
 
   beforeEach(async () => {
-    mockModalController = createSpyObj<ModalController>(['dismiss']);
+    const adapters = provideFakeAdapters();
+    overlay = adapters.overlay;
     mockLoanProductsService = createSpyObj<LoanProductsService>(['postLoanproducts']);
     mockNotificationService = createSpyObj<NotificationService>(['error']);
 
     await TestBed.configureTestingModule({
-      imports: [LoanProductQuickCreateDialogComponent, TranslateModule.forRoot()],
+      imports: [LoanProductQuickCreateDialogComponent],
       providers: [
-        provideIonicTesting(),
-        { provide: ModalController, useValue: mockModalController },
+        ...adapters.providers,
         { provide: LoanProductsService, useValue: mockLoanProductsService },
         { provide: NotificationService, useValue: mockNotificationService },
       ],
@@ -61,7 +59,7 @@ describe('LoanProductQuickCreateDialogComponent', () => {
 
   it('should close dialog on cancel', () => {
     component.onCancel();
-    expect(mockModalController.dismiss).toHaveBeenCalled();
+    expect(overlay.dismissals).toEqual([undefined]);
   });
 
   it('should not submit when required fields are empty', () => {
@@ -75,16 +73,18 @@ describe('LoanProductQuickCreateDialogComponent', () => {
     component.onSubmit();
 
     expect(mockLoanProductsService.postLoanproducts).not.toHaveBeenCalled();
-    expect(mockModalController.dismiss).not.toHaveBeenCalled();
+    expect(overlay.dismissals).toEqual([]);
   });
 
   it('should submit postLoanproducts with 6 form values merged with fixed defaults and dismiss modal on success', () => {
     const mockResponse: PostLoanProductsResponse = { resourceId: 42 };
-    mockLoanProductsService.postLoanproducts.mockReturnValue(of(mockResponse));
+    mockLoanProductsService.postLoanproducts.mockReturnValue(
+      of(mockResponse) as unknown as ReturnType<LoanProductsService['postLoanproducts']>,
+    );
 
     component.name = 'Quick Loan Product';
     component.shortName = 'QLP';
-    component.principal = 10000;
+    component.principal = 10_000;
     component.interestRatePerPeriod = 5;
     component.numberOfRepayments = 12;
     component.repaymentEvery = 1;
@@ -94,7 +94,7 @@ describe('LoanProductQuickCreateDialogComponent', () => {
     expect(mockLoanProductsService.postLoanproducts).toHaveBeenCalledWith({
       name: 'Quick Loan Product',
       shortName: 'QLP',
-      principal: 10000,
+      principal: 10_000,
       interestRatePerPeriod: 5,
       numberOfRepayments: 12,
       repaymentEvery: 1,
@@ -116,12 +116,14 @@ describe('LoanProductQuickCreateDialogComponent', () => {
       locale: 'en',
     });
 
-    expect(mockModalController.dismiss).toHaveBeenCalledWith({ id: 42, resourceId: 42 });
+    expect(overlay.dismissals).toEqual([{ id: 42, resourceId: 42 }]);
   });
 
   it('should show error notification, keep modal open, and preserve form values when submit fails', () => {
     mockLoanProductsService.postLoanproducts.mockReturnValue(
-      throwError(() => new Error('Creation failed')),
+      throwError(() => new Error('Creation failed')) as unknown as ReturnType<
+        LoanProductsService['postLoanproducts']
+      >,
     );
 
     component.name = 'Failed Product';
@@ -137,7 +139,7 @@ describe('LoanProductQuickCreateDialogComponent', () => {
     expect(mockNotificationService.error).toHaveBeenCalledWith(
       'Operation failed. Please try again.',
     );
-    expect(mockModalController.dismiss).not.toHaveBeenCalled();
+    expect(overlay.dismissals).toEqual([]);
     expect(component.isSaving()).toBe(false);
 
     // Verify form values are preserved

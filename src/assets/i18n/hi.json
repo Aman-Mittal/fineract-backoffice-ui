@@ -277,6 +277,10 @@
     "CREATE": "शुल्क बनाएं",
     "EDIT": "शुल्क संपादित करें"
   },
+  "LOANS": {
+    "REPAYMENTS_COUNT": "Number of Repayments",
+    "REPAYMENT_EVERY": "Repayment Every"
+  },
   "SHARE_ACCOUNTS": {
     "CREATE": "शेयर खाता बनाएं",
     "EDIT": "शेयर खाता संपादित करें",
