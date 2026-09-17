@@ -41,8 +41,6 @@ import {
   requiredStrategyFor,
 } from '../products/loan-schedule-type';
 import { NotificationService } from '../../core/services/notification.service';
-import { DialogService } from '../../core/services/dialog.service';
-import { LoanProductQuickCreateDialogComponent } from '../products/loan-product-quick-create-dialog.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
@@ -146,7 +144,6 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   >
                     <ion-label position="stacked">{{ 'LOANS.PRODUCT' | translate }}</ion-label>
                     <ion-select
-                      data-testid="loan-product-select"
                       [attr.aria-label]="'LOANS.PRODUCT' | translate"
                       interface="popover"
                       name="productId"
@@ -163,7 +160,6 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                     </ion-select>
                   </ion-item>
                   <ion-button
-                    data-testid="loan-create-product-trigger"
                     fill="clear"
                     type="button"
                     [attr.aria-label]="'PRODUCTS.CREATE_LOAN_PRODUCT' | translate"
@@ -573,7 +569,6 @@ export class LoanFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifications = inject(NotificationService);
-  private readonly dialogService = inject(DialogService);
 
   private readonly LIST_PATH = '/loans';
 
@@ -630,25 +625,12 @@ export class LoanFormComponent implements OnInit {
   }
 
   onCreateProduct() {
-    this.dialogService
-      .open<{ id?: number; resourceId?: number }>(LoanProductQuickCreateDialogComponent)
-      .then((result) => {
-        if (result) {
-          const createdId = result.id ?? result.resourceId;
-          this.loadProducts(createdId);
-        }
-      });
+    this.router.navigate(['/products/loan/create']);
   }
 
-  private loadProducts(selectProductId?: number) {
+  private loadProducts() {
     this.productService.getLoanproducts().subscribe({
-      next: (data: GetLoanProductsResponse[]) => {
-        this.products.set(data || []);
-        if (selectProductId) {
-          this.loan().productId = selectProductId;
-          this.onProductSelected(selectProductId);
-        }
-      },
+      next: (data: GetLoanProductsResponse[]) => this.products.set(data || []),
       error: () => this.notifications.error(OPERATION_FAILED_MESSAGE),
     });
   }
