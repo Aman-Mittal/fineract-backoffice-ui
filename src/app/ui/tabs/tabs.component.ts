@@ -35,7 +35,13 @@ export interface UiTab {
   readonly disabled?: boolean;
 }
 
-/** Manual-activation tabs: moving focus never fetches or replaces panel contents. */
+/**
+ * Manual-activation tabs: moving focus never fetches or replaces panel contents.
+ *
+ * The caller renders one shared panel for the selected tab, so only that tab names it in
+ * `aria-controls`. Disabled tabs use `aria-disabled` rather than `disabled` so the strip keeps
+ * a tab stop even when every tab is unavailable.
+ */
 @Component({
   selector: 'app-tabs',
   standalone: true,
@@ -48,10 +54,10 @@ export interface UiTab {
           role="tab"
           data-testid="ui-tab"
           [id]="tabId(tab.value)"
-          [attr.aria-controls]="panelId()"
+          [attr.aria-controls]="tab.value === value() ? panelId() : null"
           [attr.aria-selected]="tab.value === value()"
+          [attr.aria-disabled]="tab.disabled ? 'true' : null"
           [attr.tabindex]="index === focusIndex() ? 0 : -1"
-          [disabled]="tab.disabled"
           (focus)="focusIndex.set(index)"
           (keydown)="onKeydown($event)"
           (click)="select(tab)"
@@ -79,12 +85,12 @@ export interface UiTab {
         border: 0;
         border-bottom: 2px solid transparent;
         background: transparent;
-        color: var(--text-secondary);
+        color: var(--text-muted);
         font: inherit;
         cursor: pointer;
       }
       button[aria-selected='true'] {
-        color: var(--primary-color);
+        color: var(--primary-text);
         border-bottom-color: var(--primary-color);
       }
       button:hover {
@@ -94,8 +100,8 @@ export interface UiTab {
         outline: 2px solid var(--primary-color);
         outline-offset: -2px;
       }
-      button:disabled {
-        color: var(--text-muted);
+      button[aria-disabled='true'] {
+        opacity: 0.5;
         cursor: default;
       }
     `,
@@ -113,7 +119,9 @@ export class TabsComponent {
   private readonly buttons = viewChildren<ElementRef<HTMLButtonElement>>('tabButton');
   protected readonly focusIndex = linkedSignal(() => {
     const selected = this.tabs().findIndex((tab) => tab.value === this.value() && !tab.disabled);
-    return selected !== -1 ? selected : this.tabs().findIndex((tab) => !tab.disabled);
+    if (selected !== -1) return selected;
+    const enabled = this.tabs().findIndex((tab) => !tab.disabled);
+    return enabled !== -1 ? enabled : 0;
   });
 
   tabId(value: string): string {
@@ -130,8 +138,9 @@ export class TabsComponent {
   protected onKeydown(event: KeyboardEvent): void {
     // Rebuild from the current view so removed/reordered/disabled tabs cannot leave stale
     // focus-manager entries. CDK owns wrapping, Home/End and horizontal RTL semantics.
-    const items = this.buttons().map(({ nativeElement: button }) => ({
-      disabled: button.disabled,
+    const tabs = this.tabs();
+    const items = this.buttons().map(({ nativeElement: button }, index) => ({
+      disabled: !!tabs[index]?.disabled,
       focus: () => button.focus(),
     }));
     const direction =

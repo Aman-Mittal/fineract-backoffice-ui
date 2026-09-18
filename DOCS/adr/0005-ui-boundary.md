@@ -94,8 +94,9 @@ navigation does not fetch a table until activation, and uses the app helper to s
 
 `no-restricted-imports` now rejects new `@ionic/angular` imports outside `src/app/ui/**`.
 Existing direct imports are seeded once in `eslint-suppressions.json`. CI's existing
-`--prune-suppressions` removes obsolete allowances. The UI exception permits Ionic only;
-Material and direct ngx-translate imports remain forbidden. Existing imperative adapters and
+`--prune-suppressions` removes obsolete allowances. The UI exception permits Ionic components only;
+Ionic's imperative controllers still go through OVERLAY, and Material and direct ngx-translate
+imports remain forbidden. Existing imperative adapters and
 composition roots (`app.config.ts`, test setup) retain their narrow architectural roles.
 The ESLint contract tests prove these boundaries with unsuppressed new-file examples.
 
@@ -103,7 +104,10 @@ After review of this increment:
 
 1. Migrate the remaining entity/tab strips to the tab contract, updating guided tours and
    Ionic-specific test hooks in the same change. Add per-screen acceptance tests where tabs
-   have conditional visibility or load data asynchronously.
+   have conditional visibility or load data asynchronously. Known debt: the tours' tab step
+   (`TAB_GROUP_SELECTOR` in `guidance.service.ts`) still targets `ion-segment`, so the first
+   record-view strip migrated must move that step to the `ui-tabs` test id in the same change;
+   a tour step that matches nothing does not fail CI.
 2. Move popup selection and remaining behavioural controls behind app contracts/CDK. Keep
    the existing OVERLAY interface; preserve close reasons, focus return and backdrop behaviour.
 3. Implement each form CVA with the shared tests above, then migrate source and browser helpers

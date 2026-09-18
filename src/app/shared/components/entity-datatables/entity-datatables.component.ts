@@ -40,7 +40,7 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
         </div>
       }
 
-      @if (datatables().length > 0) {
+      @if (tableTabs().length > 0) {
         <app-tabs
           #tabs
           data-testid="entity-datatables-tabs"
@@ -133,9 +133,11 @@ export class EntityDatatablesComponent implements OnInit {
       next: (data) => {
         this.datatables.set(data);
         this.isLoading.set(false);
-        if (data.length > 0) {
-          this.activeTable.set(data[0]);
-          this.loadTableData(data[0].registeredTableName!);
+        // Only named tables get a tab, so select the first one that can be selected.
+        const first = data.find((table) => !!table.registeredTableName);
+        if (first) {
+          this.activeTable.set(first);
+          this.loadTableData(first.registeredTableName!);
         }
       },
       error: (err) => {

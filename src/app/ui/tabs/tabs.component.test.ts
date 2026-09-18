@@ -56,6 +56,8 @@ describe('TabsComponent public contract', () => {
     expect(buttons().map((tab) => tab.tabIndex)).toEqual([0, -1, -1]);
     expect(buttons()[0].getAttribute('aria-selected')).toBe('true');
     expect(buttons()[0].getAttribute('aria-controls')).toBe('client-7-panel');
+    // Only the selected tab's panel is rendered, so unselected tabs must not point at it.
+    expect(buttons()[2].hasAttribute('aria-controls')).toBe(false);
     expect(buttons()[0].id).toBe('client-7-tab-accounts');
     expect(fixture.nativeElement.querySelector('ion-segment')).toBeNull();
   });
@@ -130,7 +132,17 @@ describe('TabsComponent public contract', () => {
     expect(document.activeElement).toBe(buttons()[0]);
     fixture.componentRef.setInput('tabs', [{ value: 'new', label: 'New', disabled: true }]);
     fixture.detectChanges();
-    expect(buttons()[0].tabIndex).toBe(-1);
-    expect(buttons()[0].disabled).toBe(true);
+    // The strip keeps one tab stop so a screen-reader user can still land on it.
+    expect(buttons()[0].tabIndex).toBe(0);
+    expect(buttons()[0].getAttribute('aria-disabled')).toBe('true');
+    buttons()[0].click();
+    expect(changed).not.toHaveBeenCalled();
+  });
+
+  it('does not point any tab at a panel when the value matches no tab', () => {
+    fixture.componentRef.setInput('value', 'missing');
+    fixture.detectChanges();
+    expect(buttons().some((tab) => tab.hasAttribute('aria-controls'))).toBe(false);
+    expect(buttons().map((tab) => tab.tabIndex)).toEqual([0, -1, -1]);
   });
 });

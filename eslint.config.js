@@ -249,9 +249,25 @@ module.exports = tseslint.config(
       'no-restricted-imports': [
         'error',
         {
-          patterns: restrictedImportPatterns.filter(
-            (pattern) => !pattern.group.includes('@ionic/angular'),
-          ),
+          patterns: [
+            ...restrictedImportPatterns.filter(
+              (pattern) => !pattern.group.includes('@ionic/angular'),
+            ),
+            // Components only: imperative controllers still go through OVERLAY here too.
+            {
+              group: ['@ionic/angular', '@ionic/angular/*'],
+              importNames: [
+                'ModalController',
+                'ToastController',
+                'AlertController',
+                'LoadingController',
+                'ActionSheetController',
+                'PopoverController',
+              ],
+              message:
+                "Use the OVERLAY adapter from 'app/core/adapters' instead of Ionic's controllers, inside src/app/ui as well. See DOCS/adr/0003-adapter-boundary.md.",
+            },
+          ],
         },
       ],
     },

@@ -50,6 +50,9 @@ test('UI implementations may use Ionic but cannot bypass other adapter boundarie
     (await importErrors('src/app/ui/probe.ts', '@ngx-translate/core', 'TranslateService')).length,
     1,
   );
+  for (const module of ['@ionic/angular', '@ionic/angular/standalone']) {
+    assert.equal((await importErrors('src/app/ui/probe.ts', module, 'ModalController')).length, 1);
+  }
 });
 test('the existing composition roots and imperative adapter remain allowed', async () => {
   for (const file of [
