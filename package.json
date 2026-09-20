@@ -34,6 +34,7 @@
     "i18n:check": "node scripts/check-translations.mjs",
     "check:icons": "node scripts/check-icons.mjs",
     "check:a11y-names": "node scripts/check-a11y-names.mjs",
+    "check:ui-primitives": "node scripts/check-ui-primitives.mjs",
     "check:internal-endpoints": "node scripts/check-internal-endpoints.mjs",
     "check:route-permissions": "node scripts/check-route-permissions.mjs",
     "check:nav-ids": "node scripts/check-nav-ids.mjs",
