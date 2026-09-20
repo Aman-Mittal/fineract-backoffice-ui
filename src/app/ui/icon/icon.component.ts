@@ -21,24 +21,12 @@ import { Component, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular/standalone';
 
 /**
- * An icon, named from the application's registered set.
+ * An icon, named from the set registered in `src/app/core/icons.ts`. An unregistered name
+ * renders as blank space with no error, which `scripts/check-icons.mjs` catches at build time.
  *
- * ## The contract
- *
- * `name` is an entry in `src/app/core/icons.ts`; `scripts/check-icons.mjs` fails the build on a
- * name that is not registered, because an unregistered icon renders as blank space with no
- * error at runtime.
- *
- * `label` decides what assistive technology does with it, and the default is the safe one.
- * Without a label the icon is decorative — `aria-hidden` — because an icon beside its own text
- * label would otherwise be announced twice. An icon carrying meaning of its own passes a
- * translated `label` and is announced under the `img` role the vendor already sets.
- *
- * ## Why this wraps Ionic rather than an <svg>
- *
- * ADR 0005 migrates one primitive at a time and does not add a dependency to do it. The
- * ionicons set is already loaded and registered; replacing the renderer is a change behind this
- * component, and the contract above is what callers are held to in the meantime.
+ * Decorative by default: without a `label` the icon is `aria-hidden`, because the common case
+ * sits beside text that already says the same thing. A `label` makes it an announced image
+ * under the `img` role the vendor already sets.
  */
 @Component({
   selector: 'app-icon',

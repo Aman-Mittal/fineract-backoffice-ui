@@ -18,25 +18,15 @@
  */
 
 /**
- * Invariants for the app-owned UI primitives (ADR 0005), checked statically.
+ * Invariants for the app-owned UI primitives (ADR 0005):
  *
- * ## Why statically, when `type` is already a required signal input
+ *   1. Every `<app-button>` declares `type`, rather than inheriting the vendor's submit default.
+ *   2. Every `<app-button>` can be named by a screen reader — projected text, or `label`.
+ *      `scripts/check-a11y-names.mjs` covers the icon-only case; this covers the rest.
  *
- * A required input is enforced when the component renders. Most list screens in this repository
- * have no test that renders them — 36 of the 47 migrated in one batch had a sibling spec, and
- * almost none of those specs touched a button. So a missing `type` would not surface in CI at
- * all; it would surface as NG0950 in front of a user, on whichever screen nobody happened to
- * open. Scanning the templates closes that gap for the whole tree at once, and is what makes a
- * mechanical migration of many call sites reviewable.
- *
- * ## The invariants
- *
- * 1. Every `<app-button>` declares `type`. `ion-button` defaults to submit, which is the
- *    default this primitive exists to refuse; a call site that omits it has not made the
- *    choice.
- * 2. Every `<app-button>` can be named by a screen reader — projected text, or `label`.
- *    `scripts/check-a11y-names.mjs` covers the icon-only case; this covers the rest, including
- *    a button that ended up with neither icon, text, nor label.
+ * Checked statically because `type` is a required signal input, and a required input is only
+ * enforced when the component renders. Most list screens have no spec that renders them, so a
+ * missing `type` would reach a user as NG0950 rather than failing CI.
  */
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';

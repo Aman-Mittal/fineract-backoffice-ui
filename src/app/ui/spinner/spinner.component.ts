@@ -21,16 +21,11 @@ import { Component, input } from '@angular/core';
 import { IonSpinner } from '@ionic/angular/standalone';
 
 /**
- * A busy indicator.
+ * A busy indicator. `label` names the vendor's `progressbar`; without one the spinner is
+ * `aria-hidden`, for the case where visible text already says what is loading.
  *
- * `label` is the announcement, already translated: a screen reader names the vendor's
- * `progressbar` "Loading clients" rather than leaving it anonymous. Without one the spinner is
- * `aria-hidden`, for the case where visible text beside it already says what is happening — a
- * second announcement of "loading" is noise, not help.
- *
- * The animation is the vendor's and deliberately not configurable: the application has one
- * busy indicator, and which of Ionic's six it happens to be is not a decision worth exposing
- * to 124 call sites. `crescent` is what all of them already pass.
+ * The animation is not configurable — the application has one busy indicator, and `crescent`
+ * is what all 124 existing call sites pass.
  */
 @Component({
   selector: 'app-spinner',
