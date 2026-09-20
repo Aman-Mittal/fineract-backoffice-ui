@@ -91,6 +91,35 @@ its existing data-loading logic, with no Ionic event cast, and preserves the
 exercise both data loading and the ARIA panel relationship. The browser test also proves arrow
 navigation does not fetch a table until activation, and uses the app helper to switch back.
 
+## Cosmetic primitives: button, icon, spinner
+
+`app-button`, `app-icon` and `app-spinner` are the first of the cosmetic tier, and
+`EntityDatatablesComponent` is migrated onto them — it now imports no Ionic at all, and its
+suppression entry is gone rather than merely smaller. That is the increment's real claim: the
+baseline shrinks by migration, not by exception.
+
+`app-button` takes `intent` and `emphasis` — what the action means and how loudly — rather than
+the vendor's `color` and `fill`, so replacing the renderer is not also a redesign. `type` is
+**required**: `ion-button` defaults to `type="submit"`, so an ordinary action anywhere inside a
+`<form>` submits it, and eighty-two call sites in this repository pass `type="button"` to work
+around that default. A contract that cannot be inherited by accident is worth the one word at
+each call site. `busy` is separate from `disabled` because "working on it" and "not available to
+you" are different statements to a screen reader.
+
+`app-icon` and `app-spinner` are decorative by default — `aria-hidden` unless given a
+translated `label` — because the common case is an icon or spinner beside text that already
+says the same thing, and announcing it twice is noise. Neither overrides the `role` the vendor
+already sets.
+
+Two build checks had to move with the primitives, and this is the pattern to expect for every
+later increment. `scripts/check-icons.mjs` matched `<ion-icon name=…>` only, so migrating a
+call site would have taken it out of a check whose whole purpose is that an unregistered icon
+renders as blank space with no error; it now also reads `<app-icon>` and `app-button`'s `icon`
+input. `scripts/check-a11y-names.mjs` matched `<ion-button>` only, and `app-button` presents a
+different icon-only shape — an `icon` input with nothing projected — which it now recognises,
+naming `[label]` as the fix. A primitive that silently removes its consumers from a safety net
+is a regression even when every test passes.
+
 ## Enforcement and remaining rollout
 
 `local/no-vendor-ui-import` rejects new `@ionic/angular` imports outside the directories
@@ -126,8 +155,10 @@ After review of this increment:
 3. Implement each form CVA with the shared tests above, then migrate source and browser helpers
    together. Demonstrate a second implementation in the contract fixture before calling a form
    primitive replaceable; do not ship two libraries in production.
-4. Migrate cosmetic primitives and theme mappings; remove unused Ionic selectors, imports,
-   vendor-only helpers and suppression entries as their counts reach zero.
+4. Continue the cosmetic tier — cards, layout, the remaining button and icon call sites — and
+   the theme mappings; remove unused Ionic selectors, imports, vendor-only helpers and
+   suppression entries as their counts reach zero. Each migration must carry any build check
+   keyed to the vendor tag with it, as the button/icon/spinner increment did.
 5. Exercise all shared contracts against a replacement implementation with no feature/test
    edits. Only then can the full library-swap acceptance criterion and #530 be closed.
 

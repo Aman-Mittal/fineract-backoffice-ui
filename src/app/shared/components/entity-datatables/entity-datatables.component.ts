@@ -20,7 +20,8 @@
 import { computed, inject, input, signal, Component, OnInit } from '@angular/core';
 import { TranslatePipe } from '../../../core/adapters';
 import { TabsComponent, UiTab } from '../../../ui/tabs/tabs.component';
-import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { ButtonComponent } from '../../../ui/button/button.component';
+import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
 import { DataTableComponent, ColumnDef } from '../data-table/data-table.component';
@@ -31,12 +32,12 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
 @Component({
   selector: 'app-entity-datatables',
   standalone: true,
-  imports: [TranslatePipe, TabsComponent, IonButton, IonIcon, IonSpinner, DataTableComponent],
+  imports: [TranslatePipe, TabsComponent, ButtonComponent, SpinnerComponent, DataTableComponent],
   template: `
     <div class="entity-datatables-container">
       @if (isLoading()) {
         <div class="loading-overlay">
-          <ion-spinner name="crescent"></ion-spinner>
+          <app-spinner [label]="'COMMON.LOADING' | appTranslate" />
         </div>
       }
 
@@ -65,15 +66,15 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
               [isLoading]="isTableLoading()"
               [localLogic]="true"
             >
-              <ion-button
+              <app-button
                 headerActions
                 data-testid="entity-datatables-add"
-                color="primary"
+                type="button"
+                icon="add-outline"
                 (click)="onAddEntry(dt)"
               >
-                <ion-icon name="add-outline" slot="start"></ion-icon>
                 {{ 'SYSTEM.ADD_ENTRY' | appTranslate }}
-              </ion-button>
+              </app-button>
             </app-data-table>
           </div>
         }

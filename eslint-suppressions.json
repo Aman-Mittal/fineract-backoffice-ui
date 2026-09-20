@@ -2476,11 +2476,6 @@
       "count": 1
     }
   },
-  "src/app/shared/components/entity-datatables/entity-datatables.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
   "src/app/shared/components/entity-documents/entity-documents.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
