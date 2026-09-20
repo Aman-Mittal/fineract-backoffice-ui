@@ -19,7 +19,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
@@ -35,20 +35,9 @@ import { ClientNotesListComponent } from './client-notes-list.component';
 /**
  * Regression cover for the ADR 0005 button migration.
  *
- * This screen had no spec at all before, which was the point: 36 of the 47 components migrated
- * off `ion-button` in one batch did have a sibling spec, and almost none of those specs touched
- * a button. A whole-suite pass therefore proved the components still *construct*, not that
- * their actions, names, navigation or permission guards survived being rewritten.
- *
- * So the assertions below are deliberately about what the migration could silently have
- * dropped, rather than about this screen's own logic:
- *
- *   - the create button still navigates, with the same router commands;
- *   - the row actions still carry an accessible name, now via `[label]` rather than
- *     `[attr.aria-label]`, and it must land on the control a screen reader reaches;
- *   - the delete button still invokes its handler;
- *   - `*appHasPermission` still hides each one, which is the failure with real consequences —
- *     a dropped guard shows an action to someone who may not perform it.
+ * The assertions are about what a template rewrite can silently drop — router commands,
+ * accessible name, click handler, icon, and the `*appHasPermission` guard — rather than about
+ * this screen's own logic. A dropped guard shows an action to someone who may not perform it.
  */
 describe('ClientNotesListComponent button contract after the ui migration', () => {
   let fixture: ComponentFixture<ClientNotesListComponent>;
@@ -59,13 +48,9 @@ describe('ClientNotesListComponent button contract after the ui migration', () =
   const NOTE = { id: 3, note: 'Called the client', createdOn: 1_757_000_000_000 };
 
   /**
-   * The buttons as this screen configured them.
-   *
-   * Asserted through the component instances rather than the DOM on purpose. Ionic lifts
-   * `aria-label` off `ion-button` and forwards it into its shadow root, so there is no attribute
-   * left to read here — and that forwarding is the primitive's behaviour, covered by its own
-   * spec. What this file is for is the call site: that the migration handed each button the
-   * right inputs, and did not quietly drop one.
+   * Read from the component instances, not the DOM: Ionic lifts `aria-label` into its shadow
+   * root, and that forwarding is the primitive's own concern. What matters here is that the
+   * call site passes the right inputs.
    */
   const rendered = (): ButtonComponent[] =>
     fixture.debugElement.queryAll(By.directive(ButtonComponent)).map((d) => d.componentInstance);
@@ -105,18 +90,17 @@ describe('ClientNotesListComponent button contract after the ui migration', () =
     fixture.detectChanges();
   }
 
-  it('still navigates to the create screen with the same router commands', async () => {
+  it('still links to the create screen, as a link rather than a button', async () => {
     await render(() => true);
-    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
 
     // The create button is the one with no accessible-name override: it reads its own text.
     const create = rendered().find((b) => b.label() === undefined)!;
     expect(create.link()).toEqual(['/clients', 42, 'notes', 'create']);
 
-    (fixture.nativeElement.querySelector('.tab-actions ion-button') as HTMLElement).click();
-    await fixture.whenStable();
-
-    expect(navigate).toHaveBeenCalledWith(['/clients', 42, 'notes', 'create'], expect.anything());
+    // An href, not just a click handler: these actions were anchors before the migration and
+    // have to stay middle-clickable and announced as links.
+    const anchor = fixture.nativeElement.querySelector('.tab-actions ion-button') as HTMLElement;
+    expect(anchor.getAttribute('href')).toBe('/clients/42/notes/create');
   });
 
   it('keeps an accessible name on the row actions, on the control that is reached', async () => {
