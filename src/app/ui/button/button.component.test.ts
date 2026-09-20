@@ -20,6 +20,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { provideRouter, Router } from '@angular/router';
 import { IonButton } from '@ionic/angular/standalone';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { ButtonComponent } from './button.component';
@@ -54,6 +55,7 @@ import { ButtonComponent } from './button.component';
         [disabled]="disabled()"
         [busy]="busy()"
         [icon]="icon()"
+        [link]="link()"
         [label]="label()"
         (click)="clicked.set(clicked() + 1)"
       >
@@ -68,6 +70,7 @@ class HostComponent {
   readonly disabled = signal(false);
   readonly busy = signal(false);
   readonly icon = signal<string | undefined>(undefined);
+  readonly link = signal<unknown[] | undefined>(undefined);
   readonly label = signal<string | undefined>(undefined);
   readonly text = signal('Add entry');
   readonly clicked = signal(0);
@@ -85,7 +88,9 @@ describe('ButtonComponent public contract', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
-      providers: [provideIonicTesting()],
+      // A catch-all so a navigation that fires resolves, rather than failing as an unmatched URL
+      // and hiding whether the wiring worked.
+      providers: [provideIonicTesting(), provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
     fixture = TestBed.createComponent(HostComponent);
     host = fixture.componentInstance;
@@ -147,8 +152,52 @@ describe('ButtonComponent public contract', () => {
     ).toBe('true');
   });
 
+  it('does not navigate when no link was given', async () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
+    ionButton().click();
+    await fixture.whenStable();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(host.clicked()).toBe(1);
+  });
+
+  it('navigates when a link is given', async () => {
+    host.link.set(['/clients', 7, 'notes']);
+    fixture.detectChanges();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
+    ionButton().click();
+    await fixture.whenStable();
+    expect(navigate).toHaveBeenCalledWith(
+      ['/clients', 7, 'notes'],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
+  });
+
   it('leaves aria-label off a button that already reads its own text', () => {
     expect(ionButton().hasAttribute('aria-label')).toBe(false);
     expect(ionButton().hasAttribute('aria-busy')).toBe(false);
+  });
+});
+
+/**
+ * A second suite with no router in the injector at all.
+ *
+ * This is the property the `link` design exists to preserve: `app-button` is a base primitive,
+ * and the great majority of its call sites never navigate. Binding `routerLink` internally
+ * would drag `ActivatedRoute` into every one of their injectors — it broke seven unrelated
+ * `EntityDatatablesComponent` cases when tried, and those failures were correct.
+ */
+describe('ButtonComponent without a router', () => {
+  it('renders and reports presses with no router provided', async () => {
+    await TestBed.configureTestingModule({
+      imports: [HostComponent],
+      providers: [provideIonicTesting()],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('ion-button') as HTMLElement;
+    expect(button).not.toBeNull();
+    button.click();
+    expect(fixture.componentInstance.clicked()).toBe(1);
   });
 });

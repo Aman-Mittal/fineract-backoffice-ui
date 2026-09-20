@@ -17,7 +17,8 @@
  * under the License.
  */
 
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IonButton } from '@ionic/angular/standalone';
 import { IconComponent } from '../icon/icon.component';
 import { SpinnerComponent } from '../spinner/spinner.component';
@@ -70,6 +71,25 @@ const EMPHASIS_FILL: Record<UiButtonEmphasis, 'solid' | 'outline' | 'clear'> = {
  * `busy` swaps the icon for a spinner, disables the control and sets `aria-busy`. It is
  * separate from `disabled` because the two mean different things to a reader: "working on it"
  * against "not available to you".
+ *
+ * ## Navigation
+ *
+ * `link` takes Angular router commands, for the call sites that navigate rather than act.
+ *
+ * It is deliberately NOT a `routerLink` binding. `routerLink` on the inner control would be
+ * the obvious spelling, but the directive instantiates whether or not commands are supplied,
+ * and it injects `ActivatedRoute` — so every button in the application would require a router
+ * in its injector, including the great majority that never navigate. That is a dependency a
+ * base primitive has no business imposing: it broke seven existing tests for buttons with no
+ * link at all, and those tests were right to fail.
+ *
+ * So the router is injected optionally and reached only when `link` is set. A button without
+ * one needs no router and behaves exactly as before. What this gives up against `routerLink`
+ * is `href`-based middle-click and open-in-new-tab — which `ion-button` never offered anyway,
+ * because it renders an `<a>` only for `href`, and a `routerLink` on it produced a `<button>`
+ * with a click handler and no href. Nothing is lost that the call sites had.
+ *
+ * `type` is still required and still means what it says: a navigating button is not a submit.
  */
 @Component({
   selector: 'app-button',
@@ -85,6 +105,7 @@ const EMPHASIS_FILL: Record<UiButtonEmphasis, 'solid' | 'outline' | 'clear'> = {
       [disabled]="disabled() || busy()"
       [attr.aria-label]="label() ?? null"
       [attr.aria-busy]="busy() ? 'true' : null"
+      (click)="navigate()"
     >
       @if (busy()) {
         <app-spinner slot="start" />
@@ -120,9 +141,25 @@ export class ButtonComponent {
   readonly busy = input(false);
   /** A name registered in `src/app/core/icons.ts`, shown before the content. */
   readonly icon = input<string>();
+  /** Router commands for a button that navigates. Omit for one that performs an action. */
+  readonly link = input<unknown[] | string>();
   /** Already-translated accessible name. Required when there is an icon and no text. */
   readonly label = input<string>();
 
+  // Optional so that a button which never navigates imposes no router on its consumers.
+  private readonly router = inject(Router, { optional: true });
+  private readonly route = inject(ActivatedRoute, { optional: true });
+
   protected readonly color = computed(() => INTENT_COLOR[this.intent()]);
   protected readonly fill = computed(() => EMPHASIS_FILL[this.emphasis()]);
+
+  protected navigate(): void {
+    const commands = this.link();
+    if (commands === undefined || !this.router) return;
+    // `relativeTo` matches what `routerLink` on the same element would have resolved against,
+    // so a caller's relative commands keep working.
+    void this.router.navigate(Array.isArray(commands) ? commands : [commands], {
+      relativeTo: this.route ?? undefined,
+    });
+  }
 }
