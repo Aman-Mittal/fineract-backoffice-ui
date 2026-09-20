@@ -52,19 +52,38 @@ const CLIENT_LIST_BASELINE = new Set([
   'role-img-alt|ion-icon[name="chevron-forward-outline"]',
   'role-img-alt|ion-icon[name="play-skip-forward-outline"]',
 ]);
-const CLIENT_FORM_BASELINE = new Set([
-  // Ionic renders `ion-select`'s inner trigger as a `button` and reflects `required` onto it as
-  // `aria-required`, which ARIA does not allow on that role. One defect, but its fingerprint moves
-  // with the host's state classes, because axe picks the shortest unique selector for the host:
-  // `.has-value` once a value is chosen, `.has-placeholder` while empty with a placeholder set,
-  // and the bare attribute selector when neither class applies.
+/**
+ * ONE defect, four fingerprints — see #514.
+ *
+ * Ionic renders `ion-select`'s inner trigger as a `button` and reflects the host's `required`
+ * onto it as `aria-required`, which ARIA does not allow on that role. It is Ionic's markup in a
+ * shadow root we do not own, so there is nothing to fix here; the fix belongs upstream, either
+ * by dropping the attribute or by giving that element the `combobox` role its trigger actually
+ * behaves as.
+ *
+ * The fingerprints multiply because axe names the violation by the shortest unique selector for
+ * the *host*, and the host's state classes move with its value: `.has-value` once something is
+ * chosen, `.has-placeholder` while empty with a placeholder set, and an attribute selector when
+ * neither class applies. Listed together and counted once, so the baseline says "one upstream
+ * defect" rather than looking like four problems of our own.
+ *
+ * Pinned to axe's selector output, which is fragile by nature: if Ionic renames those classes or
+ * a form stops setting a placeholder, an entry here silently becomes dead weight while the same
+ * violation reappears under a fifth fingerprint. Delete all of these together once the upstream
+ * fix lands and the version is bumped, and confirm the suite still passes.
+ */
+const IONIC_SELECT_ARIA_REQUIRED = [
   'aria-allowed-attr|.has-value >> #ion-sel-*',
   'aria-allowed-attr|.has-placeholder >> #ion-sel-*',
   'aria-allowed-attr|ion-select[name="officeId"] >> #ion-sel-*',
+  'aria-allowed-attr|#office-parent >> #ion-sel-*',
+];
+const CLIENT_FORM_BASELINE = new Set([
+  ...IONIC_SELECT_ARIA_REQUIRED,
   'role-img-alt|ion-icon[name="add-circle-outline"]',
   'role-img-alt|.help-icon[name="help-circle-outline"]',
 ]);
-const CREATE_OFFICE_DIALOG_BASELINE = new Set(['aria-allowed-attr|#office-parent >> #ion-sel-*']);
+const CREATE_OFFICE_DIALOG_BASELINE = new Set(IONIC_SELECT_ARIA_REQUIRED);
 /**
  * Pre-existing failures in the banner and on the dashboard that this scan inherits rather than
  * introduces. Both are unrelated to the contrast work in #484 and want their own fix.
