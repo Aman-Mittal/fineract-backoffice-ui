@@ -19,12 +19,10 @@ under the License.
 
 # ADR 0005: An application-owned UI and test boundary
 
-- **Status:** Proposed; first tab migration implemented for review
-- **Date:** 2026-09-10
-- **Discussion:** [#530](https://github.com/apache/fineract-backoffice-ui/issues/530)
-- **Scope:** One UI implementation at a time; incremental migration, not a second component library
-
 ## Problem and decision
+
+One UI implementation at a time: an incremental migration, not a second component library.
+Discussion in [#530](https://github.com/apache/fineract-backoffice-ui/issues/530).
 
 ADR 0003 isolates imperative dependencies but deliberately leaves template components outside
 the boundary. A library swap still changes hundreds of templates, form-value semantics, and
@@ -92,13 +90,25 @@ navigation does not fetch a table until activation, and uses the app helper to s
 
 ## Enforcement and remaining rollout
 
-`no-restricted-imports` now rejects new `@ionic/angular` imports outside `src/app/ui/**`.
-Existing direct imports are seeded once in `eslint-suppressions.json`. CI's existing
-`--prune-suppressions` removes obsolete allowances. The UI exception permits Ionic components only;
-Ionic's imperative controllers still go through OVERLAY, and Material and direct ngx-translate
-imports remain forbidden. Existing imperative adapters and
-composition roots (`app.config.ts`, test setup) retain their narrow architectural roles.
-The ESLint contract tests prove these boundaries with unsuppressed new-file examples.
+`local/no-vendor-ui-import` rejects new `@ionic/angular` imports outside the directories
+allowed to name the vendor: `src/app/ui/**`, the Ionic test harness, the imperative adapters
+and the composition roots. Existing direct imports are seeded once in
+`eslint-suppressions.json`, and CI's existing `--prune-suppressions` removes obsolete
+allowances.
+
+This is a rule of its own rather than another `no-restricted-imports` pattern, and that
+distinction is load-bearing. Suppression counts are keyed by rule id, so seeding ~290 Ionic
+violations into `no-restricted-imports` — which already carried ADR 0003's Material and
+`@ngx-translate` backlogs — would make the three boundaries fungible: a file allowed two
+violations could drop its Ionic import, add a second `@ngx-translate` import, and the ratchet
+would not move. Each boundary needs its own counter to mean anything. `scripts/ui-boundary.test.mjs`
+asserts which rule fires, not merely that one did, so a change that merged them back together
+fails.
+
+`no-restricted-imports` keeps exactly what ADR 0003 gave it: Material, direct ngx-translate and
+Ionic's imperative controllers, forbidden inside `src/app/ui` as well. An import naming nothing
+but controllers stays on that boundary alone, so migrating it to OVERLAY decrements one counter
+rather than two; a mixed import counts on both, because it really is two violations.
 
 After review of this increment:
 

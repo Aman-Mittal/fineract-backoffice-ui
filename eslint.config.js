@@ -26,6 +26,7 @@ const unicorn = require('eslint-plugin-unicorn').default;
 const security = require('eslint-plugin-security');
 const importPlugin = require('eslint-plugin-import');
 const cognitiveComplexity = require('./eslint-rules/cognitive-complexity.js');
+const noVendorUiImport = require('./eslint-rules/no-vendor-ui-import.js');
 
 /**
  * Rules written for this repository, kept here rather than published.
@@ -33,10 +34,30 @@ const cognitiveComplexity = require('./eslint-rules/cognitive-complexity.js');
  * `cognitive-complexity` replaces the rule of the same name that used to arrive with
  * `eslint-plugin-sonarjs`. That plugin is LGPL-3.0-only — Apache Category X — so it was removed;
  * see DOCS/LINT_POLICY.md for what took over each of its rules and what has no replacement.
+ *
+ * `no-vendor-ui-import` holds the ADR 0005 component boundary. It is a rule of its own rather
+ * than another `no-restricted-imports` pattern because suppression counts are per rule id, and
+ * sharing one counter with the Material and i18n backlogs let an Ionic violation be traded for
+ * an i18n one without the ratchet moving. See the rule's own header.
  */
 const local = {
-  rules: { 'cognitive-complexity': cognitiveComplexity },
+  rules: {
+    'cognitive-complexity': cognitiveComplexity,
+    'no-vendor-ui-import': noVendorUiImport,
+  },
 };
+
+// ADR 0003's imperative boundaries. Ionic *components* are not here — they are the ADR 0005
+// boundary and live on `local/no-vendor-ui-import`, so the two migrations ratchet separately.
+/** Ionic's imperative surface — ADR 0003's boundary, reached through the OVERLAY adapter. */
+const IONIC_CONTROLLERS = [
+  'ModalController',
+  'ToastController',
+  'AlertController',
+  'LoadingController',
+  'ActionSheetController',
+  'PopoverController',
+];
 
 const restrictedImportPatterns = [
   {
@@ -44,17 +65,41 @@ const restrictedImportPatterns = [
     message:
       'Angular Material has been removed. Use app-owned primitives in src/app/ui. @angular/cdk is still allowed.',
   },
-  // The existing imports are a migration baseline; new vendor dependencies belong
-  // only in the UI implementation or the existing imperative adapters.
   {
     group: ['@ionic/angular', '@ionic/angular/*'],
+    importNames: IONIC_CONTROLLERS,
     message:
-      "Use app-owned primitives from 'app/ui'; Ionic implementations belong inside src/app/ui. Use OVERLAY for controllers. See DOCS/adr/0005-ui-boundary.md.",
+      "Use the OVERLAY adapter from 'app/core/adapters' instead of Ionic's controllers. See DOCS/adr/0003-adapter-boundary.md.",
   },
   {
     group: ['@ngx-translate/*'],
     message:
       "Use the I18N adapter (or the | appTranslate pipe) from 'app/core/adapters'. See DOCS/adr/0003-adapter-boundary.md.",
+  },
+];
+
+/** Where naming Ionic directly is the point, rather than a leftover to migrate. */
+const VENDOR_UI_ALLOWED = [
+  // The UI implementations themselves — that is what ADR 0005 makes them for.
+  'src/app/ui/**/*.ts',
+  // Harness that stands up Ionic for specs of components not yet migrated.
+  'src/app/testing/ionic-testing.ts',
+  // The adapter that wraps Ionic's imperative surface, and the composition roots that
+  // configure the library rather than call it.
+  'src/app/core/adapters/**/*.ts',
+  'src/app/app.config.ts',
+];
+
+const vendorUiImport = [
+  'error',
+  {
+    patterns: ['@ionic/angular', '@ionic/angular/*'],
+    // An import of nothing but controllers is already reported by `no-restricted-imports`
+    // above. Exempting it here keeps one import statement on one boundary, so migrating it
+    // decrements one counter rather than two.
+    ignoreNames: IONIC_CONTROLLERS,
+    message:
+      "Use app-owned primitives from 'app/ui'; Ionic implementations belong inside src/app/ui. See DOCS/adr/0005-ui-boundary.md.",
   },
 ];
 
@@ -104,6 +149,9 @@ module.exports = tseslint.config(
       // Replaces sonarjs/cognitive-complexity at the same threshold it enforced, so this is a
       // like-for-like swap rather than a quiet relaxation. See eslint-rules/.
       'local/cognitive-complexity': ['error', { threshold: 15 }],
+      // The ADR 0005 component boundary, on its own rule id so its migration backlog
+      // ratchets independently of the Material and i18n ones above.
+      'local/no-vendor-ui-import': vendorUiImport,
 
       // --- rules switched off from the sets above, each for a reason -------------------------
       //
@@ -243,33 +291,12 @@ module.exports = tseslint.config(
     },
   },
   {
-    // UI implementations may name their vendor, but retain the Material and i18n boundaries.
-    files: ['src/app/ui/**/*.ts', 'src/app/testing/ionic-testing.ts'],
+    // The places allowed to name Ionic directly. Only the component boundary is lifted:
+    // `no-restricted-imports` still holds here, so Material, direct ngx-translate and Ionic's
+    // imperative controllers stay forbidden inside src/app/ui as well.
+    files: VENDOR_UI_ALLOWED,
     rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            ...restrictedImportPatterns.filter(
-              (pattern) => !pattern.group.includes('@ionic/angular'),
-            ),
-            // Components only: imperative controllers still go through OVERLAY here too.
-            {
-              group: ['@ionic/angular', '@ionic/angular/*'],
-              importNames: [
-                'ModalController',
-                'ToastController',
-                'AlertController',
-                'LoadingController',
-                'ActionSheetController',
-                'PopoverController',
-              ],
-              message:
-                "Use the OVERLAY adapter from 'app/core/adapters' instead of Ionic's controllers, inside src/app/ui as well. See DOCS/adr/0003-adapter-boundary.md.",
-            },
-          ],
-        },
-      ],
+      'local/no-vendor-ui-import': 'off',
     },
   },
   {
