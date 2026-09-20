@@ -99,9 +99,12 @@ describe('RunReportComponent', () => {
     }).compileComponents();
   });
 
+  /** The query string a report is opened with unless a case says otherwise. */
+  const DEFAULT_QUERY_PARAMS: Record<string, string> = { type: 'Table' };
+
   function create(
     parameters: ReportParameter[],
-    queryParams: Record<string, string> = { type: 'Table' },
+    queryParams: Record<string, string> = DEFAULT_QUERY_PARAMS,
   ): void {
     TestBed.overrideProvider(ActivatedRoute, {
       useValue: {

@@ -56,7 +56,7 @@ describe('DataTableComponent', () => {
   /** Names in the second column of each rendered row, in render order. */
   const renderedNames = (): string[] =>
     Array.from(fixture.nativeElement.querySelectorAll('tr[cdk-row]')).map((row) =>
-      (row as HTMLElement).children[1].textContent!.trim(),
+      (row as HTMLElement).querySelectorAll('td[cdk-cell]')[1].textContent!.trim(),
     );
 
   const setInputs = (inputs: Record<string, unknown>): void => {

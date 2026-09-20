@@ -19,11 +19,6 @@
       "count": 1
     }
   },
-  "src/app/core/interceptors/correlation-id.interceptor.ts": {
-    "unicorn/number-literal-case": {
-      "count": 3
-    }
-  },
   "src/app/core/services/auth.service.test.ts": {
     "no-restricted-globals": {
       "count": 4
@@ -60,11 +55,6 @@
       "count": 1
     }
   },
-  "src/app/features/accounting/accounting-rules-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
   "src/app/features/accounting/charges/charge-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -90,11 +80,6 @@
     }
   },
   "src/app/features/accounting/financial-activity-mapping-form.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/financial-activity-mappings-list.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     }
@@ -147,9 +132,6 @@
     }
   },
   "src/app/features/accounting/provisioning-categories/provisioning-categories-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -163,9 +145,6 @@
     }
   },
   "src/app/features/accounting/provisioning-criteria/provisioning-criteria-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -256,9 +235,6 @@
     }
   },
   "src/app/features/calendars/calendars-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -363,9 +339,6 @@
     }
   },
   "src/app/features/clients/charges/client-charges-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -453,9 +426,6 @@
     }
   },
   "src/app/features/clients/collateral/client-collateral-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -524,33 +494,21 @@
     }
   },
   "src/app/features/clients/tabs/client-documents-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
   },
   "src/app/features/clients/tabs/client-family-members-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
   },
   "src/app/features/clients/tabs/client-identifiers-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
   },
   "src/app/features/clients/tabs/client-notes-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -561,9 +519,6 @@
     }
   },
   "src/app/features/clients/transactions/client-transactions-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -598,9 +553,6 @@
     }
   },
   "src/app/features/fintech/asset-owners-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -649,11 +601,6 @@
     }
   },
   "src/app/features/groups/groups-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/groups/tabs/group-accounts-tab.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     }
@@ -733,9 +680,6 @@
     }
   },
   "src/app/features/loans/charges/loan-charges-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -793,9 +737,6 @@
     }
   },
   "src/app/features/loans/guarantors/guarantors-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -819,9 +760,6 @@
     }
   },
   "src/app/features/loans/interest-pauses/interest-pauses-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -900,9 +838,6 @@
     },
     "no-restricted-imports": {
       "count": 1
-    },
-    "unicorn/prefer-number-properties": {
-      "count": 1
     }
   },
   "src/app/features/loans/post-dated-checks/post-dated-check-form.component.test.ts": {
@@ -924,9 +859,6 @@
     }
   },
   "src/app/features/loans/post-dated-checks/post-dated-checks-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -974,9 +906,6 @@
     }
   },
   "src/app/features/meetings/meetings-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -998,9 +927,6 @@
     }
   },
   "src/app/features/organization/account-number-formats/account-number-formats-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1022,9 +948,6 @@
     }
   },
   "src/app/features/organization/funds/funds-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1088,9 +1011,6 @@
     }
   },
   "src/app/features/organization/payment-types/payment-types-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1158,15 +1078,7 @@
     }
   },
   "src/app/features/products/collateral-management/collateral-management-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/deposit-account-view.component.test.ts": {
-    "unicorn/no-object-as-default-parameter": {
       "count": 1
     }
   },
@@ -1230,9 +1142,6 @@
     }
   },
   "src/app/features/products/fixed-deposits/fixed-deposit-products-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1269,9 +1178,6 @@
     }
   },
   "src/app/features/products/floating-rates/floating-rates-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1298,9 +1204,6 @@
     }
   },
   "src/app/features/products/interest-rate-charts/interest-rate-charts-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1319,9 +1222,6 @@
     }
   },
   "src/app/features/products/loan-originators/loan-originators-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1400,9 +1300,6 @@
     }
   },
   "src/app/features/products/rates/rates-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1437,9 +1334,6 @@
     }
   },
   "src/app/features/products/recurring-deposits/recurring-deposit-products-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1479,9 +1373,6 @@
     }
   },
   "src/app/features/products/savings-accounts-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1505,9 +1396,6 @@
     }
   },
   "src/app/features/products/savings-charges/savings-charges-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1552,9 +1440,6 @@
     }
   },
   "src/app/features/products/share-dividends/share-dividends-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1569,11 +1454,6 @@
       "count": 1
     },
     "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/shares/share-account-view.component.test.ts": {
-    "unicorn/no-object-as-default-parameter": {
       "count": 1
     }
   },
@@ -1682,15 +1562,7 @@
     }
   },
   "src/app/features/reporting/reports-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/reporting/run-report.component.test.ts": {
-    "unicorn/no-object-as-default-parameter": {
       "count": 1
     }
   },
@@ -1716,12 +1588,6 @@
     },
     "no-restricted-imports": {
       "count": 1
-    },
-    "unicorn/prefer-logical-operator-over-ternary": {
-      "count": 1
-    },
-    "unicorn/require-module-specifiers": {
-      "count": 1
     }
   },
   "src/app/features/security/roles/role-form.component.ts": {
@@ -1733,9 +1599,6 @@
     }
   },
   "src/app/features/security/roles/roles-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1842,9 +1705,6 @@
     }
   },
   "src/app/features/spm/surveys/spm-surveys-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1858,9 +1718,6 @@
     }
   },
   "src/app/features/system/adhoc-query/adhoc-query-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1949,9 +1806,6 @@
     }
   },
   "src/app/features/system/data-tables/datatables-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1973,9 +1827,6 @@
     }
   },
   "src/app/features/system/entity-data-table-checks/entity-data-table-checks-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -1989,9 +1840,6 @@
     }
   },
   "src/app/features/system/entity-mapping/entity-mapping-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2029,9 +1877,6 @@
     }
   },
   "src/app/features/system/hooks/hooks-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2108,9 +1953,6 @@
     }
   },
   "src/app/features/system/scheduler-jobs/scheduler-job-history.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2132,9 +1974,6 @@
     }
   },
   "src/app/features/system/sms/sms-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2161,9 +2000,6 @@
     }
   },
   "src/app/features/tasks/checker-inbox/view-payload-dialog.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2261,9 +2097,6 @@
     }
   },
   "src/app/features/working-capital/breach/wc-breach-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2277,9 +2110,6 @@
     }
   },
   "src/app/features/working-capital/loan-products/wc-loan-products-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2340,9 +2170,6 @@
     }
   },
   "src/app/features/working-capital/loans/wc-loans-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2361,9 +2188,6 @@
     }
   },
   "src/app/features/working-capital/near-breach/wc-near-breach-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -2443,9 +2267,6 @@
   },
   "src/app/shared/components/data-table/data-table.component.test.ts": {
     "no-restricted-imports": {
-      "count": 1
-    },
-    "unicorn/better-dom-traversing": {
       "count": 1
     },
     "unicorn/no-array-sort": {

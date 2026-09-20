@@ -26,19 +26,12 @@ import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { DataTableComponent, CellTemplateDirective, ColumnDef } from '../../shared';
 import { ExternalAssetOwnersService, ExternalTransferData } from '../../api';
 import { PageEvent } from '../../shared/models/table.model';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { ButtonComponent } from '../../ui/button/button.component';
 
 @Component({
   selector: 'app-asset-owners-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    DataTableComponent,
-    CellTemplateDirective,
-    NgClass,
-    IonIcon,
-    IonButton,
-  ],
+  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, NgClass, ButtonComponent],
   template: `
     <app-data-table
       [hasError]="hasError()"
@@ -59,14 +52,14 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-transfer>
-        <ion-button
-          fill="clear"
-          color="primary"
+        <app-button
+          type="button"
+          intent="primary"
+          emphasis="quiet"
+          [label]="'COMMON.VIEW_DETAILS' | translate"
+          icon="eye-outline"
           (click)="onViewDetails(transfer)"
-          [attr.aria-label]="'COMMON.VIEW_DETAILS' | translate"
-        >
-          <ion-icon name="eye-outline"></ion-icon>
-        </ion-button>
+        />
       </ng-template>
     </app-data-table>
   `,

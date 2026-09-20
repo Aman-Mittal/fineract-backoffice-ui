@@ -23,8 +23,8 @@ import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import { ReportsService, GetReportsResponse } from '../../api';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { ButtonComponent } from '../../ui/button/button.component';
 
 @Component({
   selector: 'app-reports-list',
@@ -33,8 +33,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -48,15 +47,15 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
       [localLogic]="true"
     >
       <ng-template appCellTemplate="actions" let-report>
-        <ion-button
-          fill="clear"
-          color="primary"
-          [attr.aria-label]="'COMMON.RUN' | translate"
+        <app-button
+          type="button"
+          intent="primary"
+          emphasis="quiet"
+          [label]="'COMMON.RUN' | translate"
+          icon="play-outline"
           [appTooltip]="'REPORTS.RUN' | translate"
           (click)="onRunReport(report)"
-        >
-          <ion-icon name="play-outline"></ion-icon>
-        </ion-button>
+        />
       </ng-template>
     </app-data-table>
   `,

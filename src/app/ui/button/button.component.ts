@@ -17,8 +17,10 @@
  * under the License.
  */
 
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
-import { IonButton } from '@ionic/angular/standalone';
+import { RouterLink } from '@angular/router';
+import { IonButton, IonRouterLink } from '@ionic/angular/standalone';
 import { IconComponent } from '../icon/icon.component';
 import { SpinnerComponent } from '../spinner/spinner.component';
 
@@ -43,56 +45,79 @@ const EMPHASIS_FILL: Record<UiButtonEmphasis, 'solid' | 'outline' | 'clear'> = {
 /**
  * A button.
  *
- * ## `type` is required, and that is the point
+ * `type` is required. `ion-button` defaults to `type="submit"`, so an ordinary action anywhere
+ * inside a `<form>` submits it; 82 call sites pass `type="button"` to work around that default.
+ * Requiring it means neither behaviour is inherited by accident.
  *
- * `ion-button` defaults to `type="submit"`, so an ordinary action placed anywhere inside a
- * `<form>` submits it — silently, and only on the screens where someone happened to wrap the
- * markup in a form. Eighty-two call sites in this repository pass `type="button"` to say "no,
- * really, do not submit", which is a default being worked around rather than used. Here the
- * caller has to say which it is, so neither behaviour can be inherited by accident.
+ * `intent` says what the action means and `emphasis` how loudly; the mapping onto the vendor's
+ * `color`/`fill` is private, so replacing the renderer is not also a redesign.
  *
- * ## Intent and emphasis rather than colour and fill
+ * `label` is the accessible name, needed when there is an icon and no text.
+ * `scripts/check-a11y-names.mjs` fails the build without one.
  *
- * `intent` says what the action means and `emphasis` how loudly it says it; the mapping onto
- * the vendor's `color`/`fill` is private. ADR 0005 asks for this separation so that replacing
- * the renderer is not also a redesign: `danger` stays danger whatever the palette underneath
- * calls it.
+ * `busy` is separate from `disabled`: "working on it" and "not available to you" are different
+ * statements to a screen reader.
  *
- * ## Accessible name
- *
- * A button with an icon and no text needs `label`, because the icon is decorative and there is
- * nothing else to announce. `scripts/check-a11y-names.mjs` fails the build otherwise — a
- * screen reader would announce a nameless button, which is unusable rather than merely
- * untidy.
- *
- * ## Busy
- *
- * `busy` swaps the icon for a spinner, disables the control and sets `aria-busy`. It is
- * separate from `disabled` because the two mean different things to a reader: "working on it"
- * against "not available to you".
+ * `link` must produce a real link, not a button that routes. `ion-button[routerLink]` takes an
+ * `href` from Ionic's router-link delegate and renders an `<a>` in its shadow root, so the
+ * control is announced as a link and supports middle-click and open-in-new-tab. Navigating
+ * imperatively from a click handler looks equivalent and is not.
  */
 @Component({
   selector: 'app-button',
   standalone: true,
-  imports: [IonButton, IconComponent, SpinnerComponent],
+  imports: [
+    IonButton,
+    IonRouterLink,
+    RouterLink,
+    NgTemplateOutlet,
+    IconComponent,
+    SpinnerComponent,
+  ],
   template: `
-    <ion-button
-      data-testid="ui-button"
-      [type]="type()"
-      [color]="color()"
-      [fill]="fill()"
-      [size]="size() === 'small' ? 'small' : undefined"
-      [disabled]="disabled() || busy()"
-      [attr.aria-label]="label() ?? null"
-      [attr.aria-busy]="busy() ? 'true' : null"
-    >
+    <ng-template #content>
       @if (busy()) {
         <app-spinner slot="start" />
       } @else if (icon(); as iconName) {
         <app-icon slot="start" [name]="iconName" />
       }
       <ng-content />
-    </ion-button>
+    </ng-template>
+
+    <!--
+      Two branches, not one [routerLink] binding: a single binding instantiates the directive
+      even with no commands, and it injects ActivatedRoute — which would make a router
+      mandatory for every button, including the majority that never navigate. The content sits
+      in one <ng-template> so <ng-content> is consumed exactly once whichever branch renders.
+    -->
+    @if (link(); as commands) {
+      <ion-button
+        data-testid="ui-button"
+        [type]="type()"
+        [routerLink]="commands"
+        [color]="color()"
+        [fill]="fill()"
+        [size]="size() === 'small' ? 'small' : undefined"
+        [disabled]="disabled() || busy()"
+        [attr.aria-label]="label() ?? null"
+        [attr.aria-busy]="busy() ? 'true' : null"
+      >
+        <ng-container [ngTemplateOutlet]="content" />
+      </ion-button>
+    } @else {
+      <ion-button
+        data-testid="ui-button"
+        [type]="type()"
+        [color]="color()"
+        [fill]="fill()"
+        [size]="size() === 'small' ? 'small' : undefined"
+        [disabled]="disabled() || busy()"
+        [attr.aria-label]="label() ?? null"
+        [attr.aria-busy]="busy() ? 'true' : null"
+      >
+        <ng-container [ngTemplateOutlet]="content" />
+      </ion-button>
+    }
   `,
   styles: [
     `
@@ -120,6 +145,8 @@ export class ButtonComponent {
   readonly busy = input(false);
   /** A name registered in `src/app/core/icons.ts`, shown before the content. */
   readonly icon = input<string>();
+  /** Router commands for a button that navigates. Omit for one that performs an action. */
+  readonly link = input<unknown[] | string>();
   /** Already-translated accessible name. Required when there is an icon and no text. */
   readonly label = input<string>();
 

@@ -19,11 +19,11 @@
 
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonSpinner } from '@ionic/angular/standalone';
 
 import { GroupsService } from '../../../api';
 import { StatusBadgeComponent } from '../../../shared';
 import { TranslatePipe } from '../../../core/adapters';
+import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
 
 /**
  * The accounts a group holds in its own name.
@@ -36,10 +36,10 @@ import { TranslatePipe } from '../../../core/adapters';
 @Component({
   selector: 'app-group-accounts-tab',
   standalone: true,
-  imports: [StatusBadgeComponent, TranslatePipe, IonSpinner],
+  imports: [StatusBadgeComponent, TranslatePipe, SpinnerComponent],
   template: `
     @if (isLoading()) {
-      <ion-spinner data-testid="group-accounts-loading"></ion-spinner>
+      <app-spinner />
     } @else {
       <h2>{{ 'GROUPS.LOAN_ACCOUNTS' | appTranslate }}</h2>
       @if (loanAccounts().length === 0) {

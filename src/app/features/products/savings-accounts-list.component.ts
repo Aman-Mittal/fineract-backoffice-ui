@@ -33,8 +33,8 @@ import {
 } from '../../shared';
 import { SavingsAccountService, GetSavingsAccountsResponse, GetSavingsPageItems } from '../../api';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { ButtonComponent } from '../../ui/button/button.component';
 import {
   resolveAccountActionType,
   resolveAccountRoutePrefix,
@@ -51,8 +51,7 @@ import {
     StatusBadgeComponent,
     HasPermissionDirective,
     CurrencyPipe,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -71,15 +70,15 @@ import {
       [pageIndex]="pageIndex()"
       (pageChange)="onPage($event)"
     >
-      <ion-button
+      <app-button
+        type="button"
+        intent="primary"
+        icon="add-outline"
         headerActions
-        color="primary"
         *appHasPermission="'CREATE_SAVINGSACCOUNT'"
         (click)="onCreateAccount()"
+        >{{ 'SAVINGS.CREATE_ACCOUNT' | translate }}</app-button
       >
-        <ion-icon name="add-outline"></ion-icon>
-        {{ 'SAVINGS.CREATE_ACCOUNT' | translate }}
-      </ion-button>
 
       <ng-template appCellTemplate="accountNo" let-account>
         <a
@@ -99,47 +98,47 @@ import {
 
       <ng-template appCellTemplate="actions" let-account>
         @if (account.status?.submittedAndPendingApproval) {
-          <ion-button
-            fill="clear"
-            color="secondary"
-            [attr.aria-label]="'LOANS.APPROVE' | translate"
+          <app-button
+            type="button"
+            intent="secondary"
+            emphasis="quiet"
+            [label]="'LOANS.APPROVE' | translate"
+            icon="checkmark-circle-outline"
             [appTooltip]="'LOANS.APPROVE' | translate"
             (click)="onApprove(account)"
             *appHasPermission="'APPROVE_SAVINGSACCOUNT'"
-          >
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-          </ion-button>
+          />
         }
-        <ion-button
-          fill="clear"
-          color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
+        <app-button
+          type="button"
+          intent="primary"
+          emphasis="quiet"
+          [label]="'COMMON.EDIT' | translate"
+          icon="create-outline"
           [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditAccount(account)"
           *appHasPermission="'UPDATE_SAVINGSACCOUNT'"
-        >
-          <ion-icon name="create-outline"></ion-icon>
-        </ion-button>
-        <ion-button
-          fill="clear"
-          color="secondary"
-          [attr.aria-label]="'SAVINGS.DEPOSIT' | translate"
+        />
+        <app-button
+          type="button"
+          intent="secondary"
+          emphasis="quiet"
+          [label]="'SAVINGS.DEPOSIT' | translate"
+          icon="add-circle-outline"
           [appTooltip]="'SAVINGS.DEPOSIT_CASH' | translate"
           (click)="onTransaction(account, 'deposit')"
           *appHasPermission="'DEPOSIT_SAVINGSACCOUNT'"
-        >
-          <ion-icon name="add-circle-outline"></ion-icon>
-        </ion-button>
-        <ion-button
-          fill="clear"
-          color="danger"
-          [attr.aria-label]="'SAVINGS.WITHDRAWAL' | translate"
+        />
+        <app-button
+          type="button"
+          intent="danger"
+          emphasis="quiet"
+          [label]="'SAVINGS.WITHDRAWAL' | translate"
+          icon="remove-circle-outline"
           [appTooltip]="'SAVINGS.WITHDRAW_CASH' | translate"
           (click)="onTransaction(account, 'withdrawal')"
           *appHasPermission="'WITHDRAW_SAVINGSACCOUNT'"
-        >
-          <ion-icon name="remove-circle-outline"></ion-icon>
-        </ion-button>
+        />
       </ng-template>
     </app-data-table>
   `,

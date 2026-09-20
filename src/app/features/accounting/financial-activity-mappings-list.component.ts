@@ -28,12 +28,12 @@ import {
   ColumnDef,
 } from '../../shared/components/data-table/data-table.component';
 import { CellTemplateDirective } from '../../shared/components/data-table/cell-template.directive';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { ButtonComponent } from '../../ui/button/button.component';
 
 @Component({
   selector: 'app-financial-activity-mappings-list',
   standalone: true,
-  imports: [DataTableComponent, CellTemplateDirective, TranslatePipe, IonIcon, IonButton],
+  imports: [DataTableComponent, CellTemplateDirective, TranslatePipe, ButtonComponent],
   template: `
     <div class="container">
       <app-data-table
@@ -55,22 +55,22 @@ import { IonButton, IonIcon } from '@ionic/angular/standalone';
           {{ row.glAccountData?.glCode || '' }}
         </ng-template>
         <ng-template appCellTemplate="actions" let-row>
-          <ion-button
-            fill="clear"
-            color="primary"
+          <app-button
+            type="button"
+            intent="primary"
+            emphasis="quiet"
+            [label]="'COMMON.EDIT' | appTranslate"
+            icon="create-outline"
             (click)="onEdit(row)"
-            [attr.aria-label]="'COMMON.EDIT' | appTranslate"
-          >
-            <ion-icon name="create-outline"></ion-icon>
-          </ion-button>
-          <ion-button
-            fill="clear"
-            color="danger"
+          />
+          <app-button
+            type="button"
+            intent="danger"
+            emphasis="quiet"
+            [label]="'COMMON.DELETE' | appTranslate"
+            icon="trash-outline"
             (click)="onDelete(row)"
-            [attr.aria-label]="'COMMON.DELETE' | appTranslate"
-          >
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
+          />
         </ng-template>
       </app-data-table>
     </div>

@@ -189,6 +189,10 @@ module.exports = tseslint.config(
       // is on, so the fix produces TS4111. `DOMStringMap` is an index signature and this project
       // has deliberately chosen to require bracket access on those.
       'unicorn/dom-node-dataset': 'off',
+      // Lowercase, because Prettier rewrites hex digits that way and `format:check` gates CI:
+      // the rule's uppercase default is unsatisfiable here. The rest of the rule still applies,
+      // such as the `0x` prefix and exponent casing.
+      'unicorn/number-literal-case': ['error', { hexadecimalValue: 'lowercase' }],
       '@angular-eslint/directive-selector': [
         'error',
         {

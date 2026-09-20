@@ -20,28 +20,20 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { provideRouter, RouterLink } from '@angular/router';
 import { IonButton } from '@ionic/angular/standalone';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { ButtonComponent } from './button.component';
 
 /**
- * The button's public contract, asserted through a host so that content projection and form
- * participation are exercised the way a feature uses them.
+ * Asserted through a host so content projection and form participation match real use.
  *
- * Two things shape what is asserted here and what is not.
+ * Ionic's custom elements do not upgrade under jsdom, so there is no native `<button>` and no
+ * reflected attributes; what the inputs resolved to is observable on the `IonButton` directive,
+ * and that mapping is this component's job. Which colour an intent maps to is deliberately not
+ * pinned — only that two intents stay distinguishable.
  *
- * Ionic's custom elements do not upgrade under jsdom, so there is no native `<button>` in the
- * tree and no reflected attributes to read. What the caller's inputs become is observable only
- * on the `IonButton` directive, and that mapping is exactly this component's job — so the seam
- * is read there. It is the one place a vendor name legitimately appears in a test, and it is
- * inside `src/app/ui`, where ADR 0005 allows it.
- *
- * What is NOT pinned is which colour a given intent maps to. `intent`/`emphasis` exist so the
- * mapping can change without touching callers, and asserting the value would defeat that; the
- * test pins only that two different intents stay distinguishable.
- *
- * Real form submission and real disabled-click suppression are browser facts, not jsdom ones,
- * and belong in the e2e suite rather than here.
+ * Real form submission and real disabled-click suppression are browser facts, and live in e2e.
  */
 @Component({
   standalone: true,
@@ -54,6 +46,7 @@ import { ButtonComponent } from './button.component';
         [disabled]="disabled()"
         [busy]="busy()"
         [icon]="icon()"
+        [link]="link()"
         [label]="label()"
         (click)="clicked.set(clicked() + 1)"
       >
@@ -68,6 +61,7 @@ class HostComponent {
   readonly disabled = signal(false);
   readonly busy = signal(false);
   readonly icon = signal<string | undefined>(undefined);
+  readonly link = signal<unknown[] | undefined>(undefined);
   readonly label = signal<string | undefined>(undefined);
   readonly text = signal('Add entry');
   readonly clicked = signal(0);
@@ -85,7 +79,8 @@ describe('ButtonComponent public contract', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
-      providers: [provideIonicTesting()],
+      // A catch-all, so a navigation that fires resolves instead of failing as an unmatched URL.
+      providers: [provideIonicTesting(), provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
     fixture = TestBed.createComponent(HostComponent);
     host = fixture.componentInstance;
@@ -147,8 +142,58 @@ describe('ButtonComponent public contract', () => {
     ).toBe('true');
   });
 
+  it('is an ordinary button, with no router directive, when no link was given', () => {
+    expect(fixture.debugElement.query(By.directive(RouterLink))).toBeNull();
+    ionButton().click();
+    expect(host.clicked()).toBe(1);
+  });
+
+  it('becomes a real link when given one, rather than a button that routes', async () => {
+    // Navigating from a click handler instead would look equivalent, but leaves the control a
+    // button: no href, no middle-click, and announced as a button rather than a link.
+    host.link.set(['/clients', 7, 'notes']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const routed = fixture.debugElement.query(By.directive(RouterLink));
+    expect(routed).not.toBeNull();
+    expect(routed.nativeElement.tagName.toLowerCase()).toBe('ion-button');
+    expect(ionButton().getAttribute('href')).toBe('/clients/7/notes');
+  });
+
+  it('projects its content exactly once across the two branches', () => {
+    host.link.set(['/clients', 7, 'notes']);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('ion-button')).toHaveLength(1);
+    expect(fixture.nativeElement.textContent).toContain('Add entry');
+    host.link.set(undefined);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('ion-button')).toHaveLength(1);
+    expect(fixture.nativeElement.textContent).toContain('Add entry');
+  });
+
   it('leaves aria-label off a button that already reads its own text', () => {
     expect(ionButton().hasAttribute('aria-label')).toBe(false);
     expect(ionButton().hasAttribute('aria-busy')).toBe(false);
+  });
+});
+
+/**
+ * No router in the injector at all: a base primitive whose call sites mostly never navigate
+ * must not drag `ActivatedRoute` into every one of their injectors.
+ */
+describe('ButtonComponent without a router', () => {
+  it('renders and reports presses with no router provided', async () => {
+    await TestBed.configureTestingModule({
+      imports: [HostComponent],
+      providers: [provideIonicTesting()],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('ion-button') as HTMLElement;
+    expect(button).not.toBeNull();
+    button.click();
+    expect(fixture.componentInstance.clicked()).toBe(1);
   });
 });

@@ -25,8 +25,8 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import { LoanChargesService, GetLoansLoanIdChargesChargeIdResponse } from '../../../api';
 import { I18N } from '../../../core/adapters';
 import { DialogService } from '../../../core/services/dialog.service';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
  * Lists the charges attached to a single loan. The loan id is read from the route snapshot;
@@ -40,8 +40,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -66,15 +65,15 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
       <ng-template appCellTemplate="actions" let-row>
         @if (!row.paid) {
-          <ion-button
-            fill="clear"
-            color="danger"
-            [attr.aria-label]="'COMMON.DELETE' | translate"
+          <app-button
+            type="button"
+            intent="danger"
+            emphasis="quiet"
+            [label]="'COMMON.DELETE' | translate"
+            icon="trash-outline"
             [appTooltip]="'COMMON.DELETE' | translate"
             (click)="onDelete(row)"
-          >
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
+          />
         }
       </ng-template>
     </app-data-table>

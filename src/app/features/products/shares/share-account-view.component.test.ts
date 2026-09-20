@@ -45,7 +45,10 @@ describe('ShareAccountViewComponent', () => {
   let shareService: SpyObj<ShareAccountService>;
   let dialogService: SpyObj<DialogService>;
 
-  function account(status: object, timeline: object = { submittedOnDate: [2026, 8, 9] }): object {
+  /** Shared, and only ever read: the submitted-on date the commands are floored on. */
+  const SUBMITTED_TIMELINE = { submittedOnDate: [2026, 8, 9] };
+
+  function account(status: object, timeline: object = SUBMITTED_TIMELINE): object {
     return {
       id: 7,
       accountNo: '000000007',
