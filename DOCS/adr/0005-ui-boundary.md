@@ -76,7 +76,10 @@ disabled tabs; Home/End work; RTL reverses horizontal navigation. Focus movement
 from activation: Enter/Space or a click requests a value change. Tab leaves the strip normally.
 This avoids issuing data requests for every arrow key on a network-backed panel.
 
-Callers provide a stable, page-unique `idPrefix` and a tablist label. Each button has role `tab`,
+Callers provide a stable, page-unique `idPrefix` and a tablist label. The prefix is escaped by
+the component rather than trusted to be id-safe, because callers build it from application data.
+The tab stop stays on the selected tab even when that tab is disabled, so `aria-selected` and
+`tabindex` never name different buttons; arrow keys still skip disabled tabs. Each button has role `tab`,
 `aria-selected`, a roving tabindex and `aria-controls`. The caller renders one shared panel with
 role `tabpanel`, `tabindex=0`, `panelId()` and `aria-labelledby=tabId(selectedValue)`. This makes
 loading and panel lifecycle explicit rather than eagerly mounting every feature. A missing
