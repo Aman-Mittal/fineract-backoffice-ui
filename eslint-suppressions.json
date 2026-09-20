@@ -19,11 +19,6 @@
       "count": 1
     }
   },
-  "src/app/core/interceptors/correlation-id.interceptor.ts": {
-    "unicorn/number-literal-case": {
-      "count": 3
-    }
-  },
   "src/app/core/services/auth.service.test.ts": {
     "no-restricted-globals": {
       "count": 4
@@ -900,9 +895,6 @@
     },
     "no-restricted-imports": {
       "count": 1
-    },
-    "unicorn/prefer-number-properties": {
-      "count": 1
     }
   },
   "src/app/features/loans/post-dated-checks/post-dated-check-form.component.test.ts": {
@@ -1162,11 +1154,6 @@
       "count": 1
     },
     "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/deposit-account-view.component.test.ts": {
-    "unicorn/no-object-as-default-parameter": {
       "count": 1
     }
   },
@@ -1572,11 +1559,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/shares/share-account-view.component.test.ts": {
-    "unicorn/no-object-as-default-parameter": {
-      "count": 1
-    }
-  },
   "src/app/features/products/shares/share-account-view.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1689,11 +1671,6 @@
       "count": 1
     }
   },
-  "src/app/features/reporting/run-report.component.test.ts": {
-    "unicorn/no-object-as-default-parameter": {
-      "count": 1
-    }
-  },
   "src/app/features/reporting/run-report.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1715,12 +1692,6 @@
       "count": 1
     },
     "no-restricted-imports": {
-      "count": 1
-    },
-    "unicorn/prefer-logical-operator-over-ternary": {
-      "count": 1
-    },
-    "unicorn/require-module-specifiers": {
       "count": 1
     }
   },
@@ -2443,9 +2414,6 @@
   },
   "src/app/shared/components/data-table/data-table.component.test.ts": {
     "no-restricted-imports": {
-      "count": 1
-    },
-    "unicorn/better-dom-traversing": {
       "count": 1
     },
     "unicorn/no-array-sort": {

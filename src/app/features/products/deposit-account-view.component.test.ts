@@ -55,8 +55,11 @@ describe('DepositAccountViewComponent', () => {
   let dialogService: SpyObj<DialogService>;
   let standingInstructions: SpyObj<StandingInstructionsService>;
 
+  /** Shared, and only ever read: the submitted-on date the commands are floored on. */
+  const SUBMITTED_TIMELINE = { submittedOnDate: [2026, 8, 9] };
+
   /** The account as the platform returns it, with the timeline the commands are floored on. */
-  function account(status: object, timeline: object = { submittedOnDate: [2026, 8, 9] }): object {
+  function account(status: object, timeline: object = SUBMITTED_TIMELINE): object {
     return { id: 7, clientId: 42, status, timeline, currency: { displaySymbol: '$' } };
   }
 

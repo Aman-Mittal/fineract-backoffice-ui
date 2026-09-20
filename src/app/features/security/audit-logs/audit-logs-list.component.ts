@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import {} from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
@@ -379,9 +378,7 @@ export class AuditLogsListComponent implements OnInit {
             string,
             unknown
           >;
-          const items = result['pageItems']
-            ? (result['pageItems'] as unknown[])
-            : (result as unknown);
+          const items = (result['pageItems'] as unknown[]) || (result as unknown);
 
           if (Array.isArray(items)) {
             const limit = this.pageSize();
