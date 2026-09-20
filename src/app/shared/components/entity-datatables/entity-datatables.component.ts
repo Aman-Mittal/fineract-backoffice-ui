@@ -149,8 +149,16 @@ export class EntityDatatablesComponent implements OnInit {
 
   loadTableData(tableName: string): void {
     this.isTableLoading.set(true);
+    // The columns come from `activeTable()` and switch synchronously, while the rows arrive
+    // later. Holding the previous table's rows would render them under the new table's headers
+    // until the response lands, so drop them as the request goes out.
+    this.tableData.set([]);
     this.datatablesService.getDatatablesDatatableApptableId(tableName, this.entityId()).subscribe({
       next: (data: unknown) => {
+        // Nothing cancels the previous request, so switching A -> B -> A leaves two in flight
+        // and the slower one can land last. Without this guard its rows would be shown under
+        // whichever tab is selected by then, and stay there.
+        if (this.isStale(tableName)) return;
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
         // GET /datatables/{datatable}/{apptableId} returns entries as a plain
@@ -179,9 +187,15 @@ export class EntityDatatablesComponent implements OnInit {
       },
       error: (err) => {
         console.error(`Failed to load data for table ${tableName}`, err);
+        if (this.isStale(tableName)) return;
         this.isTableLoading.set(false);
       },
     });
+  }
+
+  /** True once a later tab change has made this response's table no longer the selected one. */
+  private isStale(tableName: string): boolean {
+    return this.activeTable()?.registeredTableName !== tableName;
   }
 
   getColumnDefs(dt: GetDataTablesResponse): ColumnDef[] {

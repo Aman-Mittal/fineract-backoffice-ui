@@ -23,7 +23,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DialogService } from '../../../core/services/dialog.service';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError, Observable } from 'rxjs';
+import { of, throwError, Observable, Subject } from 'rxjs';
 import { EntityDatatablesComponent } from './entity-datatables.component';
 import { DatatableEntryDialogComponent } from '../datatable-entry-dialog/datatable-entry-dialog.component';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
@@ -102,6 +102,54 @@ describe('EntityDatatablesComponent', () => {
     expect(selected?.textContent?.trim()).toBe('m_client_details');
     expect(panel.getAttribute('aria-labelledby')).toBe(selected.id);
     expect(selected.getAttribute('aria-controls')).toBe(panel.id);
+  });
+
+  it('ignores a slow response once a later tab change has superseded it', () => {
+    // Nothing cancels the in-flight request, so switching away and back leaves two running.
+    // Whichever finishes last used to win, regardless of which tab is actually selected.
+    const first = new Subject<unknown>();
+    const second = new Subject<unknown>();
+    datatablesServiceSpy.getDatatables.mockReturnValue(
+      of(mockDatatables) as unknown as Observable<never>,
+    );
+    datatablesServiceSpy.getDatatablesDatatableApptableId
+      .mockReturnValueOnce(of([{ business_type: 'Retail' }]) as unknown as Observable<never>)
+      .mockReturnValueOnce(first as unknown as Observable<never>)
+      .mockReturnValueOnce(second as unknown as Observable<never>);
+    fixture.detectChanges();
+
+    component.onTabChange('m_client_more_details');
+    component.onTabChange('m_client_details');
+
+    // The second tab's response lands late, after the selection moved back to the first.
+    first.next([{ notes: 'from the superseded tab' }]);
+    first.complete();
+    expect(component.tableData()).toEqual([]);
+    expect(component.isTableLoading()).toBe(true);
+
+    second.next([{ business_type: 'Wholesale' }]);
+    second.complete();
+    expect(component.tableData()).toEqual([{ business_type: 'Wholesale' }]);
+    expect(component.isTableLoading()).toBe(false);
+  });
+
+  it('drops the previous rows as the request goes out, so none render under the new columns', () => {
+    const pending = new Subject<unknown>();
+    datatablesServiceSpy.getDatatables.mockReturnValue(
+      of(mockDatatables) as unknown as Observable<never>,
+    );
+    datatablesServiceSpy.getDatatablesDatatableApptableId
+      .mockReturnValueOnce(of([{ business_type: 'Retail' }]) as unknown as Observable<never>)
+      .mockReturnValueOnce(pending as unknown as Observable<never>);
+    fixture.detectChanges();
+    expect(component.tableData()).toEqual([{ business_type: 'Retail' }]);
+
+    component.onTabChange('m_client_more_details');
+
+    expect(component.tableData()).toEqual([]);
+    pending.next([{ notes: 'loaded' }]);
+    pending.complete();
+    expect(component.tableData()).toEqual([{ notes: 'loaded' }]);
   });
 
   it('should create and load datatables on init', () => {
