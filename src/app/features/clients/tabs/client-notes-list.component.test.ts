@@ -93,12 +93,11 @@ describe('ClientNotesListComponent button contract after the ui migration', () =
   it('still links to the create screen, as a link rather than a button', async () => {
     await render(() => true);
 
-    // The create button is the one with no accessible-name override: it reads its own text.
+    // The create button reads its own text, so it is the one with no `label`.
     const create = rendered().find((b) => b.label() === undefined)!;
     expect(create.link()).toEqual(['/clients', 42, 'notes', 'create']);
 
-    // An href, not just a click handler: these actions were anchors before the migration and
-    // have to stay middle-clickable and announced as links.
+    // An href, not just a click handler: these were anchors before, and must stay links.
     const anchor = fixture.nativeElement.querySelector('.tab-actions ion-button') as HTMLElement;
     expect(anchor.getAttribute('href')).toBe('/clients/42/notes/create');
   });
@@ -108,11 +107,9 @@ describe('ClientNotesListComponent button contract after the ui migration', () =
     const names = rendered().map((b) => b.label());
     expect(names).toContain('COMMON.EDIT');
     expect(names).toContain('COMMON.DELETE');
-    // The edit action navigates; the icon it was given survived the rewrite too.
     expect(labelled('COMMON.EDIT').link()).toEqual(['/clients', 42, 'notes', 'edit', NOTE.id]);
     expect(labelled('COMMON.EDIT').icon()).toBe('create-outline');
     expect(labelled('COMMON.DELETE').icon()).toBe('trash-outline');
-    // Every one of them declares its type, so none can inherit the vendor's submit default.
     expect(rendered().map((b) => b.type())).toEqual(['button', 'button', 'button']);
   });
 

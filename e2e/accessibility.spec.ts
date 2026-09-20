@@ -53,24 +53,15 @@ const CLIENT_LIST_BASELINE = new Set([
   'role-img-alt|ion-icon[name="play-skip-forward-outline"]',
 ]);
 /**
- * ONE defect, four fingerprints — see #514.
+ * One upstream defect, four fingerprints — see #514.
  *
  * Ionic renders `ion-select`'s inner trigger as a `button` and reflects the host's `required`
- * onto it as `aria-required`, which ARIA does not allow on that role. It is Ionic's markup in a
- * shadow root we do not own, so there is nothing to fix here; the fix belongs upstream, either
- * by dropping the attribute or by giving that element the `combobox` role its trigger actually
- * behaves as.
+ * onto it as `aria-required`, which ARIA does not allow on that role. The markup is in a shadow
+ * root we do not own, so the fix belongs upstream. Axe names the violation by the shortest
+ * unique selector for the host, and the host's state classes move with its value, which is why
+ * one defect produces four keys.
  *
- * The fingerprints multiply because axe names the violation by the shortest unique selector for
- * the *host*, and the host's state classes move with its value: `.has-value` once something is
- * chosen, `.has-placeholder` while empty with a placeholder set, and an attribute selector when
- * neither class applies. Listed together and counted once, so the baseline says "one upstream
- * defect" rather than looking like four problems of our own.
- *
- * Pinned to axe's selector output, which is fragile by nature: if Ionic renames those classes or
- * a form stops setting a placeholder, an entry here silently becomes dead weight while the same
- * violation reappears under a fifth fingerprint. Delete all of these together once the upstream
- * fix lands and the version is bumped, and confirm the suite still passes.
+ * Delete them together once the upstream fix lands.
  */
 const IONIC_SELECT_ARIA_REQUIRED = [
   'aria-allowed-attr|.has-value >> #ion-sel-*',

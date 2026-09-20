@@ -79,8 +79,7 @@ describe('ButtonComponent public contract', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
-      // A catch-all so a navigation that fires resolves, rather than failing as an unmatched URL
-      // and hiding whether the wiring worked.
+      // A catch-all, so a navigation that fires resolves instead of failing as an unmatched URL.
       providers: [provideIonicTesting(), provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
     fixture = TestBed.createComponent(HostComponent);
