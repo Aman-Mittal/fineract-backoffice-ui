@@ -57,7 +57,18 @@ The UI layer is **Ionic** (`@ionic/angular` v8). Ionic is configured in `mode: '
 ### UI boundary
 
 New UI dependencies belong in `src/app/ui/`. Prefer its app-owned primitives; direct Ionic
-imports in existing features are a lint migration baseline. See
+imports in existing features are a lint migration baseline.
+
+Available today:
+
+| Primitive     | Notes                                                                              |
+| ------------- | ---------------------------------------------------------------------------------- |
+| `app-tabs`    | Manual activation: moving focus never loads a panel. Caller renders the one panel. |
+| `app-button`  | `type` is required — no inherited submit. `intent`/`emphasis`, `busy`, `icon`.     |
+| `app-icon`    | Decorative unless given a translated `label`.                                      |
+| `app-spinner` | Decorative unless given a translated `label`.                                      |
+
+See
 [ADR 0005](DOCS/adr/0005-ui-boundary.md) for component, form-value, theme and browser-test
 contracts. Implementations inside `ui/` may use Ionic as described below; CDK behavioural
 primitives such as `app-tabs` do not need it.

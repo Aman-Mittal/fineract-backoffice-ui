@@ -139,6 +139,38 @@ describe('TabsComponent public contract', () => {
     expect(changed).not.toHaveBeenCalled();
   });
 
+  it('keeps the tab stop on the selected tab even when that tab is disabled', () => {
+    // Otherwise `aria-selected="true"` and `tabindex="0"` name different buttons, and Tab
+    // enters the strip on a tab whose panel is not the one on screen.
+    fixture.componentRef.setInput('tabs', [
+      { value: 'accounts', label: 'Accounts', disabled: true },
+      { value: 'notes', label: 'Notes' },
+    ]);
+    fixture.detectChanges();
+    expect(buttons()[0].getAttribute('aria-selected')).toBe('true');
+    expect(buttons().map((tab) => tab.tabIndex)).toEqual([0, -1]);
+    // Arrows still refuse to settle on it, so focus is never trapped there.
+    buttons()[0].focus();
+    key(buttons()[0], 'ArrowRight', 39);
+    expect(document.activeElement).toBe(buttons()[1]);
+  });
+
+  it('escapes the caller-supplied prefix so the panel relationship survives odd data', () => {
+    // `idPrefix` is built from application data — a registered table name, an office name —
+    // and a raw space or quote would leave aria-controls pointing at nothing.
+    fixture.componentRef.setInput('idPrefix', 'client records "7"');
+    fixture.detectChanges();
+    const selected = buttons()[0];
+    expect(selected.id).not.toContain(' ');
+    expect(selected.id).not.toContain('"');
+    expect(selected.getAttribute('aria-controls')).toBe(fixture.componentInstance.panelId());
+    expect(selected.id).toBe(fixture.componentInstance.tabId('accounts'));
+    // The document must be able to find the element by the id the component advertises.
+    document.body.append(fixture.nativeElement);
+    expect(document.querySelector(`[id="${CSS.escape(selected.id)}"]`)).toBe(selected);
+    fixture.nativeElement.remove();
+  });
+
   it('does not point any tab at a panel when the value matches no tab', () => {
     fixture.componentRef.setInput('value', 'missing');
     fixture.detectChanges();

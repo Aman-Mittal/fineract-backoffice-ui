@@ -21,6 +21,7 @@ import { FocusKeyManager } from '@angular/cdk/a11y';
 import {
   Component,
   ElementRef,
+  computed,
   inject,
   input,
   linkedSignal,
@@ -111,24 +112,40 @@ export class TabsComponent {
   readonly tabs = input.required<readonly UiTab[]>();
   readonly value = input<string>();
   readonly label = input.required<string>();
-  /** Stable, page-unique identifier; the same prefix binds the tablist and its shared panel. */
+  /**
+   * Stable, page-unique identifier; the same prefix binds the tablist and its shared panel.
+   *
+   * Callers build this from application data — `EntityDatatablesComponent` uses the apptable
+   * name — so it is escaped here rather than trusted to be id-safe. A space or quote reaching
+   * the DOM would break the `aria-controls`/`aria-labelledby` pair silently: the attributes
+   * would still be present, just pointing at nothing.
+   */
   readonly idPrefix = input.required<string>();
   readonly valueChange = output<string>();
 
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly buttons = viewChildren<ElementRef<HTMLButtonElement>>('tabButton');
+  private readonly prefix = computed(() => encodeURIComponent(this.idPrefix()));
+  /**
+   * Which tab holds the strip's single tab stop.
+   *
+   * The selected tab keeps it even when it is disabled, so that `aria-selected` and the tab
+   * stop never name different buttons: entering the strip with Tab should land on the tab whose
+   * panel is showing, which is what the ARIA practices describe. Arrow keys still skip disabled
+   * tabs, so a disabled selection is somewhere focus can land but not somewhere it gets stuck.
+   */
   protected readonly focusIndex = linkedSignal(() => {
-    const selected = this.tabs().findIndex((tab) => tab.value === this.value() && !tab.disabled);
+    const selected = this.tabs().findIndex((tab) => tab.value === this.value());
     if (selected !== -1) return selected;
     const enabled = this.tabs().findIndex((tab) => !tab.disabled);
     return enabled !== -1 ? enabled : 0;
   });
 
   tabId(value: string): string {
-    return `${this.idPrefix()}-tab-${encodeURIComponent(value)}`;
+    return `${this.prefix()}-tab-${encodeURIComponent(value)}`;
   }
   panelId(): string {
-    return `${this.idPrefix()}-panel`;
+    return `${this.prefix()}-panel`;
   }
 
   protected select(tab: UiTab): void {

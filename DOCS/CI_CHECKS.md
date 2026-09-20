@@ -64,11 +64,17 @@ npm run lint
 ESLint over `src/**/*.ts` and `src/**/*.html`, for both projects in the workspace.
 `src/app/api/**` is excluded — it is generated.
 
-Three rules here are deliberate and worth knowing before you fight them:
+Four rules here are deliberate and worth knowing before you fight them:
 
 - **`no-restricted-imports` bans `@angular/material`.** The app migrated to Ionic;
-  this is what stops it creeping back. Use `@ionic/angular/standalone` and see
-  `STYLE.md` for the component mapping. `@angular/cdk` is still allowed.
+  this is what stops it creeping back. See `STYLE.md` for the component mapping.
+  `@angular/cdk` is still allowed.
+- **`local/no-vendor-ui-import` bans new `@ionic/angular` imports** outside `src/app/ui/**`,
+  the Ionic test harness, the adapters and the composition roots. New feature code uses the
+  app-owned primitives in `src/app/ui/`; existing direct imports are a recorded baseline that
+  only shrinks. It is a separate rule from the one above on purpose — the suppressions file
+  counts per rule id, so a shared counter would let an Ionic violation pay for a Material or
+  i18n one. See `DOCS/adr/0005-ui-boundary.md`.
 - **`sonarjs/*` is on**, and is stricter than most setups — it will reject nested
   ternaries and string literals repeated three times or more. Extracting a named
   constant is usually the right response, not a disable comment.

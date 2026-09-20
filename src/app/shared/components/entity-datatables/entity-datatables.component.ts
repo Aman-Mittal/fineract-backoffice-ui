@@ -20,7 +20,8 @@
 import { computed, inject, input, signal, Component, OnInit } from '@angular/core';
 import { TranslatePipe } from '../../../core/adapters';
 import { TabsComponent, UiTab } from '../../../ui/tabs/tabs.component';
-import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { ButtonComponent } from '../../../ui/button/button.component';
+import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
 import { DataTableComponent, ColumnDef } from '../data-table/data-table.component';
@@ -31,12 +32,12 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
 @Component({
   selector: 'app-entity-datatables',
   standalone: true,
-  imports: [TranslatePipe, TabsComponent, IonButton, IonIcon, IonSpinner, DataTableComponent],
+  imports: [TranslatePipe, TabsComponent, ButtonComponent, SpinnerComponent, DataTableComponent],
   template: `
     <div class="entity-datatables-container">
       @if (isLoading()) {
         <div class="loading-overlay">
-          <ion-spinner name="crescent"></ion-spinner>
+          <app-spinner [label]="'COMMON.LOADING' | appTranslate" />
         </div>
       }
 
@@ -65,15 +66,15 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
               [isLoading]="isTableLoading()"
               [localLogic]="true"
             >
-              <ion-button
+              <app-button
                 headerActions
                 data-testid="entity-datatables-add"
-                color="primary"
+                type="button"
+                icon="add-outline"
                 (click)="onAddEntry(dt)"
               >
-                <ion-icon name="add-outline" slot="start"></ion-icon>
                 {{ 'SYSTEM.ADD_ENTRY' | appTranslate }}
-              </ion-button>
+              </app-button>
             </app-data-table>
           </div>
         }
@@ -149,8 +150,16 @@ export class EntityDatatablesComponent implements OnInit {
 
   loadTableData(tableName: string): void {
     this.isTableLoading.set(true);
+    // The columns come from `activeTable()` and switch synchronously, while the rows arrive
+    // later. Holding the previous table's rows would render them under the new table's headers
+    // until the response lands, so drop them as the request goes out.
+    this.tableData.set([]);
     this.datatablesService.getDatatablesDatatableApptableId(tableName, this.entityId()).subscribe({
       next: (data: unknown) => {
+        // Nothing cancels the previous request, so switching A -> B -> A leaves two in flight
+        // and the slower one can land last. Without this guard its rows would be shown under
+        // whichever tab is selected by then, and stay there.
+        if (this.isStale(tableName)) return;
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
         // GET /datatables/{datatable}/{apptableId} returns entries as a plain
@@ -179,9 +188,15 @@ export class EntityDatatablesComponent implements OnInit {
       },
       error: (err) => {
         console.error(`Failed to load data for table ${tableName}`, err);
+        if (this.isStale(tableName)) return;
         this.isTableLoading.set(false);
       },
     });
+  }
+
+  /** True once a later tab change has made this response's table no longer the selected one. */
+  private isStale(tableName: string): boolean {
+    return this.activeTable()?.registeredTableName !== tableName;
   }
 
   getColumnDefs(dt: GetDataTablesResponse): ColumnDef[] {
