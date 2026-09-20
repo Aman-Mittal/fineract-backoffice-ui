@@ -23,8 +23,8 @@ import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { RolesService, GetRolesResponse } from '../../../api';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 @Component({
   selector: 'app-roles-list',
@@ -33,8 +33,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -51,15 +50,15 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       (create)="onCreateRole()"
     >
       <ng-template appCellTemplate="actions" let-role>
-        <ion-button
-          fill="clear"
-          color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
+        <app-button
+          type="button"
+          intent="primary"
+          emphasis="quiet"
+          [label]="'COMMON.EDIT' | translate"
+          icon="create-outline"
           [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEditRole(role)"
-        >
-          <ion-icon name="create-outline"></ion-icon>
-        </ion-button>
+        />
       </ng-template>
     </app-data-table>
   `,

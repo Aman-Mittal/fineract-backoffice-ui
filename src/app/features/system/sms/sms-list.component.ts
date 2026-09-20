@@ -23,10 +23,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { SMSService, SmsData } from '../../../api';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { I18N } from '../../../core/adapters';
 import { DialogService } from '../../../core/services/dialog.service';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
  * Lists individual outbound SMS messages.
@@ -38,8 +38,7 @@ import { DialogService } from '../../../core/services/dialog.service';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -55,24 +54,24 @@ import { DialogService } from '../../../core/services/dialog.service';
       (create)="onCreate()"
     >
       <ng-template appCellTemplate="actions" let-row>
-        <ion-button
-          fill="clear"
-          color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
+        <app-button
+          type="button"
+          intent="primary"
+          emphasis="quiet"
+          [label]="'COMMON.EDIT' | translate"
+          icon="create-outline"
           [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEdit(row)"
-        >
-          <ion-icon name="create-outline"></ion-icon>
-        </ion-button>
-        <ion-button
-          fill="clear"
-          color="danger"
-          [attr.aria-label]="'COMMON.DELETE' | translate"
+        />
+        <app-button
+          type="button"
+          intent="danger"
+          emphasis="quiet"
+          [label]="'COMMON.DELETE' | translate"
+          icon="trash-outline"
           [appTooltip]="'COMMON.DELETE' | translate"
           (click)="onDelete(row)"
-        >
-          <ion-icon name="trash-outline"></ion-icon>
-        </ion-button>
+        />
       </ng-template>
     </app-data-table>
   `,

@@ -23,7 +23,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { SCHEDULERJOBService, JobDetailHistoryDataSwagger } from '../../../api';
-import { IonButton } from '@ionic/angular/standalone';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
  * Read-only run history for a single scheduler job, reached from the jobs list.
@@ -31,10 +31,12 @@ import { IonButton } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-scheduler-job-history',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, IonButton],
+  imports: [TranslateModule, DataTableComponent, ButtonComponent],
   template: `
     <div class="history-actions">
-      <ion-button fill="clear" (click)="onBack()">{{ 'COMMON.BACK' | translate }}</ion-button>
+      <app-button type="button" emphasis="quiet" (click)="onBack()">{{
+        'COMMON.BACK' | translate
+      }}</app-button>
     </div>
     <app-data-table
       title="SCHEDULER_JOBS.RUN_HISTORY"

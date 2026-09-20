@@ -26,8 +26,8 @@ import { ClientChargesService, GetClientsChargesPageItems } from '../../../api';
 import { I18N } from '../../../core/adapters';
 import { DialogService } from '../../../core/services/dialog.service';
 import { formatArrayDate } from '../../../core/utils/date-formatter';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
  * Lists the charges attached to a single client. The client id is read from the route
@@ -40,8 +40,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -66,15 +65,15 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
         {{ row.amountOutstanding ?? 0 }}
       </ng-template>
       <ng-template appCellTemplate="actions" let-row>
-        <ion-button
-          fill="clear"
-          color="danger"
-          [attr.aria-label]="'COMMON.DELETE' | translate"
+        <app-button
+          type="button"
+          intent="danger"
+          emphasis="quiet"
+          [label]="'COMMON.DELETE' | translate"
+          icon="trash-outline"
           [appTooltip]="'COMMON.DELETE' | translate"
           (click)="onDelete(row)"
-        >
-          <ion-icon name="trash-outline"></ion-icon>
-        </ion-button>
+        />
       </ng-template>
     </app-data-table>
   `,

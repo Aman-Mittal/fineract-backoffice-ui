@@ -23,8 +23,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { PaymentTypeService, PaymentTypeData } from '../../../api';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
  * Lists payment types (a master-data resource) with create / edit / delete.
@@ -37,8 +37,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -58,25 +57,25 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-row>
-        <ion-button
-          fill="clear"
-          color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
+        <app-button
+          type="button"
+          intent="primary"
+          emphasis="quiet"
+          [label]="'COMMON.EDIT' | translate"
+          icon="create-outline"
           [appTooltip]="'COMMON.EDIT' | translate"
           (click)="onEdit(row)"
-        >
-          <ion-icon name="create-outline"></ion-icon>
-        </ion-button>
+        />
         @if (!row.isSystemDefined) {
-          <ion-button
-            fill="clear"
-            color="danger"
-            [attr.aria-label]="'COMMON.DELETE' | translate"
+          <app-button
+            type="button"
+            intent="danger"
+            emphasis="quiet"
+            [label]="'COMMON.DELETE' | translate"
+            icon="trash-outline"
             [appTooltip]="'COMMON.DELETE' | translate"
             (click)="onDelete(row)"
-          >
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
+          />
         }
       </ng-template>
     </app-data-table>

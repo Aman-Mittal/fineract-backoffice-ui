@@ -27,10 +27,10 @@ import {
   CellTemplateDirective,
 } from '../../../shared';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { I18N } from '../../../core/adapters';
 import { DialogService } from '../../../core/services/dialog.service';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 @Component({
   selector: 'app-datatables-list',
@@ -41,8 +41,7 @@ import { DialogService } from '../../../core/services/dialog.service';
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -53,38 +52,38 @@ import { DialogService } from '../../../core/services/dialog.service';
       [isLoading]="isLoading()"
       [localLogic]="true"
     >
-      <ion-button
+      <app-button
+        type="button"
+        intent="primary"
+        [link]="['create']"
+        icon="add-outline"
         headerActions
-        color="primary"
-        [routerLink]="['create']"
         *appHasPermission="'CREATE_DATATABLE'"
+        >{{ 'SYSTEM.CREATE_DATA_TABLE' | translate }}</app-button
       >
-        <ion-icon name="add-outline"></ion-icon>
-        {{ 'SYSTEM.CREATE_DATA_TABLE' | translate }}
-      </ion-button>
 
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <ion-button
-            fill="clear"
-            color="primary"
-            [routerLink]="['edit', row.registeredTableName]"
+          <app-button
+            type="button"
+            intent="primary"
+            emphasis="quiet"
+            [label]="'COMMON.EDIT' | translate"
+            [link]="['edit', row.registeredTableName]"
+            icon="create-outline"
             *appHasPermission="'UPDATE_DATATABLE'"
-            [attr.aria-label]="'COMMON.EDIT' | translate"
             [appTooltip]="'COMMON.EDIT' | translate"
-          >
-            <ion-icon name="create-outline"></ion-icon>
-          </ion-button>
-          <ion-button
-            fill="clear"
-            color="danger"
+          />
+          <app-button
+            type="button"
+            intent="danger"
+            emphasis="quiet"
+            [label]="'COMMON.DELETE' | translate"
+            icon="trash-outline"
             (click)="onDelete(row.registeredTableName)"
             *appHasPermission="'DELETE_DATATABLE'"
-            [attr.aria-label]="'COMMON.DELETE' | translate"
             [appTooltip]="'COMMON.DELETE' | translate"
-          >
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
+          />
         </div>
       </ng-template>
     </app-data-table>

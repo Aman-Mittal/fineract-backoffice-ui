@@ -26,8 +26,8 @@ import { ClientTransactionService, GetClientsPageItems } from '../../../api';
 import { I18N } from '../../../core/adapters';
 import { DialogService } from '../../../core/services/dialog.service';
 import { formatArrayDate } from '../../../core/utils/date-formatter';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
  * Lists the transactions for a single client. The client id is read from the route
@@ -41,8 +41,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -61,16 +60,16 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
         {{ row.type?.value }}
       </ng-template>
       <ng-template appCellTemplate="actions" let-row>
-        <ion-button
-          fill="clear"
-          color="danger"
-          [attr.aria-label]="'CLIENT_TRANSACTIONS.UNDO' | translate"
+        <app-button
+          type="button"
+          intent="danger"
+          emphasis="quiet"
+          [label]="'CLIENT_TRANSACTIONS.UNDO' | translate"
+          icon="arrow-undo-outline"
           [appTooltip]="'CLIENT_TRANSACTIONS.UNDO' | translate"
           [disabled]="row.reversed"
           (click)="onUndo(row)"
-        >
-          <ion-icon name="arrow-undo-outline"></ion-icon>
-        </ion-button>
+        />
       </ng-template>
     </app-data-table>
   `,

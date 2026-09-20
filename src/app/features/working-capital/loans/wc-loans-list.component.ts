@@ -23,8 +23,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { WorkingCapitalLoansService, GetWorkingCapitalLoansLoanIdResponse } from '../../../api';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
  * Lists Working Capital Loans. The list endpoint returns a Spring Data page
@@ -50,8 +50,7 @@ interface WcLoanRow {
     TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -67,15 +66,15 @@ interface WcLoanRow {
       (create)="onCreate()"
     >
       <ng-template appCellTemplate="actions" let-row>
-        <ion-button
-          fill="clear"
-          color="primary"
-          [attr.aria-label]="'COMMON.VIEW' | translate"
+        <app-button
+          type="button"
+          intent="primary"
+          emphasis="quiet"
+          [label]="'COMMON.VIEW' | translate"
+          icon="eye-outline"
           [appTooltip]="'COMMON.VIEW' | translate"
           (click)="onView(row)"
-        >
-          <ion-icon name="eye-outline"></ion-icon>
-        </ion-button>
+        />
       </ng-template>
     </app-data-table>
   `,
