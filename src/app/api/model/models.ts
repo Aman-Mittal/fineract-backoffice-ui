@@ -1454,6 +1454,7 @@ export * from './workingCapitalLoanPaymentChannelToFundSourceMappings';
 export * from './workingCapitalLoanPeriodPaymentRateChangeData';
 export * from './workingCapitalLoanProductChargeToGLAccountMapper';
 export * from './workingCapitalLoanTransactionPaymentDetailData';
+export * from './workingCapitalLoanTransactionTemplateResponse';
 export * from './workingCapitalNearBreachData';
 export * from './workingCapitalNearBreachRequest';
 export * from './workingCapitalPostChargeOffReasonToExpenseAccountMappings';

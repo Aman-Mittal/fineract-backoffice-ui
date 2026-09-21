@@ -69,7 +69,7 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
     breachStartDate?: string;
     breachStartType?: StringEnumOptionData;
     /**
-     * Annualized EIR as a fraction (0.1691 = 16.91%): (1 + dailyEir)^npvDayCount − 1; null if schedule not yet generated. Note: periodPaymentRateHistory[].calculatedAnnualEir is a percentage
+     * Annual effective rate the loan was priced at, as a percentage: compounded over the product\'s NPV day count, not a calendar year, and rounded to six decimals. The base schedule\'s daily discounting derives from it. A rate change does not restate it - the schedule re-solves its own rate from the day the change takes effect. Comes from discount-fee pricing, not a lending interest rate. Null if schedule not yet generated or if the loan amortizes FLAT, which solves no rate
      */
     calculatedAnnualEir?: number;
     chargeOffReason?: CodeValueData;
@@ -92,10 +92,6 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
     clientName?: string;
     clientOfficeId?: number;
     currency?: CurrencyData;
-    /**
-     * Periodic (daily) effective interest rate computed via RATE(); null if schedule not yet generated
-     */
-    dailyEir?: number;
     delinquencyBucket?: GetDelinquencyBucket;
     /**
      * Number of grace days before delinquency tracking starts
@@ -145,7 +141,7 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
      */
     npvDayCount?: number;
     /**
-     * Number of repayments (effectiveTotalTerm from the amortization schedule; for WC this is the loan term in days); null if schedule not yet generated
+     * Number of repayments (effectiveTotalTerm from the amortization schedule; for WC this is the loan term in days). Unlike the priced figures beside it a rate change does move it, to the day the rate now in force is solved to close the schedule on - a day the amounts here cannot be used to derive, because it falls out of the balance and the fee still unearned when the change takes effect. Null if schedule not yet generated
      */
     numberOfRepayments?: number;
     /**
@@ -157,13 +153,16 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
      */
     overpaidOnDate?: string;
     paymentAllocation?: Array<GetPaymentAllocation>;
+    /**
+     * The loan\'s own period payment rate. A rate change does not move it - the rate in force on a given date comes from the rate-change history
+     */
     paymentRate?: number;
     /**
-     * Daily expected payment amount from the amortization schedule; null if schedule not yet generated
+     * Daily payment amount the loan was priced at: totalPaymentVolume x paymentRate / 100 / npvDayCount, rounded to the currency. A rate change does not restate it, no more than it restates paymentRate or calculatedAnnualEir - what is billed from the day a change takes effect follows the rate then in force, and is read off the amortization schedule rows. Null if schedule not yet generated
      */
     periodPaymentAmount?: number;
     /**
-     * Period payment rate change history, most recently booked first - which for a backdated change is not the same as effective-date order. Each entry carries the annual EIR (as a percentage, e.g. 43.756245 - unlike the top-level calculatedAnnualEir, which is a fraction), daily payment amount and segment term the amortization schedule computed when that change was booked; those are null for changes booked before the snapshot was introduced
+     * Period payment rate change history, most recently booked first - which for a backdated change is not the same as effective-date order. Each entry carries the annual EIR (as a percentage, e.g. 43.756245, the unit the top-level calculatedAnnualEir is expressed in as well), daily payment amount and segment term the amortization schedule computed when that change was booked; those are null for changes booked before the snapshot was introduced, and the EIR is null on a FLAT loan
      */
     periodPaymentRateHistory?: Array<WorkingCapitalLoanPeriodPaymentRateChangeData>;
     /**
