@@ -19,7 +19,7 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DeferredDatetimeButtonComponent } from './deferred-datetime-button.component';
-import { provideIonicTesting } from '../../../testing/ionic-testing';
+import { provideIonicTesting } from '../../testing/ionic-testing';
 
 const FIRST_PICKER_ID = 'periodfromDate-picker-0';
 const SECOND_PICKER_ID = 'periodfromDate-picker-1';

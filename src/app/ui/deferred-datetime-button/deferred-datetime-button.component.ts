@@ -19,7 +19,7 @@
 
 import { Component, Directive, ElementRef, InjectionToken, inject, input } from '@angular/core';
 import { IonDatetimeButton } from '@ionic/angular/standalone';
-import { createPickersReady } from '../../utils/pickers-ready';
+import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 const DATETIME_TARGET_ID = new InjectionToken<string>('DATETIME_TARGET_ID');
 
@@ -48,6 +48,9 @@ export class StampDatetimeDirective {
  * after first render — the flag is already true, so the button and its modal mount in the
  * same pass and the lookup misses. This wrapper holds its own ready flag, so each instance
  * waits for the render that mounts *its* picker.
+ *
+ * Lives under `src/app/ui/` per ADR 0005: naming Ionic is the primitive's job, not the
+ * feature's. Consumers import `DeferredDatetimeButtonComponent` and never the vendor tag.
  *
  * See https://github.com/apache/fineract-backoffice-ui/issues/548.
  */

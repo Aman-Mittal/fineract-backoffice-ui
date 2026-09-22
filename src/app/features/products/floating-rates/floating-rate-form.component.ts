@@ -47,7 +47,7 @@ import {
   FINERACT_LOCALE,
   toIsoDate,
 } from '../../../core/utils/date-formatter';
-import { DeferredDatetimeButtonComponent } from '../../../shared/components/deferred-datetime-button/deferred-datetime-button.component';
+import { DeferredDatetimeButtonComponent } from '../../../ui/deferred-datetime-button/deferred-datetime-button.component';
 
 /** A single editable rate period row in the form. */
 interface RatePeriodRow {
