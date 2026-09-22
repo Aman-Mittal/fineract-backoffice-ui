@@ -45,12 +45,13 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
+  toIsoDate,
 } from '../../../core/utils/date-formatter';
 import { DeferredDatetimeButtonComponent } from '../../../shared/components/deferred-datetime-button/deferred-datetime-button.component';
 
 /** A single editable rate period row in the form. */
 interface RatePeriodRow {
-  fromDate: Date;
+  fromDate: string;
   interestRate: number | null;
   isDifferentialToBaseLendingRate: boolean;
 }
@@ -267,8 +268,8 @@ export class FloatingRateFormComponent implements OnInit {
           return {
             fromDate:
               Array.isArray(arr) && arr.length >= 3
-                ? new Date(arr[0], arr[1] - 1, arr[2])
-                : new Date(),
+                ? toIsoDate(new Date(arr[0], arr[1] - 1, arr[2]))
+                : toIsoDate(new Date()),
             interestRate: p.interestRate ?? null,
             isDifferentialToBaseLendingRate: !!p.isDifferentialToBaseLendingRate,
           };
@@ -284,7 +285,7 @@ export class FloatingRateFormComponent implements OnInit {
 
   addPeriod(): void {
     this.periods().push({
-      fromDate: new Date(),
+      fromDate: toIsoDate(new Date()),
       interestRate: null,
       isDifferentialToBaseLendingRate: false,
     });

@@ -80,10 +80,10 @@ describe('FloatingRateFormComponent', () => {
     );
     component.rate.set({ name: 'BLR', isBaseLendingRate: true, isActive: true });
     component.periods.set([
-      { fromDate: new Date(2026, 0, 1), interestRate: 9.5, isDifferentialToBaseLendingRate: false },
-      { fromDate: new Date(2026, 1, 1), interestRate: 0, isDifferentialToBaseLendingRate: true },
+      { fromDate: '2026-01-01', interestRate: 9.5, isDifferentialToBaseLendingRate: false },
+      { fromDate: '2026-02-01', interestRate: 0, isDifferentialToBaseLendingRate: true },
       {
-        fromDate: new Date(2026, 2, 1),
+        fromDate: '2026-03-01',
         interestRate: null,
         isDifferentialToBaseLendingRate: false,
       },
@@ -109,7 +109,7 @@ describe('FloatingRateFormComponent', () => {
     component.isEditMode.set(true);
     component.rate.set({ name: 'Updated Rate', isBaseLendingRate: false, isActive: true });
     component.periods.set([
-      { fromDate: new Date(2026, 5, 1), interestRate: 12, isDifferentialToBaseLendingRate: false },
+      { fromDate: '2026-06-01', interestRate: 12, isDifferentialToBaseLendingRate: false },
     ]);
 
     component.onSubmit();
@@ -124,8 +124,8 @@ describe('FloatingRateFormComponent', () => {
 
   it('gives each period row a unique picker id and stamps it on the button', async () => {
     component.periods.set([
-      { fromDate: new Date(2026, 0, 1), interestRate: 9.5, isDifferentialToBaseLendingRate: false },
-      { fromDate: new Date(2026, 1, 1), interestRate: 10, isDifferentialToBaseLendingRate: false },
+      { fromDate: '2026-01-01', interestRate: 9.5, isDifferentialToBaseLendingRate: false },
+      { fromDate: '2026-02-01', interestRate: 10, isDifferentialToBaseLendingRate: false },
     ]);
     fixture.detectChanges();
     await fixture.whenStable();
