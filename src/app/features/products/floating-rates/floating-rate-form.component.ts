@@ -34,7 +34,6 @@ import {
   IonCardTitle,
   IonCheckbox,
   IonDatetime,
-  IonDatetimeButton,
   IonIcon,
   IonInput,
   IonItem,
@@ -47,7 +46,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
-import { createPickersReady } from '../../../shared/utils/pickers-ready';
+import { DeferredDatetimeButtonComponent } from '../../../shared/components/deferred-datetime-button/deferred-datetime-button.component';
 
 /** A single editable rate period row in the form. */
 interface RatePeriodRow {
@@ -77,8 +76,8 @@ interface RatePeriodRow {
     IonCard,
     IonCheckbox,
     IonDatetime,
-    IonDatetimeButton,
     IonModal,
+    DeferredDatetimeButtonComponent,
   ],
   template: `
     <div class="form-container">
@@ -129,16 +128,14 @@ interface RatePeriodRow {
                     <ion-label position="stacked">{{
                       'FLOATING_RATES.FROM_DATE' | translate
                     }}</ion-label>
-                    @if (pickersReady()) {
-                      <ion-datetime-button datetime="periodfromDate-picker"></ion-datetime-button>
-                    }
+                    <app-deferred-datetime-button [datetimeId]="periodFromDatePickerId($index)" />
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
                         <ion-datetime
-                          id="periodfromDate-picker"
-                          data-testid="periodfromDate-picker"
+                          [id]="periodFromDatePickerId($index)"
+                          [attr.data-testid]="periodFromDatePickerId($index)"
                           presentation="date"
-                          name="periodfromDate"
+                          [name]="'periodfromDate' + $index"
                           [(ngModel)]="period.fromDate"
                           required
                         ></ion-datetime>
@@ -228,9 +225,6 @@ interface RatePeriodRow {
   ],
 })
 export class FloatingRateFormComponent implements OnInit {
-  /** See `createPickersReady` — the date buttons must not outrun their pickers. */
-  readonly pickersReady = createPickersReady();
-
   private readonly floatingRatesService = inject(FloatingRatesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -281,6 +275,11 @@ export class FloatingRateFormComponent implements OnInit {
         }),
       );
     });
+  }
+
+  /** Unique per row so each button's `getElementById` hits its own picker (#548). */
+  periodFromDatePickerId(index: number): string {
+    return `periodfromDate-picker-${index}`;
   }
 
   addPeriod(): void {
