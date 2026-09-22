@@ -244,10 +244,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/profile/user-profile.component').then((m) => m.UserProfileComponent),
       },
+      {
+        path: '**',
+        title: 'NOT_FOUND_PAGE.TITLE',
+        loadComponent: () =>
+          import('./features/errors/not-found.component').then((m) => m.NotFoundComponent),
+      },
     ],
-  },
-  {
-    path: '**',
-    redirectTo: '',
   },
 ];
