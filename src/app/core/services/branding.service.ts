@@ -35,6 +35,7 @@ export const BRANDABLE_TOKENS: readonly string[] = [
   'primary-color',
   'primary-dark',
   'primary-strong',
+  'primary-text',
   'secondary-color',
   'bg-color',
   'card-bg',
@@ -72,6 +73,8 @@ const BRANDABLE = new Set(BRANDABLE_TOKENS);
 const THEME_SCOPED = new Set([
   'primary-color',
   'primary-dark',
+  'primary-strong',
+  'primary-text',
   'secondary-color',
   'bg-color',
   'card-bg',
@@ -109,7 +112,12 @@ export const MIN_PRIMARY_CONTRAST = 4.5;
  * 4.5:1 AA threshold. No colour can fail, so a floor there would be unreachable code. The payoff
  * is in dark mode, where a lighter accent is normal and a white-only rule would forbid it.
  */
-const REQUIRES_WHITE_TEXT = new Set(['secondary-color', 'primary-strong', 'error-strong']);
+const REQUIRES_WHITE_TEXT = new Set([
+  'secondary-color',
+  'primary-strong',
+  'error-strong',
+  'primary-text',
+]);
 
 /** `#rgb` or `#rrggbb` — the two forms a colour input and a human both produce. */
 const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
@@ -171,6 +179,14 @@ export function contrastWithBlack(hex: string): number {
   return (relativeLuminance(hex) + 0.05) / 0.05;
 }
 
+/** Dark mode elevated card background luminance (#1e1e1e from _common.scss). */
+const DARK_SURFACE_LUMINANCE = relativeLuminance('#1e1e1e');
+
+/** Contrast ratio of foreground text against the dark mode card surface (#1e1e1e). */
+export function contrastWithDarkSurface(hex: string): number {
+  return (relativeLuminance(hex) + 0.05) / (DARK_SURFACE_LUMINANCE + 0.05);
+}
+
 /** Whichever of white or black reads better on this fill, with the ratio it achieves. */
 export function bestLabelFor(hex: string): { color: '#ffffff' | '#000000'; ratio: number } {
   const onWhite = contrastWithWhite(hex);
@@ -185,7 +201,12 @@ export function bestLabelFor(hex: string): { color: '#ffffff' | '#000000'; ratio
  *
  * Rejection is never silent — every path that returns `null` records a defect first.
  */
-function validateToken(name: string, raw: string, defects: BrandingDefect[]): string | null {
+function validateToken(
+  name: string,
+  raw: string,
+  defects: BrandingDefect[],
+  isDark = false,
+): string | null {
   if (!BRANDABLE.has(name)) {
     defects.push({
       code: 'unknown-token',
@@ -207,9 +228,23 @@ function validateToken(name: string, raw: string, defects: BrandingDefect[]): st
       });
       return null;
     }
-    // Refused, not warned-and-applied. An unreadable fill is non-compliant for the institution
-    // and invisible to the person who chose it.
-    if (REQUIRES_WHITE_TEXT.has(name)) {
+    // Refused, not warned-and-applied. An unreadable fill or text is non-compliant for the
+    // institution and invisible to the person who chose it.
+    if (isDark) {
+      if (name === 'primary-text') {
+        const ratio = contrastWithDarkSurface(hex);
+        if (ratio < MIN_PRIMARY_CONTRAST) {
+          defects.push({
+            code: 'low-contrast',
+            key: name,
+            detail:
+              `${hex} scores ${ratio.toFixed(2)}:1 against dark backgrounds, below the ${MIN_PRIMARY_CONTRAST}:1 ` +
+              'WCAG AA floor. Dark mode text needs a lighter colour. Keeping the shipped one.',
+          });
+          return null;
+        }
+      }
+    } else if (REQUIRES_WHITE_TEXT.has(name)) {
       const ratio = contrastWithWhite(hex);
       if (ratio < MIN_PRIMARY_CONTRAST) {
         defects.push({
@@ -217,7 +252,7 @@ function validateToken(name: string, raw: string, defects: BrandingDefect[]): st
           key: name,
           detail:
             `${hex} scores ${ratio.toFixed(2)}:1 against white, below the ${MIN_PRIMARY_CONTRAST}:1 ` +
-            'WCAG AA floor. This fill carries white text that no variable can change, so it ' +
+            'WCAG AA floor. This token requires contrast with white, so it ' +
             'needs a darker colour. Keeping the shipped one.',
         });
         return null;
@@ -305,8 +340,9 @@ function declarationsFor(
   defects: BrandingDefect[],
   selector: string,
 ): string | null {
+  const isDark = selector === "[data-theme='dark']";
   const declarations = Object.entries(tokens)
-    .map(([name, raw]) => [name, validateToken(name, raw, defects)] as const)
+    .map(([name, raw]) => [name, validateToken(name, raw, defects, isDark)] as const)
     .filter((entry): entry is readonly [string, string] => entry[1] !== null)
     .flatMap(([name, value]) => [
       `  --${name}: ${value};`,

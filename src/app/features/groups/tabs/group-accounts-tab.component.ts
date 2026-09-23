@@ -98,7 +98,7 @@ import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
         cursor: pointer;
       }
       .empty-state {
-        color: #95a5a6;
+        color: var(--text-muted);
         padding: 12px 0;
       }
     `,

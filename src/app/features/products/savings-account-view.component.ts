@@ -703,11 +703,11 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #7f8c8d;
+        color: var(--text-muted);
         font-size: 14px;
       }
       .divider {
-        color: #bdc3c7;
+        color: var(--border-color);
       }
       .actions-area {
         display: flex;
@@ -754,7 +754,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
         border-bottom: 1px solid #f5f7fa;
       }
       .detail-item .label {
-        color: #7f8c8d;
+        color: var(--text-muted);
         font-size: 14px;
         font-weight: 500;
       }
@@ -775,7 +775,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
         flex-direction: column;
         align-items: center;
         padding: 48px;
-        color: #95a5a6;
+        color: var(--text-muted);
       }
       .empty-state mat-icon {
         font-size: 48px;
@@ -798,10 +798,10 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
       .reversed-amount {
         text-decoration: line-through;
         opacity: 0.6;
-        color: #7f8c8d;
+        color: var(--text-muted);
       }
       .reversed-marker {
-        color: #7f8c8d;
+        color: var(--text-muted);
         font-style: italic;
       }
     `,

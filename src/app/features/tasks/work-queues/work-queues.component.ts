@@ -273,7 +273,7 @@ type QueueKey = 'loanApproval' | 'loanDisbursal' | 'clientActivation' | 'resched
       }
       .clickable-link {
         cursor: pointer;
-        color: var(--ion-color-primary);
+        color: var(--primary-text);
         background: none;
         border: none;
         padding: 0;
@@ -287,7 +287,7 @@ type QueueKey = 'loanApproval' | 'loanDisbursal' | 'clientActivation' | 'resched
         margin-top: 16px;
       }
       .empty-state {
-        color: #95a5a6;
+        color: var(--text-muted);
         padding: 24px 0;
       }
       .select-all-row {

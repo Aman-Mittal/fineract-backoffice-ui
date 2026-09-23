@@ -375,7 +375,7 @@ export interface MiniAccount {
       }
       .section h3 {
         margin: 0 0 8px 0;
-        color: var(--primary-color);
+        color: var(--primary-text);
         border-bottom: 1px solid #eee;
         padding-bottom: 4px;
       }

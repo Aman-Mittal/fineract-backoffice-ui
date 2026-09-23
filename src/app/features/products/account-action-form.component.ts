@@ -309,9 +309,9 @@ import {
       }
       .account-summary-panel {
         padding: 16px;
-        background-color: #f8f9fa;
+        background-color: var(--card-bg, #f8f9fa);
         border-radius: 8px;
-        border-left: 4px solid #3f51b5;
+        border-left: 4px solid var(--primary-color);
         margin-bottom: 8px;
       }
       .summary-grid {
@@ -330,14 +330,14 @@ import {
       .summary-item .label {
         font-size: 0.85rem;
         font-weight: 500;
-        color: #666;
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
       .summary-item .value {
         font-size: 1rem;
         font-weight: 600;
-        color: var(--secondary-color);
+        color: var(--text-color);
       }
     `,
   ],

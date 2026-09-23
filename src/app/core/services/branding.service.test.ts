@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { BrandingService, BRANDABLE_TOKENS } from './branding.service';
 import { ConfigService, type BrandingConfig } from './config.service';
@@ -144,6 +145,42 @@ describe('BrandingService', () => {
         );
         expect(isBrandable || isIonicCompanion, `unexpected property ${property}`).toBe(true);
       }
+    });
+
+    it('rejects primary-text overrides that fail WCAG AA contrast against white in light mode', () => {
+      const { css, defects } = stylesheetFor({
+        tokens: { light: { 'primary-text': '#3498db' } }, // 3.15:1 contrast on white (fails AA)
+      });
+
+      expect(defects).toContain('low-contrast:primary-text');
+      expect(css).not.toContain('--primary-text');
+    });
+
+    it('accepts primary-text overrides that pass WCAG AA contrast against white in light mode', () => {
+      const { css, defects } = stylesheetFor({
+        tokens: { light: { 'primary-text': '#1f6391' } }, // 6.54:1 contrast on white (passes AA)
+      });
+
+      expect(defects).toEqual([]);
+      expect(css).toContain('--primary-text: #1f6391;');
+    });
+
+    it('rejects primary-text overrides in dark mode that fail contrast against dark backgrounds', () => {
+      const { css, defects } = stylesheetFor({
+        tokens: { dark: { 'primary-text': '#1f6391' } }, // ~2.45:1 against black (fails dark AA)
+      });
+
+      expect(defects).toContain('low-contrast:primary-text');
+      expect(css).not.toContain('--primary-text');
+    });
+
+    it('accepts primary-text overrides in dark mode that pass contrast against dark backgrounds', () => {
+      const { css, defects } = stylesheetFor({
+        tokens: { dark: { 'primary-text': '#5dade2' } }, // ~8.90:1 against black (passes dark AA)
+      });
+
+      expect(defects).toEqual([]);
+      expect(css).toContain('--primary-text: #5dade2;');
     });
   });
 

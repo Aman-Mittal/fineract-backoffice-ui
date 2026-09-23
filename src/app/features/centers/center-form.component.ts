@@ -228,7 +228,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
         font-size: 18px;
         width: 18px;
         height: 18px;
-        color: #7f8c8d;
+        color: var(--text-muted);
         cursor: help;
       }
     `,

@@ -209,7 +209,7 @@ import { OtpDeliveryMethod, TwoFactorAuthService } from '../../../core/services/
         border: none;
         background: none;
         padding: 0;
-        color: #3498db;
+        color: var(--primary-text);
         cursor: pointer;
         font: inherit;
         text-decoration: underline;

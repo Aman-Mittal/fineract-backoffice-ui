@@ -988,11 +988,11 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #7f8c8d;
+        color: var(--text-muted);
         font-size: 14px;
       }
       .divider {
-        color: #bdc3c7;
+        color: var(--border-color);
       }
       .actions-area {
         display: flex;
@@ -1060,7 +1060,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
         flex-direction: column;
         align-items: center;
         padding: 48px;
-        color: #95a5a6;
+        color: var(--text-muted);
       }
       .empty-state mat-icon {
         font-size: 48px;
@@ -1076,7 +1076,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
         margin-top: 16px;
       }
       .clickable-link {
-        color: #3f51b5;
+        color: var(--primary-text);
         text-decoration: none;
         font-weight: 500;
         cursor: pointer;

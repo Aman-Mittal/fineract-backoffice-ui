@@ -74,11 +74,11 @@ import { ButtonComponent } from '../../ui/button/button.component';
       }
       .active {
         background-color: #e6f4ea;
-        color: #1e8e3e;
+        color: #126330;
       }
       .pending {
         background-color: #fef7e0;
-        color: #f29900;
+        color: #8a5300;
       }
     `,
   ],

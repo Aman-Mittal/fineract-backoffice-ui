@@ -64,13 +64,13 @@ export type StatusLike =
 
       .status-active {
         background-color: #e6f4ea;
-        color: #1e8e3e;
+        color: #126330;
         border: 1px solid #ceead6;
       }
 
       .status-pending {
         background-color: #fef7e0;
-        color: #f29900;
+        color: #8a5300;
         border: 1px solid #feefc3;
       }
 

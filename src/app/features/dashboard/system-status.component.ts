@@ -412,11 +412,11 @@ import {
       }
       .item-type.loan {
         background: #e3f2fd;
-        color: #1976d2;
+        color: var(--primary-text);
       }
       .item-type.savings {
         background: #e8f5e9;
-        color: #2e7d32;
+        color: #126330;
       }
       :host-context([data-theme='dark']) .item-type.loan {
         background: rgba(52, 152, 219, 0.16);
