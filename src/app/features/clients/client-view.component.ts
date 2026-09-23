@@ -1076,7 +1076,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
         margin-top: 16px;
       }
       .clickable-link {
-        color: #3f51b5;
+        color: var(--primary-text);
         text-decoration: none;
         font-weight: 500;
         cursor: pointer;
