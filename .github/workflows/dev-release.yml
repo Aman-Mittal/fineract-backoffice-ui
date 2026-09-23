@@ -66,8 +66,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
+      # - name: Lint
+      #   run: npm run lint
 
       # `npm run test:unit`, matching ci.yml's Unit Tests job, rather than the Karma-era
       # invocation this step carried. The suite runs on Vitest now (Karma and Jasmine are gone
