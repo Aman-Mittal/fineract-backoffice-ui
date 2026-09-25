@@ -154,11 +154,11 @@ export class SchedulerJobsListComponent implements OnInit {
   private readonly i18n = inject(I18N);
 
   readonly columns: ColumnDef[] = [
-    { key: 'select', label: '', sortable: false },
+    { key: 'select', label: '', sortable: false, width: '48px' },
     { key: 'displayName', label: 'SCHEDULER_JOBS.NAME', sortable: true },
-    { key: 'active', label: 'SCHEDULER_JOBS.ACTIVE', sortable: true },
-    { key: 'nextRunTime', label: 'SCHEDULER_JOBS.NEXT_RUN', sortable: true },
-    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
+    { key: 'active', label: 'SCHEDULER_JOBS.ACTIVE', sortable: true, width: '100px' },
+    { key: 'nextRunTime', label: 'SCHEDULER_JOBS.NEXT_RUN', sortable: true, width: '200px' },
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false, width: '100px' },
   ];
 
   readonly jobs = signal<GetJobsResponse[]>([]);

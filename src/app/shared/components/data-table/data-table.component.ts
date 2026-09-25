@@ -52,6 +52,12 @@ export interface ColumnDef {
   label: string;
   sortable?: boolean;
   tooltip?: string;
+  /**
+   * Fixed column width (any valid CSS width, e.g. '48px', '10%'). The table uses
+   * `table-layout: fixed`, so a column left unset shares the width remaining after
+   * sized columns are subtracted, rather than shrinking to its content.
+   */
+  width?: string;
 }
 
 /** Tri-state cycle used by the sortable column headers, matching the previous mat-sort behaviour. */
@@ -168,6 +174,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                     [appTooltip]="col.tooltip || ''"
                     [attr.aria-sort]="ariaSortFor(col)"
                     [class.sortable]="col.sortable"
+                    [style.width]="col.width"
                   >
                     @if (col.sortable) {
                       <button type="button" class="sort-button" (click)="onSortHeaderClick(col)">
@@ -242,6 +249,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
       }
       .data-table {
         width: 100%;
+        table-layout: fixed;
         border-collapse: collapse;
       }
       .data-table th,
@@ -322,12 +330,11 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         border-radius: 12px;
       }
       .truncate-text {
-        display: inline-block;
-        max-width: 200px;
+        display: block;
+        max-width: 100%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        vertical-align: middle;
       }
     `,
   ],
