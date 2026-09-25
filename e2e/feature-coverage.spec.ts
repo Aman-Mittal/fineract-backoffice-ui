@@ -17,7 +17,9 @@
  * under the License.
  */
 
+
 import { test, expect, Page } from './fixtures';
+
 
 const TEST_USER = 'mifos';
 const TEST_PASSWORD = 'password';
@@ -30,6 +32,7 @@ const RESP_EMPTY = JSON.stringify([]);
 const RESP_EMPTY_PAGINATED = JSON.stringify({ totalFilteredRecords: 0, pageItems: [] });
 const SAVINGS_ACCOUNTS = 'Savings Accounts';
 
+
 /**
  * A list mocked with [] renders exactly the same DOM as a list whose rows never reached the
  * template, so a test asserting only the page title passes against either. That is how the
@@ -37,12 +40,14 @@ const SAVINGS_ACCOUNTS = 'Savings Accounts';
  */
 const oneRow = (fields: Record<string, unknown>) => JSON.stringify([{ id: 1, ...fields }]);
 
+
 /** Asserts the shared data table actually rendered its row, not just its heading. */
 async function expectRow(page: Page, text: string | RegExp) {
   const rows = page.locator('table.data-table tr[cdk-row]');
   await expect(rows).toHaveCount(1);
   await expect(rows.first()).toContainText(text);
 }
+
 
 /** Shared login + API mock setup used across all feature tests */
 async function loginAndMockApi(page: Page) {
@@ -56,6 +61,7 @@ async function loginAndMockApi(page: Page) {
       }),
     });
   });
+
 
   await page.route('**/api/v1/authentication**', async (route) => {
     await route.fulfill({
@@ -74,6 +80,7 @@ async function loginAndMockApi(page: Page) {
     });
   });
 
+
   await page.goto('/login');
   if (!page.url().includes('/dashboard')) {
     await page.locator('#tenantId').fill(TENANT_DEFAULT);
@@ -84,6 +91,7 @@ async function loginAndMockApi(page: Page) {
   }
 }
 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. NAVIGATION & SIDEBAR COVERAGE
 // ─────────────────────────────────────────────────────────────────────────────
@@ -91,6 +99,7 @@ test.describe('Navigation & Sidebar', () => {
   test.beforeEach(async ({ page }) => {
     await loginAndMockApi(page);
   });
+
 
   test('all main navigation links are visible in sidebar', async ({ page }) => {
     const navLinks = [
@@ -150,6 +159,7 @@ test.describe('Navigation & Sidebar', () => {
       'Delinquency',
     ];
 
+
     for (const linkName of navLinks) {
       // The list mixes routable children (rendered as <a>) with group headings
       // such as "Embedded Fintech", which the sidebar renders as a plain
@@ -167,6 +177,7 @@ test.describe('Navigation & Sidebar', () => {
     }
   });
 
+
   test('sidebar navigation routes to correct pages', async ({ page }) => {
     const routes = [
       { link: 'Dashboard', url: '/dashboard' },
@@ -178,26 +189,48 @@ test.describe('Navigation & Sidebar', () => {
       { link: 'Users', url: '/security/users' },
     ];
 
+
     for (const route of routes) {
       await page.getByRole('link', { name: route.link, exact: true }).click();
       await expect(page).toHaveURL(new RegExp(route.url));
     }
   });
 
+
   test('navigating to /accounting redirects to /accounting/chart-of-accounts', async ({ page }) => {
     await page.goto('/accounting');
     await expect(page).toHaveURL(/\/accounting\/chart-of-accounts$/);
   });
+
 
   test('navigating to /organization redirects to /organization/offices', async ({ page }) => {
     await page.goto('/organization');
     await expect(page).toHaveURL(/\/organization\/offices$/);
   });
 
+
   test('navigating to /system redirects to /system/data-tables', async ({ page }) => {
     await page.goto('/system');
     await expect(page).toHaveURL(/\/system\/data-tables$/);
   });
+
+
+  test('an unknown route keeps its URL and offers recovery actions', async ({ page }) => {
+    await page.goto('/missing/report?source=e2e');
+
+
+    await expect(page).toHaveURL('/missing/report?source=e2e');
+    const heading = page.getByRole('heading', { name: 'Page not found' });
+    await expect(heading).toBeFocused();
+    await expect(
+      page.getByText('We could not find the page at /missing/report?source=e2e.'),
+    ).toBeVisible();
+
+
+    await page.getByRole('link', { name: 'Back to dashboard' }).click();
+    await expect(page).toHaveURL('/dashboard');
+  });
+
 
   test('header shows logged-in user info', async ({ page }) => {
     await expect(page.getByText(TEST_USER)).toBeVisible();
@@ -205,19 +238,23 @@ test.describe('Navigation & Sidebar', () => {
     await expect(page.getByText('Render Time:')).toBeVisible();
   });
 
+
   test('help tour button is visible and interactive', async ({ page }) => {
     const helpBtn = page.getByRole('button', { name: /Help Tour|Guide/ });
     await expect(helpBtn).toBeVisible();
   });
 
+
   test('logout button is visible', async ({ page }) => {
     await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
   });
+
 
   test('language selector is present', async ({ page }) => {
     await expect(page.getByRole('combobox', { name: 'Select Language' })).toBeVisible();
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. DASHBOARD
@@ -226,6 +263,7 @@ test.describe('Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await loginAndMockApi(page);
   });
+
 
   test('dashboard shows key metrics cards', async ({ page }) => {
     await expect(page.getByText('Total Clients')).toBeVisible();
@@ -236,14 +274,17 @@ test.describe('Dashboard', () => {
     await expect(page.getByText('System Health')).toBeVisible();
   });
 
+
   test('dashboard shows pending approvals section', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Pending Approvals' })).toBeVisible();
   });
+
 
   test('dashboard shows loan and savings status distribution', async ({ page }) => {
     await expect(page.getByText('Loan Status Distribution')).toBeVisible();
     await expect(page.getByText('Savings Status Distribution')).toBeVisible();
   });
+
 
   test('dashboard shows system operational status', async ({ page }) => {
     await expect(page.getByText('System Operational Status')).toBeVisible();
@@ -251,6 +292,7 @@ test.describe('Dashboard', () => {
     await expect(page.getByText('Active Tenant:')).toBeVisible();
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. GROUPS
@@ -267,17 +309,20 @@ test.describe('Groups', () => {
     });
   });
 
+
   test('groups page renders with title', async ({ page }) => {
     await page.getByRole('link', { name: 'Groups', exact: true }).click();
     await expect(page).toHaveURL('/groups');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Groups|Group/i);
   });
 
+
   test('groups page has create button', async ({ page }) => {
     await page.getByRole('link', { name: 'Groups', exact: true }).click();
     await expect(page.getByRole('button', { name: BTN_CREATE })).toBeVisible();
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. CENTERS
@@ -294,17 +339,20 @@ test.describe('Centers', () => {
     });
   });
 
+
   test('centers page renders with title', async ({ page }) => {
     await page.getByRole('link', { name: 'Centers' }).click();
     await expect(page).toHaveURL('/centers');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Centers|Center/i);
   });
 
+
   test('centers page has create button', async ({ page }) => {
     await page.getByRole('link', { name: 'Centers' }).click();
     await expect(page.getByRole('button', { name: BTN_CREATE })).toBeVisible();
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5. ORGANIZATION
@@ -349,6 +397,7 @@ test.describe('Organization', () => {
     });
   });
 
+
   test('offices page loads with list', async ({ page }) => {
     await page.getByRole('link', { name: 'Offices' }).click();
     await expect(page).toHaveURL('/organization/offices');
@@ -357,12 +406,14 @@ test.describe('Organization', () => {
     await expectRow(page, HEAD_OFFICE);
   });
 
+
   test('staff page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Staff' }).click();
     await expect(page).toHaveURL('/organization/staff');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Staff/i);
     await expectRow(page, 'Ada Lovelace');
   });
+
 
   test('funds page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Funds' }).click();
@@ -371,6 +422,7 @@ test.describe('Organization', () => {
     await expectRow(page, 'Microfinance Fund');
   });
 
+
   test('payment types page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Payment Types' }).click();
     await expect(page).toHaveURL('/organization/payment-types');
@@ -378,6 +430,7 @@ test.describe('Organization', () => {
     await expectRow(page, 'Bank Transfer');
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. ACCOUNTING
@@ -429,11 +482,13 @@ test.describe('Accounting', () => {
     });
   });
 
+
   test('chart of accounts loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Chart of Accounts' }).click();
     await expect(page).toHaveURL('/accounting/chart-of-accounts');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Chart of Accounts/i);
   });
+
 
   test('journal entries page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Journal Entries' }).click();
@@ -441,21 +496,25 @@ test.describe('Accounting', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Journal/i);
   });
 
+
   test('accounting closures loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Accounting Closures' }).click();
     await expect(page).toHaveURL('/accounting/closures');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Closure/i);
   });
 
+
   test('accounting rules loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Accounting Rules' }).click();
     await expect(page).toHaveURL('/accounting/rules');
   });
 
+
   test('financial activity mappings loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Financial Activity Mappings' }).click();
     await expect(page).toHaveURL('/accounting/financial-activity-mappings');
   });
+
 
   test('charges page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Charges' }).click();
@@ -463,6 +522,7 @@ test.describe('Accounting', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Charge/i);
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. SECURITY
@@ -493,11 +553,13 @@ test.describe('Security', () => {
     });
   });
 
+
   test('users page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Users' }).click();
     await expect(page).toHaveURL('/security/users');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/User/i);
   });
+
 
   test('roles page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Roles' }).click();
@@ -505,11 +567,13 @@ test.describe('Security', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Role/i);
   });
 
+
   test('audit logs page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Audit Logs' }).click();
     await expect(page).toHaveURL('/security/audits');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Audit/i);
   });
+
 
   test('leftover audit trails path lands on audits, not the dashboard', async ({ page }) => {
     await page.goto('/security/audit-trails');
@@ -517,6 +581,7 @@ test.describe('Security', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Audit/i);
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. PRODUCTS (Loan & Savings Products)
@@ -561,6 +626,7 @@ test.describe('Products - Loan & Savings', () => {
     });
   });
 
+
   test('loan products page loads', async ({ page }) => {
     // .first(): "Loan Products" appears twice — once under Products, once under
     // Working Capital — this test targets the Products one (/products/loan).
@@ -569,26 +635,31 @@ test.describe('Products - Loan & Savings', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Loan Product/i);
   });
 
+
   test('savings products page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Savings Products' }).click();
     await expect(page).toHaveURL('/products/savings');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Savings Product/i);
   });
 
+
   test('tax components page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Tax Components' }).click();
     await expect(page).toHaveURL('/products/tax-components');
   });
+
 
   test('tax groups page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Tax Groups' }).click();
     await expect(page).toHaveURL('/products/tax-groups');
   });
 
+
   test('floating rates page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Floating Rates' }).click();
     await expect(page).toHaveURL('/products/floating-rates');
   });
+
 
   test('savings accounts page loads', async ({ page }) => {
     await page.getByRole('link', { name: SAVINGS_ACCOUNTS }).click();
@@ -596,6 +667,7 @@ test.describe('Products - Loan & Savings', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Savings Account/i);
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 9. SETTINGS
@@ -626,11 +698,13 @@ test.describe('Settings', () => {
     });
   });
 
+
   test('global configurations page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Global Configurations' }).click();
     await expect(page).toHaveURL('/settings/configurations');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Configuration/i);
   });
+
 
   test('holidays page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Holidays' }).click();
@@ -638,11 +712,13 @@ test.describe('Settings', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Holiday/i);
   });
 
+
   test('working days page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Working Days' }).click();
     await expect(page).toHaveURL('/settings/working-days');
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 10. SYSTEM
@@ -666,16 +742,19 @@ test.describe('System', () => {
     });
   });
 
+
   test('data tables page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Data Tables' }).click();
     await expect(page).toHaveURL('/system/data-tables');
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Data Table/i);
   });
 
+
   test('bulk import page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Bulk Import' }).click();
     await expect(page).toHaveURL('/system/bulk-import');
   });
+
 
   test('delinquency page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Delinquency' }).click();
@@ -683,6 +762,7 @@ test.describe('System', () => {
     await expect(page.locator(CARD_TITLE).first()).toContainText(/Delinquency/i);
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 11. TELLERS
@@ -699,6 +779,7 @@ test.describe('Tellers', () => {
     });
   });
 
+
   test('tellers page loads with create button', async ({ page }) => {
     await page.getByRole('link', { name: 'Tellers' }).click();
     await expect(page).toHaveURL('/tellers');
@@ -706,6 +787,7 @@ test.describe('Tellers', () => {
     await expect(page.getByRole('button', { name: BTN_CREATE })).toBeVisible();
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 12. TRANSFERS
@@ -729,21 +811,25 @@ test.describe('Transfers', () => {
     });
   });
 
+
   test('account transfer page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Account Transfer' }).click();
     await expect(page).toHaveURL('/transfers/account-transfer');
   });
+
 
   test('standing instructions page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Standing Instructions' }).click();
     await expect(page).toHaveURL('/transfers/standing-instructions');
   });
 
+
   test('SI history page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'SI History' }).click();
     await expect(page).toHaveURL('/transfers/standing-instructions/history');
   });
 });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 13. FINTECH
@@ -759,6 +845,7 @@ test.describe('Embedded Fintech', () => {
       });
     });
   });
+
 
   test('asset owners page loads', async ({ page }) => {
     await page.getByRole('link', { name: 'Asset Owners' }).click();
