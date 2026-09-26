@@ -19,6 +19,7 @@
 
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { WcLoanProductFormComponent } from './wc-loan-product-form.component';
 import { WorkingCapitalLoanProductsService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -72,6 +73,17 @@ describe('WcLoanProductFormComponent', () => {
     expect(component.currencyOptions()).toHaveLength(1);
     expect(component.amortizationTypeOptions()).toHaveLength(1);
     expect(component.repaymentFrequencyTypeOptions()).toHaveLength(1);
+  });
+
+  it('should notify the product signal when an ngModel field changes', () => {
+    const before = component.product();
+
+    fixture.debugElement
+      .query(By.css('[name="shortName"]'))
+      .triggerEventHandler('ngModelChange', 'WCP');
+
+    expect(component.product()).not.toBe(before);
+    expect(component.product().shortName).toBe('WCP');
   });
 
   it('should format an array close date when loading a product', () => {
