@@ -312,6 +312,42 @@ jobs:
             ${{ runner.os }}-angular-build-
       - run: npm run build
 
+  # Nothing above proves the production build can run with no network access — `build` always
+  # has it, so a step that quietly starts depending on a remote fetch would pass CI unnoticed.
+  # That is exactly how the Google Fonts dependency in #362 survived: found by an audit, not by
+  # a check. See #363.
+  offline-build:
+    name: Offline Production Build
+    needs: dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          persist-credentials: false
+      # Both steps run inside the same node:24-alpine image deploy/Dockerfile builds from
+      # (pinned to the same digest), rather than installing on the runner's own Node and mounting
+      # the result into a container. `npm ci` resolves platform-specific native optional
+      # dependencies — lightningcss ships separate glibc and musl builds — so installing on the
+      # runner (glibc) and then running the build against that install inside Alpine (musl) would
+      # load the wrong binary. Installing where the build runs is what makes this a build of the
+      # release image's actual environment, not an approximation of it.
+      - name: 'Install dependencies (network allowed: registry only)'
+        run: |
+          docker run --rm -v "$PWD":/workspace -w /workspace \
+            node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 \
+            npm ci
+      # `--network none` gives the container only a loopback interface — no registry, no CDN, no
+      # font host, nothing. A build step that reaches for any of those fails here instead of
+      # shipping. See DOCS/CI_CHECKS.md for why `npm ci` above does not run under the same
+      # restriction.
+      - name: Build with no network access
+        run: |
+          docker run --rm --network none -v "$PWD":/workspace -w /workspace \
+            node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 \
+            npm run build -- --configuration production
+
   compliance:
     name: License Compliance
     needs: dependencies
@@ -594,6 +630,7 @@ jobs:
         api-client-drift,
         test,
         build,
+        offline-build,
         compliance,
         container,
         rat-scan,
@@ -620,6 +657,7 @@ jobs:
           echo "| GA Readiness Gate | ${{ needs.ga-gate.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Unit Tests | ${{ needs.test.result == 'success' && '✅ Pass (Artifact Uploaded)' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Prod Build | ${{ needs.build.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Offline Build | ${{ needs.offline-build.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Compliance | ${{ needs.compliance.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Container Image | ${{ needs.container.result == 'success' && '✅ Builds and proxies the API' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| RAT Scan | ${{ needs.rat-scan.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
