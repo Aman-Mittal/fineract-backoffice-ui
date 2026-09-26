@@ -35,6 +35,9 @@ export interface PostSavingsProductsRequest {
     allowOverdraft?: boolean;
     charges?: Array<PostSavingsCharges>;
     currencyCode?: string;
+    daysToDormancy?: number;
+    daysToEscheat?: number;
+    daysToInactive?: number;
     description?: string;
     digitsAfterDecimal?: number;
     enforceMinRequiredBalance?: boolean;
@@ -51,7 +54,13 @@ export interface PostSavingsProductsRequest {
     interestPostingPeriodType?: number;
     interestReceivableAccountId?: number;
     isDormancyTrackingActive?: boolean;
+    lienAllowed?: boolean;
     locale?: string;
+    lockinPeriodFrequency?: number;
+    lockinPeriodFrequencyType?: number;
+    maxAllowedLienLimit?: number;
+    minBalanceForInterestCalculation?: number;
+    minRequiredBalance?: number;
     minRequiredOpeningBalance?: number;
     name?: string;
     nominalAnnualInterestRate?: number;
@@ -62,6 +71,7 @@ export interface PostSavingsProductsRequest {
     savingsControlAccountId?: number;
     savingsReferenceAccountId?: number;
     shortName?: string;
+    taxGroupId?: number;
     transfersInSuspenseAccountId?: number;
     withHoldTax?: boolean;
     withdrawalFeeForTransfers?: boolean;

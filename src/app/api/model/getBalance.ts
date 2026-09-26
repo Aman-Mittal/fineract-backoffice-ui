@@ -37,6 +37,10 @@ export interface GetBalance {
     feeOutstanding?: number;
     feePaid?: number;
     /**
+     * Fees moved out of the outstanding balance by a charge waiver
+     */
+    feeWaived?: number;
+    /**
      * Fees moved out of the outstanding balance by a write-off
      */
     feeWrittenOff?: number;
@@ -45,6 +49,10 @@ export interface GetBalance {
     penalty?: number;
     penaltyOutstanding?: number;
     penaltyPaid?: number;
+    /**
+     * Penalties moved out of the outstanding balance by a charge waiver
+     */
+    penaltyWaived?: number;
     /**
      * Penalties moved out of the outstanding balance by a write-off
      */

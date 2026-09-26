@@ -23,15 +23,19 @@
  * Do not edit the class manually.
  */
 
-import { PostFixedDepositProductsChartSlabs } from './postFixedDepositProductsChartSlabs';
 
 
-export interface PostFixedDepositProductsCharts { 
-    chartSlabs?: Set<PostFixedDepositProductsChartSlabs>;
+export interface PostSavingsAccountsGsimClient { 
+    clientId?: number;
     dateFormat?: string;
-    endDate?: string;
-    fromDate?: string;
-    isPrimaryGroupingByAmount?: boolean;
+    groupId?: number;
+    isGSIM?: string;
+    /**
+     * Exactly one member of the array is the parent account
+     */
+    isParentAccount?: boolean;
     locale?: string;
+    productId?: number;
+    submittedOnDate?: string;
 }
 

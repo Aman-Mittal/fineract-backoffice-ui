@@ -44,7 +44,11 @@ export interface PostWorkingCapitalLoanTransactionsRequest {
     note?: string;
     paymentDetails?: PostWorkingCapitalLoanTransactionsPaymentDetailRequest;
     /**
-     * Disbursement transaction id for discountFee; discount fee transaction id for discountFeeAdjustment
+     * External id of the same transaction that relatedResourceId names: the disbursement for discountFee, the discount fee for discountFeeAdjustment. Cannot be combined with relatedResourceId. Not accepted on transactions/{transactionId} and transactions/external-id/{transactionExternalId}, where the path names the related transaction
+     */
+    relatedExternalResourceId?: string;
+    /**
+     * Disbursement transaction id for discountFee; discount fee transaction id for discountFeeAdjustment. Cannot be combined with relatedExternalResourceId. Not accepted on transactions/{transactionId} and transactions/external-id/{transactionExternalId}, where the path names the related transaction
      */
     relatedResourceId?: number;
     /**

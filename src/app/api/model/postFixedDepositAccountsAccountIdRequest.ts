@@ -23,15 +23,46 @@
  * Do not edit the class manually.
  */
 
-import { PostFixedDepositProductsChartSlabs } from './postFixedDepositProductsChartSlabs';
 
 
-export interface PostFixedDepositProductsCharts { 
-    chartSlabs?: Set<PostFixedDepositProductsChartSlabs>;
+/**
+ * PostFixedDepositAccountsAccountIdRequest
+ */
+export interface PostFixedDepositAccountsAccountIdRequest { 
+    /**
+     * command=activate
+     */
+    activatedOnDate?: string;
+    /**
+     * command=approve
+     */
+    approvedOnDate?: string;
+    /**
+     * command=prematureClose, calculatePrematureAmount
+     */
+    closedOnDate?: string;
     dateFormat?: string;
-    endDate?: string;
-    fromDate?: string;
-    isPrimaryGroupingByAmount?: boolean;
     locale?: string;
+    note?: string;
+    /**
+     * command=prematureClose
+     */
+    onAccountClosureId?: number;
+    /**
+     * command=reject
+     */
+    rejectedOnDate?: string;
+    /**
+     * command=prematureClose, transfer to savings
+     */
+    toSavingsAccountId?: number;
+    /**
+     * command=prematureClose, transfer to savings
+     */
+    transferDescription?: string;
+    /**
+     * command=withdrawnByApplicant
+     */
+    withdrawnOnDate?: string;
 }
 

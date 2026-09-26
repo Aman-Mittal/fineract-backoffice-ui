@@ -586,8 +586,10 @@ model/getGroupsGroupIdAccountsSavingCurrency.ts
 model/getGroupsGroupIdAccountsSavingStatus.ts
 model/getGroupsGroupIdAccountsStatus.ts
 model/getGroupsGroupIdClientMembers.ts
+model/getGroupsGroupIdGsimAccountsResponse.ts
 model/getGroupsGroupIdResponse.ts
 model/getGroupsGroupIdTimeline.ts
+model/getGroupsGsimChildAccount.ts
 model/getGroupsPageItems.ts
 model/getGroupsResponse.ts
 model/getGroupsStatus.ts
@@ -837,6 +839,7 @@ model/getSavingsAccountsResponse.ts
 model/getSavingsAccountsSavingsAccountIdChargesResponse.ts
 model/getSavingsAccountsSavingsAccountIdChargesSavingsAccountChargeIdResponse.ts
 model/getSavingsAccountsSavingsAccountIdChargesTemplateResponse.ts
+model/getSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse.ts
 model/getSavingsAccountsTemplateResponse.ts
 model/getSavingsAssetLiabilityType.ts
 model/getSavingsChargeCalculationType.ts
@@ -1193,6 +1196,7 @@ model/postExternalAssetOwnerRequest.ts
 model/postExternalAssetOwnerResponse.ts
 model/postFinancialActivityAccountsRequest.ts
 model/postFinancialActivityAccountsResponse.ts
+model/postFixedDepositAccountsAccountIdRequest.ts
 model/postFixedDepositAccountsAccountIdResponse.ts
 model/postFixedDepositAccountsFixedDepositAccountIdTransactionsRequest.ts
 model/postFixedDepositAccountsFixedDepositAccountIdTransactionsTransactionIdChanges.ts
@@ -1278,6 +1282,7 @@ model/postProvisioningCriteriaRequest.ts
 model/postProvisioningCriteriaResponse.ts
 model/postProvisioningEntriesResponse.ts
 model/postRecurringChanges.ts
+model/postRecurringDepositAccountsAccountIdRequest.ts
 model/postRecurringDepositAccountsAccountIdResponse.ts
 model/postRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest.ts
 model/postRecurringDepositAccountsRecurringDepositAccountIdTransactionsResponse.ts
@@ -1301,6 +1306,10 @@ model/postSavingsAccountTransactionsRequest.ts
 model/postSavingsAccountTransactionsResponse.ts
 model/postSavingsAccountsAccountIdRequest.ts
 model/postSavingsAccountsAccountIdResponse.ts
+model/postSavingsAccountsGsimClient.ts
+model/postSavingsAccountsGsimRequest.ts
+model/postSavingsAccountsGsimResponse.ts
+model/postSavingsAccountsGsimSavings.ts
 model/postSavingsAccountsRequest.ts
 model/postSavingsAccountsResponse.ts
 model/postSavingsAccountsSavingsAccountIdChargesRequest.ts
@@ -1338,6 +1347,7 @@ model/postWorkingCapitalLoanTransactionsRequest.ts
 model/postWorkingCapitalLoanTransactionsResponse.ts
 model/postWorkingCapitalLoansBreachActionRequest.ts
 model/postWorkingCapitalLoansBreachActionResponse.ts
+model/postWorkingCapitalLoansDataTable.ts
 model/postWorkingCapitalLoansDelinquencyActionRequest.ts
 model/postWorkingCapitalLoansDelinquencyActionResponse.ts
 model/postWorkingCapitalLoansLoanIdChargesChargeIdRequest.ts
@@ -1484,6 +1494,7 @@ model/putRolesRoleIdResponseChanges.ts
 model/putSavingsAccountsAccountIdRequest.ts
 model/putSavingsAccountsAccountIdResponse.ts
 model/putSavingsAccountsChanges.ts
+model/putSavingsAccountsGsimRequest.ts
 model/putSavingsAccountsSavingsAccountIdChargesSavingsAccountChargeIdRequest.ts
 model/putSavingsAccountsSavingsAccountIdChargesSavingsAccountChargeIdResponse.ts
 model/putSavingsChanges.ts

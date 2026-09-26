@@ -39,5 +39,6 @@ export interface PostSavingsAccountsRequest {
     locale?: string;
     productId?: number;
     submittedOnDate?: string;
+    withdrawalFeeForTransfers?: boolean;
 }
 

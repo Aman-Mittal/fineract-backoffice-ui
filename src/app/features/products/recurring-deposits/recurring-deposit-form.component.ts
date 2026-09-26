@@ -478,7 +478,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
         this.account.set({
           clientId: data.clientId,
           productId: data.savingsProductId,
-          mandatoryRecommendedDepositAmount: data.recurringDepositAmount,
+          mandatoryRecommendedDepositAmount: data.mandatoryRecommendedDepositAmount,
           depositPeriod: data.depositPeriod,
           depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
         });

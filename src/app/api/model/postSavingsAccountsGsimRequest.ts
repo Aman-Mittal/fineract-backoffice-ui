@@ -23,15 +23,15 @@
  * Do not edit the class manually.
  */
 
-import { PostFixedDepositProductsChartSlabs } from './postFixedDepositProductsChartSlabs';
+import { PostSavingsAccountsGsimSavings } from './postSavingsAccountsGsimSavings';
+import { PostSavingsAccountsGsimClient } from './postSavingsAccountsGsimClient';
 
 
-export interface PostFixedDepositProductsCharts { 
-    chartSlabs?: Set<PostFixedDepositProductsChartSlabs>;
-    dateFormat?: string;
-    endDate?: string;
-    fromDate?: string;
-    isPrimaryGroupingByAmount?: boolean;
-    locale?: string;
+/**
+ * PostSavingsAccountsGsimRequest
+ */
+export interface PostSavingsAccountsGsimRequest { 
+    clientArray?: Array<PostSavingsAccountsGsimClient>;
+    savingsArray?: Array<PostSavingsAccountsGsimSavings>;
 }
 

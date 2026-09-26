@@ -23,15 +23,14 @@
  * Do not edit the class manually.
  */
 
-import { PostFixedDepositProductsChartSlabs } from './postFixedDepositProductsChartSlabs';
+import { DepositAccountOnHoldTransactionData } from './depositAccountOnHoldTransactionData';
 
 
-export interface PostFixedDepositProductsCharts { 
-    chartSlabs?: Set<PostFixedDepositProductsChartSlabs>;
-    dateFormat?: string;
-    endDate?: string;
-    fromDate?: string;
-    isPrimaryGroupingByAmount?: boolean;
-    locale?: string;
+/**
+ * GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse
+ */
+export interface GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse { 
+    pageItems?: Array<DepositAccountOnHoldTransactionData>;
+    totalFilteredRecords?: number;
 }
 
