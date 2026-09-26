@@ -208,19 +208,22 @@ export class SavingsAccountsListComponent implements OnInit {
         map((response: GetSavingsAccountsResponse | null) => {
           this.isLoading = false;
           if (!response) return [];
-          const items = Array.from(response.pageItems || []).filter((account) => {
+          // The generated model types `pageItems` as a `Set`, but JSON has no sets and the
+          // platform sends an array. `Array.from` is what bridges the two, so the count has to
+          // come from its result: reading `.size` off the response satisfied the compiler and
+          // returned `undefined` at runtime, which made the arithmetic below `NaN` and the
+          // footer read "1 - 10 of NaN" on every page that had rows.
+          const returned = Array.from(response.pageItems || []);
+          const items = returned.filter((account) => {
             const acc = account as Record<string, unknown>;
             const depositType = acc['depositType'] as Record<string, unknown> | undefined;
             const depositTypeId = depositType ? depositType['id'] : acc['depositTypeId'];
             return depositTypeId !== 200;
           });
           this.totalRecords = response.totalFilteredRecords || 0;
-          // If server-side count is returned, but we filtered client-side, adjust totalRecords accordingly
-          if (response.pageItems && response.pageItems.size !== items.length) {
-            this.totalRecords = Math.max(
-              0,
-              this.totalRecords - (response.pageItems.size - items.length),
-            );
+          // The server counts before this filter runs, so discount whatever it removed.
+          if (returned.length !== items.length) {
+            this.totalRecords = Math.max(0, this.totalRecords - (returned.length - items.length));
           }
           return items;
         }),
