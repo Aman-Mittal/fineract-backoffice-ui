@@ -23,15 +23,14 @@
  * Do not edit the class manually.
  */
 
-import { PostFixedDepositProductsChartSlabs } from './postFixedDepositProductsChartSlabs';
 
 
-export interface PostFixedDepositProductsCharts { 
-    chartSlabs?: Set<PostFixedDepositProductsChartSlabs>;
+export interface PostSavingsAccountsGsimSavings { 
+    childAccountId?: number;
     dateFormat?: string;
-    endDate?: string;
-    fromDate?: string;
-    isPrimaryGroupingByAmount?: boolean;
     locale?: string;
+    paymentTypeId?: number;
+    transactionAmount?: number;
+    transactionDate?: string;
 }
 

@@ -60,6 +60,73 @@ export class ExternalAssetOwnerLoanProductAttributesService extends BaseService 
     }
 
     /**
+     * Delete a Loan Product Attribute
+     * Deletes a loan product attribute with a given loan product id and attribute id, so that the loan product falls back to the default behaviour of the attribute
+     * @endpoint delete /v1/external-asset-owners/loan-product/{loanProductId}/attributes/{id}
+     * @param loanProductId loanProductId
+     * @param id attributeId
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public deleteExternalAssetOwnersLoanProductLoanProductIdAttributesId(loanProductId: number, id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CommandProcessingResult>;
+    public deleteExternalAssetOwnersLoanProductLoanProductIdAttributesId(loanProductId: number, id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CommandProcessingResult>>;
+    public deleteExternalAssetOwnersLoanProductLoanProductIdAttributesId(loanProductId: number, id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CommandProcessingResult>>;
+    public deleteExternalAssetOwnersLoanProductLoanProductIdAttributesId(loanProductId: number, id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (loanProductId === null || loanProductId === undefined) {
+            throw new Error('Required parameter loanProductId was null or undefined when calling deleteExternalAssetOwnersLoanProductLoanProductIdAttributesId.');
+        }
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling deleteExternalAssetOwnersLoanProductLoanProductIdAttributesId.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (basicAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('basicAuth', 'Authorization', localVarHeaders, 'Basic ');
+
+        // authentication (tenantid) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('tenantid', 'fineract-platform-tenantid', localVarHeaders);
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/external-asset-owners/loan-product/${this.configuration.encodeParam({name: "loanProductId", value: loanProductId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/attributes/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CommandProcessingResult>('delete', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Retrieve All Loan Product Attributes
      * Retrieves all Loan Product Attributes with a given loanProductId
      * @endpoint get /v1/external-asset-owners/loan-product/{loanProductId}/attributes

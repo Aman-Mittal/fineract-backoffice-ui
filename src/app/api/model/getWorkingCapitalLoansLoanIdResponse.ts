@@ -50,6 +50,10 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
     accountNo?: string;
     amortizationType?: StringEnumOptionData;
     /**
+     * Configured annual EIR percentage for ANNUAL_EIR strategy loans
+     */
+    annualEir?: number;
+    /**
      * Approved discount fee set during loan approval
      */
     approvedDiscountFee?: number;
@@ -154,11 +158,16 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
     overpaidOnDate?: string;
     paymentAllocation?: Array<GetPaymentAllocation>;
     /**
+     * Configured daily payment amount for PAYMENT_AMOUNT strategy loans
+     */
+    paymentAmount?: number;
+    paymentAmountCalculationStrategy?: StringEnumOptionData;
+    /**
      * The loan\'s own period payment rate. A rate change does not move it - the rate in force on a given date comes from the rate-change history
      */
     paymentRate?: number;
     /**
-     * Daily payment amount the loan was priced at: totalPaymentVolume x paymentRate / 100 / npvDayCount, rounded to the currency. A rate change does not restate it, no more than it restates paymentRate or calculatedAnnualEir - what is billed from the day a change takes effect follows the rate then in force, and is read off the amortization schedule rows. Null if schedule not yet generated
+     * Daily payment amount the loan was priced at, following paymentAmountCalculationStrategy: totalPaymentVolume x paymentRate / 100 / npvDayCount rounded to the currency under TPV, solved from annualEir under ANNUAL_EIR, and paymentAmount itself under PAYMENT_AMOUNT. A rate change does not restate it, no more than it restates paymentRate or calculatedAnnualEir - what is billed from the day a change takes effect follows the rate then in force, and is read off the amortization schedule rows. Null if schedule not yet generated
      */
     periodPaymentAmount?: number;
     /**

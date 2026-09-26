@@ -6941,6 +6941,39 @@
       }
     },
     "/v1/external-asset-owners/loan-product/{loanProductId}/attributes/{id}": {
+      "delete": {
+        "description": "Deletes a loan product attribute with a given loan product id and attribute id, so that the loan product falls back to the default behaviour of the attribute",
+        "operationId": "deleteExternalAssetOwnerLoanProductAttribute",
+        "parameters": [
+          {
+            "description": "loanProductId",
+            "in": "path",
+            "name": "loanProductId",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          },
+          {
+            "description": "attributeId",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          }
+        ],
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CommandProcessingResult" }
+              }
+            },
+            "description": "default response"
+          }
+        },
+        "summary": "Delete a Loan Product Attribute",
+        "tags": ["External Asset Owner Loan Product Attributes"],
+        "x-alternative-operation-id": "deleteLoanProductAttribute"
+      },
       "put": {
         "description": "Updates a loan product attribute with a given loan product id and attribute id",
         "operationId": "updateExternalAssetOwnerLoanProductAttribute",
@@ -9338,9 +9371,16 @@
           }
         ],
         "responses": {
-          "default": {
-            "content": { "application/json": { "schema": { "type": "string" } } },
-            "description": "default response"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/GetGroupsGroupIdGsimAccountsResponse" }
+                }
+              }
+            },
+            "description": "OK"
           }
         },
         "summary": "Retrieve GSIM Accounts for Group",
@@ -21285,13 +21325,25 @@
     "/v1/savingsaccounts/gsim": {
       "post": {
         "operationId": "submitGSIMApplication",
-        "requestBody": { "content": { "application/json": { "schema": { "type": "string" } } } },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PostSavingsAccountsGsimRequest" }
+            }
+          },
+          "required": true
+        },
         "responses": {
-          "default": {
-            "content": { "application/json": { "schema": { "type": "string" } } },
-            "description": "default response"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PostSavingsAccountsGsimResponse" }
+              }
+            },
+            "description": "OK"
           }
         },
+        "summary": "Submit a group savings (GSIM) application",
         "tags": ["Savings Account"]
       }
     },
@@ -21306,18 +21358,31 @@
             "schema": { "type": "integer", "format": "int64" }
           }
         ],
-        "requestBody": { "content": { "application/json": { "schema": { "type": "string" } } } },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PutSavingsAccountsGsimRequest" }
+            }
+          },
+          "required": true
+        },
         "responses": {
-          "default": {
-            "content": { "application/json": { "schema": { "type": "string" } } },
-            "description": "default response"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PostSavingsAccountsGsimResponse" }
+              }
+            },
+            "description": "OK"
           }
         },
+        "summary": "Update a group savings (GSIM) application",
         "tags": ["Savings Account"]
       }
     },
     "/v1/savingsaccounts/gsimcommands/{parentAccountId}": {
       "post": {
+        "description": "Commands: reject, withdrawnByApplicant, approve, undoapproval, activate, calculateInterest, postInterest, close",
         "operationId": "handleGSIMCommands",
         "parameters": [
           {
@@ -21328,13 +21393,25 @@
           },
           { "in": "query", "name": "command", "schema": { "type": "string" } }
         ],
-        "requestBody": { "content": { "application/json": { "schema": { "type": "string" } } } },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PostSavingsAccountsAccountIdRequest" }
+            }
+          },
+          "required": true
+        },
         "responses": {
-          "default": {
-            "content": { "application/json": { "schema": { "type": "string" } } },
-            "description": "default response"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PostSavingsAccountsAccountIdResponse" }
+              }
+            },
+            "description": "OK"
           }
         },
+        "summary": "Act on a group savings (GSIM) application",
         "tags": ["Savings Account"]
       }
     },
@@ -21871,9 +21948,15 @@
           { "in": "query", "name": "sortOrder", "schema": { "type": "string" } }
         ],
         "responses": {
-          "default": {
-            "content": { "application/json": { "schema": { "type": "string" } } },
-            "description": "default response"
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse"
+                }
+              }
+            },
+            "description": "OK"
           }
         },
         "summary": "Retrieve deposit account on hold fund transactions",
@@ -25535,7 +25618,7 @@
         "tags": ["Working Capital Loan Products"]
       },
       "post": {
-        "description": "Creates a new Working Capital Loan Product.\n\nMandatory Fields: name, shortName, currencyCode, digitsAfterDecimal, inMultiplesOf, amortizationType, npvDayCount, principal, periodPaymentRate, repaymentEvery, repaymentFrequencyType\n\nOptional Fields: externalId, fundId, startDate, closeDate, description, delinquencyBucketClassification, minPrincipal, maxPrincipal, minPeriodPaymentRate, maxPeriodPaymentRate, discount, paymentAllocation, allowAttributeOverrides",
+        "description": "Creates a new Working Capital Loan Product.\n\nMandatory Fields: name, shortName, currencyCode, digitsAfterDecimal, inMultiplesOf, amortizationType, npvDayCount, principal, repaymentEvery, repaymentFrequencyType\n\nPayment amount calculation strategy (paymentAmountCalculationStrategy, default TPV):\n- TPV: periodPaymentRate is mandatory; annualEir, minAnnualEir and maxAnnualEir are not allowed; minPeriodPaymentRate and maxPeriodPaymentRate are optional\n- ANNUAL_EIR: annualEir and discount (> 0) are mandatory; periodPaymentRate, minPeriodPaymentRate and maxPeriodPaymentRate are not allowed; minAnnualEir and maxAnnualEir are optional\n- PAYMENT_AMOUNT: paymentAmount and discount (> 0) are mandatory; periodPaymentRate, minPeriodPaymentRate, maxPeriodPaymentRate, annualEir, minAnnualEir and maxAnnualEir are not allowed; minPaymentAmount and maxPaymentAmount are optional\n\nOptional Fields: externalId, fundId, startDate, closeDate, description, paymentAmountCalculationStrategy, delinquencyBucketClassification, minPrincipal, maxPrincipal, minPeriodPaymentRate, maxPeriodPaymentRate, annualEir, minAnnualEir, maxAnnualEir, paymentAmount, minPaymentAmount, maxPaymentAmount, discount, paymentAllocation, allowAttributeOverrides",
         "operationId": "createWorkingCapitalLoanProduct",
         "requestBody": {
           "content": {
@@ -26174,7 +26257,7 @@
         "tags": ["Working Capital Loan Charges"]
       },
       "post": {
-        "description": "Adjusts a working capital loan charge by creating a CHARGE_ADJUSTMENT transaction. Pass command=adjustment.",
+        "description": "Adjusts a working capital loan charge by creating a CHARGE_ADJUSTMENT transaction (command=adjustment), or waives its full outstanding amount by creating a WAIVE_CHARGES transaction (command=waive).",
         "operationId": "adjustLoanChargeByLoanAndChargeExternalId",
         "parameters": [
           {
@@ -26220,7 +26303,7 @@
             "description": "OK"
           }
         },
-        "summary": "Adjust a Working Capital Loan Charge by Loan and Charge External Ids",
+        "summary": "Adjust or Waive a Working Capital Loan Charge by Loan and Charge External Ids",
         "tags": ["Working Capital Loan Charges"]
       }
     },
@@ -26285,7 +26368,7 @@
         "tags": ["Working Capital Loan Charges"]
       },
       "post": {
-        "description": "Adjusts a working capital loan charge by creating a CHARGE_ADJUSTMENT transaction. Pass command=adjustment.",
+        "description": "Adjusts a working capital loan charge by creating a CHARGE_ADJUSTMENT transaction (command=adjustment), or waives its full outstanding amount by creating a WAIVE_CHARGES transaction (command=waive).",
         "operationId": "adjustLoanChargeByLoanExternalId",
         "parameters": [
           {
@@ -26331,7 +26414,7 @@
             "description": "OK"
           }
         },
-        "summary": "Adjust a Working Capital Loan Charge by Loan External Id",
+        "summary": "Adjust or Waive a Working Capital Loan Charge by Loan External Id",
         "tags": ["Working Capital Loan Charges"]
       }
     },
@@ -26888,7 +26971,7 @@
     },
     "/v1/working-capital-loans/external-id/{loanExternalId}/transactions/external-id/{transactionExternalId}": {
       "post": {
-        "description": "Supported command query parameter: undo",
+        "description": "Supported command query parameter: undo, discountFee, discountFeeAdjustment",
         "operationId": "executeWorkingCapitalLoanTransactionCommandByLoanExternalIdTransactionExternalId",
         "parameters": [
           {
@@ -27028,7 +27111,7 @@
         "tags": ["Working Capital Loan Transactions"]
       },
       "post": {
-        "description": "Supported command query parameter: undo",
+        "description": "Supported command query parameter: undo, discountFee, discountFeeAdjustment",
         "operationId": "executeWorkingCapitalLoanTransactionCommandByLoanExternalIdTransactionId",
         "parameters": [
           {
@@ -27502,7 +27585,7 @@
         "tags": ["Working Capital Loan Charges"]
       },
       "post": {
-        "description": "Adjusts a working capital loan charge by creating a CHARGE_ADJUSTMENT transaction. Pass command=adjustment.",
+        "description": "Adjusts a working capital loan charge by creating a CHARGE_ADJUSTMENT transaction (command=adjustment), or waives its full outstanding amount by creating a WAIVE_CHARGES transaction (command=waive).",
         "operationId": "adjustLoanChargeByChargeExternalId",
         "parameters": [
           {
@@ -27548,7 +27631,7 @@
             "description": "OK"
           }
         },
-        "summary": "Adjust a Working Capital Loan Charge by Charge External Id",
+        "summary": "Adjust or Waive a Working Capital Loan Charge by Charge External Id",
         "tags": ["Working Capital Loan Charges"]
       }
     },
@@ -27613,7 +27696,7 @@
         "tags": ["Working Capital Loan Charges"]
       },
       "post": {
-        "description": "Adjusts a working capital loan charge by creating a CHARGE_ADJUSTMENT transaction. Pass command=adjustment.",
+        "description": "Adjusts a working capital loan charge by creating a CHARGE_ADJUSTMENT transaction (command=adjustment), or waives its full outstanding amount by creating a WAIVE_CHARGES transaction (command=waive).",
         "operationId": "adjustLoanCharge",
         "parameters": [
           {
@@ -27659,7 +27742,7 @@
             "description": "OK"
           }
         },
-        "summary": "Adjust a Working Capital Loan Charge",
+        "summary": "Adjust or Waive a Working Capital Loan Charge",
         "tags": ["Working Capital Loan Charges"]
       }
     },
@@ -28314,7 +28397,7 @@
     },
     "/v1/working-capital-loans/{loanId}/transactions/external-id/{transactionExternalId}": {
       "post": {
-        "description": "Supported command query parameter: undo",
+        "description": "Supported command query parameter: undo, discountFee, discountFeeAdjustment",
         "operationId": "executeWorkingCapitalLoanTransactionCommandByLoanIdTransactionExternalId",
         "parameters": [
           {
@@ -28454,7 +28537,7 @@
         "tags": ["Working Capital Loan Transactions"]
       },
       "post": {
-        "description": "Supported command query parameter: undo",
+        "description": "Supported command query parameter: undo, discountFee, discountFeeAdjustment",
         "operationId": "executeWorkingCapitalLoanTransactionCommandByLoanIdTransactionId",
         "parameters": [
           {
@@ -32454,8 +32537,41 @@
       },
       "ExecuteWorkingCapitalLoanTransactionCommandRequest": {
         "type": "object",
-        "description": "Request for working capital loan transaction command execution",
-        "properties": { "reversalExternalId": { "type": "string", "example": "loan-ext-001" } }
+        "description": "Request for transaction command executed on a transaction named in the path: undo, discountFee or discountFeeAdjustment",
+        "properties": {
+          "classificationId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Optional code value id for transaction classification (command=discountFee, discountFeeAdjustment)",
+            "example": 12
+          },
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "externalId": {
+            "type": "string",
+            "description": "Optional external id for the created transaction (command=discountFee, discountFeeAdjustment)",
+            "example": "discount-fee-ext-001"
+          },
+          "locale": { "type": "string", "example": "en_GB" },
+          "note": { "type": "string", "example": "Discount applied" },
+          "paymentDetails": {
+            "$ref": "#/components/schemas/PostWorkingCapitalLoanTransactionsPaymentDetailRequest"
+          },
+          "reversalExternalId": {
+            "type": "string",
+            "description": "Optional external id for the reversal (command=undo)",
+            "example": "loan-ext-001"
+          },
+          "transactionAmount": {
+            "type": "number",
+            "description": "Transaction amount (command=discountFee, discountFeeAdjustment)",
+            "example": 100.0
+          },
+          "transactionDate": {
+            "type": "string",
+            "description": "Transaction date (command=discountFeeAdjustment); command=discountFee uses the date of the related disbursement",
+            "example": "28 June 2024"
+          }
+        }
       },
       "ExecuteWorkingCapitalLoanTransactionCommandResponse": {
         "type": "object",
@@ -33739,6 +33855,11 @@
           "fee": { "type": "number", "example": 10000.0 },
           "feeOutstanding": { "type": "number", "example": 10000.0 },
           "feePaid": { "type": "number", "example": 10000.0 },
+          "feeWaived": {
+            "type": "number",
+            "description": "Fees moved out of the outstanding balance by a charge waiver",
+            "example": 0.0
+          },
           "feeWrittenOff": {
             "type": "number",
             "description": "Fees moved out of the outstanding balance by a write-off",
@@ -33749,6 +33870,11 @@
           "penalty": { "type": "number", "example": 10000.0 },
           "penaltyOutstanding": { "type": "number", "example": 10000.0 },
           "penaltyPaid": { "type": "number", "example": 10000.0 },
+          "penaltyWaived": {
+            "type": "number",
+            "description": "Penalties moved out of the outstanding balance by a charge waiver",
+            "example": 0.0
+          },
           "penaltyWrittenOff": {
             "type": "number",
             "description": "Penalties moved out of the outstanding balance by a write-off",
@@ -34896,7 +35022,7 @@
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
           "clientName": { "type": "string", "example": "Sangamesh N" },
           "currency": { "$ref": "#/components/schemas/GetFixedDepositAccountsAccountIdCurrency" },
-          "depositAmount": { "type": "number", "format": "float", "example": 5000 },
+          "depositAmount": { "type": "number", "example": 5000 },
           "depositPeriod": { "type": "integer", "format": "int32", "example": 6 },
           "depositPeriodFrequency": {
             "$ref": "#/components/schemas/GetFixedDepositAccountsDepositPeriodFrequency"
@@ -34917,7 +35043,7 @@
           "interestPostingPeriodType": {
             "$ref": "#/components/schemas/GetFixedDepositAccountsInterestPostingPeriodType"
           },
-          "maturityAmount": { "type": "number", "format": "float", "example": 5140.25 },
+          "maturityAmount": { "type": "number", "example": 5140.25 },
           "maturityDate": { "type": "string", "format": "date" },
           "maxDepositTerm": { "type": "integer", "format": "int32", "example": 4 },
           "maxDepositTermType": {
@@ -34927,7 +35053,9 @@
           "minDepositTermType": {
             "$ref": "#/components/schemas/GetFixedDepositAccountsMinDepositTermType"
           },
+          "nominalAnnualInterestRate": { "type": "number", "example": 5 },
           "preClosurePenalApplicable": { "type": "boolean", "example": false },
+          "preClosurePenalInterest": { "type": "number", "example": 1.75 },
           "savingsProductId": { "type": "integer", "format": "int64", "example": 3 },
           "savingsProductName": { "type": "string", "example": "FD01" },
           "status": { "$ref": "#/components/schemas/GetFixedDepositAccountsStatus" },
@@ -34938,8 +35066,11 @@
       "GetFixedDepositAccountsAccountIdSummary": {
         "type": "object",
         "properties": {
-          "accountBalance": { "type": "number", "format": "float", "example": 0 },
-          "currency": { "$ref": "#/components/schemas/GetFixedDepositAccountsAccountIdCurrency" }
+          "accountBalance": { "type": "number", "example": 0 },
+          "currency": { "$ref": "#/components/schemas/GetFixedDepositAccountsAccountIdCurrency" },
+          "totalDeposits": { "type": "number", "example": 5000 },
+          "totalInterestPosted": { "type": "number", "example": 140.25 },
+          "totalWithholdTax": { "type": "number", "example": 14.02 }
         }
       },
       "GetFixedDepositAccountsAccountIdTransactionsResponse": {
@@ -35094,7 +35225,7 @@
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
           "clientName": { "type": "string", "example": "Sangamesh N" },
           "currency": { "$ref": "#/components/schemas/GetFixedDepositAccountsCurrency" },
-          "depositAmount": { "type": "number", "format": "float", "example": 5000 },
+          "depositAmount": { "type": "number", "example": 5000 },
           "depositPeriod": { "type": "integer", "format": "int32", "example": 6 },
           "depositPeriodFrequency": {
             "$ref": "#/components/schemas/GetFixedDepositAccountsDepositPeriodFrequency"
@@ -35114,7 +35245,7 @@
           "interestPostingPeriodType": {
             "$ref": "#/components/schemas/GetFixedDepositAccountsInterestPostingPeriodType"
           },
-          "maturityAmount": { "type": "number", "format": "float", "example": 5140.25 },
+          "maturityAmount": { "type": "number", "example": 5140.25 },
           "maturityDate": { "type": "string", "format": "date" },
           "maxDepositTerm": { "type": "integer", "format": "int32", "example": 4 },
           "maxDepositTermType": {
@@ -35144,6 +35275,7 @@
           },
           "description": { "type": "string", "example": "Submitted and pending approval" },
           "id": { "type": "integer", "format": "int64", "example": 100 },
+          "matured": { "type": "boolean", "example": false },
           "prematureClosed": { "type": "boolean", "example": false },
           "rejected": { "type": "boolean", "example": false },
           "submittedAndPendingApproval": { "type": "boolean", "example": true },
@@ -35155,7 +35287,7 @@
       "GetFixedDepositAccountsSummary": {
         "type": "object",
         "properties": {
-          "accountBalance": { "type": "number", "format": "float", "example": 0 },
+          "accountBalance": { "type": "number", "example": 0 },
           "currency": { "$ref": "#/components/schemas/GetFixedDepositAccountsCurrency" }
         }
       },
@@ -35894,6 +36026,17 @@
           "id": { "type": "integer", "format": "int64", "example": 1 }
         }
       },
+      "GetGroupsGroupIdGsimAccountsResponse": {
+        "type": "object",
+        "description": "GetGroupsGroupIdGsimAccountsResponse",
+        "properties": {
+          "childGSIMAccounts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/GetGroupsGsimChildAccount" }
+          },
+          "gsimId": { "type": "number", "example": 1 }
+        }
+      },
       "GetGroupsGroupIdResponse": {
         "type": "object",
         "description": "GetGroupsGroupIdResponse",
@@ -35923,6 +36066,10 @@
           "activatedByUsername": { "type": "string", "example": "mifos" },
           "activatedOnDate": { "type": "string", "format": "date" }
         }
+      },
+      "GetGroupsGsimChildAccount": {
+        "type": "object",
+        "properties": { "id": { "type": "integer", "format": "int64", "example": 1 } }
       },
       "GetGroupsPageItems": {
         "type": "object",
@@ -36085,11 +36232,14 @@
       "GetInterestRateChartsChartSlabs": {
         "type": "object",
         "properties": {
-          "annualInterestRate": { "type": "integer", "format": "int32", "example": 6 },
+          "annualInterestRate": { "type": "number", "example": 4.5 },
           "currency": { "$ref": "#/components/schemas/GetInterestRateChartsCurrency" },
           "fromPeriod": { "type": "integer", "format": "int32", "example": 1 },
           "id": { "type": "integer", "format": "int64", "example": 1 },
-          "periodTypes": { "$ref": "#/components/schemas/GetInterestRateChartsTemplatePeriodTypes" }
+          "periodTypes": {
+            "$ref": "#/components/schemas/GetInterestRateChartsTemplatePeriodTypes"
+          },
+          "toPeriod": { "type": "integer", "format": "int32", "example": 6 }
         }
       },
       "GetInterestRateChartsCurrency": {
@@ -36811,6 +36961,7 @@
           "enableDownPayment": { "type": "boolean", "example": false },
           "enableIncomeCapitalization": { "type": "boolean", "example": false },
           "enableInstallmentLevelDelinquency": { "type": "boolean", "example": false },
+          "externalId": { "type": "string", "example": "2075e308-d4a8-44d9-8203-f5a947b8c2f4" },
           "feeToIncomeAccountMappings": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/GetLoanFeeToIncomeAccountMappings" },
@@ -39073,6 +39224,7 @@
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
           "clientName": { "type": "string", "example": "Sangamesh N" },
           "currency": { "$ref": "#/components/schemas/GetRecurringDepositAccountsCurrency" },
+          "depositAmount": { "type": "number", "example": 1150 },
           "depositPeriod": { "type": "integer", "format": "int32", "example": 6 },
           "depositPeriodFrequency": {
             "$ref": "#/components/schemas/GetRecurringDepositAccountsDepositPeriodFrequency"
@@ -39093,6 +39245,8 @@
           "interestPostingPeriodType": {
             "$ref": "#/components/schemas/GetRecurringDepositAccountsInterestPostingPeriodType"
           },
+          "mandatoryRecommendedDepositAmount": { "type": "number", "example": 100 },
+          "maturityAmount": { "type": "number", "example": 252.59 },
           "maxDepositTerm": { "type": "integer", "format": "int32", "example": 4 },
           "maxDepositTermType": {
             "$ref": "#/components/schemas/GetRecurringDepositAccountsMaxDepositTermType"
@@ -39101,10 +39255,11 @@
           "minDepositTermType": {
             "$ref": "#/components/schemas/GetRecurringDepositAccountsMinDepositTermType"
           },
+          "nominalAnnualInterestRate": { "type": "number", "example": 5 },
           "preClosurePenalApplicable": { "type": "boolean", "example": false },
-          "recurringDepositAmount": { "type": "integer", "format": "int32", "example": 100 },
-          "recurringDepositFrequency": { "type": "integer", "format": "int32", "example": 1 },
-          "recurringDepositFrequencyType": {
+          "preClosurePenalInterest": { "type": "number", "example": 1.75 },
+          "recurringFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "recurringFrequencyType": {
             "$ref": "#/components/schemas/GetRecurringDepositAccountsRecurringDepositFrequencyType"
           },
           "savingsProductId": { "type": "integer", "format": "int64", "example": 3 },
@@ -39279,7 +39434,7 @@
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
           "clientName": { "type": "string", "example": "Sangamesh N" },
           "currency": { "$ref": "#/components/schemas/GetRecurringDepositAccountsCurrency" },
-          "depositAmount": { "type": "number", "format": "float", "example": 1150 },
+          "depositAmount": { "type": "number", "example": 1150 },
           "depositPeriod": { "type": "integer", "format": "int32", "example": 6 },
           "depositPeriodFrequency": {
             "$ref": "#/components/schemas/GetRecurringDepositAccountsDepositPeriodFrequency"
@@ -39298,7 +39453,8 @@
           "interestPostingPeriodType": {
             "$ref": "#/components/schemas/GetRecurringDepositAccountsInterestPostingPeriodType"
           },
-          "maturityAmount": { "type": "number", "format": "float", "example": 252.59 },
+          "mandatoryRecommendedDepositAmount": { "type": "number", "example": 100 },
+          "maturityAmount": { "type": "number", "example": 252.59 },
           "maturityDate": { "type": "string", "format": "date" },
           "maxDepositTerm": { "type": "integer", "format": "int32", "example": 4 },
           "maxDepositTermType": {
@@ -39309,9 +39465,8 @@
             "$ref": "#/components/schemas/GetRecurringDepositAccountsMinDepositTermType"
           },
           "preClosurePenalApplicable": { "type": "boolean", "example": false },
-          "recurringDepositAmount": { "type": "integer", "format": "int32", "example": 100 },
-          "recurringDepositFrequency": { "type": "integer", "format": "int32", "example": 1 },
-          "recurringDepositFrequencyType": {
+          "recurringFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "recurringFrequencyType": {
             "$ref": "#/components/schemas/GetRecurringDepositAccountsRecurringDepositFrequencyType"
           },
           "savingsProductId": { "type": "integer", "format": "int64", "example": 3 },
@@ -39333,6 +39488,7 @@
           },
           "description": { "type": "string", "example": "Submitted and pending approval" },
           "id": { "type": "integer", "format": "int64", "example": 100 },
+          "matured": { "type": "boolean", "example": false },
           "prematureClosed": { "type": "boolean", "example": false },
           "rejected": { "type": "boolean", "example": false },
           "submittedAndPendingApproval": { "type": "boolean", "example": true },
@@ -39344,8 +39500,11 @@
       "GetRecurringDepositAccountsSummary": {
         "type": "object",
         "properties": {
-          "accountBalance": { "type": "number", "format": "float", "example": 0 },
-          "currency": { "$ref": "#/components/schemas/GetRecurringDepositAccountsCurrency" }
+          "accountBalance": { "type": "number", "example": 0 },
+          "currency": { "$ref": "#/components/schemas/GetRecurringDepositAccountsCurrency" },
+          "totalDeposits": { "type": "number", "example": 5000 },
+          "totalInterestPosted": { "type": "number", "example": 140.25 },
+          "totalWithholdTax": { "type": "number", "example": 14.02 }
         }
       },
       "GetRecurringDepositAccountsTemplateResponse": {
@@ -40065,6 +40224,17 @@
             "uniqueItems": true
           },
           "penalty": { "type": "boolean", "example": false }
+        }
+      },
+      "GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse": {
+        "type": "object",
+        "description": "GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse",
+        "properties": {
+          "pageItems": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DepositAccountOnHoldTransactionData" }
+          },
+          "totalFilteredRecords": { "type": "integer", "format": "int32", "example": 1 }
         }
       },
       "GetSavingsAccountsTemplateResponse": {
@@ -41455,6 +41625,7 @@
           "amount": { "type": "number", "example": 10 },
           "amountOutstanding": { "type": "number", "example": 0 },
           "amountPaid": { "type": "number", "example": 10 },
+          "amountWaived": { "type": "number", "example": 0 },
           "amountWrittenOff": { "type": "number", "example": 0 },
           "chargeCalculationType": { "$ref": "#/components/schemas/EnumOptionData" },
           "chargeId": { "type": "integer", "format": "int64", "example": 1 },
@@ -41520,6 +41691,11 @@
           "accountingRule": { "$ref": "#/components/schemas/StringEnumOptionData" },
           "allowAttributeOverrides": { "$ref": "#/components/schemas/GetConfigurableAttributes" },
           "amortizationType": { "$ref": "#/components/schemas/StringEnumOptionData" },
+          "annualEir": {
+            "type": "number",
+            "description": "Configured annual EIR percentage. Only for ANNUAL_EIR strategy.",
+            "example": 43.7562
+          },
           "breach": { "$ref": "#/components/schemas/GetWorkingCapitalLoanBreach" },
           "breachGraceDays": {
             "type": "integer",
@@ -41550,8 +41726,28 @@
           "fundId": { "type": "integer", "format": "int64", "example": 3 },
           "fundName": { "type": "string", "example": "Fund 1" },
           "id": { "type": "integer", "format": "int64", "example": 1 },
+          "maxAnnualEir": {
+            "type": "number",
+            "description": "Maximum annual EIR percentage. Optional; only for ANNUAL_EIR strategy.",
+            "example": 50.0
+          },
+          "maxPaymentAmount": {
+            "type": "number",
+            "description": "Maximum daily payment amount. Optional; only for PAYMENT_AMOUNT strategy.",
+            "example": 100.0
+          },
           "maxPeriodPaymentRate": { "type": "number", "example": 2.0 },
           "maxPrincipal": { "type": "number", "example": 50000.0 },
+          "minAnnualEir": {
+            "type": "number",
+            "description": "Minimum annual EIR percentage. Optional; only for ANNUAL_EIR strategy.",
+            "example": 20.0
+          },
+          "minPaymentAmount": {
+            "type": "number",
+            "description": "Minimum daily payment amount. Optional; only for PAYMENT_AMOUNT strategy.",
+            "example": 10.0
+          },
           "minPeriodPaymentRate": { "type": "number", "example": 0.5 },
           "minPrincipal": { "type": "number", "example": 1000.0 },
           "name": { "type": "string", "example": "Working Capital Product 1" },
@@ -41560,6 +41756,14 @@
           "paymentAllocation": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/GetPaymentAllocation" }
+          },
+          "paymentAmount": {
+            "type": "number",
+            "description": "Configured daily payment amount. Only for PAYMENT_AMOUNT strategy.",
+            "example": 47.22
+          },
+          "paymentAmountCalculationStrategy": {
+            "$ref": "#/components/schemas/StringEnumOptionData"
           },
           "paymentChannelToFundSourceMappings": {
             "type": "array",
@@ -41593,6 +41797,11 @@
           "accountingRule": { "$ref": "#/components/schemas/StringEnumOptionData" },
           "allowAttributeOverrides": { "$ref": "#/components/schemas/GetConfigurableAttributes" },
           "amortizationType": { "$ref": "#/components/schemas/StringEnumOptionData" },
+          "annualEir": {
+            "type": "number",
+            "description": "Configured annual EIR percentage. Only for ANNUAL_EIR strategy.",
+            "example": 43.7562
+          },
           "breach": { "$ref": "#/components/schemas/GetWorkingCapitalLoanBreach" },
           "breachGraceDays": {
             "type": "integer",
@@ -41623,8 +41832,28 @@
           "fundId": { "type": "integer", "format": "int64", "example": 3 },
           "fundName": { "type": "string", "example": "Fund 1" },
           "id": { "type": "integer", "format": "int64", "example": 1 },
+          "maxAnnualEir": {
+            "type": "number",
+            "description": "Maximum annual EIR percentage. Optional; only for ANNUAL_EIR strategy.",
+            "example": 50.0
+          },
+          "maxPaymentAmount": {
+            "type": "number",
+            "description": "Maximum daily payment amount. Optional; only for PAYMENT_AMOUNT strategy.",
+            "example": 100.0
+          },
           "maxPeriodPaymentRate": { "type": "number", "example": 2.0 },
           "maxPrincipal": { "type": "number", "example": 50000.0 },
+          "minAnnualEir": {
+            "type": "number",
+            "description": "Minimum annual EIR percentage. Optional; only for ANNUAL_EIR strategy.",
+            "example": 20.0
+          },
+          "minPaymentAmount": {
+            "type": "number",
+            "description": "Minimum daily payment amount. Optional; only for PAYMENT_AMOUNT strategy.",
+            "example": 10.0
+          },
           "minPeriodPaymentRate": { "type": "number", "example": 0.5 },
           "minPrincipal": { "type": "number", "example": 1000.0 },
           "name": { "type": "string", "example": "Working Capital Product 1" },
@@ -41633,6 +41862,14 @@
           "paymentAllocation": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/GetPaymentAllocation" }
+          },
+          "paymentAmount": {
+            "type": "number",
+            "description": "Configured daily payment amount. Only for PAYMENT_AMOUNT strategy.",
+            "example": 47.22
+          },
+          "paymentAmountCalculationStrategy": {
+            "$ref": "#/components/schemas/StringEnumOptionData"
           },
           "paymentChannelToFundSourceMappings": {
             "type": "array",
@@ -41716,6 +41953,11 @@
             "type": "array",
             "items": { "$ref": "#/components/schemas/WorkingCapitalNearBreachData" }
           },
+          "paymentAmountCalculationStrategyOptions": {
+            "type": "array",
+            "description": "Payment amount calculation strategies a product can be created with",
+            "items": { "$ref": "#/components/schemas/StringEnumOptionData" }
+          },
           "paymentTypeOptions": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/PaymentTypeData" }
@@ -41742,10 +41984,18 @@
           "fee": { "type": "number" },
           "feeOutstanding": { "type": "number" },
           "feePaid": { "type": "number" },
+          "feeWaived": {
+            "type": "number",
+            "description": "Fees moved out of the outstanding balance by a charge waiver"
+          },
           "overpayment": { "type": "number" },
           "penalty": { "type": "number" },
           "penaltyOutstanding": { "type": "number" },
           "penaltyPaid": { "type": "number" },
+          "penaltyWaived": {
+            "type": "number",
+            "description": "Penalties moved out of the outstanding balance by a charge waiver"
+          },
           "principal": {
             "type": "number",
             "description": "Total principal due: original principal plus principalAdjustment. Already inclusive of principalAdjustment — do not add the two together."
@@ -41780,6 +42030,11 @@
           },
           "classification": { "$ref": "#/components/schemas/CodeValueData" },
           "externalId": { "type": "string", "example": "txn-ext-001" },
+          "externalLoanId": {
+            "type": "string",
+            "description": "External id of the loan this transaction belongs to",
+            "example": "loan-ext-001"
+          },
           "feeChargesPortion": {
             "type": "number",
             "description": "Fee charges portion from allocation",
@@ -41806,7 +42061,8 @@
           "submittedOnDate": { "type": "string", "format": "date" },
           "transactionAmount": { "type": "number", "example": 10000.0 },
           "transactionDate": { "type": "string", "format": "date" },
-          "type": { "$ref": "#/components/schemas/LoanTransactionEnumData" }
+          "type": { "$ref": "#/components/schemas/LoanTransactionEnumData" },
+          "wcLoanId": { "type": "integer", "format": "int64", "example": 1 }
         }
       },
       "GetWorkingCapitalLoanTransactionsResponse": {
@@ -41851,6 +42107,11 @@
         "properties": {
           "accountNo": { "type": "string", "example": "WCL-1" },
           "amortizationType": { "$ref": "#/components/schemas/StringEnumOptionData" },
+          "annualEir": {
+            "type": "number",
+            "description": "Configured annual EIR percentage for ANNUAL_EIR strategy loans",
+            "example": 43.7562
+          },
           "approvedDiscountFee": {
             "type": "number",
             "description": "Approved discount fee set during loan approval",
@@ -41990,6 +42251,14 @@
             "type": "array",
             "items": { "$ref": "#/components/schemas/GetPaymentAllocation" }
           },
+          "paymentAmount": {
+            "type": "number",
+            "description": "Configured daily payment amount for PAYMENT_AMOUNT strategy loans",
+            "example": 47.22
+          },
+          "paymentAmountCalculationStrategy": {
+            "$ref": "#/components/schemas/StringEnumOptionData"
+          },
           "paymentRate": {
             "type": "number",
             "description": "The loan's own period payment rate. A rate change does not move it - the rate in force on a given date comes from the rate-change history",
@@ -41997,7 +42266,7 @@
           },
           "periodPaymentAmount": {
             "type": "number",
-            "description": "Daily payment amount the loan was priced at: totalPaymentVolume x paymentRate / 100 / npvDayCount, rounded to the currency. A rate change does not restate it, no more than it restates paymentRate or calculatedAnnualEir - what is billed from the day a change takes effect follows the rate then in force, and is read off the amortization schedule rows. Null if schedule not yet generated",
+            "description": "Daily payment amount the loan was priced at, following paymentAmountCalculationStrategy: totalPaymentVolume x paymentRate / 100 / npvDayCount rounded to the currency under TPV, solved from annualEir under ANNUAL_EIR, and paymentAmount itself under PAYMENT_AMOUNT. A rate change does not restate it, no more than it restates paymentRate or calculatedAnnualEir - what is billed from the day a change takes effect follows the rate then in force, and is read off the amortization schedule rows. Null if schedule not yet generated",
             "example": 0.29
           },
           "periodPaymentRateHistory": {
@@ -45652,6 +45921,13 @@
         "type": "object",
         "description": "PostAccountsTypeAccountIdRequest",
         "properties": {
+          "activatedDate": {
+            "type": "string",
+            "description": "command=activate",
+            "example": "01 January 2026"
+          },
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "locale": { "type": "string", "example": "en" },
           "requestedShares": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/PostAccountsRequestedShares" },
@@ -46175,8 +46451,16 @@
         "type": "object",
         "description": "PostExternalAssetOwnerLoanProductAttributeRequest",
         "properties": {
-          "attributeKey": { "type": "string", "example": "SETTLEMENT_MODEL" },
-          "attributeValue": { "type": "string", "example": "DELAYED_SETTLEMENT" }
+          "attributeKey": {
+            "type": "string",
+            "description": "Attribute key, one of the keys returned by the loan product attributes template endpoint, e.g. SETTLEMENT_MODEL or EXCLUDED_TRANSACTION_TYPES.",
+            "example": "SETTLEMENT_MODEL"
+          },
+          "attributeValue": {
+            "type": "string",
+            "description": "Attribute value. For multi value attributes such as EXCLUDED_TRANSACTION_TYPES this is a comma separated list, e.g. BUY_DOWN_FEE,BUY_DOWN_FEE_ADJUSTMENT.",
+            "example": "DELAYED_SETTLEMENT"
+          }
         }
       },
       "PostExternalAssetOwnerRequest": {
@@ -46217,7 +46501,54 @@
       },
       "PostFixedDepositAccountsAccountIdRequest": {
         "type": "object",
-        "description": "PostFixedDepositAccountsAccountIdRequest"
+        "description": "PostFixedDepositAccountsAccountIdRequest",
+        "properties": {
+          "activatedOnDate": {
+            "type": "string",
+            "description": "command=activate",
+            "example": "01 March 2014"
+          },
+          "approvedOnDate": {
+            "type": "string",
+            "description": "command=approve",
+            "example": "01 March 2014"
+          },
+          "closedOnDate": {
+            "type": "string",
+            "description": "command=prematureClose, calculatePrematureAmount",
+            "example": "01 March 2014"
+          },
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "locale": { "type": "string", "example": "en" },
+          "note": { "type": "string", "example": "Approved by the branch manager" },
+          "onAccountClosureId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "command=prematureClose",
+            "example": 100
+          },
+          "rejectedOnDate": {
+            "type": "string",
+            "description": "command=reject",
+            "example": "01 March 2014"
+          },
+          "toSavingsAccountId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "command=prematureClose, transfer to savings",
+            "example": 1
+          },
+          "transferDescription": {
+            "type": "string",
+            "description": "command=prematureClose, transfer to savings",
+            "example": "Transfer to savings"
+          },
+          "withdrawnOnDate": {
+            "type": "string",
+            "description": "command=withdrawnByApplicant",
+            "example": "01 March 2014"
+          }
+        }
       },
       "PostFixedDepositAccountsAccountIdResponse": {
         "type": "object",
@@ -46269,12 +46600,35 @@
         "properties": {
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
-          "depositAmount": { "type": "number", "format": "float", "example": 5000 },
+          "depositAmount": { "type": "number", "example": 5000 },
           "depositPeriod": { "type": "integer", "format": "int32", "example": 6 },
           "depositPeriodFrequencyId": { "type": "integer", "format": "int64", "example": 2 },
+          "inMultiplesOfDepositTerm": { "type": "integer", "format": "int32", "example": 2 },
+          "inMultiplesOfDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "interestCalculationDaysInYearType": {
+            "type": "integer",
+            "format": "int32",
+            "example": 365
+          },
+          "interestCalculationType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestCompoundingPeriodType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestPostingPeriodType": { "type": "integer", "format": "int32", "example": 4 },
+          "linkAccountId": { "type": "integer", "format": "int64", "example": 1 },
           "locale": { "type": "string", "example": "en" },
+          "lockinPeriodFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "lockinPeriodFrequencyType": { "type": "integer", "format": "int32", "example": 2 },
+          "maturityInstructionId": { "type": "integer", "format": "int32", "example": 100 },
+          "maxDepositTerm": { "type": "integer", "format": "int32", "example": 5 },
+          "maxDepositTermTypeId": { "type": "integer", "format": "int32", "example": 3 },
+          "minDepositTerm": { "type": "integer", "format": "int32", "example": 1 },
+          "minDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "monthDayFormat": { "type": "string", "example": "dd MMMM" },
+          "preClosurePenalApplicable": { "type": "boolean", "example": true },
+          "preClosurePenalInterest": { "type": "number", "example": 1.75 },
+          "preClosurePenalInterestOnTypeId": { "type": "integer", "format": "int32", "example": 1 },
           "productId": { "type": "integer", "format": "int64", "example": 1 },
-          "submittedOnDate": { "type": "string", "example": "01 March 2014" }
+          "submittedOnDate": { "type": "string", "example": "01 March 2014" },
+          "transferInterestToSavings": { "type": "boolean", "example": false }
         }
       },
       "PostFixedDepositAccountsResponse": {
@@ -46290,9 +46644,12 @@
       "PostFixedDepositProductsChartSlabs": {
         "type": "object",
         "properties": {
+          "amountRangeFrom": { "type": "number", "example": 1000 },
+          "amountRangeTo": { "type": "number", "example": 5000 },
           "annualInterestRate": { "type": "number", "format": "double", "example": 4.5 },
           "description": { "type": "string", "example": "from 0 to 90 days" },
           "fromPeriod": { "type": "integer", "format": "int32", "example": 0 },
+          "locale": { "type": "string", "example": "en" },
           "periodType": { "type": "integer", "format": "int32", "example": 1 },
           "toPeriod": { "type": "integer", "format": "int32", "example": 90 }
         }
@@ -46306,7 +46663,9 @@
             "uniqueItems": true
           },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "endDate": { "type": "string", "example": "01 Jan 2015" },
           "fromDate": { "type": "string", "example": "01 Jan 2014" },
+          "isPrimaryGroupingByAmount": { "type": "boolean", "example": false },
           "locale": { "type": "string", "example": "en" }
         }
       },
@@ -46321,12 +46680,18 @@
             "uniqueItems": true
           },
           "currencyCode": { "type": "string", "example": "USD" },
+          "depositAmount": { "type": "number", "example": 100000 },
           "description": {
             "type": "string",
             "example": "Daily compounding using Daily Balance, 5% per year, 365 days in year"
           },
           "digitsAfterDecimal": { "type": "integer", "format": "int32", "example": 2 },
+          "feesReceivableAccountId": { "type": "integer", "format": "int64", "example": 7 },
           "inMultiplesOf": { "type": "integer", "format": "int32", "example": 0 },
+          "inMultiplesOfDepositTerm": { "type": "integer", "format": "int32", "example": 2 },
+          "inMultiplesOfDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "incomeFromFeeAccountId": { "type": "integer", "format": "int64", "example": 5 },
+          "incomeFromPenaltyAccountId": { "type": "integer", "format": "int64", "example": 6 },
           "interestCalculationDaysInYearType": {
             "type": "integer",
             "format": "int32",
@@ -46334,17 +46699,27 @@
           },
           "interestCalculationType": { "type": "integer", "format": "int32", "example": 1 },
           "interestCompoundingPeriodType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestOnSavingsAccountId": { "type": "integer", "format": "int64", "example": 4 },
+          "interestPayableAccountId": { "type": "integer", "format": "int64", "example": 9 },
           "interestPostingPeriodType": { "type": "integer", "format": "int32", "example": 4 },
           "locale": { "type": "string", "example": "en" },
+          "lockinPeriodFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "lockinPeriodFrequencyType": { "type": "integer", "format": "int32", "example": 2 },
           "maxDepositTerm": { "type": "integer", "format": "int32", "example": 5 },
           "maxDepositTermTypeId": { "type": "integer", "format": "int32", "example": 3 },
           "minDepositTerm": { "type": "integer", "format": "int32", "example": 1 },
           "minDepositTermTypeId": { "type": "integer", "format": "int32", "example": 1 },
           "name": { "type": "string", "example": "Fixed deposit product" },
+          "penaltiesReceivableAccountId": { "type": "integer", "format": "int64", "example": 8 },
           "preClosurePenalApplicable": { "type": "boolean", "example": true },
           "preClosurePenalInterest": { "type": "number", "format": "double", "example": 1.75 },
           "preClosurePenalInterestOnTypeId": { "type": "integer", "format": "int32", "example": 1 },
-          "shortName": { "type": "string", "example": "FD01" }
+          "savingsControlAccountId": { "type": "integer", "format": "int64", "example": 2 },
+          "savingsReferenceAccountId": { "type": "integer", "format": "int64", "example": 1 },
+          "shortName": { "type": "string", "example": "FD01" },
+          "taxGroupId": { "type": "integer", "format": "int64", "example": 1 },
+          "transfersInSuspenseAccountId": { "type": "integer", "format": "int64", "example": 3 },
+          "withHoldTax": { "type": "boolean", "example": false }
         }
       },
       "PostFixedDepositProductsResponse": {
@@ -47703,18 +48078,9 @@
             "enum": [
               "DEFAULT",
               "REPAYMENT",
-              "DOWN_PAYMENT",
-              "MERCHANT_ISSUED_REFUND",
               "PAYOUT_REFUND",
               "GOODWILL_CREDIT",
-              "CHARGE_REFUND",
-              "CHARGE_ADJUSTMENT",
-              "WAIVE_INTEREST",
-              "CHARGE_PAYMENT",
-              "REFUND_FOR_ACTIVE_LOAN",
-              "INTEREST_PAYMENT_WAIVER",
-              "INTEREST_REFUND",
-              "CAPITALIZED_INCOME_ADJUSTMENT"
+              "CHARGE_ADJUSTMENT"
             ],
             "example": "DEFAULT"
           }
@@ -47767,6 +48133,12 @@
           "description": { "type": "string", "example": "Description" },
           "digitsAfterDecimal": { "type": "integer", "format": "int32", "example": 2 },
           "inMultiplesOf": { "type": "integer", "format": "int32", "example": 1 },
+          "incomeFromFeeAccountId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Required with accountingRule=2 (cash based)",
+            "example": 4
+          },
           "locale": { "type": "string", "example": "en" },
           "lockinPeriodFrequency": { "type": "integer", "format": "int32", "example": 1 },
           "lockinPeriodFrequencyType": { "type": "integer", "format": "int32", "example": 1 },
@@ -47785,6 +48157,24 @@
           },
           "name": { "type": "string", "example": "Share Product" },
           "nominalShares": { "type": "integer", "format": "int32", "example": 20 },
+          "shareEquityId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Required with accountingRule=2 (cash based)",
+            "example": 3
+          },
+          "shareReferenceId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Required with accountingRule=2 (cash based)",
+            "example": 1
+          },
+          "shareSuspenseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Required with accountingRule=2 (cash based)",
+            "example": 2
+          },
           "sharesIssued": { "type": "integer", "format": "int32", "example": 1000 },
           "shortName": { "type": "string", "example": "SP" },
           "totalShares": { "type": "integer", "format": "int32", "example": 1000 },
@@ -47833,7 +48223,54 @@
       },
       "PostRecurringDepositAccountsAccountIdRequest": {
         "type": "object",
-        "description": "PostRecurringDepositAccountsAccountIdRequest"
+        "description": "PostRecurringDepositAccountsAccountIdRequest",
+        "properties": {
+          "activatedOnDate": {
+            "type": "string",
+            "description": "command=activate",
+            "example": "02 June 2014"
+          },
+          "approvedOnDate": {
+            "type": "string",
+            "description": "command=approve",
+            "example": "02 June 2014"
+          },
+          "closedOnDate": {
+            "type": "string",
+            "description": "command=prematureClose, calculatePrematureAmount",
+            "example": "02 June 2014"
+          },
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "locale": { "type": "string", "example": "en" },
+          "note": { "type": "string", "example": "Approved by the branch manager" },
+          "onAccountClosureId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "command=prematureClose",
+            "example": 100
+          },
+          "rejectedOnDate": {
+            "type": "string",
+            "description": "command=reject",
+            "example": "02 June 2014"
+          },
+          "toSavingsAccountId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "command=prematureClose, transfer to savings",
+            "example": 1
+          },
+          "transferDescription": {
+            "type": "string",
+            "description": "command=prematureClose, transfer to savings",
+            "example": "Transfer to savings"
+          },
+          "withdrawnOnDate": {
+            "type": "string",
+            "description": "command=withdrawnByApplicant",
+            "example": "02 June 2014"
+          }
+        }
       },
       "PostRecurringDepositAccountsAccountIdResponse": {
         "type": "object",
@@ -47889,16 +48326,33 @@
         "properties": {
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
-          "depositAmount": { "type": "number", "format": "float", "example": 10000 },
+          "depositAmount": { "type": "number", "example": 10000 },
           "depositPeriod": { "type": "integer", "format": "int32", "example": 20 },
           "depositPeriodFrequencyId": { "type": "integer", "format": "int32", "example": 1 },
+          "expectedFirstDepositOnDate": { "type": "string", "example": "02 June 2014" },
+          "inMultiplesOfDepositTerm": { "type": "integer", "format": "int32", "example": 2 },
+          "inMultiplesOfDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "interestCalculationDaysInYearType": {
+            "type": "integer",
+            "format": "int32",
+            "example": 365
+          },
+          "interestCalculationType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestCompoundingPeriodType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestPostingPeriodType": { "type": "integer", "format": "int32", "example": 4 },
           "isCalendarInherited": { "type": "boolean", "example": false },
           "locale": { "type": "string", "example": "en" },
-          "mandatoryRecommendedDepositAmount": {
-            "type": "integer",
-            "format": "int64",
-            "example": 2000
-          },
+          "lockinPeriodFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "lockinPeriodFrequencyType": { "type": "integer", "format": "int32", "example": 2 },
+          "mandatoryRecommendedDepositAmount": { "type": "number", "example": 2000 },
+          "maxDepositTerm": { "type": "integer", "format": "int32", "example": 5 },
+          "maxDepositTermTypeId": { "type": "integer", "format": "int32", "example": 3 },
+          "minDepositTerm": { "type": "integer", "format": "int32", "example": 1 },
+          "minDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "monthDayFormat": { "type": "string", "example": "dd MMMM" },
+          "preClosurePenalApplicable": { "type": "boolean", "example": true },
+          "preClosurePenalInterest": { "type": "number", "example": 1.75 },
+          "preClosurePenalInterestOnTypeId": { "type": "integer", "format": "int32", "example": 1 },
           "productId": { "type": "integer", "format": "int64", "example": 1 },
           "recurringFrequency": { "type": "integer", "format": "int32", "example": 2 },
           "recurringFrequencyType": { "type": "integer", "format": "int32", "example": 1 },
@@ -47918,9 +48372,12 @@
       "PostRecurringDepositProductsChartSlabs": {
         "type": "object",
         "properties": {
+          "amountRangeFrom": { "type": "number", "example": 1000 },
+          "amountRangeTo": { "type": "number", "example": 5000 },
           "annualInterestRate": { "type": "number", "format": "double", "example": 4.5 },
           "description": { "type": "string", "example": "from 0 to 90 days" },
           "fromPeriod": { "type": "integer", "format": "int32", "example": 0 },
+          "locale": { "type": "string", "example": "en" },
           "periodType": { "type": "integer", "format": "int32", "example": 1 },
           "toPeriod": { "type": "integer", "format": "int32", "example": 90 }
         }
@@ -47934,7 +48391,9 @@
             "uniqueItems": true
           },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "endDate": { "type": "string", "example": "01 Jan 2015" },
           "fromDate": { "type": "string", "example": "01 Jan 2014" },
+          "isPrimaryGroupingByAmount": { "type": "boolean", "example": false },
           "locale": { "type": "string", "example": "en" }
         }
       },
@@ -47949,13 +48408,17 @@
             "uniqueItems": true
           },
           "currencyCode": { "type": "string", "example": "USD" },
-          "depositAmount": { "type": "integer", "format": "int64", "example": 10000 },
+          "depositAmount": { "type": "number", "example": 10000 },
           "description": {
             "type": "string",
             "example": "Daily compounding using Daily Balance, 5% per year, 365 days in year"
           },
           "digitsAfterDecimal": { "type": "integer", "format": "int32", "example": 2 },
           "inMultiplesOf": { "type": "integer", "format": "int32", "example": 0 },
+          "inMultiplesOfDepositTerm": { "type": "integer", "format": "int32", "example": 2 },
+          "inMultiplesOfDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "incomeFromFeeAccountId": { "type": "integer", "format": "int64", "example": 5 },
+          "incomeFromPenaltyAccountId": { "type": "integer", "format": "int64", "example": 6 },
           "interestCalculationDaysInYearType": {
             "type": "integer",
             "format": "int32",
@@ -47963,19 +48426,30 @@
           },
           "interestCalculationType": { "type": "integer", "format": "int32", "example": 1 },
           "interestCompoundingPeriodType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestOnSavingsAccountId": { "type": "integer", "format": "int64", "example": 4 },
           "interestPostingPeriodType": { "type": "integer", "format": "int32", "example": 4 },
+          "isMandatoryDeposit": { "type": "boolean", "example": true },
           "locale": { "type": "string", "example": "en" },
-          "maxDepositAmount": { "type": "integer", "format": "int64", "example": 1000000 },
+          "lockinPeriodFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "lockinPeriodFrequencyType": { "type": "integer", "format": "int32", "example": 2 },
+          "maxDepositAmount": { "type": "number", "example": 1000000 },
           "maxDepositTerm": { "type": "integer", "format": "int32", "example": 5 },
           "maxDepositTermTypeId": { "type": "integer", "format": "int32", "example": 3 },
-          "minDepositAmount": { "type": "integer", "format": "int64", "example": 100 },
+          "minDepositAmount": { "type": "number", "example": 100 },
           "minDepositTerm": { "type": "integer", "format": "int32", "example": 1 },
           "minDepositTermTypeId": { "type": "integer", "format": "int32", "example": 1 },
           "name": { "type": "string", "example": "Recurring deposit product" },
           "preClosurePenalApplicable": { "type": "boolean", "example": true },
           "preClosurePenalInterest": { "type": "number", "format": "double", "example": 1.75 },
           "preClosurePenalInterestOnTypeId": { "type": "integer", "format": "int32", "example": 1 },
-          "shortName": { "type": "string", "example": "RD01" }
+          "recurringFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "recurringFrequencyType": { "type": "integer", "format": "int32", "example": 2 },
+          "savingsControlAccountId": { "type": "integer", "format": "int64", "example": 2 },
+          "savingsReferenceAccountId": { "type": "integer", "format": "int64", "example": 1 },
+          "shortName": { "type": "string", "example": "RD01" },
+          "taxGroupId": { "type": "integer", "format": "int64", "example": 1 },
+          "transfersInSuspenseAccountId": { "type": "integer", "format": "int64", "example": 3 },
+          "withHoldTax": { "type": "boolean", "example": false }
         }
       },
       "PostRecurringDepositProductsResponse": {
@@ -48069,8 +48543,13 @@
         "type": "object",
         "description": "PostSavingsAccountBulkReversalTransactionsRequest",
         "properties": {
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
           "externalId": { "type": "string", "example": "5dd80a7c-ccba-4446-b378-01eb6f53e871" },
-          "isBulk": { "type": "string", "example": "true" }
+          "isBulk": { "type": "string", "example": "true" },
+          "locale": { "type": "string", "example": "en" },
+          "paymentTypeId": { "type": "integer", "format": "int64", "example": 1 },
+          "transactionAmount": { "type": "number", "example": 500 },
+          "transactionDate": { "type": "string", "example": "01 March 2013" }
         }
       },
       "PostSavingsAccountTransactionsRequest": {
@@ -48086,6 +48565,11 @@
           "paymentTypeId": { "type": "integer", "format": "int32", "example": 1 },
           "postInterestManualOrAutomatic": { "type": "boolean", "example": true },
           "reasonForBlock": { "type": "string", "example": "String" },
+          "savingsArray": {
+            "type": "array",
+            "description": "command=gsimDeposit: the child accounts of a GSIM parent to deposit into, and how much into each",
+            "items": { "$ref": "#/components/schemas/PostSavingsAccountsGsimSavings" }
+          },
           "transactionAmount": { "type": "number", "example": 1000 },
           "transactionDate": { "type": "string", "example": "27 March 2022" }
         }
@@ -48110,6 +48594,17 @@
           "closedOnDate": { "type": "string", "example": "05 September 2014" },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
           "locale": { "type": "string", "example": "en" },
+          "note": { "type": "string", "example": "Approved by the branch manager" },
+          "postInterestValidationOnClosure": {
+            "type": "boolean",
+            "description": "command=close",
+            "example": false
+          },
+          "reasonForBlock": {
+            "type": "string",
+            "description": "command=block, blockCredit, blockDebit",
+            "example": "Blocked on a court order"
+          },
           "rejectedOnDate": { "type": "string", "example": "05 September 2014" },
           "withdrawBalance": { "type": "boolean", "example": false },
           "withdrawnOnDate": { "type": "string", "example": "05 September 2014" }
@@ -48123,6 +48618,59 @@
           "clientId": { "type": "integer", "format": "int64", "example": 8 },
           "officeId": { "type": "integer", "format": "int64", "example": 2 },
           "resourceId": { "type": "integer", "format": "int64", "example": 8 }
+        }
+      },
+      "PostSavingsAccountsGsimClient": {
+        "type": "object",
+        "properties": {
+          "clientId": { "type": "integer", "format": "int64", "example": 1 },
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "groupId": { "type": "integer", "format": "int64", "example": 1 },
+          "isGSIM": { "type": "string", "example": "true" },
+          "isParentAccount": {
+            "type": "boolean",
+            "description": "Exactly one member of the array is the parent account",
+            "example": true
+          },
+          "locale": { "type": "string", "example": "en" },
+          "productId": { "type": "integer", "format": "int64", "example": 1 },
+          "submittedOnDate": { "type": "string", "example": "08 January 2013" }
+        }
+      },
+      "PostSavingsAccountsGsimRequest": {
+        "type": "object",
+        "description": "PostSavingsAccountsGsimRequest",
+        "properties": {
+          "clientArray": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PostSavingsAccountsGsimClient" }
+          },
+          "savingsArray": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PostSavingsAccountsGsimSavings" }
+          }
+        }
+      },
+      "PostSavingsAccountsGsimResponse": {
+        "type": "object",
+        "description": "PostSavingsAccountsGsimResponse",
+        "properties": {
+          "clientId": { "type": "integer", "format": "int64", "example": 1 },
+          "gsimId": { "type": "integer", "format": "int64", "example": 1 },
+          "officeId": { "type": "integer", "format": "int64", "example": 1 },
+          "resourceId": { "type": "integer", "format": "int64", "example": 1 },
+          "savingsId": { "type": "integer", "format": "int64", "example": 1 }
+        }
+      },
+      "PostSavingsAccountsGsimSavings": {
+        "type": "object",
+        "properties": {
+          "childAccountId": { "type": "integer", "format": "int64", "example": 1 },
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "locale": { "type": "string", "example": "en" },
+          "paymentTypeId": { "type": "integer", "format": "int64", "example": 1 },
+          "transactionAmount": { "type": "number", "example": 1000 },
+          "transactionDate": { "type": "string", "example": "10 March 2013" }
         }
       },
       "PostSavingsAccountsRequest": {
@@ -48140,7 +48688,8 @@
           },
           "locale": { "type": "string", "example": "en" },
           "productId": { "type": "integer", "format": "int64", "example": 1 },
-          "submittedOnDate": { "type": "string", "example": "01 March 2011" }
+          "submittedOnDate": { "type": "string", "example": "01 March 2011" },
+          "withdrawalFeeForTransfers": { "type": "boolean", "example": true }
         }
       },
       "PostSavingsAccountsResponse": {
@@ -48161,7 +48710,17 @@
           "chargeId": { "type": "integer", "format": "int64", "example": 2 },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
           "dueDate": { "type": "string", "example": "29 April 2013" },
-          "locale": { "type": "string", "example": "en" }
+          "feeOnMonthDay": {
+            "type": "string",
+            "description": "The recurring day an annual or monthly fee falls due",
+            "example": "04 March"
+          },
+          "locale": { "type": "string", "example": "en" },
+          "monthDayFormat": {
+            "type": "string",
+            "description": "Required with feeOnMonthDay",
+            "example": "dd MMMM"
+          }
         }
       },
       "PostSavingsAccountsSavingsAccountIdChargesResponse": {
@@ -48210,6 +48769,9 @@
             "items": { "$ref": "#/components/schemas/PostSavingsCharges" }
           },
           "currencyCode": { "type": "string", "example": "USD" },
+          "daysToDormancy": { "type": "integer", "format": "int64", "example": 60 },
+          "daysToEscheat": { "type": "integer", "format": "int64", "example": 90 },
+          "daysToInactive": { "type": "integer", "format": "int64", "example": 30 },
           "description": {
             "type": "string",
             "example": "Daily compounding using Daily Balance, 5% per year, 365 days in year"
@@ -48233,7 +48795,13 @@
           "interestPostingPeriodType": { "type": "integer", "format": "int32", "example": 4 },
           "interestReceivableAccountId": { "type": "integer", "format": "int64", "example": 1 },
           "isDormancyTrackingActive": { "type": "boolean", "example": false },
+          "lienAllowed": { "type": "boolean", "example": false },
           "locale": { "type": "string", "example": "en" },
+          "lockinPeriodFrequency": { "type": "integer", "format": "int32", "example": 0 },
+          "lockinPeriodFrequencyType": { "type": "integer", "format": "int32", "example": 2 },
+          "maxAllowedLienLimit": { "type": "number", "example": 2000.0 },
+          "minBalanceForInterestCalculation": { "type": "number", "example": 100.0 },
+          "minRequiredBalance": { "type": "number", "example": 100.0 },
           "minRequiredOpeningBalance": { "type": "number", "example": 10000.0 },
           "name": { "type": "string", "example": "Passbook Savings" },
           "nominalAnnualInterestRate": { "type": "number", "format": "double", "example": 5.0 },
@@ -48244,6 +48812,7 @@
           "savingsControlAccountId": { "type": "integer", "format": "int64", "example": 1 },
           "savingsReferenceAccountId": { "type": "integer", "format": "int64", "example": 1 },
           "shortName": { "type": "string", "example": "PBSV" },
+          "taxGroupId": { "type": "integer", "format": "int64", "example": 1 },
           "transfersInSuspenseAccountId": { "type": "integer", "format": "int64", "example": 1 },
           "withHoldTax": { "type": "boolean", "example": false },
           "withdrawalFeeForTransfers": { "type": "boolean", "example": false },
@@ -48529,6 +49098,11 @@
           },
           "allowAttributeOverrides": { "$ref": "#/components/schemas/PostAllowAttributeOverrides" },
           "amortizationType": { "type": "string", "enum": ["EIR", "FLAT"], "example": "EIR" },
+          "annualEir": {
+            "type": "number",
+            "description": "Annual EIR percentage (6 decimal places max). Required when strategy is ANNUAL_EIR.",
+            "example": 43.7562
+          },
           "breachGraceDays": {
             "type": "integer",
             "format": "int32",
@@ -48607,8 +49181,28 @@
           "incomeFromRecoveryAccountId": { "type": "integer", "format": "int64", "example": 7 },
           "loanPortfolioAccountId": { "type": "integer", "format": "int64", "example": 2 },
           "locale": { "type": "string", "example": "en_GB" },
+          "maxAnnualEir": {
+            "type": "number",
+            "description": "Maximum annual EIR percentage. Optional; only for ANNUAL_EIR strategy.",
+            "example": 50.0
+          },
+          "maxPaymentAmount": {
+            "type": "number",
+            "description": "Maximum daily payment amount. Optional; only for PAYMENT_AMOUNT strategy.",
+            "example": 100.0
+          },
           "maxPeriodPaymentRate": { "type": "number", "example": 2.0 },
           "maxPrincipal": { "type": "number", "example": 50000.0 },
+          "minAnnualEir": {
+            "type": "number",
+            "description": "Minimum annual EIR percentage. Optional; only for ANNUAL_EIR strategy.",
+            "example": 20.0
+          },
+          "minPaymentAmount": {
+            "type": "number",
+            "description": "Minimum daily payment amount. Optional; only for PAYMENT_AMOUNT strategy.",
+            "example": 10.0
+          },
           "minPeriodPaymentRate": { "type": "number", "example": 0.5 },
           "minPrincipal": { "type": "number", "example": 1000.0 },
           "name": { "type": "string", "example": "Working Capital Product 1" },
@@ -48618,6 +49212,17 @@
           "paymentAllocation": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/PostPaymentAllocation" }
+          },
+          "paymentAmount": {
+            "type": "number",
+            "description": "Daily payment amount, at most the currency's decimal precision. Required when strategy is PAYMENT_AMOUNT.",
+            "example": 47.22
+          },
+          "paymentAmountCalculationStrategy": {
+            "type": "string",
+            "description": "Payment amount calculation strategy: TPV (default), ANNUAL_EIR or PAYMENT_AMOUNT",
+            "enum": ["TPV", "ANNUAL_EIR", "PAYMENT_AMOUNT"],
+            "example": "TPV"
           },
           "paymentChannelToFundSourceMappings": {
             "type": "array",
@@ -48698,10 +49303,15 @@
           "paymentDetails": {
             "$ref": "#/components/schemas/PostWorkingCapitalLoanTransactionsPaymentDetailRequest"
           },
+          "relatedExternalResourceId": {
+            "type": "string",
+            "description": "External id of the same transaction that relatedResourceId names: the disbursement for discountFee, the discount fee for discountFeeAdjustment. Cannot be combined with relatedResourceId. Not accepted on transactions/{transactionId} and transactions/external-id/{transactionExternalId}, where the path names the related transaction",
+            "example": "txn-ext-001"
+          },
           "relatedResourceId": {
             "type": "integer",
             "format": "int64",
-            "description": "Disbursement transaction id for discountFee; discount fee transaction id for discountFeeAdjustment",
+            "description": "Disbursement transaction id for discountFee; discount fee transaction id for discountFeeAdjustment. Cannot be combined with relatedExternalResourceId. Not accepted on transactions/{transactionId} and transactions/external-id/{transactionExternalId}, where the path names the related transaction",
             "example": 42
           },
           "reversalExternalId": {
@@ -48794,6 +49404,19 @@
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
           "officeId": { "type": "integer", "format": "int64", "example": 1 },
           "resourceId": { "type": "integer", "format": "int64", "example": 1 }
+        }
+      },
+      "PostWorkingCapitalLoansDataTable": {
+        "type": "object",
+        "description": "PostWorkingCapitalLoansDataTable",
+        "example": "List of PostWorkingCapitalLoansDataTable",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": { "type": "object", "example": "Datatable data" },
+            "example": "Datatable data"
+          },
+          "registeredTableName": { "type": "string", "example": "dt_wc_loan_extra" }
         }
       },
       "PostWorkingCapitalLoansDelinquencyActionRequest": {
@@ -49056,6 +49679,11 @@
         "description": "PostWorkingCapitalLoansRequest",
         "properties": {
           "accountNo": { "type": "string", "example": "WCL-1" },
+          "annualEir": {
+            "type": "number",
+            "description": "Annual EIR percentage (6 decimal places max). Required for ANNUAL_EIR strategy products.",
+            "example": 43.7562
+          },
           "breachGraceDays": {
             "type": "integer",
             "format": "int32",
@@ -49069,6 +49697,11 @@
             "example": "DISBURSEMENT"
           },
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
+          "datatables": {
+            "type": "array",
+            "example": "List of PostWorkingCapitalLoansDataTable",
+            "items": { "$ref": "#/components/schemas/PostWorkingCapitalLoansDataTable" }
+          },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
           "delinquencyBucketId": { "type": "integer", "format": "int64", "example": 1 },
           "delinquencyGraceDays": { "type": "integer", "format": "int32", "example": 3 },
@@ -49091,6 +49724,11 @@
           "paymentAllocation": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/PostPaymentAllocationRule" }
+          },
+          "paymentAmount": {
+            "type": "number",
+            "description": "Daily payment amount, at most the currency's decimal precision. Overrides the product default on PAYMENT_AMOUNT strategy products.",
+            "example": 47.22
           },
           "periodPaymentRate": { "type": "number", "example": 1.0 },
           "principalAmount": {
@@ -49243,6 +49881,7 @@
       "ProjectedAmortizationScheduleData": {
         "type": "object",
         "properties": {
+          "annualEir": { "type": "number" },
           "discountFeeAmount": { "type": "number" },
           "effectiveInterestRate": { "type": "number" },
           "expectedDisbursementDate": { "type": "string", "format": "date" },
@@ -49250,6 +49889,10 @@
           "netDisbursementAmount": { "type": "number" },
           "npvDayCount": { "type": "integer", "format": "int32" },
           "originalPaymentNumber": { "type": "integer", "format": "int32" },
+          "paymentAmount": { "type": "number" },
+          "paymentAmountCalculationStrategy": {
+            "$ref": "#/components/schemas/StringEnumOptionData"
+          },
           "payments": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/ProjectedAmortizationSchedulePaymentData" }
@@ -49694,8 +50337,16 @@
         "type": "object",
         "description": "PutExternalAssetOwnerLoanProductAttributeRequest",
         "properties": {
-          "attributeKey": { "type": "string", "example": "SETTLEMENT_MODEL" },
-          "attributeValue": { "type": "string", "example": "DELAYED_SETTLEMENT_DISABLED" }
+          "attributeKey": {
+            "type": "string",
+            "description": "Attribute key, one of the keys returned by the loan product attributes template endpoint, e.g. SETTLEMENT_MODEL or EXCLUDED_TRANSACTION_TYPES.",
+            "example": "SETTLEMENT_MODEL"
+          },
+          "attributeValue": {
+            "type": "string",
+            "description": "Attribute value. For multi value attributes such as EXCLUDED_TRANSACTION_TYPES this is a comma separated list, e.g. BUY_DOWN_FEE,BUY_DOWN_FEE_ADJUSTMENT.",
+            "example": "DELAYED_SETTLEMENT_DISABLED"
+          }
         }
       },
       "PutExternalServiceRequest": {
@@ -49724,8 +50375,37 @@
         "type": "object",
         "description": "PutFixedDepositAccountsAccountIdRequest",
         "properties": {
-          "depositAmount": { "type": "number", "format": "float", "example": 6000 },
-          "locale": { "type": "string", "example": "en" }
+          "clientId": { "type": "integer", "format": "int64", "example": 1 },
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "depositAmount": { "type": "number", "example": 5000 },
+          "depositPeriod": { "type": "integer", "format": "int32", "example": 6 },
+          "depositPeriodFrequencyId": { "type": "integer", "format": "int64", "example": 2 },
+          "inMultiplesOfDepositTerm": { "type": "integer", "format": "int32", "example": 2 },
+          "inMultiplesOfDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "interestCalculationDaysInYearType": {
+            "type": "integer",
+            "format": "int32",
+            "example": 365
+          },
+          "interestCalculationType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestCompoundingPeriodType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestPostingPeriodType": { "type": "integer", "format": "int32", "example": 4 },
+          "linkAccountId": { "type": "integer", "format": "int64", "example": 1 },
+          "locale": { "type": "string", "example": "en" },
+          "lockinPeriodFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "lockinPeriodFrequencyType": { "type": "integer", "format": "int32", "example": 2 },
+          "maturityInstructionId": { "type": "integer", "format": "int32", "example": 100 },
+          "maxDepositTerm": { "type": "integer", "format": "int32", "example": 5 },
+          "maxDepositTermTypeId": { "type": "integer", "format": "int32", "example": 3 },
+          "minDepositTerm": { "type": "integer", "format": "int32", "example": 1 },
+          "minDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "monthDayFormat": { "type": "string", "example": "dd MMMM" },
+          "preClosurePenalApplicable": { "type": "boolean", "example": true },
+          "preClosurePenalInterest": { "type": "number", "example": 1.75 },
+          "preClosurePenalInterestOnTypeId": { "type": "integer", "format": "int32", "example": 1 },
+          "productId": { "type": "integer", "format": "int64", "example": 1 },
+          "submittedOnDate": { "type": "string", "example": "01 March 2014" },
+          "transferInterestToSavings": { "type": "boolean", "example": false }
         }
       },
       "PutFixedDepositAccountsAccountIdResponse": {
@@ -49742,8 +50422,9 @@
       "PutFixedDepositAccountsChanges": {
         "type": "object",
         "properties": {
-          "depositAmount": { "type": "number", "format": "float", "example": 6000 },
-          "locale": { "type": "string", "example": "en" }
+          "depositAmount": { "type": "number", "example": 6000 },
+          "locale": { "type": "string", "example": "en" },
+          "submittedOnDate": { "type": "string", "example": "01 March 2014" }
         }
       },
       "PutFixedDepositProductsChanges": {
@@ -50572,8 +51253,39 @@
         "type": "object",
         "description": "PutRecurringDepositAccountsAccountIdRequest",
         "properties": {
-          "depositAmount": { "type": "integer", "format": "int32", "example": 6000 },
-          "locale": { "type": "string", "example": "en" }
+          "clientId": { "type": "integer", "format": "int64", "example": 1 },
+          "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "depositAmount": { "type": "number", "example": 10000 },
+          "depositPeriod": { "type": "integer", "format": "int32", "example": 20 },
+          "depositPeriodFrequencyId": { "type": "integer", "format": "int32", "example": 1 },
+          "expectedFirstDepositOnDate": { "type": "string", "example": "02 June 2014" },
+          "inMultiplesOfDepositTerm": { "type": "integer", "format": "int32", "example": 2 },
+          "inMultiplesOfDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "interestCalculationDaysInYearType": {
+            "type": "integer",
+            "format": "int32",
+            "example": 365
+          },
+          "interestCalculationType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestCompoundingPeriodType": { "type": "integer", "format": "int32", "example": 1 },
+          "interestPostingPeriodType": { "type": "integer", "format": "int32", "example": 4 },
+          "isCalendarInherited": { "type": "boolean", "example": false },
+          "locale": { "type": "string", "example": "en" },
+          "lockinPeriodFrequency": { "type": "integer", "format": "int32", "example": 1 },
+          "lockinPeriodFrequencyType": { "type": "integer", "format": "int32", "example": 2 },
+          "mandatoryRecommendedDepositAmount": { "type": "number", "example": 2000 },
+          "maxDepositTerm": { "type": "integer", "format": "int32", "example": 5 },
+          "maxDepositTermTypeId": { "type": "integer", "format": "int32", "example": 3 },
+          "minDepositTerm": { "type": "integer", "format": "int32", "example": 1 },
+          "minDepositTermTypeId": { "type": "integer", "format": "int32", "example": 2 },
+          "monthDayFormat": { "type": "string", "example": "dd MMMM" },
+          "preClosurePenalApplicable": { "type": "boolean", "example": true },
+          "preClosurePenalInterest": { "type": "number", "example": 1.75 },
+          "preClosurePenalInterestOnTypeId": { "type": "integer", "format": "int32", "example": 1 },
+          "productId": { "type": "integer", "format": "int64", "example": 1 },
+          "recurringFrequency": { "type": "integer", "format": "int32", "example": 2 },
+          "recurringFrequencyType": { "type": "integer", "format": "int32", "example": 1 },
+          "submittedOnDate": { "type": "string", "example": "02 June 2014" }
         }
       },
       "PutRecurringDepositAccountsAccountIdResponse": {
@@ -50590,8 +51302,9 @@
       "PutRecurringDepositAccountsChanges": {
         "type": "object",
         "properties": {
-          "depositAmount": { "type": "integer", "format": "int32", "example": 6000 },
-          "locale": { "type": "string", "example": "en" }
+          "depositAmount": { "type": "number", "example": 6000 },
+          "locale": { "type": "string", "example": "en" },
+          "submittedOnDate": { "type": "string", "example": "02 June 2014" }
         }
       },
       "PutRecurringDepositProductsChanges": {
@@ -50727,6 +51440,13 @@
         "properties": {
           "clientId": { "type": "integer", "format": "int64", "example": 1 },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
+          "externalId": { "type": "string", "example": "123" },
+          "groupId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Mandatory for a group savings account, in place of clientId",
+            "example": 1
+          },
           "locale": { "type": "string", "example": "en" },
           "nominalAnnualInterestRate": {
             "type": "number",
@@ -50735,6 +51455,11 @@
           },
           "productId": { "type": "integer", "format": "int64", "example": 1 },
           "submittedOnDate": { "type": "string", "example": "01 March 2011" },
+          "withHoldTax": {
+            "type": "boolean",
+            "description": "command=updateWithHoldTax",
+            "example": false
+          },
           "withdrawalFeeForTransfers": { "type": "boolean", "example": true }
         }
       },
@@ -50758,7 +51483,17 @@
             "format": "double",
             "example": 5.9999999999
           },
-          "submittedOnDate": { "type": "string", "example": "01 March 2011" }
+          "submittedOnDate": { "type": "string", "example": "01 March 2011" },
+          "withHoldTax": { "type": "boolean", "example": false }
+        }
+      },
+      "PutSavingsAccountsGsimRequest": {
+        "type": "object",
+        "description": "PutSavingsAccountsGsimRequest",
+        "properties": {
+          "clientId": { "type": "integer", "format": "int64", "example": 1 },
+          "groupId": { "type": "integer", "format": "int64", "example": 1 },
+          "productId": { "type": "integer", "format": "int64", "example": 1 }
         }
       },
       "PutSavingsAccountsSavingsAccountIdChargesSavingsAccountChargeIdRequest": {
@@ -51064,6 +51799,11 @@
           },
           "allowAttributeOverrides": { "$ref": "#/components/schemas/PostAllowAttributeOverrides" },
           "amortizationType": { "type": "string", "enum": ["EIR", "FLAT"], "example": "EIR" },
+          "annualEir": {
+            "type": "number",
+            "description": "Annual EIR percentage (6 decimal places max). Required when strategy is ANNUAL_EIR.",
+            "example": 43.7562
+          },
           "breachGraceDays": {
             "type": "integer",
             "format": "int32",
@@ -51142,8 +51882,28 @@
           "incomeFromRecoveryAccountId": { "type": "integer", "format": "int64", "example": 7 },
           "loanPortfolioAccountId": { "type": "integer", "format": "int64", "example": 2 },
           "locale": { "type": "string", "example": "en_GB" },
+          "maxAnnualEir": {
+            "type": "number",
+            "description": "Maximum annual EIR percentage. Optional; only for ANNUAL_EIR strategy.",
+            "example": 50.0
+          },
+          "maxPaymentAmount": {
+            "type": "number",
+            "description": "Maximum daily payment amount. Optional; only for PAYMENT_AMOUNT strategy.",
+            "example": 100.0
+          },
           "maxPeriodPaymentRate": { "type": "number", "example": 2.0 },
           "maxPrincipal": { "type": "number", "example": 50000.0 },
+          "minAnnualEir": {
+            "type": "number",
+            "description": "Minimum annual EIR percentage. Optional; only for ANNUAL_EIR strategy.",
+            "example": 20.0
+          },
+          "minPaymentAmount": {
+            "type": "number",
+            "description": "Minimum daily payment amount. Optional; only for PAYMENT_AMOUNT strategy.",
+            "example": 10.0
+          },
           "minPeriodPaymentRate": { "type": "number", "example": 0.5 },
           "minPrincipal": { "type": "number", "example": 1000.0 },
           "name": { "type": "string", "example": "Working Capital Product 1 Updated" },
@@ -51153,6 +51913,17 @@
           "paymentAllocation": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/PostPaymentAllocation" }
+          },
+          "paymentAmount": {
+            "type": "number",
+            "description": "Daily payment amount, at most the currency's decimal precision. Required when strategy is PAYMENT_AMOUNT.",
+            "example": 47.22
+          },
+          "paymentAmountCalculationStrategy": {
+            "type": "string",
+            "description": "Switches the payment amount calculation strategy. The inputs of the other strategies (periodPaymentRate, annualEir, paymentAmount and their min/max) are cleared, so the request must carry the new strategy's input.",
+            "enum": ["TPV", "ANNUAL_EIR", "PAYMENT_AMOUNT"],
+            "example": "PAYMENT_AMOUNT"
           },
           "paymentChannelToFundSourceMappings": {
             "type": "array",
@@ -51261,6 +52032,11 @@
           "paymentAllocation": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/PostPaymentAllocationRule" }
+          },
+          "paymentAmount": {
+            "type": "number",
+            "description": "Daily payment amount, at most the currency's decimal precision. Overrides the product default on PAYMENT_AMOUNT strategy products.",
+            "example": 47.22
           },
           "periodPaymentRate": { "type": "number", "example": 1.0 },
           "principalAmount": {
@@ -51723,28 +52499,9 @@
           "feeCharge": { "type": "boolean" },
           "feeInterval": { "type": "integer", "format": "int32" },
           "feeOnMonthDay": {
-            "type": "object",
-            "properties": {
-              "dayOfMonth": { "type": "integer", "format": "int32" },
-              "month": {
-                "type": "string",
-                "enum": [
-                  "JANUARY",
-                  "FEBRUARY",
-                  "MARCH",
-                  "APRIL",
-                  "MAY",
-                  "JUNE",
-                  "JULY",
-                  "AUGUST",
-                  "SEPTEMBER",
-                  "OCTOBER",
-                  "NOVEMBER",
-                  "DECEMBER"
-                ]
-              },
-              "monthValue": { "type": "integer", "format": "int32" }
-            }
+            "type": "string",
+            "description": "The recurring day the fee falls due, as an ISO-8601 month-day",
+            "example": "--01-15"
           },
           "freeWithdrawalChargeFrequency": { "type": "integer", "format": "int32" },
           "id": { "type": "integer", "format": "int64" },
@@ -53112,6 +53869,7 @@
           "amount": { "type": "number" },
           "amountOutstanding": { "type": "number" },
           "amountPaid": { "type": "number" },
+          "amountWaived": { "type": "number" },
           "amountWrittenOff": { "type": "number" },
           "chargeCalculationType": { "$ref": "#/components/schemas/EnumOptionData" },
           "chargeId": { "type": "integer", "format": "int64" },
