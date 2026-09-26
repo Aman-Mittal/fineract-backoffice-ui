@@ -694,6 +694,7 @@
     "getUsersUserId",
     "postUsers",
     "postUsersUploadtemplate",
+    "postUsersUserIdPwd",
     "putUsersUserId"
   ],
   "WorkingCapitalBreachService": [

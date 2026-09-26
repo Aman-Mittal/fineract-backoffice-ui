@@ -253,6 +253,66 @@ test.describe('Profile', () => {
     await expect(page.locator('ion-spinner')).toHaveCount(0);
   });
 
+  test('changes the signed-in user password from the profile screen', async ({ page }) => {
+    await login(page);
+    let changeRequest: Record<string, unknown> | undefined;
+    await page.route(/\/api\/v1\/users\/1(?:\?.*)?$/, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 1,
+          username: USER,
+          firstname: 'App',
+          lastname: 'Administrator',
+          email: 'demomfi@mifos.org',
+          officeId: 1,
+          officeName: 'Head Office',
+          selectedRoles: [{ id: 1, name: 'Super user' }],
+        }),
+      });
+    });
+    await page.route('**/api/v1/passwordpreferences', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 2,
+          key: 'strong',
+          description: 'At least eight characters with mixed case and a number',
+          active: true,
+        }),
+      });
+    });
+    await page.route('**/api/v1/users/1/pwd', async (route) => {
+      changeRequest = JSON.parse(route.request().postData() ?? '{}');
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '{}',
+      });
+    });
+
+    await page.goto('/profile');
+    await page.getByTestId('profile-change-password').click();
+
+    const newPassword = page.getByTestId('profile-new-password').locator('input');
+    const repeatPassword = page.getByTestId('profile-repeat-password').locator('input');
+    await newPassword.fill('Strong1!');
+    await repeatPassword.fill('Strong1!');
+    await expect(page.getByTestId('profile-password-policy')).toContainText('At least eight');
+    await page.getByTestId('profile-password-submit').click();
+
+    await expect
+      .poll(() => changeRequest)
+      .toEqual({
+        password: 'Strong1!',
+        repeatPassword: 'Strong1!',
+      });
+    await expect(page.getByText('Password changed successfully.')).toBeVisible();
+    await expect(page.getByTestId('profile-new-password')).toHaveCount(0);
+  });
+
   test('shows an error when the profile cannot be loaded', async ({ page }) => {
     await login(page);
     // The reported failure: this endpoint 404s and the page used to spin forever.
