@@ -124,7 +124,7 @@ served minified, so a hand-copied spec fails this check as one 1.4 MB line — r
 ### `i18n-check`
 
 ```bash
-npm run i18n:check         # three checks over src/assets/i18n/ — see below
+npm run i18n:check         # four checks over src/assets/i18n/ — see below
 npm run check:icons        # every <ion-icon name> is registered in src/app/core/icons.ts
 npm run check:a11y-names   # every icon-only <ion-button> has an accessible name
 ```
@@ -134,12 +134,13 @@ key renders as the raw key, an unregistered ionicon renders as blank space with 
 console error, and an unnamed icon-only button looks perfectly fine on screen while
 announcing itself to a screen reader as "button" and nothing else.
 
-`i18n:check` runs three checks, any of which fails the job:
+`i18n:check` runs four checks, any of which fails the job:
 
 | Check        | Catches                                                                   |
 | ------------ | ------------------------------------------------------------------------- |
 | `MISSING`    | a key referenced in code that `en.json` does not define                   |
 | `UNWRAPPED`  | `{{ 'COMMON.SAVE' }}` — a key interpolated with no `\| appTranslate` pipe |
+| `PHRASES`    | a `ColumnDef.label` holding `'Office'` where a key belongs                |
 | `CATALOGUES` | `hi`/`ko` defining a key `en.json` dropped, or coverage going backwards   |
 
 Coverage is a ratchet, not a threshold: `scripts/i18n-coverage.json` records what each
@@ -150,9 +151,16 @@ baseline with `npm run i18n:check -- --update` when a catalogue legitimately shr
 
 `npm run i18n:check -- --unused` lists orphaned keys.
 
+`PHRASES` exists because `data-table.component.ts` renders every column header as
+`col.label | translate`, which makes `ColumnDef.label` a translation key by contract
+while its type stays `string`. Eight components filled it with English — `label:
+'Office'`, `label: 'Closing Date'` — and each one reached `translate()`, missed, and
+rendered the phrase back unchanged. That is indistinguishable from working until the
+language changes. The check applies to any file importing `ColumnDef`.
+
 #### Keys built at runtime
 
-None of the three sees `SAVINGS.CONFIRM_${action}`, or a key looked up through a prefix
+None of the four sees `SAVINGS.CONFIRM_${action}`, or a key looked up through a prefix
 assembled at the call site. Those are caught in the browser instead:
 `ReportingMissingTranslationHandler`
 (`src/app/core/adapters/i18n/missing-translation.handler.ts`) logs every key that

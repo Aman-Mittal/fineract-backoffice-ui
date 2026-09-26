@@ -59,14 +59,18 @@ const I18N_DIR = join(ROOT, 'src', 'assets', 'i18n');
 const EN = join(I18N_DIR, 'en.json');
 const BASELINE = join(ROOT, 'scripts', 'i18n-coverage.json');
 
-/** Recursively collect *.ts files under a directory, excluding the generated API client and specs. */
+/** Recursively collect *.ts files under a directory, excluding the generated API client and tests. */
 function collectFiles(dir, acc = []) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (p.includes(`${join('src', 'app', 'api')}`)) continue;
     const st = statSync(p);
     if (st.isDirectory()) collectFiles(p, acc);
-    else if (p.endsWith('.ts') && !p.endsWith('.spec.ts')) acc.push(p);
+    // `.spec.ts` is kept alongside `.test.ts` only so the exclusion survives a file named
+    // either way; ADR 0004 moved the suite to Vitest and there are no `.spec.ts` files left.
+    // A test fixture is allowed to hold `label: 'Name'`, and counting its strings as
+    // references would also let a key survive `--unused` on the strength of a test alone.
+    else if (p.endsWith('.ts') && !p.endsWith('.spec.ts') && !p.endsWith('.test.ts')) acc.push(p);
   }
   return acc;
 }
@@ -141,6 +145,37 @@ function referencedKeys(files) {
 const INTERPOLATION = /\{\{([^}]*)\}\}/g;
 const LITERAL = new RegExp(String.raw`['"]${KEY}['"]`);
 const TRANSLATE_PIPE = /\|\s*(?:app)?[Tt]ranslate/;
+
+/**
+ * `ColumnDef.label` literals that are phrases rather than keys.
+ *
+ * `data-table.component.ts` renders every column header as `col.label | translate`, so the
+ * field is a translation key by contract — but its type is `string`, and eight components
+ * filled it with English: `label: 'Office'`, `label: 'Closing Date'`. Each one reached
+ * `translate()`, missed, and rendered the phrase back unchanged, which is indistinguishable
+ * from working until the language changes.
+ *
+ * Checking the whole file rather than parsing the array is deliberate: a component that
+ * imports ColumnDef has declared that its labels are keys, and `label:` means the same thing
+ * everywhere in such a file.
+ */
+function phraseLabels(files) {
+  const found = [];
+  for (const file of files) {
+    const text = readFileSync(file, 'utf8');
+    if (!text.includes('ColumnDef')) continue;
+    for (const match of text.matchAll(/label: '([^']*)'/g)) {
+      const label = match[1];
+      if (label === '' || KEY_SHAPED.test(label)) continue;
+      const line = text.slice(0, match.index).split('\n').length;
+      found.push([label, `${file.replace(`${ROOT}/`, '')}:${line}`]);
+    }
+  }
+  return found;
+}
+
+/** A dotted identifier, which is what a translation key looks like and a phrase does not. */
+const KEY_SHAPED = /^[A-Za-z]\w*(?:\.\w+)+$/;
 
 /** Interpolations that print a key instead of translating it. */
 function unwrappedKeys(files, namespaces) {
@@ -231,7 +266,17 @@ if (unwrapped.length) {
   console.log('✓ No untranslated key interpolations.');
 }
 
-// 3. The other catalogues.
+// 3. Column headers that are phrases rather than keys.
+const phrases = phraseLabels(files);
+if (phrases.length) {
+  console.error(`\n✖ ${phrases.length} ColumnDef label(s) hold a phrase, not a key:\n`);
+  for (const [label, where] of phrases) console.error(`  ${label}  (${where})`);
+  console.error('\n  data-table renders these through `| translate`; a phrase renders unchanged.');
+} else {
+  console.log('✓ No phrase column labels.');
+}
+
+// 4. The other catalogues.
 console.log('\nCatalogue coverage:');
 const { coverage, problems } = checkCatalogues(defined);
 
@@ -256,4 +301,4 @@ if (process.argv.includes('--unused')) {
   console.log('  (may be used via dynamically-built keys; review before removing).');
 }
 
-process.exit(missing.length || unwrapped.length || problems.length ? 1 : 0);
+process.exit(missing.length || unwrapped.length || phrases.length || problems.length ? 1 : 0);
