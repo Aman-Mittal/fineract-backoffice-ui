@@ -35,6 +35,9 @@ import { mockClientTextSearch } from './utils/client-search-mock';
 const TENANT = 'default';
 const USER = 'mifos';
 const PASSWORD = 'password';
+const HEAD_OFFICE = 'Head Office';
+const CLIENT_DETAIL_ID = 2001;
+const SAVINGS_DETAIL_ID = 33;
 
 /** Matches MOBILE_BREAKPOINT_PX. A viewport at or under this gets the narrow layout. */
 const MOBILE_BREAKPOINT_PX = 768;
@@ -98,6 +101,68 @@ async function signIn(page: Page): Promise<void> {
 
 const drawer = (page: Page) => page.locator('nav.sidebar');
 const hamburger = (page: Page) => page.locator('button.toggle-btn');
+const headerAction = (page: Page, name: string) =>
+  page.locator('.header-card .actions-area ion-button').filter({ hasText: name });
+
+function json(body: unknown) {
+  return { status: 200, contentType: 'application/json', body: JSON.stringify(body) };
+}
+
+/**
+ * The record headers share one responsive contract: every action stays inside the viewport,
+ * the action row does not hide overflow, and each overview item has room to wrap.
+ */
+async function expectRecordHeaderLayout(page: Page): Promise<void> {
+  const header = page.locator('.header-card');
+  const actions = header.locator('.actions-area');
+  const controls = actions.locator('ion-button:visible');
+  await expect(header).toBeVisible();
+  await expect(controls.first()).toBeVisible();
+  await expect(header.locator('ion-button').filter({ hasText: 'Back' })).toBeVisible();
+
+  const viewportWidth = page.viewportSize()?.width ?? 0;
+  const count = await controls.count();
+  for (let index = 0; index < count; index++) {
+    const box = await controls.nth(index).boundingBox();
+    expect(box, `record action ${index} has no box`).toBeTruthy();
+    expect(box!.x, `record action ${index} starts outside the viewport`).toBeGreaterThanOrEqual(
+      -0.5,
+    );
+    expect(
+      box!.x + box!.width,
+      `record action ${index} extends past the viewport`,
+    ).toBeLessThanOrEqual(viewportWidth + 0.5);
+  }
+
+  expect(await actions.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(
+    true,
+  );
+
+  const infoGrid = page.locator('.info-grid');
+  await expect(infoGrid).toBeVisible();
+  const columns = await infoGrid.evaluate(
+    (element) => getComputedStyle(element).gridTemplateColumns,
+  );
+  expect(columns.trim().split(/\s+/)).toHaveLength(1);
+
+  const collisions = await infoGrid.locator('.detail-item').evaluateAll(
+    (items) =>
+      items.filter((item) => {
+        const label = item.querySelector<HTMLElement>('.label');
+        const value = item.querySelector<HTMLElement>('.value');
+        if (!label || !value) return false;
+        const labelBox = label.getBoundingClientRect();
+        const valueBox = value.getBoundingClientRect();
+        return (
+          labelBox.right > valueBox.left &&
+          labelBox.left < valueBox.right &&
+          labelBox.bottom > valueBox.top &&
+          labelBox.top < valueBox.bottom
+        );
+      }).length,
+  );
+  expect(collisions).toBe(0);
+}
 
 test.describe('the shell at a phone viewport', () => {
   test.beforeEach(async ({ page }) => {
@@ -206,6 +271,66 @@ test.describe('the shell at a phone viewport', () => {
       expect(edge.left).toBeGreaterThanOrEqual(0);
       expect(edge.right).toBeLessThanOrEqual(layout.viewportWidth);
     }
+  });
+
+  test('keeps client record actions and details reachable at 390px', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route(`**/api/v1/clients/${CLIENT_DETAIL_ID}/accounts**`, (route) =>
+      route.fulfill(json({ loanAccounts: [], savingsAccounts: [] })),
+    );
+    await page.route(new RegExp(`/api/v1/clients/${CLIENT_DETAIL_ID}(?:\\?.*)?$`), (route) =>
+      route.fulfill(
+        json({
+          id: CLIENT_DETAIL_ID,
+          accountNo: '000002001',
+          displayName: 'Mobile Client',
+          firstname: 'Mobile',
+          lastname: 'Client',
+          officeName: HEAD_OFFICE,
+          status: { id: 300, value: 'Active' },
+          timeline: { submittedOnDate: [2026, 9, 21], activatedOnDate: [2026, 9, 21] },
+        }),
+      ),
+    );
+
+    await page.goto(`/clients/view/${CLIENT_DETAIL_ID}`);
+    await expect(page.getByText('Mobile Client')).toBeVisible();
+    await expectRecordHeaderLayout(page);
+  });
+
+  test('keeps savings record actions reachable at 390px', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route(
+      new RegExp(`/api/v1/savingsaccounts/${SAVINGS_DETAIL_ID}(?:\\?.*)?$`),
+      (route) =>
+        route.fulfill(
+          json({
+            id: SAVINGS_DETAIL_ID,
+            accountNo: '000000033',
+            savingsProductName: 'Regular Savings',
+            clientName: 'Mobile Client',
+            fieldOfficerName: 'Grace Okoth',
+            accountBalance: 1500,
+            nominalAnnualInterestRate: 5,
+            interestCompoundingPeriodType: { value: 'Daily' },
+            interestPostingPeriodType: { value: 'Monthly' },
+            interestCalculationDaysInYearType: { value: '365 Days' },
+            status: {
+              id: 300,
+              value: 'Active',
+              active: true,
+              approved: true,
+              submittedAndPendingApproval: false,
+            },
+            timeline: { submittedOnDate: [2026, 9, 1], activatedOnDate: [2026, 9, 2] },
+          }),
+        ),
+    );
+
+    await page.goto(`/products/savings-accounts/view/${SAVINGS_DETAIL_ID}`);
+    await expect(page.getByText('Regular Savings')).toBeVisible();
+    await expectRecordHeaderLayout(page);
+    await expect(headerAction(page, 'Withdraw')).toBeVisible();
   });
 
   describe_drawer();

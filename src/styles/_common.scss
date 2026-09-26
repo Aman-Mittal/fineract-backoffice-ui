@@ -117,6 +117,80 @@
      _ionic-theme.scss, so dark mode needs no per-component overrides. */
 }
 
+/* ---- narrow viewport: record detail headers --------------------------------------------
+   Record views lay their title and action buttons out on one desktop row, and their overview
+   cards use a two-column grid. At phone widths the action row is clipped by the card's
+   `overflow-x: hidden` and the detail grid leaves no room between labels and values.
+
+   These screens share the same markup classes, so the layout lives here rather than in four
+   copied component styles. Every action remains visible in a single column, and each detail
+   item gets enough width to wrap instead of colliding. Breakpoint matches
+   ViewportService.MOBILE_BREAKPOINT_PX. See issue #574. */
+@media (max-width: 768px) {
+  .header-card .header-content {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .header-card .header-content > .client-title-area,
+  .header-card .header-content > .loan-title-area,
+  .header-card .header-content > .savings-title-area,
+  .header-card .header-content > .title-area {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .header-card .header-content .title-details {
+    min-width: 0;
+  }
+
+  .header-card .header-content .title-details h2,
+  .header-card .header-content .subtitle-row {
+    overflow-wrap: anywhere;
+  }
+
+  .header-card .header-content .subtitle-row {
+    flex-wrap: wrap;
+  }
+
+  .header-card .header-content > .actions-area {
+    display: grid;
+    flex: 1 1 100%;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    gap: var(--space-3);
+  }
+
+  .header-card .header-content > .actions-area > ion-button {
+    width: 100%;
+    margin: 0;
+  }
+
+  .header-card ~ .content-body .info-grid,
+  .header-card ~ .tab-content .info-grid,
+  .header-card ~ .tab-group .info-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .header-card ~ .content-body .detail-item,
+  .header-card ~ .tab-content .detail-item,
+  .header-card ~ .tab-group .detail-item {
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .header-card ~ .content-body .detail-item .label,
+  .header-card ~ .content-body .detail-item .value,
+  .header-card ~ .tab-content .detail-item .label,
+  .header-card ~ .tab-content .detail-item .value,
+  .header-card ~ .tab-group .detail-item .label,
+  .header-card ~ .tab-group .detail-item .value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
 /* ---- narrow viewport: one card per row -------------------------------------------------
    A data table below 768px is a horizontal scroll with everything but the first column out of
    sight. Each row becomes a stacked card of label/value pairs instead, driven by the
