@@ -22,6 +22,7 @@
 import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -173,6 +174,17 @@ describe('LoanProductFormComponent', () => {
     expect(component).toBeTruthy();
     expect(component.product().loanScheduleType).toBe(LOAN_SCHEDULE_TYPE.CUMULATIVE);
     expect(component.isProgressive()).toBe(false);
+  });
+
+  it('notifies the product signal when an ngModel field changes', () => {
+    const before = component.product();
+
+    fixture.debugElement
+      .query(By.css('[name="shortName"]'))
+      .triggerEventHandler('ngModelChange', 'NXA0');
+
+    expect(component.product()).not.toBe(before);
+    expect(component.product().shortName).toBe('NXA0');
   });
 
   describe('down payment', () => {

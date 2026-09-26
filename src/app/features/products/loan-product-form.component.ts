@@ -139,7 +139,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-name"
                       data-testid="loan-product-name"
                       name="name"
-                      [(ngModel)]="product().name"
+                      [ngModel]="product().name"
+                      (ngModelChange)="patchProduct('name', $event)"
                       required
                       placeholder="{{ 'COMMON.NAME' | translate }}"
                     ></ion-input>
@@ -156,7 +157,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-short-name"
                       data-testid="loan-product-short-name"
                       name="shortName"
-                      [(ngModel)]="product().shortName"
+                      [ngModel]="product().shortName"
+                      (ngModelChange)="patchProduct('shortName', $event)"
                       required
                       maxlength="4"
                       placeholder="{{ 'PRODUCTS.SHORT_NAME' | translate }}"
@@ -174,7 +176,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-description"
                       data-testid="loan-product-description"
                       name="description"
-                      [(ngModel)]="product().description"
+                      [ngModel]="product().description"
+                      (ngModelChange)="patchProduct('description', $event)"
                       rows="3"
                       placeholder="{{ 'PRODUCTS.DESCRIPTION' | translate }}"
                     ></ion-textarea>
@@ -189,7 +192,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-external-id"
                       data-testid="loan-product-external-id"
                       name="externalId"
-                      [(ngModel)]="product().externalId"
+                      [ngModel]="product().externalId"
+                      (ngModelChange)="patchProduct('externalId', $event)"
                       placeholder="{{ 'COMMON.EXTERNAL_ID' | translate }}"
                     ></ion-input>
                   </ion-item>
@@ -204,7 +208,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-fund-id"
                       data-testid="loan-product-fund-id"
                       name="fundId"
-                      [(ngModel)]="product().fundId"
+                      [ngModel]="product().fundId"
+                      (ngModelChange)="patchProduct('fundId', $event)"
                       placeholder="{{ 'PRODUCTS.FUND' | translate }}"
                     >
                       @for (fund of fundOptions(); track fund.id) {
@@ -225,7 +230,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-delinquency-bucket-id"
                       data-testid="loan-product-delinquency-bucket-id"
                       name="delinquencyBucketId"
-                      [(ngModel)]="product().delinquencyBucketId"
+                      [ngModel]="product().delinquencyBucketId"
+                      (ngModelChange)="patchProduct('delinquencyBucketId', $event)"
                       placeholder="{{ 'PRODUCTS.DELINQUENCY_BUCKET' | translate }}"
                     >
                       @for (bucket of delinquencyBucketOptions(); track bucket.id) {
@@ -244,7 +250,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-currency-code"
                       data-testid="loan-product-currency-code"
                       name="currencyCode"
-                      [(ngModel)]="product().currencyCode"
+                      [ngModel]="product().currencyCode"
+                      (ngModelChange)="patchProduct('currencyCode', $event)"
                       required
                       placeholder="{{ 'PRODUCTS.CURRENCY' | translate }}"
                     >
@@ -266,7 +273,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       data-testid="loan-product-digits-after-decimal"
                       type="number"
                       name="digitsAfterDecimal"
-                      [(ngModel)]="product().digitsAfterDecimal"
+                      [ngModel]="product().digitsAfterDecimal"
+                      (ngModelChange)="patchProduct('digitsAfterDecimal', $event)"
                       required
                     ></ion-input>
                   </ion-item>
@@ -281,7 +289,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       data-testid="loan-product-principal"
                       type="number"
                       name="principal"
-                      [(ngModel)]="product().principal"
+                      [ngModel]="product().principal"
+                      (ngModelChange)="patchProduct('principal', $event)"
                       required
                     ></ion-input>
                   </ion-item>
@@ -298,7 +307,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       data-testid="loan-product-interest-rate"
                       type="number"
                       name="interestRatePerPeriod"
-                      [(ngModel)]="product().interestRatePerPeriod"
+                      [ngModel]="product().interestRatePerPeriod"
+                      (ngModelChange)="patchProduct('interestRatePerPeriod', $event)"
                       required
                     ></ion-input>
                   </ion-item>
@@ -315,7 +325,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       data-testid="loan-product-repayments-count"
                       type="number"
                       name="numberOfRepayments"
-                      [(ngModel)]="product().numberOfRepayments"
+                      [ngModel]="product().numberOfRepayments"
+                      (ngModelChange)="patchProduct('numberOfRepayments', $event)"
                       required
                     ></ion-input>
                   </ion-item>
@@ -332,7 +343,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       data-testid="loan-product-repayment-every"
                       type="number"
                       name="repaymentEvery"
-                      [(ngModel)]="product().repaymentEvery"
+                      [ngModel]="product().repaymentEvery"
+                      (ngModelChange)="patchProduct('repaymentEvery', $event)"
                       required
                     ></ion-input>
                   </ion-item>
@@ -348,7 +360,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-repayment-frequency"
                       data-testid="loan-product-repayment-frequency"
                       name="repaymentFrequencyType"
-                      [(ngModel)]="product().repaymentFrequencyType"
+                      [ngModel]="product().repaymentFrequencyType"
+                      (ngModelChange)="patchProduct('repaymentFrequencyType', $event)"
                       required
                     >
                       <ion-select-option [value]="0">{{
@@ -379,7 +392,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-interest-frequency"
                       data-testid="loan-product-interest-frequency"
                       name="interestRateFrequencyType"
-                      [(ngModel)]="product().interestRateFrequencyType"
+                      [ngModel]="product().interestRateFrequencyType"
+                      (ngModelChange)="patchProduct('interestRateFrequencyType', $event)"
                       required
                     >
                       <ion-select-option [value]="2">{{
@@ -404,7 +418,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-amortization-type"
                       data-testid="loan-product-amortization-type"
                       name="amortizationType"
-                      [(ngModel)]="product().amortizationType"
+                      [ngModel]="product().amortizationType"
+                      (ngModelChange)="patchProduct('amortizationType', $event)"
                       required
                     >
                       <ion-select-option [value]="1">{{
@@ -429,7 +444,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-interest-type"
                       data-testid="loan-product-interest-type"
                       name="interestType"
-                      [(ngModel)]="product().interestType"
+                      [ngModel]="product().interestType"
+                      (ngModelChange)="patchProduct('interestType', $event)"
                       required
                     >
                       <ion-select-option [value]="0">{{
@@ -454,7 +470,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-interest-calc-period"
                       data-testid="loan-product-interest-calc-period"
                       name="interestCalculationPeriodType"
-                      [(ngModel)]="product().interestCalculationPeriodType"
+                      [ngModel]="product().interestCalculationPeriodType"
+                      (ngModelChange)="patchProduct('interestCalculationPeriodType', $event)"
                       [disabled]="interestRecalculationEnabled()"
                       required
                     >
@@ -489,7 +506,7 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-schedule-type"
                       data-testid="loan-product-schedule-type"
                       name="loanScheduleType"
-                      [(ngModel)]="product().loanScheduleType"
+                      [ngModel]="product().loanScheduleType"
                       (ngModelChange)="onLoanScheduleTypeChange($event)"
                       required
                     >
@@ -518,7 +535,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       id="loan-product-transaction-strategy"
                       data-testid="loan-product-transaction-strategy"
                       name="transactionProcessingStrategyCode"
-                      [(ngModel)]="product().transactionProcessingStrategyCode"
+                      [ngModel]="product().transactionProcessingStrategyCode"
+                      (ngModelChange)="patchProduct('transactionProcessingStrategyCode', $event)"
                       [disabled]="isProgressive()"
                       required
                     >
@@ -553,7 +571,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                         id="loan-product-schedule-processing-type"
                         data-testid="loan-product-schedule-processing-type"
                         name="loanScheduleProcessingType"
-                        [(ngModel)]="product().loanScheduleProcessingType"
+                        [ngModel]="product().loanScheduleProcessingType"
+                        (ngModelChange)="patchProduct('loanScheduleProcessingType', $event)"
                         required
                       >
                         @for (option of loanScheduleProcessingTypeOptions(); track option.code) {
@@ -609,7 +628,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                         min="1"
                         data-testid="loan-product-max-tranche-count"
                         name="maxTrancheCount"
-                        [(ngModel)]="product().maxTrancheCount"
+                        [ngModel]="product().maxTrancheCount"
+                        (ngModelChange)="patchProduct('maxTrancheCount', $event)"
                         required
                       ></ion-input>
                     </ion-item>
@@ -623,7 +643,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       <ion-checkbox
                         name="disallowExpectedDisbursements"
                         data-testid="loan-product-disallow-expected-disbursements"
-                        [(ngModel)]="product().disallowExpectedDisbursements"
+                        [ngModel]="product().disallowExpectedDisbursements"
+                        (ngModelChange)="patchProduct('disallowExpectedDisbursements', $event)"
                       >
                         {{ 'PRODUCTS.DISALLOW_EXPECTED_DISBURSEMENTS' | translate }}
                       </ion-checkbox>
@@ -666,7 +687,10 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           max="100"
                           data-testid="loan-product-down-payment-percentage"
                           name="disbursedAmountPercentageForDownPayment"
-                          [(ngModel)]="product().disbursedAmountPercentageForDownPayment"
+                          [ngModel]="product().disbursedAmountPercentageForDownPayment"
+                          (ngModelChange)="
+                            patchProduct('disbursedAmountPercentageForDownPayment', $event)
+                          "
                           required
                         ></ion-input>
                       </ion-item>
@@ -680,7 +704,10 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                         <ion-checkbox
                           name="enableAutoRepaymentForDownPayment"
                           data-testid="loan-product-auto-repayment-down-payment"
-                          [(ngModel)]="product().enableAutoRepaymentForDownPayment"
+                          [ngModel]="product().enableAutoRepaymentForDownPayment"
+                          (ngModelChange)="
+                            patchProduct('enableAutoRepaymentForDownPayment', $event)
+                          "
                         >
                           {{ 'PRODUCTS.ENABLE_AUTO_REPAYMENT_FOR_DOWN_PAYMENT' | translate }}
                         </ion-checkbox>
@@ -738,7 +765,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           interface="popover"
                           data-testid="loan-product-capitalized-income-type"
                           name="capitalizedIncomeType"
-                          [(ngModel)]="product().capitalizedIncomeType"
+                          [ngModel]="product().capitalizedIncomeType"
+                          (ngModelChange)="patchProduct('capitalizedIncomeType', $event)"
                           required
                         >
                           @for (option of capitalizedIncomeTypeOptions(); track option.code) {
@@ -764,7 +792,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           interface="popover"
                           data-testid="loan-product-capitalized-income-calculation"
                           name="capitalizedIncomeCalculationType"
-                          [(ngModel)]="product().capitalizedIncomeCalculationType"
+                          [ngModel]="product().capitalizedIncomeCalculationType"
+                          (ngModelChange)="patchProduct('capitalizedIncomeCalculationType', $event)"
                           required
                         >
                           @for (
@@ -793,7 +822,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           interface="popover"
                           data-testid="loan-product-capitalized-income-strategy"
                           name="capitalizedIncomeStrategy"
-                          [(ngModel)]="product().capitalizedIncomeStrategy"
+                          [ngModel]="product().capitalizedIncomeStrategy"
+                          (ngModelChange)="patchProduct('capitalizedIncomeStrategy', $event)"
                           required
                         >
                           @for (option of capitalizedIncomeStrategyOptions(); track option.code) {
@@ -837,7 +867,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           interface="popover"
                           data-testid="loan-product-buy-down-fee-income-type"
                           name="buyDownFeeIncomeType"
-                          [(ngModel)]="product().buyDownFeeIncomeType"
+                          [ngModel]="product().buyDownFeeIncomeType"
+                          (ngModelChange)="patchProduct('buyDownFeeIncomeType', $event)"
                           required
                         >
                           @for (option of buyDownFeeIncomeTypeOptions(); track option.code) {
@@ -863,7 +894,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           interface="popover"
                           data-testid="loan-product-buy-down-fee-calculation"
                           name="buyDownFeeCalculationType"
-                          [(ngModel)]="product().buyDownFeeCalculationType"
+                          [ngModel]="product().buyDownFeeCalculationType"
+                          (ngModelChange)="patchProduct('buyDownFeeCalculationType', $event)"
                           required
                         >
                           @for (option of buyDownFeeCalculationTypeOptions(); track option.code) {
@@ -889,7 +921,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           interface="popover"
                           data-testid="loan-product-buy-down-fee-strategy"
                           name="buyDownFeeStrategy"
-                          [(ngModel)]="product().buyDownFeeStrategy"
+                          [ngModel]="product().buyDownFeeStrategy"
+                          (ngModelChange)="patchProduct('buyDownFeeStrategy', $event)"
                           required
                         >
                           @for (option of buyDownFeeStrategyOptions(); track option.code) {
@@ -972,7 +1005,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                         interface="popover"
                         data-testid="loan-product-reschedule-strategy"
                         name="rescheduleStrategyMethod"
-                        [(ngModel)]="product().rescheduleStrategyMethod"
+                        [ngModel]="product().rescheduleStrategyMethod"
+                        (ngModelChange)="patchProduct('rescheduleStrategyMethod', $event)"
                         required
                       >
                         @for (option of rescheduleStrategyOptions(); track option.id) {
@@ -1027,7 +1061,10 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           min="1"
                           data-testid="loan-product-rest-interval"
                           name="recalculationRestFrequencyInterval"
-                          [(ngModel)]="product().recalculationRestFrequencyInterval"
+                          [ngModel]="product().recalculationRestFrequencyInterval"
+                          (ngModelChange)="
+                            patchProduct('recalculationRestFrequencyInterval', $event)
+                          "
                         ></ion-input>
                       </ion-item>
                     </ion-col>
@@ -1077,7 +1114,10 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                           min="1"
                           data-testid="loan-product-compounding-interval"
                           name="recalculationCompoundingFrequencyInterval"
-                          [(ngModel)]="product().recalculationCompoundingFrequencyInterval"
+                          [ngModel]="product().recalculationCompoundingFrequencyInterval"
+                          (ngModelChange)="
+                            patchProduct('recalculationCompoundingFrequencyInterval', $event)
+                          "
                         ></ion-input>
                       </ion-item>
                     </ion-col>
@@ -1097,7 +1137,10 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                         interface="popover"
                         data-testid="loan-product-pre-closure-strategy"
                         name="preClosureInterestCalculationStrategy"
-                        [(ngModel)]="product().preClosureInterestCalculationStrategy"
+                        [ngModel]="product().preClosureInterestCalculationStrategy"
+                        (ngModelChange)="
+                          patchProduct('preClosureInterestCalculationStrategy', $event)
+                        "
                       >
                         @for (option of preClosureStrategyOptions(); track option.id) {
                           <ion-select-option [value]="option.id">{{
@@ -1129,7 +1172,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       interface="popover"
                       data-testid="loan-product-charge-off-behaviour"
                       name="chargeOffBehaviour"
-                      [(ngModel)]="product().chargeOffBehaviour"
+                      [ngModel]="product().chargeOffBehaviour"
+                      (ngModelChange)="patchProduct('chargeOffBehaviour', $event)"
                     >
                       <!--
                         The id, not the code. The template offers both — id "REGULAR", code
@@ -1159,7 +1203,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       interface="popover"
                       data-testid="loan-product-repayment-start-date-type"
                       name="repaymentStartDateType"
-                      [(ngModel)]="product().repaymentStartDateType"
+                      [ngModel]="product().repaymentStartDateType"
+                      (ngModelChange)="patchProduct('repaymentStartDateType', $event)"
                     >
                       @for (option of repaymentStartDateTypeOptions(); track option.id) {
                         <ion-select-option [value]="option.id">{{
@@ -1185,7 +1230,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                       min="1"
                       data-testid="loan-product-fixed-length"
                       name="fixedLength"
-                      [(ngModel)]="product().fixedLength"
+                      [ngModel]="product().fixedLength"
+                      (ngModelChange)="patchProduct('fixedLength', $event)"
                     ></ion-input>
                   </ion-item>
                 </ion-col>
@@ -1198,7 +1244,8 @@ const DAILY_INTEREST_CALCULATION_PERIOD = 0;
                     <ion-checkbox
                       name="enableAccrualActivityPosting"
                       data-testid="loan-product-accrual-activity-posting"
-                      [(ngModel)]="product().enableAccrualActivityPosting"
+                      [ngModel]="product().enableAccrualActivityPosting"
+                      (ngModelChange)="patchProduct('enableAccrualActivityPosting', $event)"
                     >
                       {{ 'PRODUCTS.ENABLE_ACCRUAL_ACTIVITY_POSTING' | translate }}
                     </ion-checkbox>
@@ -1429,6 +1476,25 @@ export class LoanProductFormComponent implements OnInit {
     isInterestRecalculationEnabled: false,
   });
 
+  /**
+   * Applies a control edit by replacing the signal's payload rather than mutating it.
+   *
+   * A signal compares references. Writing `product().field = value` changes the object the
+   * signal already holds, so nothing that reads the signal is notified. The template uses
+   * `[ngModel]` plus this handler so `NgModel` never becomes the assignment target.
+   */
+  protected patchProduct<K extends keyof PostLoanProductsRequest>(
+    field: K,
+    value: PostLoanProductsRequest[K],
+  ): void {
+    this.product.update((product) => ({ ...product, [field]: value }));
+  }
+
+  /** Applies multiple related product fields in one signal notification. */
+  private patchProductFields(patch: Partial<PostLoanProductsRequest>): void {
+    this.product.update((product) => ({ ...product, ...patch }));
+  }
+
   ngOnInit() {
     this.fundsService.getFunds().subscribe((data) => this.fundOptions.set(data));
     this.delinquencyService
@@ -1491,16 +1557,21 @@ export class LoanProductFormComponent implements OnInit {
   }
 
   onLoanScheduleTypeChange(loanScheduleType: string) {
+    this.patchProduct('loanScheduleType', loanScheduleType);
     this.isProgressive.set(loanScheduleType === LOAN_SCHEDULE_TYPE.PROGRESSIVE);
     this.applyTransactionProcessingStrategyFilter();
 
     if (this.isProgressive()) {
-      this.product().loanScheduleProcessingType = 'HORIZONTAL';
-      this.product().paymentAllocation = this.buildDefaultPaymentAllocation();
+      this.patchProductFields({
+        loanScheduleProcessingType: 'HORIZONTAL',
+        paymentAllocation: this.buildDefaultPaymentAllocation(),
+      });
     } else {
-      this.product().loanScheduleProcessingType = undefined;
-      this.product().paymentAllocation = undefined;
-      this.product().creditAllocation = undefined;
+      this.patchProductFields({
+        loanScheduleProcessingType: undefined,
+        paymentAllocation: undefined,
+        creditAllocation: undefined,
+      });
       // These are progressive capabilities. Hiding the controls is not enough — the values would
       // still be in the payload, describing a product the cumulative engine cannot honour.
       this.clearDownPayment();
@@ -1512,19 +1583,21 @@ export class LoanProductFormComponent implements OnInit {
   /** Turning multi-disbursement off leaves no meaning in the settings that depend on it. */
   onMultiDisburseChange(enabled: boolean): void {
     this.multiDisburseEnabled.set(enabled);
-    this.product().multiDisburseLoan = enabled;
-    if (!enabled) {
-      this.product().maxTrancheCount = undefined;
-      this.product().disallowExpectedDisbursements = undefined;
-      // Only ever reachable through multi-disbursement, so it cannot outlive it.
-      this.product().allowFullTermForTranche = undefined;
-    }
+    this.patchProductFields({
+      multiDisburseLoan: enabled,
+      ...(!enabled && {
+        maxTrancheCount: undefined,
+        disallowExpectedDisbursements: undefined,
+        // Only ever reachable through multi-disbursement, so it cannot outlive it.
+        allowFullTermForTranche: undefined,
+      }),
+    });
   }
 
   onEnableDownPaymentChange(enabled: boolean): void {
     if (enabled) {
       this.downPaymentEnabled.set(true);
-      this.product().enableDownPayment = true;
+      this.patchProduct('enableDownPayment', true);
       return;
     }
     this.clearDownPayment();
@@ -1584,32 +1657,39 @@ export class LoanProductFormComponent implements OnInit {
     }
     this.interestRecalculationEnabled.set(true);
     const product = this.product();
-    product.isInterestRecalculationEnabled = true;
-    product.interestRecalculationCompoundingMethod ??= this.compoundingTypeOptions()[0]?.id;
-    product.rescheduleStrategyMethod ??= this.rescheduleStrategyOptions()[0]?.id;
-    product.recalculationRestFrequencyType ??= this.recalculationFrequencyOptions()[0]?.id;
     // Fineract only supports recalculation with daily interest calculation, and rejects the
     // form's own default outright. Setting it here means the user cannot build a product the
     // server will refuse; the control is locked and says why.
-    product.interestCalculationPeriodType = DAILY_INTEREST_CALCULATION_PERIOD;
-    this.compoundingMethod.set(product.interestRecalculationCompoundingMethod);
-    this.restFrequencyType.set(product.recalculationRestFrequencyType);
-    this.compoundingFrequencyType.set(product.recalculationCompoundingFrequencyType);
+    this.patchProductFields({
+      isInterestRecalculationEnabled: true,
+      interestRecalculationCompoundingMethod:
+        product.interestRecalculationCompoundingMethod ?? this.compoundingTypeOptions()[0]?.id,
+      rescheduleStrategyMethod:
+        product.rescheduleStrategyMethod ?? this.rescheduleStrategyOptions()[0]?.id,
+      recalculationRestFrequencyType:
+        product.recalculationRestFrequencyType ?? this.recalculationFrequencyOptions()[0]?.id,
+      interestCalculationPeriodType: DAILY_INTEREST_CALCULATION_PERIOD,
+    });
+    const updated = this.product();
+    this.compoundingMethod.set(updated.interestRecalculationCompoundingMethod);
+    this.restFrequencyType.set(updated.recalculationRestFrequencyType);
+    this.compoundingFrequencyType.set(updated.recalculationCompoundingFrequencyType);
   }
 
   private clearInterestRecalculation(): void {
     this.interestRecalculationEnabled.set(false);
-    const product = this.product();
     // Left in the payload, these would describe recalculation settings for a product that does
     // not recalculate.
-    product.isInterestRecalculationEnabled = false;
-    product.interestRecalculationCompoundingMethod = undefined;
-    product.rescheduleStrategyMethod = undefined;
-    product.recalculationRestFrequencyType = undefined;
-    product.recalculationRestFrequencyInterval = undefined;
-    product.recalculationCompoundingFrequencyType = undefined;
-    product.recalculationCompoundingFrequencyInterval = undefined;
-    product.preClosureInterestCalculationStrategy = undefined;
+    this.patchProductFields({
+      isInterestRecalculationEnabled: false,
+      interestRecalculationCompoundingMethod: undefined,
+      rescheduleStrategyMethod: undefined,
+      recalculationRestFrequencyType: undefined,
+      recalculationRestFrequencyInterval: undefined,
+      recalculationCompoundingFrequencyType: undefined,
+      recalculationCompoundingFrequencyInterval: undefined,
+      preClosureInterestCalculationStrategy: undefined,
+    });
     this.compoundingMethod.set(undefined);
     this.restFrequencyType.set(undefined);
     this.compoundingFrequencyType.set(undefined);
@@ -1617,28 +1697,30 @@ export class LoanProductFormComponent implements OnInit {
 
   /** Dropping the compounding method takes the settings that only exist because of it. */
   onCompoundingMethodChange(method: number | undefined): void {
-    this.product().interestRecalculationCompoundingMethod = method;
+    this.patchProduct('interestRecalculationCompoundingMethod', method);
     this.compoundingMethod.set(method);
     if (!this.compoundingSelected()) {
-      this.product().recalculationCompoundingFrequencyType = undefined;
-      this.product().recalculationCompoundingFrequencyInterval = undefined;
+      this.patchProductFields({
+        recalculationCompoundingFrequencyType: undefined,
+        recalculationCompoundingFrequencyInterval: undefined,
+      });
       this.compoundingFrequencyType.set(undefined);
     }
   }
 
   onRestFrequencyTypeChange(type: number | undefined): void {
-    this.product().recalculationRestFrequencyType = type;
+    this.patchProduct('recalculationRestFrequencyType', type);
     this.restFrequencyType.set(type);
     if (!this.restIntervalApplies()) {
-      this.product().recalculationRestFrequencyInterval = undefined;
+      this.patchProduct('recalculationRestFrequencyInterval', undefined);
     }
   }
 
   onCompoundingFrequencyTypeChange(type: number | undefined): void {
-    this.product().recalculationCompoundingFrequencyType = type;
+    this.patchProduct('recalculationCompoundingFrequencyType', type);
     this.compoundingFrequencyType.set(type);
     if (!this.compoundingIntervalApplies()) {
-      this.product().recalculationCompoundingFrequencyInterval = undefined;
+      this.patchProduct('recalculationCompoundingFrequencyInterval', undefined);
     }
   }
 
@@ -1649,12 +1731,14 @@ export class LoanProductFormComponent implements OnInit {
     }
     this.incomeCapitalizationEnabled.set(true);
     const product = this.product();
-    product.enableIncomeCapitalization = true;
     // Seeded explicitly so the product records what it was created with, rather than relying on
     // whatever the server would default to.
-    product.capitalizedIncomeType ??= 'FEE';
-    product.capitalizedIncomeCalculationType ??= 'FLAT';
-    product.capitalizedIncomeStrategy ??= 'EQUAL_AMORTIZATION';
+    this.patchProductFields({
+      enableIncomeCapitalization: true,
+      capitalizedIncomeType: product.capitalizedIncomeType ?? 'FEE',
+      capitalizedIncomeCalculationType: product.capitalizedIncomeCalculationType ?? 'FLAT',
+      capitalizedIncomeStrategy: product.capitalizedIncomeStrategy ?? 'EQUAL_AMORTIZATION',
+    });
   }
 
   onEnableBuyDownFeeChange(enabled: boolean): void {
@@ -1664,35 +1748,41 @@ export class LoanProductFormComponent implements OnInit {
     }
     this.buyDownFeeEnabled.set(true);
     const product = this.product();
-    product.enableBuyDownFee = true;
-    product.buyDownFeeIncomeType ??= 'FEE';
-    product.buyDownFeeCalculationType ??= 'FLAT';
-    product.buyDownFeeStrategy ??= 'EQUAL_AMORTIZATION';
+    this.patchProductFields({
+      enableBuyDownFee: true,
+      buyDownFeeIncomeType: product.buyDownFeeIncomeType ?? 'FEE',
+      buyDownFeeCalculationType: product.buyDownFeeCalculationType ?? 'FLAT',
+      buyDownFeeStrategy: product.buyDownFeeStrategy ?? 'EQUAL_AMORTIZATION',
+    });
   }
 
   private clearIncomeCapitalization(): void {
     this.incomeCapitalizationEnabled.set(false);
-    const product = this.product();
-    product.enableIncomeCapitalization = undefined;
-    product.capitalizedIncomeType = undefined;
-    product.capitalizedIncomeCalculationType = undefined;
-    product.capitalizedIncomeStrategy = undefined;
+    this.patchProductFields({
+      enableIncomeCapitalization: undefined,
+      capitalizedIncomeType: undefined,
+      capitalizedIncomeCalculationType: undefined,
+      capitalizedIncomeStrategy: undefined,
+    });
   }
 
   private clearBuyDownFee(): void {
     this.buyDownFeeEnabled.set(false);
-    const product = this.product();
-    product.enableBuyDownFee = undefined;
-    product.buyDownFeeIncomeType = undefined;
-    product.buyDownFeeCalculationType = undefined;
-    product.buyDownFeeStrategy = undefined;
+    this.patchProductFields({
+      enableBuyDownFee: undefined,
+      buyDownFeeIncomeType: undefined,
+      buyDownFeeCalculationType: undefined,
+      buyDownFeeStrategy: undefined,
+    });
   }
 
   private clearDownPayment(): void {
     this.downPaymentEnabled.set(false);
-    this.product().enableDownPayment = undefined;
-    this.product().disbursedAmountPercentageForDownPayment = undefined;
-    this.product().enableAutoRepaymentForDownPayment = undefined;
+    this.patchProductFields({
+      enableDownPayment: undefined,
+      disbursedAmountPercentageForDownPayment: undefined,
+      enableAutoRepaymentForDownPayment: undefined,
+    });
   }
 
   private applyTransactionProcessingStrategyFilter() {
@@ -1703,8 +1793,10 @@ export class LoanProductFormComponent implements OnInit {
         ),
       );
       if (this.transactionProcessingStrategyOptions().length) {
-        this.product().transactionProcessingStrategyCode =
-          this.transactionProcessingStrategyOptions()[0].code;
+        this.patchProduct(
+          'transactionProcessingStrategyCode',
+          this.transactionProcessingStrategyOptions()[0].code,
+        );
       }
     } else {
       this.transactionProcessingStrategyOptions.set(
@@ -1716,8 +1808,10 @@ export class LoanProductFormComponent implements OnInit {
         isAdvancedPaymentAllocationStrategy(this.product().transactionProcessingStrategyCode) &&
         this.transactionProcessingStrategyOptions().length
       ) {
-        this.product().transactionProcessingStrategyCode =
-          this.transactionProcessingStrategyOptions()[0].code;
+        this.patchProduct(
+          'transactionProcessingStrategyCode',
+          this.transactionProcessingStrategyOptions()[0].code,
+        );
       }
     }
   }
@@ -1852,7 +1946,7 @@ export class LoanProductFormComponent implements OnInit {
 
   onSubmit() {
     this.isSaving.set(true);
-    this.product().locale = 'en';
+    this.patchProduct('locale', 'en');
     const request = this.buildRequest();
 
     if (this.isEditMode() && this.productId) {
