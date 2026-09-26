@@ -2695,7 +2695,13 @@
     "OFFICE": "Office",
     "EMAIL": "Email",
     "ROLES": "Roles",
-    "LOAD_ERROR": "Could not load your profile. Try again, or contact an administrator if it persists."
+    "LOAD_ERROR": "Could not load your profile. Try again, or contact an administrator if it persists.",
+    "CHANGE_PASSWORD": "Change Password",
+    "NEW_PASSWORD": "New Password",
+    "REPEAT_NEW_PASSWORD": "Repeat New Password",
+    "PASSWORDS_DO_NOT_MATCH": "Passwords do not match.",
+    "PASSWORD_POLICY": "Password policy",
+    "PASSWORD_CHANGED": "Password changed successfully."
   },
   "TWO_FACTOR_CONFIG": {
     "TITLE": "Two-Factor Authentication Config",
