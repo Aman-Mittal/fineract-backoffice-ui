@@ -85,8 +85,8 @@ import { TranslatePipe } from '../../../core/adapters';
         flex-shrink: 0;
       }
       .step-active .step-marker {
-        border-color: var(--primary-color, #1976d2);
-        color: var(--primary-color, #1976d2);
+        border-color: var(--primary-text, #1f6391);
+        color: var(--primary-text, #1f6391);
         font-weight: 600;
       }
       .step-done .step-marker {

@@ -1478,11 +1478,11 @@ export function toEditableDate(value: unknown): string {
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #7f8c8d;
+        color: var(--text-muted);
         font-size: 14px;
       }
       .divider {
-        color: #bdc3c7;
+        color: var(--border-color);
       }
       .actions-area {
         display: flex;
@@ -1550,7 +1550,7 @@ export function toEditableDate(value: unknown): string {
         flex-direction: column;
         align-items: center;
         padding: 48px;
-        color: #95a5a6;
+        color: var(--text-muted);
       }
       .empty-state mat-icon {
         font-size: 48px;
@@ -1573,7 +1573,7 @@ export function toEditableDate(value: unknown): string {
       .reversed-amount {
         text-decoration: line-through;
         opacity: 0.6;
-        color: #7f8c8d;
+        color: var(--text-muted);
       }
       .json-block {
         background: var(--card-bg, #f5f5f5);

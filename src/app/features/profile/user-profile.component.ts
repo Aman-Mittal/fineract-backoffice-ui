@@ -130,13 +130,13 @@ import {
         font-weight: 500;
         width: 160px;
         flex-shrink: 0;
-        color: #555;
+        color: var(--text-muted);
       }
       .value {
         flex: 1;
       }
       .secondary {
-        color: #888;
+        color: var(--text-muted);
         font-size: 0.85em;
         margin-left: 4px;
       }

@@ -923,11 +923,11 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #7f8c8d;
+        color: var(--text-muted);
         font-size: 14px;
       }
       .divider {
-        color: #bdc3c7;
+        color: var(--border-color);
       }
       .tab-group {
         background-color: var(--card-bg);
@@ -985,7 +985,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
         flex-direction: column;
         align-items: center;
         padding: 48px;
-        color: #95a5a6;
+        color: var(--text-muted);
       }
       .empty-state mat-icon {
         font-size: 48px;

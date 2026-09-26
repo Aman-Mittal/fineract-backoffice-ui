@@ -150,7 +150,7 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
         width: 100%;
       }
       .empty-state {
-        color: #95a5a6;
+        color: var(--text-muted);
         text-align: center;
         padding: 24px;
       }

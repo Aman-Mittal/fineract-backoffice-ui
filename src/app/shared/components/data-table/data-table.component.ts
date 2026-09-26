@@ -259,7 +259,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         user-select: none;
       }
       .data-table th.sortable:hover {
-        color: var(--primary-color);
+        color: var(--primary-text);
       }
       .sort-button {
         display: inline-flex;
@@ -277,7 +277,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
         border-radius: 2px;
       }
       .data-table th[aria-sort] {
-        color: var(--primary-color);
+        color: var(--primary-text);
       }
       .data-table tr:hover td {
         background-color: var(--hover-bg);
@@ -289,7 +289,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
       }
       .no-data-row td {
         text-align: center;
-        color: var(--text-muted, #7f8c8d);
+        color: var(--text-muted);
       }
       .error-state {
         display: flex;

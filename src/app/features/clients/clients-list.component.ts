@@ -168,7 +168,7 @@ import {
         width: 150px;
       }
       .clickable-link {
-        color: #3f51b5;
+        color: var(--primary-text);
         font-weight: 500;
         cursor: pointer;
         text-decoration: none;

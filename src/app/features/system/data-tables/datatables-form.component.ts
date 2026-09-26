@@ -267,9 +267,9 @@ import {
       }
       .columns-section h3 {
         margin: 16px 0;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-color, #eee);
         padding-bottom: 8px;
-        color: var(--primary-color);
+        color: var(--primary-text);
       }
       .column-row {
         display: grid;

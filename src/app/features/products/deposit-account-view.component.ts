@@ -598,7 +598,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
         display: flex;
         gap: 8px;
         align-items: center;
-        color: #666;
+        color: var(--text-muted);
         font-size: 14px;
       }
       .actions-area {
@@ -629,7 +629,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
         padding-bottom: 8px;
       }
       .label {
-        color: #777;
+        color: var(--text-muted);
       }
       .value {
         font-weight: 600;
@@ -647,7 +647,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
       .reversed-amount {
         text-decoration: line-through;
         opacity: 0.6;
-        color: #7f8c8d;
+        color: var(--text-muted);
       }
       .reversed-marker {
         color: var(--text-muted, #6b7280);
