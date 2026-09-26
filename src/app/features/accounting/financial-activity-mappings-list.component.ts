@@ -89,10 +89,10 @@ export class FinancialActivityMappingsListComponent implements OnInit {
 
   readonly mappings = signal<GetFinancialActivityAccountsResponse[]>([]);
   columns: ColumnDef[] = [
-    { key: 'financialActivity', label: 'Financial Activity', sortable: true },
-    { key: 'glAccountName', label: 'GL Account', sortable: true },
-    { key: 'glAccountCode', label: 'GL Code', sortable: true },
-    { key: 'actions', label: 'Actions' },
+    { key: 'financialActivity', label: 'ACCOUNTING.FINANCIAL_ACTIVITY', sortable: true },
+    { key: 'glAccountName', label: 'JOURNAL_ENTRIES.GL_ACCOUNT', sortable: true },
+    { key: 'glAccountCode', label: 'ACCOUNTING.GL_CODE', sortable: true },
+    { key: 'actions', label: 'COMMON.ACTIONS' },
   ];
 
   ngOnInit() {

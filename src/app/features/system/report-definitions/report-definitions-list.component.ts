@@ -118,12 +118,12 @@ export class ReportDefinitionsListComponent implements OnInit {
   readonly hasError = signal(false);
 
   readonly columns: ColumnDef[] = [
-    { key: 'reportName', label: 'Name', sortable: true },
-    { key: 'reportType', label: 'Type', sortable: true },
-    { key: 'reportCategory', label: 'Category', sortable: true },
-    { key: 'coreReport', label: 'Origin', sortable: true },
-    { key: 'useReport', label: 'In Use', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false },
+    { key: 'reportName', label: 'COMMON.NAME', sortable: true },
+    { key: 'reportType', label: 'COMMON.TYPE', sortable: true },
+    { key: 'reportCategory', label: 'REPORT_DEFINITIONS.CATEGORY', sortable: true },
+    { key: 'coreReport', label: 'REPORT_DEFINITIONS.ORIGIN', sortable: true },
+    { key: 'useReport', label: 'REPORT_DEFINITIONS.IN_USE', sortable: true },
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
   ngOnInit(): void {

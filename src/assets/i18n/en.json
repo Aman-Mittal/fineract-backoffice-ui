@@ -287,7 +287,9 @@
     "UNASSIGNED": "Unassigned",
     "ACCOUNTS": "Accounts",
     "CHECK_ALL": "Check All",
-    "UNCHECK_ALL": "Uncheck All"
+    "UNCHECK_ALL": "Uncheck All",
+    "CHECKER": "Checker",
+    "CHECKED_DATE": "Checked Date"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",
@@ -973,7 +975,8 @@
     "SEARCH_FAILED": "Search failed. Please try again."
   },
   "SECURITY": {
-    "AUDIT_LOGS": "Audit Logs"
+    "AUDIT_LOGS": "Audit Logs",
+    "RESOURCE_ID": "Resource ID"
   },
   "SYSTEM": {
     "DATA_TABLES": "Data Tables",
@@ -1293,7 +1296,8 @@
     "CREATE": "Close Period",
     "REOPEN": "Re-open Period",
     "CLOSING_DATE": "Closing Date",
-    "IS_CLOSED": "Is Closed"
+    "IS_CLOSED": "Is Closed",
+    "COMMENTS": "Comments"
   },
   "JOURNAL_ENTRIES": {
     "CREATE": "Add Journal Entry",
@@ -1324,7 +1328,8 @@
     "ALL_OFFICES": "All Offices",
     "ALL_ACCOUNTS": "All Accounts",
     "ALL_ENTRIES": "All Entries",
-    "MANUAL_ENTRIES": "Manual Entries Only"
+    "MANUAL_ENTRIES": "Manual Entries Only",
+    "LEDGER_ACCOUNT": "Ledger Account"
   },
   "OFFICES": {
     "CREATE_OFFICE": "Create Office",
@@ -1454,7 +1459,9 @@
     "INCOME": "Income",
     "EXPENSE": "Expense",
     "HEADER": "Header",
-    "DETAIL": "Detail"
+    "DETAIL": "Detail",
+    "ACCOUNT_NAME": "Account Name",
+    "FINANCIAL_ACTIVITY": "Financial Activity"
   },
   "MODULES": {
     "CLIENTS_CONTRACTS": "Clients & Contracts",
@@ -2486,7 +2493,9 @@
     "TITLE": "External Asset Owners",
     "LOAN_PRODUCT_ATTRIBUTES": "Loan Product Attributes",
     "ATTRIBUTE_KEY": "Key",
-    "ATTRIBUTE_VALUE": "Value"
+    "ATTRIBUTE_VALUE": "Value",
+    "OWNER_ID": "Owner ID",
+    "PURCHASE_RATIO": "Purchase Ratio"
   },
   "SPM": {
     "LOOKUP_TABLES": "Lookup Tables",
@@ -2798,7 +2807,8 @@
     "CORE_READ_ONLY": "This is a core report. The platform allows only the \"In Use\" setting to change; the rest of the definition is shown for reference.",
     "DELETE_CONFIRM": "This removes the report definition. Reports already run from it are not affected.",
     "DELETED": "Report definition deleted",
-    "SAVED": "Report definition saved"
+    "SAVED": "Report definition saved",
+    "ORIGIN": "Origin"
   },
   "NOTES": {
     "ADD": "Add a note",

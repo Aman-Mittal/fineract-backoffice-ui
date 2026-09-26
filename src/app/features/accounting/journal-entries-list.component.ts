@@ -299,13 +299,13 @@ export class JournalEntriesListComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly columns: ColumnDef[] = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'transactionDate', label: 'Transaction Date', sortable: true },
-    { key: 'transactionId', label: 'Transaction ID', sortable: true },
-    { key: 'glAccountName', label: 'Ledger Account', sortable: true },
-    { key: 'entryType', label: 'Type', sortable: true },
-    { key: 'amount', label: 'Amount', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false },
+    { key: 'id', label: 'COMMON.ID', sortable: true },
+    { key: 'transactionDate', label: 'JOURNAL_ENTRIES.TRANSACTION_DATE', sortable: true },
+    { key: 'transactionId', label: 'LOANS.TRANSACTION_ID', sortable: true },
+    { key: 'glAccountName', label: 'JOURNAL_ENTRIES.LEDGER_ACCOUNT', sortable: true },
+    { key: 'entryType', label: 'COMMON.TYPE', sortable: true },
+    { key: 'amount', label: 'COMMON.AMOUNT', sortable: true },
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
   readonly entries = signal<JournalEntryTransactionItem[]>([]);
