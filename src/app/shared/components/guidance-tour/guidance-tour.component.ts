@@ -52,6 +52,20 @@ import { MOBILE_MEDIA_QUERY } from '../../../core/services/viewport.service';
 const TARGET_LOOKUP_TIMEOUT_MS = 1500;
 const TARGET_LOOKUP_INTERVAL_MS = 100;
 
+/**
+ * How far the scrim's cutout extends beyond the target's own box.
+ *
+ * `.guidance-highlight` paints 3px outline-offset + 3px outline + 6px box-shadow spread beyond
+ * the box edge (12px total). A couple more pixels keep the scrim from clipping that glow.
+ */
+const SCRIM_PAD_PX = 14;
+
+/** Space kept between the repositioned card and the target it now sits beside. */
+const CARD_TARGET_GAP_PX = 16;
+
+/** Minimum space kept between the card and the viewport edge while repositioned. */
+const CARD_VIEWPORT_MARGIN_PX = 24;
+
 @Component({
   selector: 'app-guidance-tour',
   standalone: true,
@@ -187,6 +201,21 @@ const TARGET_LOOKUP_INTERVAL_MS = 100;
       .guidance-overlay {
         animation: guidanceSlideUp 0.3s ease-out;
       }
+      /*
+        Four strips around the target rather than one full-screen scrim with a clip-path hole:
+        a clip-path polygon can't cut a hole without an SVG mask, and this needs no z-index or
+        position change on the target itself, which the highlight rule above deliberately avoids.
+
+        pointer-events: none because the tour is non-modal (see the host binding comment below) —
+        dimming the rest of the screen must not stop a click from reaching it.
+      */
+      .guidance-scrim {
+        position: fixed;
+        background: var(--guidance-scrim-color, rgba(0, 0, 0, 0.45));
+        z-index: 9999;
+        pointer-events: none;
+        transition: opacity 0.2s ease-in-out;
+      }
       .guidance-card {
         border-left: 4px solid var(--primary-color);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
@@ -265,6 +294,9 @@ const TARGET_LOOKUP_INTERVAL_MS = 100;
         .guidance-highlight {
           transition: none;
         }
+        .guidance-scrim {
+          transition: none;
+        }
       }
     `,
   ],
@@ -272,6 +304,7 @@ const TARGET_LOOKUP_INTERVAL_MS = 100;
 export class GuidanceTourComponent {
   protected readonly guidanceService = inject(GuidanceService);
   private readonly renderer = inject(Renderer2);
+  private readonly hostRef = inject(ElementRef<HTMLElement>);
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
   private readonly router = inject(Router);
 
@@ -279,6 +312,16 @@ export class GuidanceTourComponent {
   private lookupTimer: ReturnType<typeof setInterval> | null = null;
   /** What had focus when the tour opened, so Exit can hand it back. */
   private returnFocusTo: HTMLElement | null = null;
+
+  /** The four scrim strips, created once per highlighted target and reused across reflows. */
+  private scrimEls: HTMLElement[] = [];
+  private repositionRaf: number | null = null;
+  /**
+   * Bound once rather than per {@link armViewportTracking} call, so the exact same reference can
+   * be passed to `removeEventListener` — an inline arrow there would never match and leak the
+   * listener.
+   */
+  private readonly onViewportChange = (): void => this.scheduleReposition();
 
   constructor() {
     /**
@@ -347,6 +390,8 @@ export class GuidanceTourComponent {
       this.activeTarget = el;
       this.renderer.addClass(el, 'guidance-highlight');
       this.scrollTargetIntoView(el);
+      this.armViewportTracking();
+      this.scheduleReposition();
       return true;
     };
 
@@ -379,10 +424,166 @@ export class GuidanceTourComponent {
   }
 
   private clearHighlight(): void {
+    this.disarmViewportTracking();
+    this.hideScrim();
+    this.clearCardPosition();
     if (this.activeTarget) {
       this.renderer.removeClass(this.activeTarget, 'guidance-highlight');
       this.activeTarget = null;
     }
+  }
+
+  /**
+   * Keeps the card and scrim glued to the target while the page moves under it.
+   *
+   * `scroll` does not bubble, so a plain listener on `window` never sees one fired on
+   * `.content-area` — the app's actual scroll container (`overflow-y: auto`), not the window.
+   * Capture-phase listeners are dispatched top-down regardless of bubbling, so registering on
+   * `window` with `capture: true` catches it as it passes through on its way to the target.
+   */
+  private armViewportTracking(): void {
+    window.addEventListener('scroll', this.onViewportChange, { passive: true, capture: true });
+    window.addEventListener('resize', this.onViewportChange, { passive: true });
+  }
+
+  private disarmViewportTracking(): void {
+    window.removeEventListener('scroll', this.onViewportChange, true);
+    window.removeEventListener('resize', this.onViewportChange);
+    if (this.repositionRaf !== null) {
+      cancelAnimationFrame(this.repositionRaf);
+      this.repositionRaf = null;
+    }
+  }
+
+  /** Throttled to one measurement per frame — `scroll` can fire far more often than that. */
+  private scheduleReposition(): void {
+    if (this.repositionRaf !== null) return;
+    this.repositionRaf = requestAnimationFrame(() => {
+      this.repositionRaf = null;
+      const target = this.activeTarget;
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      this.updateScrim(rect);
+      this.repositionCard(rect);
+    });
+  }
+
+  /**
+   * Anchors the card beside its target on wide screens, trying right, left, below, then above,
+   * and keeping the corner fallback for whichever fits first.
+   *
+   * Left untouched on a narrow viewport, where the CSS media query already turns the card into a
+   * full-width bottom sheet — a position this fixed-size math has no business overriding.
+   */
+  private repositionCard(rect: DOMRect): void {
+    if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+      this.clearCardPosition();
+      return;
+    }
+
+    const hostEl = this.hostRef.nativeElement;
+    const cardEl = hostEl.querySelector('.guidance-card') as HTMLElement | null;
+    const cardWidth = cardEl?.offsetWidth || 360;
+    const cardHeight = cardEl?.offsetHeight || 200;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const gap = CARD_TARGET_GAP_PX;
+    const margin = CARD_VIEWPORT_MARGIN_PX;
+
+    const placements = [
+      {
+        left: rect.right + gap,
+        top: this.clamp(rect.top, margin, vh - cardHeight - margin),
+        fits: rect.right + gap + cardWidth + margin <= vw,
+      },
+      {
+        left: rect.left - gap - cardWidth,
+        top: this.clamp(rect.top, margin, vh - cardHeight - margin),
+        fits: rect.left - gap - cardWidth >= margin,
+      },
+      {
+        left: this.clamp(rect.left, margin, vw - cardWidth - margin),
+        top: rect.bottom + gap,
+        fits: rect.bottom + gap + cardHeight + margin <= vh,
+      },
+      {
+        left: this.clamp(rect.left, margin, vw - cardWidth - margin),
+        top: rect.top - gap - cardHeight,
+        fits: rect.top - gap - cardHeight >= margin,
+      },
+    ];
+
+    const chosen = placements.find((p) => p.fits);
+    if (!chosen) {
+      // No side has room — a target that fills most of a small window. The corner fallback is a
+      // known, tested position rather than one guaranteed to run off the viewport.
+      this.clearCardPosition();
+      return;
+    }
+
+    this.renderer.setStyle(hostEl, 'top', `${chosen.top}px`);
+    this.renderer.setStyle(hostEl, 'left', `${chosen.left}px`);
+    this.renderer.setStyle(hostEl, 'right', 'auto');
+    this.renderer.setStyle(hostEl, 'bottom', 'auto');
+  }
+
+  private clearCardPosition(): void {
+    const hostEl = this.hostRef.nativeElement;
+    for (const prop of ['top', 'left', 'right', 'bottom']) {
+      this.renderer.removeStyle(hostEl, prop);
+    }
+  }
+
+  private clamp(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  private ensureScrimEls(): HTMLElement[] {
+    if (this.scrimEls.length === 0) {
+      this.scrimEls = Array.from({ length: 4 }, () => {
+        const div = this.renderer.createElement('div') as HTMLElement;
+        this.renderer.addClass(div, 'guidance-scrim');
+        this.renderer.appendChild(document.body, div);
+        return div;
+      });
+    }
+    return this.scrimEls;
+  }
+
+  /** Dims everything except a `SCRIM_PAD_PX` margin around the target, as four fixed strips. */
+  private updateScrim(rect: DOMRect): void {
+    const [above, below, left, right] = this.ensureScrimEls();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const top = Math.max(rect.top - SCRIM_PAD_PX, 0);
+    const bottom = Math.min(rect.bottom + SCRIM_PAD_PX, vh);
+    const holeLeft = Math.max(rect.left - SCRIM_PAD_PX, 0);
+    const holeRight = Math.min(rect.right + SCRIM_PAD_PX, vw);
+
+    this.setStripRect(above, 0, 0, vw, top);
+    this.setStripRect(below, bottom, 0, vw, Math.max(vh - bottom, 0));
+    this.setStripRect(left, top, 0, holeLeft, bottom - top);
+    this.setStripRect(right, top, holeRight, Math.max(vw - holeRight, 0), bottom - top);
+  }
+
+  private setStripRect(
+    el: HTMLElement,
+    top: number,
+    left: number,
+    width: number,
+    height: number,
+  ): void {
+    this.renderer.setStyle(el, 'top', `${top}px`);
+    this.renderer.setStyle(el, 'left', `${left}px`);
+    this.renderer.setStyle(el, 'width', `${width}px`);
+    this.renderer.setStyle(el, 'height', `${height}px`);
+  }
+
+  private hideScrim(): void {
+    for (const el of this.scrimEls) {
+      this.renderer.removeChild(document.body, el);
+    }
+    this.scrimEls = [];
   }
 
   private captureFocusOrigin(): void {
