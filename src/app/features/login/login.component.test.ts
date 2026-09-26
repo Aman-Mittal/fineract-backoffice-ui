@@ -155,5 +155,12 @@ describe('LoginComponent', () => {
       // Without this the redirect reads as the app losing the page for no reason.
       expect(fixture.nativeElement.querySelector('.notice')).not.toBeNull();
     });
+
+    it('should explain a redirect caused by inactivity', async () => {
+      TestBed.resetTestingModule();
+      await setup({ reason: 'inactivity' });
+
+      expect(fixture.nativeElement.querySelector('.notice')).not.toBeNull();
+    });
   });
 });

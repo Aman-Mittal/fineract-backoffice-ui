@@ -25,9 +25,7 @@ import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { SKIP_ERROR_TOAST } from '../http/http-context';
-
-/** Query parameter the login page reads to explain an involuntary return to it. */
-export const SESSION_EXPIRED_REASON = 'session-expired';
+import { SESSION_EXPIRED_REASON } from '../router/session-reasons';
 
 /**
  * True when this 401 means an established session stopped being valid, as opposed to

@@ -25,6 +25,7 @@ import { filter, fromEvent, merge, Subscription, throttleTime } from 'rxjs';
 import { ModalHandle } from '../adapters';
 import { DialogService } from './dialog.service';
 import { InactivityDialogComponent } from '../../layout/inactivity-dialog.component';
+import { INACTIVITY_REASON } from '../router/session-reasons';
 
 /**
  * Service responsible for monitoring user activity and managing session timeouts.
@@ -211,7 +212,7 @@ export class IdleService implements OnDestroy {
         console.warn('Session expired due to inactivity.');
         this.closeDialog();
         this.authService.logout();
-        this.router.navigate(['/login'], { queryParams: { reason: 'inactivity' } });
+        this.router.navigate(['/login'], { queryParams: { reason: INACTIVITY_REASON } });
       }
     });
   }

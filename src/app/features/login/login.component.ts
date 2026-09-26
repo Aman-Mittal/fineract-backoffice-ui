@@ -28,7 +28,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
 import { BrandingService } from '../../core/services/branding.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { SESSION_EXPIRED_REASON } from '../../core/interceptors/error.interceptor';
+import { INACTIVITY_REASON, SESSION_EXPIRED_REASON } from '../../core/router/session-reasons';
 import { TwoFactorStepComponent } from './two-factor/two-factor-step.component';
 import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.component';
 
@@ -377,7 +377,12 @@ export class LoginComponent {
    * login screen for no reason.
    */
   protected readonly sessionExpired = toSignal(
-    this.route.queryParamMap.pipe(map((params) => params.get('reason') === SESSION_EXPIRED_REASON)),
+    this.route.queryParamMap.pipe(
+      map((params) => {
+        const reason = params.get('reason');
+        return reason === SESSION_EXPIRED_REASON || reason === INACTIVITY_REASON;
+      }),
+    ),
     { initialValue: false },
   );
 
