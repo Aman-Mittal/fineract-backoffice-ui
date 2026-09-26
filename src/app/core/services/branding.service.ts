@@ -343,6 +343,12 @@ function ionicCompanions(name: string, hex: string): [string, string][] {
   if (!ionName) return [];
   const label = bestLabelFor(hex);
   return [
+    // The fill itself, not only its companions. `_ionic-theme.scss` defaults this slot to
+    // `--primary-strong`, which is the token held to a contrast floor against the white the
+    // shipped palette pins beside it (issue #613). A deployment's own colour has to override
+    // that default here, next to the label derived from the same hex, so the two cannot
+    // disagree — that pairing is what lets a pale accent take a black label.
+    [`--ion-color-${ionName}`, hex],
     [`--ion-color-${ionName}-rgb`, channels(hex).join(', ')],
     [`--ion-color-${ionName}-shade`, shadeOf(hex)],
     [`--ion-color-${ionName}-tint`, tintOf(hex)],

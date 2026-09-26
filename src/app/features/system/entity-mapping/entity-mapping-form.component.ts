@@ -45,6 +45,13 @@ interface EntityMappingPayload {
   toId?: number;
 }
 
+/** Tolerates the JSON string the generated type promises and the object the API sends. */
+export function readMappingPayload(body: unknown): EntityMappingPayload {
+  if (body === null || body === undefined || body === '') return {};
+  const parsed: unknown = typeof body === 'string' ? JSON.parse(body) : body;
+  return (parsed ?? {}) as EntityMappingPayload;
+}
+
 /**
  * Create / edit form for an entity-to-entity mapping. The relationship id selects which
  * mapping type is created; from/to ids identify the linked entities.
@@ -179,10 +186,17 @@ export class EntityMappingFormComponent implements OnInit {
 
   load(): void {
     if (!this.mapId) return;
-    this.entityService.getEntitytoentitymappingMapId(this.mapId).subscribe((body: string) => {
-      const data = body ? (JSON.parse(body) as EntityMappingPayload) : {};
-      this.payload.set({ fromId: data.fromId, toId: data.toId });
-      this.relId.set(data.relId);
+    this.entityService.getEntitytoentitymappingMapId(this.mapId).subscribe({
+      // Typed `string` by the generator, but `HttpClient` has already deserialised the JSON —
+      // parsing it again throws on the object it actually receives. See issue #611.
+      next: (body: unknown) => {
+        const data = readMappingPayload(body);
+        this.payload.set({ fromId: data.fromId, toId: data.toId });
+        this.relId.set(data.relId);
+      },
+      error: (err: unknown) => {
+        console.error('Failed to load entity mapping', err);
+      },
     });
   }
 

@@ -140,9 +140,10 @@ describe('BrandingService', () => {
       expect(emitted.length).toBeGreaterThan(0);
       for (const property of emitted) {
         const isBrandable = BRANDABLE_TOKENS.includes(property.slice(2));
-        const isIonicCompanion = /^--ion-color-[a-z]+-(rgb|shade|tint|contrast|contrast-rgb)$/.test(
-          property,
-        );
+        // The bare `--ion-color-<name>` is the fill itself, emitted so a branded colour and the
+        // label derived from it stay together (#613); the suffixed ones are its companions.
+        const isIonicCompanion =
+          /^--ion-color-[a-z]+(-(rgb|shade|tint|contrast|contrast-rgb))?$/.test(property);
         expect(isBrandable || isIonicCompanion, `unexpected property ${property}`).toBe(true);
       }
     });
@@ -181,6 +182,36 @@ describe('BrandingService', () => {
 
       expect(defects).toEqual([]);
       expect(css).toContain('--primary-text: #5dade2;');
+    });
+  });
+
+  describe('the Ionic primary fill (#613)', () => {
+    /**
+     * `_ionic-theme.scss` defaults `--ion-color-primary` to `--primary-strong`, the token held
+     * to a contrast floor against the white the shipped palette pins beside it. A branded
+     * deployment has to override that default here rather than inherit it, and the fill has to
+     * travel with the label derived from the same hex — otherwise a pale accent keeps the
+     * default dark fill while its label turns black.
+     */
+    it('emits the fill next to the companions derived from it', () => {
+      const { css } = stylesheetFor({ tokens: { light: { 'primary-color': '#0b5f8a' } } });
+
+      expect(css).toContain('--ion-color-primary: #0b5f8a');
+      expect(css).toContain('--ion-color-primary-rgb: 11, 95, 138');
+      expect(css).toContain('--ion-color-primary-contrast: #ffffff');
+    });
+
+    it('keeps a pale accent usable by pairing it with a dark label', () => {
+      const { css } = stylesheetFor({ tokens: { light: { 'primary-color': '#9fd8ff' } } });
+
+      expect(css).toContain('--ion-color-primary: #9fd8ff');
+      expect(css).toContain('--ion-color-primary-contrast: #000000');
+    });
+
+    it('leaves the slot alone when no primary colour is branded', () => {
+      const { css } = stylesheetFor({ tokens: { light: { 'border-radius': '4px' } } });
+
+      expect(css).not.toContain('--ion-color-primary');
     });
   });
 

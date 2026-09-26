@@ -180,6 +180,11 @@ jobs:
       # covers the rules that are about to break it.
       - name: Verify responsive layout invariants
         run: npm run check:responsive
+      # `--ion-color-*-contrast` is a literal white, so the fill beside it decides whether button
+      # and badge labels are readable. #587 fixed that ratio and a later commit on the same branch
+      # reverted it, shipping every primary CTA at 3.15:1, because no check asserted it (#613).
+      - name: Verify theme contrast floors
+        run: npm run check:theme-contrast
       # Nothing else type-checks e2e/: `npm run lint` covers src, and tsconfig.app.json excludes
       # the suite. A helper referencing an identifier that no longer exists therefore compiled
       # fine and failed only when CI ran the browser — which is a slow, expensive way to find a

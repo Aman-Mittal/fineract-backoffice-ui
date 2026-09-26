@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ColumnDef, CellTemplateDirective } from '../../../shared';
+import { ColumnDef, CellTemplateDirective, LoadErrorComponent } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { FineractEntityService } from '../../../api';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -29,8 +29,12 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
- * Local view of an entity-to-entity mapping row. The generated service returns the raw
- * JSON body as a `string`, so the response is parsed through this minimal interface.
+ * Local view of an entity-to-entity mapping row.
+ *
+ * The generated service declares `Observable<string>` because the spec types this response as a
+ * string, but the request is sent with `Accept: application/json` and `HttpClient` deserialises
+ * it, so what arrives is an array. `JSON.parse` on that stringifies to `"[object Object]"` and
+ * throws — inside `next`, where the `error` callback cannot see it — see issue #611.
  */
 interface EntityToEntityMapping {
   id?: number;
@@ -39,6 +43,22 @@ interface EntityToEntityMapping {
   toId?: number;
   fromEnumOptionData?: { name?: string };
   toEnumOptionData?: { name?: string };
+}
+
+/**
+ * Normalises whatever the endpoint hands back into rows.
+ *
+ * Accepts the array it returns today, the JSON string the generated type still promises, and a
+ * paged envelope, because the three have each been the live shape of a Fineract list endpoint.
+ * Anything else throws, so the caller can show a failure rather than an empty table.
+ */
+export function readMappings(body: unknown): EntityToEntityMapping[] {
+  if (body === null || body === undefined || body === '') return [];
+  const parsed: unknown = typeof body === 'string' ? JSON.parse(body) : body;
+  if (Array.isArray(parsed)) return parsed as EntityToEntityMapping[];
+  const pageItems = (parsed as { pageItems?: unknown })?.pageItems;
+  if (Array.isArray(pageItems)) return pageItems as EntityToEntityMapping[];
+  throw new TypeError(`Unexpected entity mapping payload: ${typeof parsed}`);
 }
 
 /**
@@ -53,40 +73,50 @@ interface EntityToEntityMapping {
     CellTemplateDirective,
     ButtonComponent,
     TooltipDirective,
+    LoadErrorComponent,
   ],
   template: `
-    <app-data-table
-      title="nav.entityMapping"
-      helpTextKey="HELP.ENTITY_MAPPING_DESC"
-      createButtonLabel="ENTITY_MAPPING.CREATE"
-      createPermission="CREATE_ENTITYMAPPING"
-      [columns]="columns"
-      [data]="mappings()"
-      [totalRecords]="mappings().length"
-      [localLogic]="true"
-      (create)="onCreate()"
-    >
-      <ng-template appCellTemplate="actions" let-row>
-        <app-button
-          type="button"
-          intent="primary"
-          emphasis="quiet"
-          [label]="'COMMON.EDIT' | translate"
-          icon="create-outline"
-          [appTooltip]="'COMMON.EDIT' | translate"
-          (click)="onEdit(row)"
-        />
-        <app-button
-          type="button"
-          intent="danger"
-          emphasis="quiet"
-          [label]="'COMMON.DELETE' | translate"
-          icon="trash-outline"
-          [appTooltip]="'COMMON.DELETE' | translate"
-          (click)="onDelete(row)"
-        />
-      </ng-template>
-    </app-data-table>
+    @if (loadFailed()) {
+      <app-load-error
+        testId="entity-mapping-load-error"
+        [message]="'ENTITY_MAPPING.LOAD_FAILED' | translate"
+        [actionLabel]="'COMMON.RETRY' | translate"
+        (action)="load()"
+      ></app-load-error>
+    } @else {
+      <app-data-table
+        title="nav.entityMapping"
+        helpTextKey="HELP.ENTITY_MAPPING_DESC"
+        createButtonLabel="ENTITY_MAPPING.CREATE"
+        createPermission="CREATE_ENTITYMAPPING"
+        [columns]="columns"
+        [data]="mappings()"
+        [totalRecords]="mappings().length"
+        [localLogic]="true"
+        (create)="onCreate()"
+      >
+        <ng-template appCellTemplate="actions" let-row>
+          <app-button
+            type="button"
+            intent="primary"
+            emphasis="quiet"
+            [label]="'COMMON.EDIT' | translate"
+            icon="create-outline"
+            [appTooltip]="'COMMON.EDIT' | translate"
+            (click)="onEdit(row)"
+          />
+          <app-button
+            type="button"
+            intent="danger"
+            emphasis="quiet"
+            [label]="'COMMON.DELETE' | translate"
+            icon="trash-outline"
+            [appTooltip]="'COMMON.DELETE' | translate"
+            (click)="onDelete(row)"
+          />
+        </ng-template>
+      </app-data-table>
+    }
   `,
 })
 export class EntityMappingListComponent implements OnInit {
@@ -103,6 +133,8 @@ export class EntityMappingListComponent implements OnInit {
   ];
 
   readonly mappings = signal<EntityToEntityMapping[]>([]);
+  /** True once a load has failed, so the screen can say so instead of reading as empty. */
+  readonly loadFailed = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -110,11 +142,22 @@ export class EntityMappingListComponent implements OnInit {
 
   load(): void {
     this.entityService.getEntitytoentitymapping().subscribe({
-      next: (body: string) => {
-        this.mappings.set(body ? (JSON.parse(body) as EntityToEntityMapping[]) : []);
+      next: (body: unknown) => {
+        try {
+          this.mappings.set(readMappings(body));
+          this.loadFailed.set(false);
+        } catch (err: unknown) {
+          // A throw here happens after a 2xx, so `error` below never runs. Without this the
+          // screen would paint an empty table and claim there are no records.
+          console.error('Failed to read entity mappings', err);
+          this.mappings.set([]);
+          this.loadFailed.set(true);
+        }
       },
       error: (err: unknown) => {
         console.error('Failed to load entity mappings', err);
+        this.mappings.set([]);
+        this.loadFailed.set(true);
       },
     });
   }

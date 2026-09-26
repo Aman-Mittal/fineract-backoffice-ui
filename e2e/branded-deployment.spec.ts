@@ -164,6 +164,11 @@ test.describe('a fully branded deployment', () => {
     // The token indirection is what makes one setting recolour both layers. Before
     // _ionic-theme.scss referenced the tokens, this stayed on the shipped blue while the
     // sidebar and buttons moved.
+    //
+    // The shipped default for this slot is `--primary-strong`, the token held to a contrast
+    // floor against the white the default palette pins beside it (issue #613). A deployment's
+    // own `primary-color` overrides that, emitted by BrandingService alongside the label it
+    // derives from the same hex.
     expect(await token(page, 'ion-color-primary')).toBe(light['primary-color']);
     // Derived, because CSS cannot compute them from a hex.
     expect(await token(page, 'ion-color-primary-rgb')).toBe('11, 95, 138');

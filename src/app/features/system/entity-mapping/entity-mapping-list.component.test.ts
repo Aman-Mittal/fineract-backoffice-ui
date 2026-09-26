@@ -19,10 +19,10 @@
 
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EntityMappingListComponent } from './entity-mapping-list.component';
+import { EntityMappingListComponent, readMappings } from './entity-mapping-list.component';
 import { FineractEntityService } from '../../../api';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -66,6 +66,105 @@ describe('EntityMappingListComponent', () => {
     expect(serviceSpy.getEntitytoentitymapping).toHaveBeenCalled();
     expect(component.mappings()).toHaveLength(1);
     expect(component.mappings()[0].fromId).toBe(10);
+  });
+
+  /**
+   * The live endpoint returns a JSON array while the generated client still types the response
+   * as `string`. `JSON.parse` on the parsed array threw inside `next`, past the reach of the
+   * `error` callback, and the screen rendered "No records found." over real data — issue #611.
+   */
+  describe('payload shapes (#611)', () => {
+    it.each([
+      ['the array the endpoint actually returns', [{ id: 1, fromId: 10, toId: 20 }]],
+      [
+        'the JSON string the generated type promises',
+        JSON.stringify([{ id: 1, fromId: 10, toId: 20 }]),
+      ],
+      [
+        'a paged envelope',
+        { totalFilteredRecords: 1, pageItems: [{ id: 1, fromId: 10, toId: 20 }] },
+      ],
+    ])('loads rows from %s', (_label, payload) => {
+      serviceSpy.getEntitytoentitymapping.mockReturnValue(
+        of(payload) as unknown as ReturnType<FineractEntityService['getEntitytoentitymapping']>,
+      );
+
+      component.load();
+
+      expect(component.mappings()).toHaveLength(1);
+      expect(component.mappings()[0].fromId).toBe(10);
+      expect(component.loadFailed()).toBe(false);
+    });
+
+    it.each([
+      ['null', null],
+      ['undefined', undefined],
+      ['an empty string', ''],
+    ])('treats %s as genuinely empty, not as a failure', (_label, payload) => {
+      serviceSpy.getEntitytoentitymapping.mockReturnValue(
+        of(payload) as unknown as ReturnType<FineractEntityService['getEntitytoentitymapping']>,
+      );
+
+      component.load();
+
+      expect(component.mappings()).toEqual([]);
+      expect(component.loadFailed()).toBe(false);
+    });
+
+    it('flags a failure when the payload is a shape it cannot read', () => {
+      serviceSpy.getEntitytoentitymapping.mockReturnValue(
+        of({ unexpected: true }) as unknown as ReturnType<
+          FineractEntityService['getEntitytoentitymapping']
+        >,
+      );
+
+      component.load();
+
+      expect(component.loadFailed()).toBe(true);
+      expect(component.mappings()).toEqual([]);
+    });
+
+    it('flags a failure when the request itself errors', () => {
+      serviceSpy.getEntitytoentitymapping.mockReturnValue(
+        throwError(() => new Error('boom')) as unknown as ReturnType<
+          FineractEntityService['getEntitytoentitymapping']
+        >,
+      );
+
+      component.load();
+
+      expect(component.loadFailed()).toBe(true);
+    });
+
+    it('clears the failure once a later load succeeds', () => {
+      serviceSpy.getEntitytoentitymapping.mockReturnValue(
+        throwError(() => new Error('boom')) as unknown as ReturnType<
+          FineractEntityService['getEntitytoentitymapping']
+        >,
+      );
+      component.load();
+      expect(component.loadFailed()).toBe(true);
+
+      serviceSpy.getEntitytoentitymapping.mockReturnValue(
+        of([{ id: 2, fromId: 1, toId: 2 }]) as unknown as ReturnType<
+          FineractEntityService['getEntitytoentitymapping']
+        >,
+      );
+      component.load();
+
+      expect(component.loadFailed()).toBe(false);
+      expect(component.mappings()).toHaveLength(1);
+    });
+  });
+
+  describe('readMappings', () => {
+    it('rejects the object form that used to reach JSON.parse', () => {
+      expect(() => readMappings({ unexpected: true })).toThrow(TypeError);
+    });
+
+    it('does not swallow a genuinely malformed JSON string', () => {
+      expect(() => readMappings('{not json')).toThrow();
+    });
   });
 
   it('should navigate to edit with the mapping id', () => {

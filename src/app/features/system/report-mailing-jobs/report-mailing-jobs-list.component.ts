@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ColumnDef, CellTemplateDirective } from '../../../shared';
+import { ColumnDef, CellTemplateDirective, LoadErrorComponent } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import {
   IonButton,
@@ -59,6 +59,21 @@ export const MAILING_TAB = {
 
 export type MailingTab = (typeof MAILING_TAB)[keyof typeof MAILING_TAB];
 
+/**
+ * Normalises the report-mailing-jobs payload into rows.
+ *
+ * The generated type says `Array`, the endpoint sends `{ totalFilteredRecords, pageItems }`.
+ * Both are accepted, and anything else throws so the caller can show a failure instead of an
+ * empty table.
+ */
+export function readJobs(data: unknown): GetReportMailingJobsResponse[] {
+  if (data === null || data === undefined) return [];
+  if (Array.isArray(data)) return data as GetReportMailingJobsResponse[];
+  const pageItems = (data as { pageItems?: unknown })?.pageItems;
+  if (Array.isArray(pageItems)) return pageItems as GetReportMailingJobsResponse[];
+  throw new TypeError(`Unexpected report-mailing-jobs payload: ${typeof data}`);
+}
+
 @Component({
   selector: 'app-report-mailing-jobs-list',
   standalone: true,
@@ -75,6 +90,7 @@ export type MailingTab = (typeof MAILING_TAB)[keyof typeof MAILING_TAB];
     IonSegmentButton,
     IonLabel,
     TooltipDirective,
+    LoadErrorComponent,
   ],
   template: `
     <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
@@ -87,41 +103,50 @@ export type MailingTab = (typeof MAILING_TAB)[keyof typeof MAILING_TAB];
     </ion-segment>
 
     @if (activeTab() === TAB.jobs) {
-      <app-data-table
-        title="nav.reportMailingJobs"
-        helpTextKey="HELP.REPORT_MAILING_JOBS_DESC"
-        createButtonLabel="REPORT_MAILING_JOBS.CREATE"
-        createPermission="CREATE_REPORTMAILINGJOB"
-        [columns]="columns"
-        [data]="jobs()"
-        [totalRecords]="jobs().length"
-        [localLogic]="true"
-        (create)="onCreate()"
-      >
-        <ng-template appCellTemplate="isActive" let-row>
-          {{ (row.isActive ? 'COMMON.YES' : 'COMMON.NO') | translate }}
-        </ng-template>
-        <ng-template appCellTemplate="actions" let-row>
-          <ion-button
-            fill="clear"
-            color="primary"
-            [attr.aria-label]="'COMMON.EDIT' | translate"
-            [appTooltip]="'COMMON.EDIT' | translate"
-            (click)="onEdit(row)"
-          >
-            <ion-icon name="create-outline"></ion-icon>
-          </ion-button>
-          <ion-button
-            fill="clear"
-            color="danger"
-            [attr.aria-label]="'COMMON.DELETE' | translate"
-            [appTooltip]="'COMMON.DELETE' | translate"
-            (click)="onDelete(row)"
-          >
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
-        </ng-template>
-      </app-data-table>
+      @if (loadFailed()) {
+        <app-load-error
+          testId="report-mailing-jobs-load-error"
+          [message]="'REPORT_MAILING.LOAD_FAILED' | translate"
+          [actionLabel]="'COMMON.RETRY' | translate"
+          (action)="load()"
+        ></app-load-error>
+      } @else {
+        <app-data-table
+          title="nav.reportMailingJobs"
+          helpTextKey="HELP.REPORT_MAILING_JOBS_DESC"
+          createButtonLabel="REPORT_MAILING_JOBS.CREATE"
+          createPermission="CREATE_REPORTMAILINGJOB"
+          [columns]="columns"
+          [data]="jobs()"
+          [totalRecords]="jobs().length"
+          [localLogic]="true"
+          (create)="onCreate()"
+        >
+          <ng-template appCellTemplate="isActive" let-row>
+            {{ (row.isActive ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+          </ng-template>
+          <ng-template appCellTemplate="actions" let-row>
+            <ion-button
+              fill="clear"
+              color="primary"
+              [attr.aria-label]="'COMMON.EDIT' | translate"
+              [appTooltip]="'COMMON.EDIT' | translate"
+              (click)="onEdit(row)"
+            >
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button
+              fill="clear"
+              color="danger"
+              [attr.aria-label]="'COMMON.DELETE' | translate"
+              [appTooltip]="'COMMON.DELETE' | translate"
+              (click)="onDelete(row)"
+            >
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </ng-template>
+        </app-data-table>
+      }
     }
     @if (activeTab() === TAB.history) {
       <div class="history-container">
@@ -223,6 +248,8 @@ export class ReportMailingJobsListComponent implements OnInit {
 
   readonly runHistory = signal<ReportMailingJobRunHistoryData[]>([]);
   readonly historyLoading = signal(false);
+  /** True once a load has failed, so the screen can say so instead of reading as empty. */
+  readonly loadFailed = signal(false);
   private historyLoaded = false;
 
   ngOnInit(): void {
@@ -231,11 +258,19 @@ export class ReportMailingJobsListComponent implements OnInit {
 
   load(): void {
     this.jobsService.getReportmailingjobs().subscribe({
-      next: (data: GetReportMailingJobsResponse[]) => {
-        this.jobs.set(data || []);
+      // Generated as `Array<GetReportMailingJobsResponse>`, but the endpoint returns the paged
+      // envelope `{ totalFilteredRecords, pageItems }`. Assigning that object straight into a
+      // signal typed as an array made a downstream computed throw `t is not iterable`, after a
+      // successful response, so `error` below never saw it — see issue #611. `loadRunHistory`
+      // below already guards the same way.
+      next: (data: unknown) => {
+        this.jobs.set(readJobs(data));
+        this.loadFailed.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load report-mailing jobs', err);
+        this.jobs.set([]);
+        this.loadFailed.set(true);
       },
     });
   }

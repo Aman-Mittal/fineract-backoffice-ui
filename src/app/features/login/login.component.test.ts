@@ -153,14 +153,28 @@ describe('LoginComponent', () => {
       await setup({ reason: 'session-expired' });
 
       // Without this the redirect reads as the app losing the page for no reason.
-      expect(fixture.nativeElement.querySelector('.notice')).not.toBeNull();
+      const notice = fixture.nativeElement.querySelector('.notice');
+      expect(notice).not.toBeNull();
+      expect(notice.textContent).toContain('login.sessionExpired');
     });
 
-    it('should explain a redirect caused by inactivity', async () => {
+    it('should explain a redirect caused by inactivity, in its own words', async () => {
       TestBed.resetTestingModule();
       await setup({ reason: 'inactivity' });
 
-      expect(fixture.nativeElement.querySelector('.notice')).not.toBeNull();
+      // Asserting the copy, not just that a notice exists: both reasons rendering the same
+      // "your session has expired" would pass a presence-only check while telling the user
+      // the wrong thing about why they are here.
+      const notice = fixture.nativeElement.querySelector('.notice');
+      expect(notice).not.toBeNull();
+      expect(notice.textContent).toContain('login.signedOutForInactivity');
+    });
+
+    it('should stay silent for a reason it does not recognise', async () => {
+      TestBed.resetTestingModule();
+      await setup({ reason: 'not-a-real-reason' });
+
+      expect(fixture.nativeElement.querySelector('.notice')).toBeNull();
     });
   });
 });

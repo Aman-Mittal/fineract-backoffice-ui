@@ -1628,7 +1628,8 @@
       "cancel": "Back to sign in",
       "invalidCode": "That code was not accepted. Request another and try again.",
       "requestFailed": "The code could not be sent. Try another method, or contact an administrator."
-    }
+    },
+    "signedOutForInactivity": "You were signed out after a period of inactivity. Please sign in again."
   },
   "idle": {
     "warning": {
@@ -2209,7 +2210,8 @@
     "SCHEDULED_FIRE_TIME": "Scheduled Fire Time",
     "TRIGGER_TYPE": "Trigger Type",
     "STATUS": "Status",
-    "ERROR_LOG": "Error Log"
+    "ERROR_LOG": "Error Log",
+    "LOAD_FAILED": "Report mailing jobs could not be loaded, so this list may be incomplete."
   },
   "ENTITY_DATA_TABLE_CHECKS": {
     "CREATE": "Create Data Table Check",
@@ -2229,7 +2231,8 @@
     "FROM_ID": "From ID",
     "TO_ID": "To ID",
     "DELETE": "Delete Entity Mapping",
-    "CONFIRM_DELETE": "Delete entity mapping #{{id}}, from {{fromId}} to {{toId}}? The pairing it defines no longer applies."
+    "CONFIRM_DELETE": "Delete entity mapping #{{id}}, from {{fromId}} to {{toId}}? The pairing it defines no longer applies.",
+    "LOAD_FAILED": "Entity mappings could not be loaded, so this list may be incomplete."
   },
   "BUSINESS_STEPS": {
     "TITLE": "Business Step Configuration",

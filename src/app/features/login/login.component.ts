@@ -28,7 +28,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
 import { BrandingService } from '../../core/services/branding.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { INACTIVITY_REASON, SESSION_EXPIRED_REASON } from '../../core/router/session-reasons';
+import { LOGOUT_REASON_MESSAGE, toLogoutReason } from '../../core/router/session-reasons';
 import { TwoFactorStepComponent } from './two-factor/two-factor-step.component';
 import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.component';
 
@@ -72,9 +72,9 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
           <p class="subtitle">{{ 'login.welcome' | translate }}</p>
         </div>
 
-        @if (sessionExpired()) {
-          <div class="notice" role="status">
-            {{ 'login.sessionExpired' | translate }}
+        @if (logoutNotice(); as noticeKey) {
+          <div class="notice" role="status" data-testid="login-logout-notice">
+            {{ noticeKey | translate }}
           </div>
         }
 
@@ -372,18 +372,21 @@ export class LoginComponent {
   protected readonly error = signal<string | null>(null);
 
   /**
-   * True when `errorInterceptor` sent the user back here after a 401, rather than the user
-   * navigating to sign in. Without this the redirect looks like the app dropping them at the
+   * Translation key explaining an involuntary return to this screen, or `null` when the user
+   * navigated here themselves. Without it the redirect looks like the app dropping them at the
    * login screen for no reason.
+   *
+   * Driven by the whole {@link LOGOUT_REASONS} set, not one value: the 401 path and the
+   * inactivity timer both send the user here, and for a while only the former was recognised.
    */
-  protected readonly sessionExpired = toSignal(
+  protected readonly logoutNotice = toSignal(
     this.route.queryParamMap.pipe(
       map((params) => {
-        const reason = params.get('reason');
-        return reason === SESSION_EXPIRED_REASON || reason === INACTIVITY_REASON;
+        const reason = toLogoutReason(params.get('reason'));
+        return reason ? LOGOUT_REASON_MESSAGE[reason] : null;
       }),
     ),
-    { initialValue: false },
+    { initialValue: null },
   );
 
   /** Reactive form group for login credentials and server settings */
