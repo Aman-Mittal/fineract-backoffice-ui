@@ -199,6 +199,20 @@ test.describe('Navigation & Sidebar', () => {
     await expect(page).toHaveURL(/\/system\/data-tables$/);
   });
 
+  test('an unknown route keeps its URL and offers recovery actions', async ({ page }) => {
+    await page.goto('/missing/report?source=e2e');
+
+    await expect(page).toHaveURL('/missing/report?source=e2e');
+    const heading = page.getByRole('heading', { name: 'Page not found' });
+    await expect(heading).toBeFocused();
+    await expect(
+      page.getByText('We could not find the page at /missing/report?source=e2e.'),
+    ).toBeVisible();
+
+    await page.getByRole('link', { name: 'Back to dashboard' }).click();
+    await expect(page).toHaveURL('/dashboard');
+  });
+
   test('header shows logged-in user info', async ({ page }) => {
     await expect(page.getByText(TEST_USER)).toBeVisible();
     await expect(page.getByText('Business Date:')).toBeVisible();

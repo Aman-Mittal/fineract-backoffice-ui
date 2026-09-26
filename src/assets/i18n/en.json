@@ -2732,6 +2732,13 @@
     "BACK_TO_DASHBOARD": "Back to dashboard",
     "REQUIRES": "This page requires:"
   },
+  "NOT_FOUND_PAGE": {
+    "TITLE": "Page not found",
+    "MESSAGE": "We could not find the page at {{path}}.",
+    "HINT": "The link may be outdated, or the address may have been typed incorrectly.",
+    "BACK_TO_DASHBOARD": "Back to dashboard",
+    "SEARCH": "Search"
+  },
   "OPENING_BALANCES": {
     "TITLE": "Define Opening Balances",
     "CONTRA_NOT_MAPPED": "Opening balances need an equity account mapped to the opening-balances contra financial activity. Set that up under Financial Activity Mappings first.",
