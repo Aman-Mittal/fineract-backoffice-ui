@@ -990,9 +990,6 @@
     }
   },
   "src/app/features/organization/staff/staff-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }

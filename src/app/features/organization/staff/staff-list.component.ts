@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   DataTableComponent,
@@ -27,22 +26,20 @@ import {
   CellTemplateDirective,
 } from '../../../shared';
 import { StaffService, StaffData } from '../../../api';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { IconComponent } from '../../../ui/icon/icon.component';
+import { ButtonComponent } from '../../../ui/button/button.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   selector: 'app-staff-list',
   standalone: true,
   imports: [
-    RouterModule,
     TranslateModule,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,
-    IonIcon,
-    IonButton,
     IconComponent,
+    ButtonComponent,
     TooltipDirective,
   ],
   template: `
@@ -53,15 +50,16 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       [isLoading]="isLoading()"
       [localLogic]="true"
     >
-      <ion-button
+      <app-button
         headerActions
-        color="primary"
-        [routerLink]="['create']"
+        type="button"
+        intent="primary"
+        icon="add-outline"
+        [link]="['create']"
         *appHasPermission="'CREATE_STAFF'"
       >
-        <ion-icon name="add-outline"></ion-icon>
         {{ 'ORGANIZATION.CREATE_STAFF' | translate }}
-      </ion-button>
+      </app-button>
 
       <ng-template appCellTemplate="isLoanOfficer" let-row>
         <app-icon
@@ -79,16 +77,16 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
       <ng-template appCellTemplate="actions" let-row>
         <div class="action-buttons">
-          <ion-button
-            fill="clear"
-            color="primary"
-            [routerLink]="['edit', row.id]"
+          <app-button
+            type="button"
+            intent="primary"
+            emphasis="quiet"
+            icon="create-outline"
+            [link]="['edit', row.id]"
             *appHasPermission="'UPDATE_STAFF'"
-            [attr.aria-label]="'COMMON.EDIT' | translate"
+            [label]="'COMMON.EDIT' | translate"
             [appTooltip]="'COMMON.EDIT' | translate"
-          >
-            <ion-icon name="create-outline"></ion-icon>
-          </ion-button>
+          />
         </div>
       </ng-template>
     </app-data-table>
