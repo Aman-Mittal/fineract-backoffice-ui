@@ -82,6 +82,25 @@ describe('ReportingMissingTranslationHandler', () => {
   });
 
   /**
+   * The deployment-branding case. `DOCS/CUSTOMIZATION.md` documents
+   * `"clients": { "labelKey": "Members" }`, which works precisely because an unresolved key is
+   * returned verbatim — so every branded deployment sends its own labels through here.
+   */
+  it('stays silent for a phrase, which is a deployment override doing its job', () => {
+    loadCatalogue();
+    for (const phrase of ['Members', 'Member Groups', 'Field CRM']) {
+      handler.handle({ key: phrase, translateService: null as never });
+    }
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('still returns the phrase, so the override renders', () => {
+    loadCatalogue();
+    expect(handler.handle({ key: 'Members', translateService: null as never })).toBe('Members');
+  });
+
+  /**
    * A miss in a template repeats on every change-detection pass. Without the de-duplication one
    * broken binding writes thousands of identical lines.
    */

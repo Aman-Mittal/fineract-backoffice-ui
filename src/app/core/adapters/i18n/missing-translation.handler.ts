@@ -31,6 +31,31 @@ import {
 export const MISSING_TRANSLATION_PREFIX = '[i18n-miss]';
 
 /**
+ * A dotted identifier — `nav.admin`, `SAVINGS.CONFIRM_UNDO`. What a key looks like, and what a
+ * phrase does not: a deployment's `"Member Groups"` carries a space, `"Members"` carries no dot.
+ *
+ * The distinction is not cosmetic here. `DOCS/CUSTOMIZATION.md` documents
+ * `"clients": { "labelKey": "Members" }` as the supported way a deployment renames a navigation
+ * entry, and it works *because* ngx-translate returns an unresolved key verbatim. Every such
+ * override arrives at this handler as a miss, and it is doing exactly what it was built to do.
+ *
+ * So a phrase reaching here is a deployment exercising a documented feature, and a dotted key
+ * reaching here is a defect. Only the second is reported. Phrases in the application's own code
+ * are a defect too, but a static one: `check:nav-ids` rejects a `labelKey` that is not a key and
+ * `check-translations.mjs` rejects a `ColumnDef.label` that is not one, both before CI gets here.
+ */
+const KEY_CHARS = /^[A-Za-z][\w.]*$/;
+
+/** Whether `key` is a dotted identifier rather than a phrase. See {@link KEY_CHARS}. */
+function isKeyShaped(key: string): boolean {
+  // Two linear tests rather than one nested quantifier. `/^[A-Za-z]\w*(?:\.\w+)+$/` says the
+  // same thing and cannot actually backtrack — `\w` never matches `.` — but it trips
+  // security/detect-unsafe-regex, and a suppression here would be a worse trade than a
+  // `includes`.
+  return key.includes('.') && KEY_CHARS.test(key);
+}
+
+/**
  * Reports a key that resolved to nothing, so the e2e suite can fail on it.
  *
  * ngx-translate renders a key it cannot resolve as the key itself, silently. That is the one
@@ -60,7 +85,12 @@ export class ReportingMissingTranslationHandler implements MissingTranslationHan
   private readonly reported = new Set<string>();
 
   handle(params: MissingTranslationHandlerParams): string {
-    if (isDevMode() && this.isCatalogueLoaded() && !this.reported.has(params.key)) {
+    if (
+      isDevMode() &&
+      isKeyShaped(params.key) &&
+      this.isCatalogueLoaded() &&
+      !this.reported.has(params.key)
+    ) {
       this.reported.add(params.key);
       console.warn(`${MISSING_TRANSLATION_PREFIX} ${params.key}`);
     }
