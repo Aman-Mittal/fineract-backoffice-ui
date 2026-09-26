@@ -34,8 +34,8 @@ describe('OnHoldTransactionsListComponent', () => {
   beforeEach(async () => {
     serviceSpy = createSpyObj(['getSavingsaccountsSavingsIdOnholdtransactions']);
     serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions.mockReturnValue(
-      of(
-        JSON.stringify([
+      of({
+        pageItems: [
           {
             id: 1,
             transactionDate: '01 January 2024',
@@ -43,8 +43,9 @@ describe('OnHoldTransactionsListComponent', () => {
             transactionType: { value: 'Hold' },
             loanClientName: 'John Doe',
           },
-        ]),
-      ) as unknown as ReturnType<
+        ],
+        totalFilteredRecords: 1,
+      }) as unknown as ReturnType<
         DepositAccountOnHoldFundTransactionsService['getSavingsaccountsSavingsIdOnholdtransactions']
       >,
     );
@@ -66,10 +67,22 @@ describe('OnHoldTransactionsListComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should load and parse on-hold transactions on init', () => {
+  it('should load on-hold transactions from the paged envelope on init', () => {
     expect(component).toBeTruthy();
     expect(serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions).toHaveBeenCalledWith(1);
     expect(component.transactions()).toHaveLength(1);
     expect(component.transactions()[0].loanClientName).toBe('John Doe');
+  });
+
+  it('should fall back to an empty list when the envelope carries no pageItems', () => {
+    serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions.mockReturnValue(
+      of({ totalFilteredRecords: 0 }) as unknown as ReturnType<
+        DepositAccountOnHoldFundTransactionsService['getSavingsaccountsSavingsIdOnholdtransactions']
+      >,
+    );
+
+    component.load();
+
+    expect(component.transactions()).toEqual([]);
   });
 });

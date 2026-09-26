@@ -25,6 +25,7 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 import {
   DepositAccountOnHoldFundTransactionsService,
   DepositAccountOnHoldTransactionData,
+  GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse,
 } from '../../../api';
 
 /**
@@ -83,12 +84,8 @@ export class OnHoldTransactionsListComponent implements OnInit {
     this.transactionsService
       .getSavingsaccountsSavingsIdOnholdtransactions(this.savingsId)
       .subscribe({
-        next: (data: string) => {
-          const parsed =
-            typeof data === 'string'
-              ? (JSON.parse(data || '[]') as DepositAccountOnHoldTransactionData[])
-              : ((data ?? []) as unknown as DepositAccountOnHoldTransactionData[]);
-          this.transactions.set(parsed || []);
+        next: (data: GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse) => {
+          this.transactions.set(data?.pageItems ?? []);
         },
         error: (err: unknown) => {
           console.error('Failed to load on-hold transactions', err);
