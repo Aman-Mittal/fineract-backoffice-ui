@@ -42,6 +42,7 @@ const ACTIVE_MODAL_SELECTOR = 'ion-modal:not(.ion-datetime-button-overlay)';
 const BUTTON_ROLE = 'button';
 const SIGN_IN_BUTTON_NAME = 'Sign In';
 const ADD_NEW_OFFICE_BUTTON_NAME = 'Add New Office';
+const TOGGLE_THEME_BUTTON_NAME = 'Toggle Dark/Light Mode';
 const CLIENTS_TITLE = 'Clients';
 const CREATE_CLIENT_TITLE = 'Create Client';
 const BLOCKING_IMPACTS = new Set(['serious', 'critical']);
@@ -264,6 +265,58 @@ test.describe('Runtime accessibility', () => {
     await expect(page.locator(CARD_TITLE_SELECTOR).first()).toContainText(CLIENTS_TITLE);
 
     await expectNoBlockingAccessibilityViolations(page, CARD_SELECTOR, CLIENT_LIST_BASELINE);
+  });
+
+  /**
+   * Regression test for #575: `.clickable-link` hardcoded an indigo (`#3f51b5`, 2.43:1 against
+   * the `#1e1e1e` dark card) instead of consulting the theme. The test above cannot catch this:
+   * it scans the client list with `mockSession`'s empty `pageItems`, so no `.clickable-link`
+   * ever renders. This mocks one row and switches to dark mode first, following the issue's own
+   * reproduction steps, so axe's `color-contrast` check has an actual link to evaluate.
+   */
+  test('client list links meet color contrast in dark mode', async ({ page }) => {
+    // mockSession leaves /api/v1/businessdate to its generic {} catch-all. header.component.ts's
+    // dates.find(...) throws on that non-array and raises an error toast, which would put
+    // color-contrast into axe's incomplete bucket for the whole card below (the same
+    // axe-cannot-see-the-page trap expectScanWasNotBlind exists to catch) and pass this test
+    // without it having evaluated anything. Scoped to this test alone, not mockSession, so it
+    // does not change what the two tests above scan.
+    await page.route('**/api/v1/businessdate*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([{ type: 'BUSINESS_DATE', date: [2026, 1, 1] }]),
+      });
+    });
+
+    // Overrides mockSession's empty-result mock (registered in beforeEach's login()) with one
+    // populated row, the same v2-search fixture shape client.spec.ts uses. Last-registered wins;
+    // see the reverse-registration-order note on mockSession above.
+    await mockClientTextSearch(page, [
+      {
+        id: 2001,
+        accountNo: '000000001',
+        displayName: 'Jane Smith',
+        officeName: HEAD_OFFICE,
+        status: { id: 300, value: 'Active' },
+      },
+    ]);
+
+    await page.getByRole(BUTTON_ROLE, { name: TOGGLE_THEME_BUTTON_NAME }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    await page.goto(CLIENTS_ROUTE);
+    await expect(page.locator(CARD_TITLE_SELECTOR).first()).toContainText(CLIENTS_TITLE);
+    await expect(page.getByText('Jane Smith')).toBeVisible();
+    // Same rationale as the dashboard test below: an overlay here would put color-contrast
+    // into axe's incomplete bucket and this assertion would pass blind.
+    await expect(page.locator(TOAST_SELECTOR)).toHaveCount(0);
+
+    // Scoped to the links themselves, not CARD_SELECTOR: the full card also contains an Ionic
+    // solid button and other controls with their own, unrelated, pre-existing contrast/naming
+    // gaps that a populated dark-mode scan surfaces for the first time in this file. Those want
+    // their own issue; this test is only about #575.
+    await expectNoBlockingAccessibilityViolations(page, '.clickable-link', new Set());
   });
 
   test('client form has no blocking violations', async ({ page }) => {
