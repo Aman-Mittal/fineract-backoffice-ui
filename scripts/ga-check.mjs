@@ -376,6 +376,54 @@ function* sources(dir = 'src') {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Gate 6 — CI proves the production build works with no network access
+//
+// `build` in .github/workflows/ci.yml always has network, so a build step that quietly starts
+// depending on a remote fetch passes it unnoticed — exactly how the dependency Gate 5 guards
+// against survived until an audit, not a check, found it (#362). `offline-build` is the check:
+// `npm ci` with the registry, then `npm run build` with none.
+//
+// This gate is documentation of that guard, not the guard itself: it confirms the job is still
+// declared with an isolation step, not that it currently passes. See #363.
+// ---------------------------------------------------------------------------------------------
+{
+  const CI_WORKFLOW = '.github/workflows/ci.yml';
+  const workflow = read(CI_WORKFLOW);
+  const hasJob = /^\s{2}offline-build:/m.test(workflow);
+  const blocksNetwork = /--network[ =]none/.test(workflow);
+
+  if (!workflow) {
+    record(
+      'offline-build-ci',
+      'CI proves the production build works with no network access',
+      'unknown',
+      {
+        detail: `${CI_WORKFLOW} not found.`,
+      },
+    );
+  } else if (!hasJob || !blocksNetwork) {
+    record(
+      'offline-build-ci',
+      'CI proves the production build works with no network access',
+      'fail',
+      {
+        detail: !hasJob
+          ? `${CI_WORKFLOW} has no offline-build job.`
+          : `${CI_WORKFLOW} has an offline-build job, but no step blocks network access ` +
+            "(expected '--network none').",
+        reference: 'DOCS/CI_CHECKS.md',
+      },
+    );
+  } else {
+    record(
+      'offline-build-ci',
+      'CI proves the production build works with no network access',
+      'pass',
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------------------------
 

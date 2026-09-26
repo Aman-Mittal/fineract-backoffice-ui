@@ -227,6 +227,44 @@ Budgets are enforced: 3 MB initial (4 MB error) and 4 kB per component styleshee
 (8 kB error). With ~190 inline-styled components, a component whose styles grow
 past the limit fails the build in a way that looks unrelated to your change.
 
+### `offline-build`
+
+```bash
+docker run --rm -v "$PWD":/workspace -w /workspace node:24-alpine@<digest> npm ci
+docker run --rm --network none -v "$PWD":/workspace -w /workspace node:24-alpine@<digest> \
+  npm run build -- --configuration production
+```
+
+`build` above always has network, so a build step that quietly started depending
+on a remote fetch would pass it unnoticed. That is exactly how the Google Fonts
+dependency in #362 survived: found by an audit, not a check. This job is the
+check — install with the registry, then build with nothing.
+
+**`npm ci` is deliberately exempt, the build is not.** The registry (or a mirror
+or cache in front of it) is a legitimate, expected dependency of installing
+packages; nothing about a production build should need to reach anywhere once
+`node_modules` exists. Blocking network on the install step too would not catch
+anything more — a compromised or unreachable registry already fails `npm ci`
+loudly on its own — and would only make the job flaky against registry hiccups
+that have nothing to do with what this job exists to catch.
+
+Both steps run inside the exact `node:24-alpine` image `deploy/Dockerfile`
+builds from, rather than installing on the runner's own Node and mounting the
+result into a container. `npm ci` resolves platform-specific native optional
+dependencies — `lightningcss` ships separate glibc and musl builds — so
+installing on the runner (glibc) and running the build against that install
+inside Alpine (musl) would load the wrong binary and fail for a reason that has
+nothing to do with network access. Installing where the build runs avoids that
+and, as a side effect, means this job builds the release image's actual
+environment rather than an approximation of it.
+
+`--network none` gives the container only a loopback interface: no registry, no
+CDN, no font host, nothing. Verified locally by temporarily restoring the
+removed Google Fonts `<link>` in `src/index.html` — the build fails with the
+same error the original audit hit, `Inlining of fonts failed … over the
+internet`, and passes cleanly once it is reverted. The `offline-build-ci` gate
+in `npm run ga:check` (below) keeps this job declared; it does not re-run it.
+
 ### `compliance`
 
 ```bash
@@ -299,6 +337,7 @@ trust boundaries in `security.md`.
 | `api-surface`        | pass         | as `api-surface` above                                                                |
 | `deps`               | pass         | no high/critical advisories in the **production** tree                                |
 | `external-fonts`     | pass         | no `fonts.googleapis.com` / `fonts.gstatic.com` in source or in `dist/`               |
+| `offline-build-ci`   | pass         | `ci.yml` declares `offline-build` with a `--network none` step                        |
 
 Two conventions worth knowing:
 
