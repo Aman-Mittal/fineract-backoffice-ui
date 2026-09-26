@@ -89,7 +89,7 @@ const problems = [];
 
 for (const file of walk(SRC)) {
   const source = readFileSync(file, 'utf8');
-  const where = relative(ROOT, file);
+  const where = relative(ROOT, file).replaceAll('\\', '/');
 
   // 1 — one breakpoint
   for (const [, width] of source.matchAll(/@media\s*\([^)]*max-width:\s*(\d+)px/g)) {

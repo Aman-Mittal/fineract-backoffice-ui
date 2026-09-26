@@ -35,7 +35,6 @@ export const BRANDABLE_TOKENS: readonly string[] = [
   'primary-color',
   'primary-dark',
   'primary-strong',
-  'primary-text',
   'secondary-color',
   'bg-color',
   'card-bg',
@@ -74,7 +73,6 @@ const THEME_SCOPED = new Set([
   'primary-color',
   'primary-dark',
   'primary-strong',
-  'primary-text',
   'secondary-color',
   'bg-color',
   'card-bg',
@@ -196,6 +194,69 @@ export function bestLabelFor(hex: string): { color: '#ffffff' | '#000000'; ratio
     : { color: '#000000', ratio: onBlack };
 }
 
+function validateColorContrast(
+  name: string,
+  hex: string,
+  defects: BrandingDefect[],
+  isDark: boolean,
+): boolean {
+  if (isDark) {
+    if (name === 'primary-text') {
+      const ratio = contrastWithDarkSurface(hex);
+      if (ratio < MIN_PRIMARY_CONTRAST) {
+        defects.push({
+          code: 'low-contrast',
+          key: name,
+          detail:
+            `${hex} scores ${ratio.toFixed(2)}:1 against dark backgrounds, below the ${MIN_PRIMARY_CONTRAST}:1 ` +
+            'WCAG AA floor. Dark mode text needs a lighter colour. Keeping the shipped one.',
+        });
+        return false;
+      }
+    }
+    return true;
+  }
+
+  if (REQUIRES_WHITE_TEXT.has(name)) {
+    const ratio = contrastWithWhite(hex);
+    if (ratio < MIN_PRIMARY_CONTRAST) {
+      defects.push({
+        code: 'low-contrast',
+        key: name,
+        detail:
+          `${hex} scores ${ratio.toFixed(2)}:1 against white, below the ${MIN_PRIMARY_CONTRAST}:1 ` +
+          'WCAG AA floor. This token requires contrast with white, so it ' +
+          'needs a darker colour. Keeping the shipped one.',
+      });
+      return false;
+    }
+  }
+  return true;
+}
+
+function validateColorToken(
+  name: string,
+  raw: string,
+  defects: BrandingDefect[],
+  isDark: boolean,
+): string | null {
+  const hex = normalizeHex(raw);
+  if (!hex) {
+    defects.push({
+      code: 'invalid-value',
+      key: name,
+      detail: `Expected a hex colour such as "#0b5f8a"; got ${JSON.stringify(raw)}.`,
+    });
+    return null;
+  }
+
+  if (!validateColorContrast(name, hex, defects, isDark)) {
+    return null;
+  }
+
+  return hex;
+}
+
 /**
  * Validates one token value, returning the value to apply or `null` to skip it.
  *
@@ -219,46 +280,7 @@ function validateToken(
   const value = String(raw).trim();
 
   if (name.endsWith('-color') || name.startsWith('primary') || name === 'card-bg') {
-    const hex = normalizeHex(value);
-    if (!hex) {
-      defects.push({
-        code: 'invalid-value',
-        key: name,
-        detail: `Expected a hex colour such as "#0b5f8a"; got ${JSON.stringify(raw)}.`,
-      });
-      return null;
-    }
-    // Refused, not warned-and-applied. An unreadable fill or text is non-compliant for the
-    // institution and invisible to the person who chose it.
-    if (isDark) {
-      if (name === 'primary-text') {
-        const ratio = contrastWithDarkSurface(hex);
-        if (ratio < MIN_PRIMARY_CONTRAST) {
-          defects.push({
-            code: 'low-contrast',
-            key: name,
-            detail:
-              `${hex} scores ${ratio.toFixed(2)}:1 against dark backgrounds, below the ${MIN_PRIMARY_CONTRAST}:1 ` +
-              'WCAG AA floor. Dark mode text needs a lighter colour. Keeping the shipped one.',
-          });
-          return null;
-        }
-      }
-    } else if (REQUIRES_WHITE_TEXT.has(name)) {
-      const ratio = contrastWithWhite(hex);
-      if (ratio < MIN_PRIMARY_CONTRAST) {
-        defects.push({
-          code: 'low-contrast',
-          key: name,
-          detail:
-            `${hex} scores ${ratio.toFixed(2)}:1 against white, below the ${MIN_PRIMARY_CONTRAST}:1 ` +
-            'WCAG AA floor. This token requires contrast with white, so it ' +
-            'needs a darker colour. Keeping the shipped one.',
-        });
-        return null;
-      }
-    }
-    return hex;
+    return validateColorToken(name, value, defects, isDark);
   }
 
   if (!isCssLength(value)) {
