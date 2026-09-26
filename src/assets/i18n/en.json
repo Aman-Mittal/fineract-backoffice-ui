@@ -289,7 +289,8 @@
     "CHECK_ALL": "Check All",
     "UNCHECK_ALL": "Uncheck All",
     "CHECKER": "Checker",
-    "CHECKED_DATE": "Checked Date"
+    "CHECKED_DATE": "Checked Date",
+    "REASON": "Reason"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",

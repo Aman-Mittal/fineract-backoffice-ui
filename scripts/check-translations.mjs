@@ -115,6 +115,11 @@ const PATTERNS = [
   // English word, untranslatable in every language, and shaped so unlike a key that no check
   // here could see it. This catches the dotted ones; `check:nav-labels` catches the rest.
   new RegExp(String.raw`\blabelKey:\s*['"]${KEY}['"]`, 'g'),
+  // `label: 'LOANS.EXTERNAL_ID'` in a ColumnDef array. The PHRASES check below proves such a
+  // label is shaped like a key; this proves the key exists. Both are needed — the tab that
+  // shipped naming LOANS.EXTERNAL_ID passed the shape test and rendered the key, because the
+  // catalogue defines COMMON.EXTERNAL_ID and nothing compared the two.
+  new RegExp(String.raw`\blabel:\s*['"]${KEY}['"]`, 'g'),
 ];
 
 function referencedKeys(files) {
