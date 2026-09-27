@@ -184,14 +184,41 @@ describe('AccountTransferFormComponent', () => {
   // Regression coverage for #585: required fields carried no visible marker, and an invalid
   // field produced no on-screen message even after the user interacted with it.
   describe('required-field feedback', () => {
-    it('marks every required field and leaves the optional description unmarked', () => {
+    // The nine controls #585 measured as required on this form, paired with the select
+    // element carrying the marker, so a marker on the wrong control fails this test.
+    const requiredControlIds = [
+      'transfer-from-office-select',
+      'transfer-from-client-select',
+      'transfer-from-account-type-select',
+      'transfer-from-account-select',
+      'transfer-to-office-select',
+      'transfer-to-client-select',
+      'transfer-to-account-type-select',
+      'transfer-to-account-select',
+      'transfer-amount-input',
+    ];
+
+    it('marks exactly the nine required controls and leaves the optional description unmarked', () => {
       fixture.detectChanges();
 
       const html = (fixture.nativeElement as HTMLElement).innerHTML;
       const markerCount = (html.match(/class="required-marker"/g) ?? []).length;
-      // fromOfficeId, fromClientId, fromAccountType, fromAccountId,
-      // toOfficeId, toClientId, toAccountType, toAccountId, transferAmount.
-      expect(markerCount).toBe(9);
+      expect(markerCount).toBe(requiredControlIds.length);
+
+      for (const id of requiredControlIds) {
+        const control = fixture.nativeElement.querySelector(`#${id}`);
+        expect(control, `expected #${id} to be rendered`).not.toBeNull();
+        const item = control!.closest('ion-item');
+        expect(
+          item!.querySelector('.required-marker'),
+          `expected #${id}'s label to carry a required marker`,
+        ).not.toBeNull();
+      }
+
+      const descriptionItem = fixture.nativeElement
+        .querySelector('#transfer-description-input')
+        .closest('ion-item');
+      expect(descriptionItem.querySelector('.required-marker')).toBeNull();
     });
 
     it('shows no field error until the user has touched the field', () => {
@@ -213,6 +240,43 @@ describe('AccountTransferFormComponent', () => {
       expect(error!.textContent).toContain('COMMON.REQUIRED');
     });
 
+    it('associates the amount error with its input via aria-invalid and aria-describedby', () => {
+      fixture.detectChanges();
+
+      const amountInput = fixture.nativeElement.querySelector('#transfer-amount-input')!;
+      // Untouched-but-invalid renders `aria-invalid="false"`: the control is only
+      // flagged once the user has had a chance to fill it in, matching the visible error.
+      expect(amountInput.getAttribute('aria-invalid')).toBe('false');
+      expect(amountInput.getAttribute('aria-describedby')).toBeNull();
+
+      amountInput.dispatchEvent(new CustomEvent('ionBlur'));
+      fixture.detectChanges();
+
+      const error = fixture.nativeElement.querySelector('#transfer-amount-error');
+      expect(error).not.toBeNull();
+      expect(error!.getAttribute('role')).toBe('alert');
+      expect(amountInput.getAttribute('aria-invalid')).toBe('true');
+      expect(amountInput.getAttribute('aria-describedby')).toBe('transfer-amount-error');
+    });
+
+    it('associates a required select error with its control via aria-invalid and aria-describedby', () => {
+      // The "to" client select is never pre-filled (unlike the "from" side, which the
+      // query params and office-load side effects populate), so it starts out invalid.
+      fixture.detectChanges();
+
+      const clientSelect = fixture.nativeElement.querySelector('#transfer-to-client-select')!;
+      expect(clientSelect.getAttribute('aria-invalid')).toBe('false');
+
+      clientSelect.dispatchEvent(new CustomEvent('ionBlur'));
+      fixture.detectChanges();
+
+      const error = fixture.nativeElement.querySelector('#transfer-to-client-error');
+      expect(error).not.toBeNull();
+      expect(error!.getAttribute('role')).toBe('alert');
+      expect(clientSelect.getAttribute('aria-invalid')).toBe('true');
+      expect(clientSelect.getAttribute('aria-describedby')).toBe('transfer-to-client-error');
+    });
+
     it('hides the field error again once the field is filled in', () => {
       fixture.detectChanges();
       const amountInput = fixture.nativeElement.querySelector('#transfer-amount-input')!;
@@ -228,6 +292,8 @@ describe('AccountTransferFormComponent', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('[data-testid="transfer-amount-error"]')).toBeNull();
+      expect(amountInput.getAttribute('aria-invalid')).toBe('false');
+      expect(amountInput.getAttribute('aria-describedby')).toBeNull();
     });
 
     it('shows a hint next to the submit button while the form is incomplete', async () => {

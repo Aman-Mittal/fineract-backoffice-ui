@@ -118,6 +118,12 @@ export interface MiniAccount {
                         required
                         id="transfer-from-office-select"
                         data-testid="transfer-from-office-select"
+                        [attr.aria-invalid]="fromOfficeIdModel.invalid && fromOfficeIdModel.touched"
+                        [attr.aria-describedby]="
+                          fromOfficeIdModel.invalid && fromOfficeIdModel.touched
+                            ? 'transfer-from-office-error'
+                            : null
+                        "
                       >
                         @for (office of offices(); track office.id) {
                           <ion-select-option [value]="office.id">{{
@@ -127,9 +133,14 @@ export interface MiniAccount {
                       </ion-select>
                     </ion-item>
                     @if (fromOfficeIdModel.invalid && fromOfficeIdModel.touched) {
-                      <ion-note color="danger" class="field-error" data-testid="transfer-from-office-error">{{
-                        'COMMON.REQUIRED' | translate
-                      }}</ion-note>
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-from-office-error"
+                        role="alert"
+                        data-testid="transfer-from-office-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
                     }
 
                     <ion-item fill="outline">
@@ -148,6 +159,12 @@ export interface MiniAccount {
                         required
                         id="transfer-from-client-select"
                         data-testid="transfer-from-client-select"
+                        [attr.aria-invalid]="fromClientIdModel.invalid && fromClientIdModel.touched"
+                        [attr.aria-describedby]="
+                          fromClientIdModel.invalid && fromClientIdModel.touched
+                            ? 'transfer-from-client-error'
+                            : null
+                        "
                       >
                         @for (client of fromClients(); track client.id) {
                           <ion-select-option [value]="client.id">{{
@@ -157,9 +174,14 @@ export interface MiniAccount {
                       </ion-select>
                     </ion-item>
                     @if (fromClientIdModel.invalid && fromClientIdModel.touched) {
-                      <ion-note color="danger" class="field-error" data-testid="transfer-from-client-error">{{
-                        'COMMON.REQUIRED' | translate
-                      }}</ion-note>
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-from-client-error"
+                        role="alert"
+                        data-testid="transfer-from-client-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
                     }
 
                     <ion-item fill="outline">
@@ -178,6 +200,12 @@ export interface MiniAccount {
                         required
                         id="transfer-from-account-type-select"
                         data-testid="transfer-from-account-type-select"
+                        [attr.aria-invalid]="fromAccountTypeModel.invalid && fromAccountTypeModel.touched"
+                        [attr.aria-describedby]="
+                          fromAccountTypeModel.invalid && fromAccountTypeModel.touched
+                            ? 'transfer-from-account-type-error'
+                            : null
+                        "
                       >
                         <ion-select-option [value]="'2'">{{
                           'nav.savingsAccounts' | translate
@@ -191,6 +219,8 @@ export interface MiniAccount {
                       <ion-note
                         color="danger"
                         class="field-error"
+                        id="transfer-from-account-type-error"
+                        role="alert"
                         data-testid="transfer-from-account-type-error"
                         >{{ 'COMMON.REQUIRED' | translate }}</ion-note
                       >
@@ -211,6 +241,12 @@ export interface MiniAccount {
                         required
                         id="transfer-from-account-select"
                         data-testid="transfer-from-account-select"
+                        [attr.aria-invalid]="fromAccountIdModel.invalid && fromAccountIdModel.touched"
+                        [attr.aria-describedby]="
+                          fromAccountIdModel.invalid && fromAccountIdModel.touched
+                            ? 'transfer-from-account-error'
+                            : null
+                        "
                       >
                         @for (account of fromAccounts(); track account.id) {
                           <ion-select-option [value]="account.id"
@@ -220,9 +256,14 @@ export interface MiniAccount {
                       </ion-select>
                     </ion-item>
                     @if (fromAccountIdModel.invalid && fromAccountIdModel.touched) {
-                      <ion-note color="danger" class="field-error" data-testid="transfer-from-account-error">{{
-                        'COMMON.REQUIRED' | translate
-                      }}</ion-note>
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-from-account-error"
+                        role="alert"
+                        data-testid="transfer-from-account-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
                     }
                   </div>
                 </ion-col>
@@ -247,6 +288,12 @@ export interface MiniAccount {
                         required
                         id="transfer-to-office-select"
                         data-testid="transfer-to-office-select"
+                        [attr.aria-invalid]="toOfficeIdModel.invalid && toOfficeIdModel.touched"
+                        [attr.aria-describedby]="
+                          toOfficeIdModel.invalid && toOfficeIdModel.touched
+                            ? 'transfer-to-office-error'
+                            : null
+                        "
                       >
                         @for (office of offices(); track office.id) {
                           <ion-select-option [value]="office.id">{{
@@ -256,9 +303,14 @@ export interface MiniAccount {
                       </ion-select>
                     </ion-item>
                     @if (toOfficeIdModel.invalid && toOfficeIdModel.touched) {
-                      <ion-note color="danger" class="field-error" data-testid="transfer-to-office-error">{{
-                        'COMMON.REQUIRED' | translate
-                      }}</ion-note>
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-to-office-error"
+                        role="alert"
+                        data-testid="transfer-to-office-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
                     }
 
                     <ion-item fill="outline">
@@ -277,6 +329,12 @@ export interface MiniAccount {
                         required
                         id="transfer-to-client-select"
                         data-testid="transfer-to-client-select"
+                        [attr.aria-invalid]="toClientIdModel.invalid && toClientIdModel.touched"
+                        [attr.aria-describedby]="
+                          toClientIdModel.invalid && toClientIdModel.touched
+                            ? 'transfer-to-client-error'
+                            : null
+                        "
                       >
                         @for (client of toClients(); track client.id) {
                           <ion-select-option [value]="client.id">{{
@@ -286,9 +344,14 @@ export interface MiniAccount {
                       </ion-select>
                     </ion-item>
                     @if (toClientIdModel.invalid && toClientIdModel.touched) {
-                      <ion-note color="danger" class="field-error" data-testid="transfer-to-client-error">{{
-                        'COMMON.REQUIRED' | translate
-                      }}</ion-note>
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-to-client-error"
+                        role="alert"
+                        data-testid="transfer-to-client-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
                     }
 
                     <ion-item fill="outline">
@@ -307,6 +370,12 @@ export interface MiniAccount {
                         required
                         id="transfer-to-account-type-select"
                         data-testid="transfer-to-account-type-select"
+                        [attr.aria-invalid]="toAccountTypeModel.invalid && toAccountTypeModel.touched"
+                        [attr.aria-describedby]="
+                          toAccountTypeModel.invalid && toAccountTypeModel.touched
+                            ? 'transfer-to-account-type-error'
+                            : null
+                        "
                       >
                         <ion-select-option [value]="'2'">{{
                           'nav.savingsAccounts' | translate
@@ -320,6 +389,8 @@ export interface MiniAccount {
                       <ion-note
                         color="danger"
                         class="field-error"
+                        id="transfer-to-account-type-error"
+                        role="alert"
                         data-testid="transfer-to-account-type-error"
                         >{{ 'COMMON.REQUIRED' | translate }}</ion-note
                       >
@@ -340,6 +411,12 @@ export interface MiniAccount {
                         required
                         id="transfer-to-account-select"
                         data-testid="transfer-to-account-select"
+                        [attr.aria-invalid]="toAccountIdModel.invalid && toAccountIdModel.touched"
+                        [attr.aria-describedby]="
+                          toAccountIdModel.invalid && toAccountIdModel.touched
+                            ? 'transfer-to-account-error'
+                            : null
+                        "
                       >
                         @for (account of toAccounts(); track account.id) {
                           <ion-select-option [value]="account.id"
@@ -349,9 +426,14 @@ export interface MiniAccount {
                       </ion-select>
                     </ion-item>
                     @if (toAccountIdModel.invalid && toAccountIdModel.touched) {
-                      <ion-note color="danger" class="field-error" data-testid="transfer-to-account-error">{{
-                        'COMMON.REQUIRED' | translate
-                      }}</ion-note>
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-to-account-error"
+                        role="alert"
+                        data-testid="transfer-to-account-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
                     }
                   </div>
                 </ion-col>
@@ -375,12 +457,23 @@ export interface MiniAccount {
                     required
                     id="transfer-amount-input"
                     data-testid="transfer-amount-input"
+                    [attr.aria-invalid]="transferAmountModel.invalid && transferAmountModel.touched"
+                    [attr.aria-describedby]="
+                      transferAmountModel.invalid && transferAmountModel.touched
+                        ? 'transfer-amount-error'
+                        : null
+                    "
                   ></ion-input>
                 </ion-item>
                 @if (transferAmountModel.invalid && transferAmountModel.touched) {
-                  <ion-note color="danger" class="field-error" data-testid="transfer-amount-error">{{
-                    'COMMON.REQUIRED' | translate
-                  }}</ion-note>
+                  <ion-note
+                    color="danger"
+                    class="field-error"
+                    id="transfer-amount-error"
+                    role="alert"
+                    data-testid="transfer-amount-error"
+                    >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                  >
                 }
               </div>
 
