@@ -338,6 +338,7 @@ trust boundaries in `security.md`.
 | `deps`               | pass         | no high/critical advisories in the **production** tree                                |
 | `external-fonts`     | pass         | no `fonts.googleapis.com` / `fonts.gstatic.com` in source or in `dist/`               |
 | `offline-build-ci`   | pass         | `ci.yml` declares `offline-build` with a `--network none` step                        |
+| `container-csp`      | pass         | production avoids inline handlers and CSP allows only `self`/`blob:` scripts          |
 
 Two conventions worth knowing:
 
