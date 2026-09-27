@@ -90,10 +90,17 @@ function loan(overrides: LoanOverrides) {
 interface Probe {
   commands: { command: string | null; body: unknown }[];
   interestPauseUpdates: { variationId: number; body: Record<string, unknown> }[];
+  approvedAmountUpdates: Record<string, unknown>[];
+  availableDisbursementAmountUpdates: Record<string, unknown>[];
 }
 
 async function loginWithLoan(page: Page, overrides: LoanOverrides): Promise<Probe> {
-  const probe: Probe = { commands: [], interestPauseUpdates: [] };
+  const probe: Probe = {
+    commands: [],
+    interestPauseUpdates: [],
+    approvedAmountUpdates: [],
+    availableDisbursementAmountUpdates: [],
+  };
 
   await page.route('**/config.json*', async (route) => {
     await route.fulfill({
@@ -162,6 +169,29 @@ async function loginWithLoan(page: Page, overrides: LoanOverrides): Promise<Prob
             endDate: [2026, 4, 8],
           },
         ]),
+      });
+    },
+  );
+
+  await page.route(new RegExp(`/api/v1/loans/${LOAN_ID}/approved-amount(\\?|$)`), async (route) => {
+    probe.approvedAmountUpdates.push(route.request().postDataJSON() as Record<string, unknown>);
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ loanId: LOAN_ID, resourceId: LOAN_ID }),
+    });
+  });
+
+  await page.route(
+    new RegExp(`/api/v1/loans/${LOAN_ID}/available-disbursement-amount(\\?|$)`),
+    async (route) => {
+      probe.availableDisbursementAmountUpdates.push(
+        route.request().postDataJSON() as Record<string, unknown>,
+      );
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ loanId: LOAN_ID, resourceId: LOAN_ID }),
       });
     },
   );
@@ -427,5 +457,63 @@ test.describe('Loan servicing gaps', () => {
     await page.locator(MENU_TRIGGER).click();
 
     await expect(page.getByTestId('loan-close-as-rescheduled-action')).toBeVisible();
+  });
+
+  /**
+   * `PUT .../approved-amount` and `PUT .../available-disbursement-amount` — #284. Both verified
+   * live against `apache/fineract` (see the unit specs for the exact scenarios); this is the
+   * request assertion a live run cannot give: no `dateFormat`, and `locale` present.
+   */
+  test('revising the amounts is offered on an approved loan', async ({ page }) => {
+    await loginWithLoan(page, { status: APPROVED });
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+
+    await expect(page.getByTestId('loan-revise-approved-amount-action')).toBeVisible();
+    await expect(
+      page.getByTestId('loan-revise-available-disbursement-amount-action'),
+    ).toBeVisible();
+  });
+
+  test('revising the amounts is hidden before approval', async ({ page }) => {
+    await loginWithLoan(page, {
+      status: { id: 100, code: 'loanStatusType.pending', value: 'Submitted and pending approval' },
+    });
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+
+    await expect(page.getByTestId('loan-revise-approved-amount-action')).toHaveCount(0);
+    await expect(
+      page.getByTestId('loan-revise-available-disbursement-amount-action'),
+    ).toHaveCount(0);
+  });
+
+  test('revising the approved amount sends the new amount and locale', async ({ page }) => {
+    const probe = await loginWithLoan(page, { status: APPROVED });
+
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+    await page.getByTestId('loan-revise-approved-amount-action').click();
+    await page.getByTestId('loan-approved-amount-input').fill('4500');
+    await page.getByRole('button', { name: 'Confirm' }).click();
+
+    await expect.poll(() => probe.approvedAmountUpdates.length).toBe(1);
+    expect(probe.approvedAmountUpdates[0]).toEqual({ amount: 4500, locale: 'en' });
+  });
+
+  test('revising the available disbursement amount sends the new amount, including zero', async ({
+    page,
+  }) => {
+    const probe = await loginWithLoan(page, { status: APPROVED });
+
+    await page.goto(`/loans/view/${LOAN_ID}`);
+    await page.locator(MENU_TRIGGER).click();
+    await page.getByTestId('loan-revise-available-disbursement-amount-action').click();
+    await page.getByTestId('loan-available-disbursement-amount-input').fill('0');
+    await page.getByRole('button', { name: 'Confirm' }).click();
+
+    await expect.poll(() => probe.availableDisbursementAmountUpdates.length).toBe(1);
+    // Zero is a real, platform-accepted value here — not treated as "nothing was entered".
+    expect(probe.availableDisbursementAmountUpdates[0]).toEqual({ amount: 0, locale: 'en' });
   });
 });

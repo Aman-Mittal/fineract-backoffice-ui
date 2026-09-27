@@ -51,6 +51,14 @@ import {
   LoanUnassignOfficerDialogComponent,
   LoanUnassignOfficerResult,
 } from './loan-unassign-officer-dialog.component';
+import {
+  LoanApprovedAmountDialogComponent,
+  LoanApprovedAmountResult,
+} from './loan-approved-amount-dialog.component';
+import {
+  LoanAvailableDisbursementAmountDialogComponent,
+  LoanAvailableDisbursementAmountResult,
+} from './loan-available-disbursement-amount-dialog.component';
 import { LoanAssetTransfersTabComponent } from './tabs/loan-asset-transfers-tab.component';
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
@@ -327,6 +335,32 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</ion-label>
+                      </ion-item>
+                    }
+
+                    @if (canReviseLoanAmounts) {
+                      <ion-item
+                        button
+                        data-testid="loan-revise-approved-amount-action"
+                        (click)="onReviseApprovedAmount()"
+                        appRequiresPermission="UPDATE_APPROVED_AMOUNT_LOAN"
+                      >
+                        <ion-icon slot="start" name="create-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'LOANS.ACTIONS.REVISE_APPROVED_AMOUNT' | translate }}
+                        </ion-label>
+                      </ion-item>
+
+                      <ion-item
+                        button
+                        data-testid="loan-revise-available-disbursement-amount-action"
+                        (click)="onReviseAvailableDisbursementAmount()"
+                        appRequiresPermission="UPDATE_LOAN_AVAILABLE_DISBURSEMENT_AMOUNT"
+                      >
+                        <ion-icon slot="start" name="create-outline"></ion-icon>
+                        <ion-label>
+                          {{ 'LOANS.ACTIONS.REVISE_AVAILABLE_DISBURSEMENT_AMOUNT' | translate }}
+                        </ion-label>
                       </ion-item>
                     }
 
@@ -1764,6 +1798,20 @@ export class LoanViewComponent implements OnInit {
     return !!this.loan()?.status?.active;
   }
 
+  /**
+   * Whether the approved and available-disbursement amounts are meaningful to revise — #284.
+   *
+   * Both platform commands work on an approved loan and on an active one (revising after a
+   * partial disbursement is exactly what the acceptance tests in `apache/fineract` cover), but
+   * neither means anything before approval or after the loan closes. That is as far as this
+   * gates: whether a decrease is allowed, and whether zero is allowed, depend on tranche and
+   * disbursement state the client cannot know in advance, so those are left to the platform to
+   * refuse.
+   */
+  get canReviseLoanAmounts(): boolean {
+    return this.isLoanApproved || this.isLoanActive;
+  }
+
   get repaymentFrequencyValue(): string {
     const freq = this.loan()?.repaymentFrequencyType;
     return ((freq as unknown as Record<string, unknown>)?.['value'] as string) || '';
@@ -2045,6 +2093,64 @@ export class LoanViewComponent implements OnInit {
       // No toast here: errorInterceptor already raises one with the platform's own message.
       error: () => undefined,
     });
+  }
+
+  /**
+   * Revises the sanctioned amount on an approved or already-disbursing loan — #284.
+   *
+   * `PUT .../approved-amount`, not `postLoansLoanId`'s command family: it is its own
+   * sub-resource, takes `{ amount, locale }`, and returns the old/new figures on `changes`
+   * rather than the loan itself, so a reload is still needed to reflect it on screen.
+   */
+  async onReviseApprovedAmount(): Promise<void> {
+    const result = await this.dialogService.open<LoanApprovedAmountResult>(
+      LoanApprovedAmountDialogComponent,
+      { data: { currentApprovedAmount: this.loan()?.approvedPrincipal } },
+    );
+    if (!result) return;
+
+    this.loansService
+      .putLoansLoanIdApprovedAmount(this.loanId(), {
+        amount: result.amount,
+        locale: FINERACT_LOCALE,
+      })
+      .subscribe({
+        next: () => {
+          this.notifications.success(this.translate.instant('LOANS.APPROVED_AMOUNT_REVISED'));
+          this.loadLoanData();
+        },
+        // No toast here: errorInterceptor already raises one with the platform's own message.
+        error: () => undefined,
+      });
+  }
+
+  /**
+   * Revises how much of the approved amount may still be drawn — #284. Indirectly changes the
+   * approved amount too (the platform's own `changes` on the response reflects both), which is
+   * exactly why {@link onReviseApprovedAmount} and this exist as separate commands rather than
+   * one dialog: they read the same underlying figure but from opposite ends.
+   */
+  async onReviseAvailableDisbursementAmount(): Promise<void> {
+    const result = await this.dialogService.open<LoanAvailableDisbursementAmountResult>(
+      LoanAvailableDisbursementAmountDialogComponent,
+    );
+    if (!result) return;
+
+    this.loansService
+      .putLoansLoanIdAvailableDisbursementAmount(this.loanId(), {
+        amount: result.amount,
+        locale: FINERACT_LOCALE,
+      })
+      .subscribe({
+        next: () => {
+          this.notifications.success(
+            this.translate.instant('LOANS.AVAILABLE_DISBURSEMENT_AMOUNT_REVISED'),
+          );
+          this.loadLoanData();
+        },
+        // No toast here: errorInterceptor already raises one with the platform's own message.
+        error: () => undefined,
+      });
   }
 
   /**

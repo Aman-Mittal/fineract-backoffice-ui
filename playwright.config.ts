@@ -80,6 +80,7 @@ const BACKEND_SPECS = [
   'full-demo.spec.ts',
   'group-membership.spec.ts',
   'loan-account-actions.spec.ts',
+  'loan-approved-amount-revision.spec.ts',
   'loan-charge-off.spec.ts',
   'loan-lifecycle.spec.ts',
   'loan-product-accounting.spec.ts',

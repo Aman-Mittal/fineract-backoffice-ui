@@ -605,7 +605,9 @@
       "CLOSE_AS_RESCHEDULED": "Close as Rescheduled",
       "DISBURSE_TO_SAVINGS": "Disburse to Savings",
       "UNASSIGN_LOAN_OFFICER": "Unassign Loan Officer",
-      "UNDO_LAST_DISBURSAL": "Undo Last Disbursal"
+      "UNDO_LAST_DISBURSAL": "Undo Last Disbursal",
+      "REVISE_APPROVED_AMOUNT": "Revise Approved Amount",
+      "REVISE_AVAILABLE_DISBURSEMENT_AMOUNT": "Revise Available Disbursement Amount"
     },
     "CREATE_LOAN_ACCOUNT": "Create Loan Account",
     "EDIT_LOAN_APPLICATION": "Edit Loan Application",
@@ -652,6 +654,12 @@
     "CONFIRM_UNDO_APPROVAL": "This returns the loan to pending approval. The approved amount and approval date are cleared, and the loan has to be approved again before it can be disbursed.",
     "UNDO_APPROVAL_REASON": "Reason (optional)",
     "APPROVAL_UNDONE": "Loan approval undone.",
+    "CURRENT_APPROVED_AMOUNT": "Current Approved Amount",
+    "NEW_APPROVED_AMOUNT": "New Approved Amount",
+    "NEW_AVAILABLE_DISBURSEMENT_AMOUNT": "New Available Disbursement Amount",
+    "AVAILABLE_DISBURSEMENT_AMOUNT_HINT": "How much of the approved amount may still be drawn. Changing it also changes the approved amount to match.",
+    "APPROVED_AMOUNT_REVISED": "Approved amount updated.",
+    "AVAILABLE_DISBURSEMENT_AMOUNT_REVISED": "Available disbursement amount updated.",
     "DELINQUENCY": "Delinquency",
     "DELINQUENCY_SUMMARY": "Delinquency Summary",
     "DELINQUENCY_TAGS": "Delinquency Tags",

@@ -59,6 +59,26 @@ function isDomainRuleViolation(error: HttpErrorResponse): boolean {
 }
 
 /**
+ * Some Fineract commands — `PUT .../approved-amount` and `.../available-disbursement-amount`
+ * among them — wrap the validator's actual per-field error one level deeper than the rest of
+ * the API, behind a generic outer entry (`parameterName: "id"`, message "Validation errors
+ * exist."). The real reason sits at `args[0].value`, itself shaped like an error entry. Without
+ * unwrapping it, the toast says nothing the user did not already know from the 403 alone.
+ */
+function unwrapNestedError(err: Record<string, unknown>): Record<string, unknown> {
+  const args = err['args'];
+  const nested = Array.isArray(args) ? (args[0] as { value?: unknown } | undefined)?.value : undefined;
+  if (
+    nested &&
+    typeof nested === 'object' &&
+    ('developerMessage' in nested || 'defaultUserMessage' in nested)
+  ) {
+    return nested as Record<string, unknown>;
+  }
+  return err;
+}
+
+/**
  * Builds the user-facing message for a failed request.
  *
  * Fineract returns validation failures as an `errors` array, each entry naming the parameter
@@ -91,7 +111,8 @@ function messageFor(error: HttpErrorResponse, i18n: I18nAdapter): string {
 
   if (error.error?.errors && Array.isArray(error.error.errors) && error.error.errors.length > 0) {
     const stacked = error.error.errors
-      .map((err: Record<string, unknown>) => {
+      .map((rawErr: Record<string, unknown>) => {
+        const err = unwrapNestedError(rawErr);
         const msg = err['developerMessage'] || err['defaultUserMessage'] || 'Validation error';
         const param = err['parameterName'] ? `[${err['parameterName']}] ` : '';
         return `• ${param}${msg}`;

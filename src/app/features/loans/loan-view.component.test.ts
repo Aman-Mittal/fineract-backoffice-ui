@@ -76,7 +76,11 @@ describe('LoanViewComponent', () => {
   async function setup(loanOverrides: Record<string, unknown> = {}): Promise<void> {
     TestBed.resetTestingModule();
 
-    loansServiceSpy = createSpyObj(['getLoansLoanId']);
+    loansServiceSpy = createSpyObj([
+      'getLoansLoanId',
+      'putLoansLoanIdApprovedAmount',
+      'putLoansLoanIdAvailableDisbursementAmount',
+    ]);
     buyDownFeesSpy = createSpyObj(['getLoansLoanIdBuydownFees']);
     capitalizedIncomeSpy = createSpyObj(['getLoansLoanIdCapitalizedIncomes']);
     routerSpy = createSpyObj(['navigate']);
@@ -87,6 +91,8 @@ describe('LoanViewComponent', () => {
       'putLoansLoanIdDisbursementsDisbursementId',
     ]);
     disbursementsSpy.putLoansLoanIdDisbursementsDisbursementId.mockReturnValue(of({}) as any);
+    loansServiceSpy.putLoansLoanIdApprovedAmount.mockReturnValue(of({}) as any);
+    loansServiceSpy.putLoansLoanIdAvailableDisbursementAmount.mockReturnValue(of({}) as any);
     notificationsSpy = createSpyObj(['success', 'error']);
 
     const authServiceSpy = Object.assign(createSpyObj<AuthService>(['hasPermission']), {
@@ -343,6 +349,82 @@ describe('LoanViewComponent', () => {
       await setup({ status: { value: 'Closed (written off)', closedWrittenOff: true } });
 
       expect(component.isWrittenOff()).toBe(true);
+    });
+  });
+
+  /**
+   * `PUT .../approved-amount` and `PUT .../available-disbursement-amount` — #284. Both are their
+   * own sub-resources, not `postLoansLoanId` commands, and both are legal on an approved loan and
+   * on an active one — verified live against `apache/fineract`'s own UC3 acceptance scenario,
+   * which revises the approved amount after a partial disbursement while the loan is Active.
+   */
+  describe('revising the approved and available-disbursement amounts', () => {
+    it('offers the revision on an approved loan and on an active one, not before or after', async () => {
+      await setup({ status: { value: 'Submitted and pending approval', pendingApproval: true } });
+      expect(component.canReviseLoanAmounts).toBe(false);
+
+      await setup({ status: { value: 'Approved', waitingForDisbursal: true } });
+      expect(component.canReviseLoanAmounts).toBe(true);
+
+      await setup({ status: { value: 'Active', active: true } });
+      expect(component.canReviseLoanAmounts).toBe(true);
+
+      await setup({ status: { value: 'Closed (obligations met)', closedObligationsMet: true } });
+      expect(component.canReviseLoanAmounts).toBe(false);
+    });
+
+    it('sends the new amount and locale, and passes the current amount to the dialog for context', async () => {
+      await setup({
+        status: { value: 'Active', active: true },
+        approvedPrincipal: 600,
+      });
+      const dialog = TestBed.inject(DialogService);
+      const openSpy = vi.spyOn(dialog, 'open').mockResolvedValue({ amount: 500 });
+
+      await component.onReviseApprovedAmount();
+
+      expect(openSpy.mock.calls[0][1]).toEqual({ data: { currentApprovedAmount: 600 } });
+      expect(loansServiceSpy.putLoansLoanIdApprovedAmount).toHaveBeenCalledWith(456, {
+        amount: 500,
+        locale: 'en',
+      });
+      expect(notificationsSpy.success).toHaveBeenCalled();
+    });
+
+    it('does nothing when the approved-amount dialog is cancelled', async () => {
+      await setup({ status: { value: 'Active', active: true } });
+      const dialog = TestBed.inject(DialogService);
+      vi.spyOn(dialog, 'open').mockResolvedValue(undefined);
+
+      await component.onReviseApprovedAmount();
+
+      expect(loansServiceSpy.putLoansLoanIdApprovedAmount).not.toHaveBeenCalled();
+    });
+
+    it('sends the new available-disbursement amount and locale', async () => {
+      await setup({ status: { value: 'Active', active: true } });
+      const dialog = TestBed.inject(DialogService);
+      vi.spyOn(dialog, 'open').mockResolvedValue({ amount: 0 });
+
+      await component.onReviseAvailableDisbursementAmount();
+
+      // Zero is a real, platform-accepted value here (closing off an undrawn balance), unlike
+      // the approved amount — verified live, so it must not be treated as "no result".
+      expect(loansServiceSpy.putLoansLoanIdAvailableDisbursementAmount).toHaveBeenCalledWith(456, {
+        amount: 0,
+        locale: 'en',
+      });
+      expect(notificationsSpy.success).toHaveBeenCalled();
+    });
+
+    it('does nothing when the available-disbursement-amount dialog is cancelled', async () => {
+      await setup({ status: { value: 'Active', active: true } });
+      const dialog = TestBed.inject(DialogService);
+      vi.spyOn(dialog, 'open').mockResolvedValue(undefined);
+
+      await component.onReviseAvailableDisbursementAmount();
+
+      expect(loansServiceSpy.putLoansLoanIdAvailableDisbursementAmount).not.toHaveBeenCalled();
     });
   });
 
