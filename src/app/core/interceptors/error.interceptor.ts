@@ -67,7 +67,9 @@ function isDomainRuleViolation(error: HttpErrorResponse): boolean {
  */
 function unwrapNestedError(err: Record<string, unknown>): Record<string, unknown> {
   const args = err['args'];
-  const nested = Array.isArray(args) ? (args[0] as { value?: unknown } | undefined)?.value : undefined;
+  const nested = Array.isArray(args)
+    ? (args[0] as { value?: unknown } | undefined)?.value
+    : undefined;
   if (
     nested &&
     typeof nested === 'object' &&

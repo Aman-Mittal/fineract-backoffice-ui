@@ -442,7 +442,9 @@
     "postLoansLoanId",
     "postLoansRepaymentsUploadtemplate",
     "postLoansUploadtemplate",
-    "putLoansLoanId"
+    "putLoansLoanId",
+    "putLoansLoanIdApprovedAmount",
+    "putLoansLoanIdAvailableDisbursementAmount"
   ],
   "MakerCheckerOr4EyeFunctionalityService": ["getMakercheckers", "postMakercheckersAuditId"],
   "MappingFinancialActivitiesToAccountsService": [

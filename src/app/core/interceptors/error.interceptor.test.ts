@@ -373,9 +373,7 @@ describe('errorInterceptor', () => {
       );
 
       const [message] = notificationsSpy.error.mock.lastCall! as [string];
-      expect(message).toContain(
-        "can't.be.greater.than.maximum.applied.loan.amount.calculation",
-      );
+      expect(message).toContain("can't.be.greater.than.maximum.applied.loan.amount.calculation");
       expect(message).toContain('[amount]');
       expect(message).not.toContain('Validation errors exist.');
     });

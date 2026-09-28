@@ -483,9 +483,9 @@ test.describe('Loan servicing gaps', () => {
     await page.locator(MENU_TRIGGER).click();
 
     await expect(page.getByTestId('loan-revise-approved-amount-action')).toHaveCount(0);
-    await expect(
-      page.getByTestId('loan-revise-available-disbursement-amount-action'),
-    ).toHaveCount(0);
+    await expect(page.getByTestId('loan-revise-available-disbursement-amount-action')).toHaveCount(
+      0,
+    );
   });
 
   test('revising the approved amount sends the new amount and locale', async ({ page }) => {

@@ -66,12 +66,7 @@ export interface LoanAvailableDisbursementAmountResult {
       <app-button type="button" intent="neutral" emphasis="quiet" (click)="onCancel()">
         {{ 'COMMON.CANCEL' | appTranslate }}
       </app-button>
-      <app-button
-        type="button"
-        intent="primary"
-        [disabled]="!isValid()"
-        (click)="onConfirm()"
-      >
+      <app-button type="button" intent="primary" [disabled]="!isValid()" (click)="onConfirm()">
         {{ 'COMMON.CONFIRM' | appTranslate }}
       </app-button>
     </div>

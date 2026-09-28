@@ -122,9 +122,7 @@ test.describe('Loan approved and available-disbursement amount revision', () => 
     await expect(modalFor(page, 'app-loan-approved-amount-dialog')).toContainText('600');
   });
 
-  test('shows the platform’s own refusal, not a generic validation message', async ({
-    page,
-  }) => {
+  test('shows the platform’s own refusal, not a generic validation message', async ({ page }) => {
     test.setTimeout(recordingTimeout(120000));
     await login(page);
     await createActiveLoan(page);
