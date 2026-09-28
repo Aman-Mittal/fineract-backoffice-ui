@@ -137,8 +137,10 @@
     "TITLE": "Currency Configuration",
     "AVAILABLE": "Available Currencies",
     "SELECTED": "Selected Currencies",
-    "ADD": "Add →",
-    "REMOVE": "← Remove",
+    "ADD": "Add",
+    "REMOVE": "Remove",
+    "FILTER": "Filter currencies",
+    "NO_MATCH": "No currencies match your filter.",
     "SAVE": "Save",
     "SAVED_SUCCESS": "Currency configuration saved successfully"
   },
