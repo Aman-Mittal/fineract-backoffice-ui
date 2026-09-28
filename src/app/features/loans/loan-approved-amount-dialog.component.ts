@@ -79,6 +79,10 @@ export interface LoanApprovedAmountResult {
   `,
   styles: [
     `
+      :host {
+        display: block;
+        padding: var(--space-5);
+      }
       .dialog-content {
         display: flex;
         flex-direction: column;
