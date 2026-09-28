@@ -35,6 +35,11 @@ import {
 } from '../../core/utils/date-formatter';
 import { RequiresPermissionDirective } from '../../shared';
 import {
+  LoanChargebackData,
+  LoanChargebackDialogComponent,
+  LoanChargebackResult,
+} from './loan-chargeback-dialog.component';
+import {
   LoanUndoApprovalDialogComponent,
   LoanUndoApprovalResult,
 } from './loan-undo-approval-dialog.component';
@@ -1098,6 +1103,19 @@ export function toEditableDate(value: unknown): string {
                         >
                           <ion-icon name="eye-outline"></ion-icon>
                         </ion-button>
+                        @if (isChargebackEligible(tx)) {
+                          <ion-button
+                            fill="clear"
+                            color="danger"
+                            appRequiresPermission="CHARGEBACK_LOAN"
+                            [attr.data-testid]="'loan-chargeback-' + tx.id"
+                            (click)="onChargeback(tx)"
+                            [attr.aria-label]="'LOANS.ACTIONS.CHARGEBACK' | translate"
+                            [appTooltip]="'LOANS.ACTIONS.CHARGEBACK' | translate"
+                          >
+                            <ion-icon name="arrow-undo-outline"></ion-icon>
+                          </ion-button>
+                        }
                       </td>
                     </ng-container>
 
@@ -2164,6 +2182,43 @@ export class LoanViewComponent implements OnInit {
       });
   }
 
+  /**
+   * Charges back part or all of a repayment.
+   *
+   * Row-level rather than an Actions-menu command: the platform accepts `chargeback` only
+   * against a specific transaction, and answers "unsupported value" for it at loan level.
+   */
+  async onChargeback(tx: GetLoansLoanIdTransactions): Promise<void> {
+    if (tx.id === undefined) return;
+    const data: LoanChargebackData = {
+      loanId: this.loanId(),
+      transactionId: tx.id,
+      amount: tx.amount ?? 0,
+      currencySymbol: this.loan()?.currency?.displaySymbol,
+    };
+    const result = await this.dialogService.open<LoanChargebackResult>(
+      LoanChargebackDialogComponent,
+      { data },
+    );
+    if (!result) return;
+
+    this.transactionService
+      .postLoansLoanIdTransactionsTransactionId(
+        this.loanId(),
+        tx.id,
+        { ...result, locale: FINERACT_LOCALE },
+        'chargeback',
+      )
+      .subscribe({
+        next: () => {
+          this.notifications.success(this.translate.instant('LOANS.CHARGEBACK_RECORDED'));
+          this.loadLoanData();
+        },
+        // No toast here: errorInterceptor already raises one with the platform's own message.
+        error: () => undefined,
+      });
+  }
+
   private confirm(titleKey: string, messageKey: string, destructive = false): Observable<boolean> {
     return from(
       this.dialogService.confirm({
@@ -2172,6 +2227,11 @@ export class LoanViewComponent implements OnInit {
         destructive,
       }),
     );
+  }
+
+  /** A repayment that has not been reversed — the only kind the platform lets you charge back. */
+  isChargebackEligible(tx: GetLoansLoanIdTransactions): boolean {
+    return !!tx.type?.repayment && !tx.manuallyReversed;
   }
 
   isDebitTransaction(tx: GetLoansLoanIdTransactions): boolean {
