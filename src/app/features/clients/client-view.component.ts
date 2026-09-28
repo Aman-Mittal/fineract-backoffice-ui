@@ -61,6 +61,7 @@ import { ClientFamilyMembersListComponent } from './tabs/client-family-members-l
 import { ClientNotesListComponent } from './tabs/client-notes-list.component';
 import { ClientDocumentsListComponent } from './tabs/client-documents-list.component';
 import { ClientStandingInstructionsTabComponent } from './tabs/client-standing-instructions-tab.component';
+import { DateTimePipe } from '../../shared/pipes/date-time.pipe';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { CdkTableModule } from '@angular/cdk/table';
 import { DialogService } from '../../core/services/dialog.service';
@@ -170,6 +171,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
     IonList,
     IonItem,
     TooltipDirective,
+    DateTimePipe,
   ],
   template: `
     <div class="view-container">
@@ -558,11 +560,11 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                     </div>
                     <div class="detail-item">
                       <span class="label">{{ 'COMMON.ACTIVATION_DATE' | translate }}</span>
-                      <span class="value">{{ formattedActivationDate }}</span>
+                      <span class="value">{{ this.client()?.activationDate | dateTime }}</span>
                     </div>
                     <div class="detail-item">
                       <span class="label">{{ 'CLIENTS.TIMELINE_SUBMITTED' | translate }}</span>
-                      <span class="value">{{ formattedSubmissionDate }}</span>
+                      <span class="value">{{ this.client()?.timeline?.submittedOnDate | dateTime }}</span>
                     </div>
                   </ion-card-content>
                 </ion-card>
@@ -1183,26 +1185,6 @@ export class ClientViewComponent implements OnInit {
     const status = this.client()?.status?.id;
     return status === CLIENT_STATUS.PENDING || status === CLIENT_STATUS.ACTIVE;
   });
-
-  get formattedActivationDate(): string {
-    const actDateArray = this.client()?.activationDate as unknown as number[];
-    if (actDateArray && Array.isArray(actDateArray)) {
-      return new Date(actDateArray[0], actDateArray[1] - 1, actDateArray[2]).toLocaleDateString();
-    }
-    return '-';
-  }
-
-  get formattedSubmissionDate(): string {
-    const submitDateArray = this.client()?.timeline?.submittedOnDate as unknown as number[];
-    if (submitDateArray && Array.isArray(submitDateArray)) {
-      return new Date(
-        submitDateArray[0],
-        submitDateArray[1] - 1,
-        submitDateArray[2],
-      ).toLocaleDateString();
-    }
-    return '-';
-  }
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {

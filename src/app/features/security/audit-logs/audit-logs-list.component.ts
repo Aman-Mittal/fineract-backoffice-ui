@@ -24,7 +24,7 @@ import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { AuditsService } from '../../../api';
-import { DatePipe } from '@angular/common';
+import { DateTimePipe } from '../../../shared/pipes/date-time.pipe';
 import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-payload-dialog.component';
 import { PageEvent, SortEvent } from '../../../shared/models/table.model';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -67,7 +67,7 @@ export interface AuditFilters {
     FormsModule,
     DataTableComponent,
     CellTemplateDirective,
-    DatePipe,
+    DateTimePipe,
     IonIcon,
     IonButton,
     IonInput,
@@ -221,11 +221,11 @@ export interface AuditFilters {
         </ion-button>
 
         <ng-template appCellTemplate="madeOnDate" let-row>
-          {{ row['madeOnDate'] | date: 'medium' }}
+          {{ row['madeOnDate'] | dateTime}}
         </ng-template>
 
         <ng-template appCellTemplate="checkedOnDate" let-row>
-          {{ row['checkedOnDate'] | date: 'medium' }}
+          {{ row['checkedOnDate'] | dateTime }}
         </ng-template>
 
         <ng-template appCellTemplate="actions" let-row>
