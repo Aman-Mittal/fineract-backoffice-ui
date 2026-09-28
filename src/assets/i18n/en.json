@@ -655,6 +655,8 @@
     "APPROVAL_UNDONE": "Loan approval undone.",
     "CONFIRM_CHARGEBACK": "Charge back this repayment? A separate Chargeback transaction is recorded and the amount is added back to the loan balance.",
     "CHARGEBACK_RECORDED": "Chargeback recorded.",
+    "CHARGEBACK_REPAYMENT_AMOUNT": "Repayment amount",
+    "CHARGEBACK_AMOUNT_EXCEEDS": "The amount cannot be more than the repayment being charged back.",
     "DELINQUENCY": "Delinquency",
     "DELINQUENCY_SUMMARY": "Delinquency Summary",
     "DELINQUENCY_TAGS": "Delinquency Tags",

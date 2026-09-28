@@ -17,7 +17,8 @@
  * under the License.
  */
 
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { GetPaymentTypeOptions, LoanTransactionsService } from '../../api';
@@ -29,6 +30,8 @@ export interface LoanChargebackData {
   transactionId: number;
   /** The repayment being charged back; also the most the platform will allow. */
   amount: number;
+  /** The repayment's date, already formatted for display. */
+  date?: string;
   currencySymbol?: string;
 }
 
@@ -54,11 +57,24 @@ const CHARGEBACK_PAYMENT_TYPE_CODE = 'REPAYMENT_ADJUSTMENT_CHARGEBACK';
 @Component({
   selector: 'app-loan-chargeback-dialog',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, ButtonComponent],
+  imports: [FormsModule, DecimalPipe, TranslatePipe, ButtonComponent],
   template: `
     <h2 class="dialog-title">{{ 'LOANS.ACTIONS.CHARGEBACK' | appTranslate }}</h2>
     <div class="dialog-content">
       <p class="dialog-message">{{ 'LOANS.CONFIRM_CHARGEBACK' | appTranslate }}</p>
+
+      <dl class="repayment-summary" data-testid="chargeback-summary">
+        @if (data().date) {
+          <div>
+            <dt>{{ 'COMMON.TRANSACTION_DATE' | appTranslate }}</dt>
+            <dd>{{ data().date }}</dd>
+          </div>
+        }
+        <div>
+          <dt>{{ 'LOANS.CHARGEBACK_REPAYMENT_AMOUNT' | appTranslate }}</dt>
+          <dd>{{ data().currencySymbol }}{{ data().amount | number: '1.2-2' }}</dd>
+        </div>
+      </dl>
 
       <div class="form-field">
         <label for="chargeback-amount">
@@ -74,10 +90,19 @@ const CHARGEBACK_PAYMENT_TYPE_CODE = 'REPAYMENT_ADJUSTMENT_CHARGEBACK';
           data-testid="chargeback-amount"
           min="0"
           step="any"
+          [attr.max]="data().amount"
+          [class.invalid]="exceedsRepayment()"
+          [attr.aria-invalid]="exceedsRepayment()"
+          [attr.aria-describedby]="exceedsRepayment() ? 'chargeback-amount-error' : null"
           [ngModel]="amount()"
           (ngModelChange)="amount.set($event)"
           required
         />
+        @if (exceedsRepayment()) {
+          <p id="chargeback-amount-error" class="field-error" role="alert">
+            {{ 'LOANS.CHARGEBACK_AMOUNT_EXCEEDS' | appTranslate }}
+          </p>
+        }
       </div>
 
       <div class="form-field">
@@ -112,15 +137,57 @@ const CHARGEBACK_PAYMENT_TYPE_CODE = 'REPAYMENT_ADJUSTMENT_CHARGEBACK';
   `,
   styles: [
     `
+      /* Nothing global pads a dialog's contents; Ionic fields bring their own inset, native
+         controls do not, so this dialog supplies the spacing itself. */
+      :host {
+        display: block;
+        padding: 24px;
+      }
+      .dialog-title {
+        margin: 0 0 16px;
+        font-size: 1.25rem;
+      }
       .dialog-content {
         display: flex;
         flex-direction: column;
         gap: 16px;
-        padding-top: 8px;
         min-width: 350px;
+      }
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 24px;
       }
       .dialog-message {
         margin: 0;
+        color: var(--text-muted);
+      }
+      .repayment-summary {
+        display: flex;
+        gap: 24px;
+        margin: 0;
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: var(--surface-sunken);
+      }
+      .repayment-summary dt {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        opacity: 0.7;
+      }
+      .repayment-summary dd {
+        margin: 2px 0 0;
+        font-weight: 600;
+      }
+      .form-field input.invalid {
+        border-color: var(--error-color);
+      }
+      .field-error {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--error-strong);
       }
     `,
   ],
@@ -134,6 +201,12 @@ export class LoanChargebackDialogComponent implements OnInit {
   readonly amount = signal<number | null>(null);
   readonly paymentTypeId = signal<number | undefined>(undefined);
   readonly paymentTypes = signal<GetPaymentTypeOptions[]>([]);
+
+  /** More than the repayment is never accepted, so say so instead of waiting for the platform. */
+  readonly exceedsRepayment = computed(() => {
+    const amount = this.amount();
+    return amount !== null && Number(amount) > this.data().amount;
+  });
 
   ngOnInit(): void {
     this.amount.set(this.data().amount);
@@ -158,7 +231,7 @@ export class LoanChargebackDialogComponent implements OnInit {
 
   isValid(): boolean {
     const amount = this.amount();
-    return amount !== null && Number(amount) > 0;
+    return amount !== null && Number(amount) > 0 && !this.exceedsRepayment();
   }
 
   onCancel(): void {

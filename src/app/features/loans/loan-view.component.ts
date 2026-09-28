@@ -2194,6 +2194,8 @@ export class LoanViewComponent implements OnInit {
       loanId: this.loanId(),
       transactionId: tx.id,
       amount: tx.amount ?? 0,
+      // The generated type says string; the platform sends [year, month, day], as the table does.
+      date: this.formatPeriodDate(tx.date as unknown as number[]),
       currencySymbol: this.loan()?.currency?.displaySymbol,
     };
     const result = await this.dialogService.open<LoanChargebackResult>(

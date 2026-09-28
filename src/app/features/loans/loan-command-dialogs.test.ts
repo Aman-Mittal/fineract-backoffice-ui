@@ -207,6 +207,25 @@ describe('LoanChargebackDialogComponent', () => {
     expect(component.isValid()).toBe(true);
   });
 
+  it('refuses an amount above the repayment and says why', async () => {
+    await setup();
+    component.amount.set(100.01);
+
+    component.onConfirm();
+
+    expect(component.exceedsRepayment()).toBe(true);
+    expect(component.isValid()).toBe(false);
+    expect(overlay.dismissals).toEqual([]);
+  });
+
+  it('accepts exactly the repayment amount', async () => {
+    await setup();
+    component.amount.set(100);
+
+    expect(component.exceedsRepayment()).toBe(false);
+    expect(component.isValid()).toBe(true);
+  });
+
   it('refuses an amount of zero', async () => {
     await setup();
     component.amount.set(0);
