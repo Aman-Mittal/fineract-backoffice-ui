@@ -17,12 +17,17 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
-import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
+import {
+  DataTableComponent,
+  ColumnDef,
+  CellTemplateDirective,
+  StatusBadgeComponent,
+} from '../../../shared';
 import { AuditsService } from '../../../api';
 import { DatePipe } from '@angular/common';
 import { ViewPayloadDialogComponent } from '../../tasks/checker-inbox/view-payload-dialog.component';
@@ -68,6 +73,7 @@ export interface AuditFilters {
     DataTableComponent,
     CellTemplateDirective,
     DatePipe,
+    StatusBadgeComponent,
     IonIcon,
     IonButton,
     IonInput,
@@ -200,13 +206,13 @@ export interface AuditFilters {
         [hasError]="hasError()"
         (retry)="onRetry()"
         title="SECURITY.AUDIT_LOGS"
-        [columns]="columns"
-        [data]="auditLogs()"
+        [columns]="columns()"
+        [data]="visibleLogs()"
         [totalRecords]="totalRecords()"
         [pageSize]="pageSize()"
         [pageIndex]="pageIndex()"
         [isLoading]="isLoading()"
-        [showSearch]="false"
+        (searchChange)="onSearch($event)"
         (pageChange)="onPage($event)"
         (sortChange)="onSort($event)"
       >
@@ -226,6 +232,10 @@ export interface AuditFilters {
 
         <ng-template appCellTemplate="checkedOnDate" let-row>
           {{ row['checkedOnDate'] | date: 'medium' }}
+        </ng-template>
+
+        <ng-template appCellTemplate="processingResult" let-row>
+          <app-status-badge [status]="row['processingResult']"></app-status-badge>
         </ng-template>
 
         <ng-template appCellTemplate="actions" let-row>
@@ -254,8 +264,7 @@ export interface AuditFilters {
         padding: 8px 0;
       }
       .filter-panel {
-        margin: 24px;
-        margin-bottom: 0;
+        margin: 0 0 var(--space-4);
       }
       .filter-grid {
         display: grid;
@@ -280,7 +289,9 @@ export class AuditLogsListComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly download = inject(DOWNLOAD);
 
-  columns: ColumnDef[] = [
+  private static readonly CHECKER_COLUMNS = ['checker', 'checkedOnDate'];
+
+  private readonly allColumns: ColumnDef[] = [
     { key: 'id', label: 'COMMON.ID', sortable: true },
     { key: 'resourceId', label: 'SECURITY.RESOURCE_ID', sortable: true },
     { key: 'entityName', label: 'COMMON.ENTITY', sortable: true },
@@ -294,6 +305,39 @@ export class AuditLogsListComponent implements OnInit {
   ];
 
   readonly auditLogs = signal<Record<string, unknown>[]>([]);
+
+  /** Free-text search, applied to the rows of the page that is currently loaded. */
+  private readonly searchText = signal('');
+
+  /**
+   * The rows on screen: the loaded page narrowed by the search box.
+   *
+   * The audits endpoint has no free-text parameter — only the structured filters above — so this
+   * matches against every visible field of the loaded page rather than querying the server.
+   */
+  readonly visibleLogs = computed(() => {
+    const needle = this.searchText();
+    const rows = this.auditLogs();
+    if (!needle) return rows;
+    return rows.filter((row) =>
+      this.allColumns.some((col) => {
+        const value = row[col.key];
+        return value != null && String(value).toLowerCase().includes(needle);
+      }),
+    );
+  });
+
+  /**
+   * Checker and Checked Date are only meaningful when maker-checker is in use. With it off,
+   * no entry is ever checked and the pair would be two permanently blank columns, so they are
+   * left out unless at least one loaded row has a checker.
+   */
+  readonly columns = computed<ColumnDef[]>(() => {
+    const anyChecked = this.auditLogs().some((row) => !!row['checker'] || !!row['checkedOnDate']);
+    return anyChecked
+      ? this.allColumns
+      : this.allColumns.filter((col) => !AuditLogsListComponent.CHECKER_COLUMNS.includes(col.key));
+  });
   readonly totalRecords = signal<number>(0);
   readonly isLoading = signal<boolean>(false);
   readonly pageSize = signal<number>(10);
@@ -422,6 +466,10 @@ export class AuditLogsListComponent implements OnInit {
     this.onApplyFilters();
   }
 
+  onSearch(value: string): void {
+    this.searchText.set(value.trim().toLowerCase());
+  }
+
   onPage(event: PageEvent): void {
     this.pageSize.set(event.pageSize);
     this.pageIndex.set(event.pageIndex);
@@ -447,7 +495,7 @@ export class AuditLogsListComponent implements OnInit {
 
   /** Exports the currently-loaded page — matches what the table shows, not the full result set. */
   onExportCsv(): void {
-    const exportColumns = this.columns.filter((c) => c.key !== 'actions');
+    const exportColumns = this.columns().filter((c) => c.key !== 'actions');
     const csv = toCsv(exportColumns, this.auditLogs());
     this.download.saveText(csv, 'audit-logs.csv', 'text/csv');
   }
