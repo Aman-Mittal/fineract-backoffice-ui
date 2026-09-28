@@ -526,8 +526,7 @@ export class LoanTransactionFormComponent implements OnInit {
         error: () => this.isSaving.set(false),
       });
     } else if (
-      this.transactionType() === 'contractTermination' ||
-      this.transactionType() === 'undoContractTermination'
+      ['contractTermination', 'undoContractTermination'].includes(this.transactionType())
     ) {
       this.loansService
         .postLoansLoanId(
