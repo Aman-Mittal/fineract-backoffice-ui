@@ -71,6 +71,20 @@ describe('StatusBadgeComponent', () => {
       expect(component.colorClass()).toBe('status-default');
     });
 
+    it('reads a processing result as an outcome, not a lifecycle state', () => {
+      fixture.componentRef.setInput('status', 'processed');
+      expect(component.colorClass()).toBe(STATUS_ACTIVE);
+
+      fixture.componentRef.setInput('status', 'success');
+      expect(component.colorClass()).toBe(STATUS_ACTIVE);
+
+      fixture.componentRef.setInput('status', 'failure');
+      expect(component.colorClass()).toBe(STATUS_CLOSED);
+
+      fixture.componentRef.setInput('status', 'unprocessed');
+      expect(component.colorClass()).toBe('status-default');
+    });
+
     it('should return status-active for active status', () => {
       fixture.componentRef.setInput('status', ACTIVE);
       expect(component.colorClass()).toBe(STATUS_ACTIVE);
