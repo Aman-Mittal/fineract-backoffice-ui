@@ -424,6 +424,72 @@ function* sources(dir = 'src') {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Gate 10 — the production build can execute under the shipped CSP
+//
+// Angular's critical-CSS optimisation emits an inline `onload` handler, which `script-src
+// 'self'` blocks. The released image also contains a metadata-only `remoteEntry.json`; treating
+// it as a remote adds an unnecessary federation path. Production therefore keeps discovery
+// dev-only, while the bootstrap itself still needs `blob:` for es-module-shims. The gate allows
+// only those two script sources and never `unsafe-inline`/`unsafe-eval`. Both failures occur only
+// in the container, after the normal build checks have passed. See #360.
+// ---------------------------------------------------------------------------------------------
+{
+  const ANGULAR_CONFIG = 'angular.json';
+  const NGINX_CONF = 'deploy/nginx.conf.template';
+  const REMOTE_CONFIG = 'src/app/core/federation/remotes.ts';
+  const angularConfig = read(ANGULAR_CONFIG);
+  const nginxConfig = read(NGINX_CONF);
+  const remoteConfig = read(REMOTE_CONFIG);
+
+  let productionConfigs = [];
+  let parseError = '';
+  try {
+    const parsed = JSON.parse(angularConfig);
+    productionConfigs = Object.values(parsed.projects ?? {})
+      .map((project) => project?.architect?.esbuild?.configurations?.production)
+      .filter(Boolean);
+  } catch (error) {
+    parseError = error instanceof Error ? error.message : String(error);
+  }
+
+  const inlineCriticalDisabled =
+    productionConfigs.length > 0 &&
+    productionConfigs.every((config) => config.optimization?.styles?.inlineCritical === false);
+  const strictScriptSource =
+    /script-src[^;]*'self'[^;]*blob:/.test(nginxConfig) &&
+    !/script-src[^;]*(?:unsafe-inline|unsafe-eval)/.test(nginxConfig);
+  const productionRemoteDisabled = /if\s*\(!isLocalDevServer\(location\)\)\s*return\s*\{\};/.test(
+    remoteConfig,
+  );
+
+  if (!angularConfig || !nginxConfig || !remoteConfig || parseError) {
+    record('container-csp', 'Production build can execute under the shipped CSP', 'unknown', {
+      detail: parseError || `${ANGULAR_CONFIG}, ${NGINX_CONF}, or ${REMOTE_CONFIG} not found.`,
+      reference: 'security.md §4',
+    });
+  } else if (!inlineCriticalDisabled || !strictScriptSource || !productionRemoteDisabled) {
+    const problems = [];
+    if (!inlineCriticalDisabled) {
+      problems.push(
+        `${ANGULAR_CONFIG} must set optimization.styles.inlineCritical=false for every production build`,
+      );
+    }
+    if (!strictScriptSource) {
+      problems.push(`${NGINX_CONF} must allow only 'self' and blob: for scripts`);
+    }
+    if (!productionRemoteDisabled) {
+      problems.push(`${REMOTE_CONFIG} must skip remote discovery outside the local dev server`);
+    }
+    record('container-csp', 'Production build can execute under the shipped CSP', 'fail', {
+      detail: problems.join('; '),
+      reference: 'security.md §4',
+    });
+  } else {
+    record('container-csp', 'Production build can execute under the shipped CSP', 'pass');
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------------------------
 

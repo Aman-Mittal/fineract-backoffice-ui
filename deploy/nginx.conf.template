@@ -37,13 +37,17 @@ server {
     # Angular emits component styles inline, and there is no nonce plumbed through this static
     # server. Scripts do not get it.
     #
+    # `blob:` is required by native-federation's module bootstrap: it creates a module from a
+    # Blob URL using already-running same-origin JavaScript. This does not admit remote code,
+    # inline handlers, or 'unsafe-eval'; `'self'` remains the only network source for scripts.
+    #
     # `connect-src 'self'` stays, and the /api/ proxy below is what makes it workable. Fineract is
     # reached through this origin, so the browser never makes a cross-origin request and the
     # policy never has to be widened to accommodate one. A deployment that instead points the
     # browser straight at another host has to add that origin here *and* to `allowedApiOrigins`
     # in config.json — deliberately two separate places, so a browser-side setting alone cannot
     # open a new destination.
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "DENY" always;
     add_header Referrer-Policy "no-referrer" always;
