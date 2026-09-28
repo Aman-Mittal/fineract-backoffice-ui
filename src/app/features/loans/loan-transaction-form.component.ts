@@ -53,6 +53,7 @@ import {
 import { toIsoDate } from '../../core/utils/date-formatter';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { createPickersReady } from '../../shared/utils/pickers-ready';
+import { loanContractTerminationPayload } from './loan-contract-termination';
 
 const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   repayment: 'LOANS.REPAYMENT',
@@ -70,6 +71,8 @@ const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   merchantIssuedRefund: 'LOANS.ACTIONS.MERCHANT_ISSUED_REFUND',
   payoutRefund: 'LOANS.ACTIONS.PAYOUT_REFUND',
   refundByCash: 'LOANS.ACTIONS.REFUND_BY_CASH',
+  contractTermination: 'LOANS.ACTIONS.CONTRACT_TERMINATION',
+  undoContractTermination: 'LOANS.ACTIONS.UNDO_CONTRACT_TERMINATION',
   goodwillCredit: 'LOANS.ACTIONS.GOODWILL_CREDIT',
   downPayment: 'LOANS.ACTIONS.DOWN_PAYMENT',
   interestPaymentWaiver: 'LOANS.ACTIONS.INTEREST_PAYMENT_WAIVER',
@@ -82,7 +85,14 @@ const TRANSACTION_TITLE_KEYS: Record<string, string> = {
 };
 
 /** Commands the template endpoint rejects; verified against a running Fineract. */
-const NO_TEMPLATE_TYPES = new Set(['approve', 'undoDisbursal', 'reAmortize', 'undowriteoff']);
+const NO_TEMPLATE_TYPES = new Set([
+  'approve',
+  'undoDisbursal',
+  'reAmortize',
+  'undowriteoff',
+  'contractTermination',
+  'undoContractTermination',
+]);
 
 const DESTRUCTIVE_TYPES = new Set([
   'writeoff',
@@ -93,6 +103,8 @@ const DESTRUCTIVE_TYPES = new Set([
   'undowriteoff',
   'reAge',
   'reAmortize',
+  'contractTermination',
+  'undoContractTermination',
 ]);
 
 // Only these commands accept a transaction amount / payment type — the
@@ -122,6 +134,8 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   reAge: 'LOANS.CONFIRM_RE_AGE',
   reAmortize: 'LOANS.CONFIRM_RE_AMORTIZE',
   'close-rescheduled': 'LOANS.CONFIRM_CLOSE_AS_RESCHEDULED',
+  contractTermination: 'LOANS.CONFIRM_CONTRACT_TERMINATION',
+  undoContractTermination: 'LOANS.CONFIRM_UNDO_CONTRACT_TERMINATION',
 };
 
 @Component({
@@ -167,7 +181,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
         <ion-card-content>
           <form #transactionForm="ngForm" (ngSubmit)="onSubmit()" class="transaction-form">
             <div class="form-grid">
-              @if (transactionType() !== 'undoDisbursal') {
+              @if (dateVisible) {
                 <!-- Transaction Date -->
                 <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate">
                   <ion-label position="stacked">
@@ -385,6 +399,13 @@ export class LoanTransactionFormComponent implements OnInit {
     return AMOUNT_VISIBLE_TYPES.has(this.transactionType());
   }
 
+  /** The loan-level contract commands use Fineract's business date, not a client date field. */
+  get dateVisible(): boolean {
+    return !['undoDisbursal', 'contractTermination', 'undoContractTermination'].includes(
+      this.transactionType(),
+    );
+  }
+
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.loanId = +params['loanId'];
@@ -504,6 +525,19 @@ export class LoanTransactionFormComponent implements OnInit {
         next: () => this.router.navigate(['/loans']),
         error: () => this.isSaving.set(false),
       });
+    } else if (
+      ['contractTermination', 'undoContractTermination'].includes(this.transactionType())
+    ) {
+      this.loansService
+        .postLoansLoanId(
+          this.loanId,
+          loanContractTerminationPayload(this.transaction.note),
+          this.transactionType(),
+        )
+        .subscribe({
+          next: () => this.router.navigate(['/loans']),
+          error: () => this.isSaving.set(false),
+        });
     } else {
       this.transaction.transactionDate = formattedDate;
       this.transaction.dateFormat = this.DATE_FORMAT;

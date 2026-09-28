@@ -57,6 +57,7 @@ import { EntityNotesComponent } from '../../shared/components/entity-notes/entit
 import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
+import { canTerminateLoanContract, isLoanContractTerminated } from './loan-contract-termination';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -433,6 +434,34 @@ export function toEditableDate(value: unknown): string {
                           {{ 'LOANS.ACTIONS.CLOSE_AS_RESCHEDULED' | translate }}
                         </ion-label>
                       </ion-item>
+
+                      @if (canTerminateContract()) {
+                        <ion-item
+                          button
+                          data-testid="loan-contract-termination-action"
+                          appRequiresPermission="CONTRACT_TERMINATION_LOAN"
+                          (click)="onLoanTransactionAction('contractTermination')"
+                        >
+                          <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+                          <ion-label>{{
+                            'LOANS.ACTIONS.CONTRACT_TERMINATION' | translate
+                          }}</ion-label>
+                        </ion-item>
+                      }
+
+                      @if (isContractTerminated()) {
+                        <ion-item
+                          button
+                          data-testid="loan-undo-contract-termination-action"
+                          appRequiresPermission="CONTRACT_TERMINATION_UNDO_LOAN"
+                          (click)="onLoanTransactionAction('undoContractTermination')"
+                        >
+                          <ion-icon slot="start" name="lock-open-outline"></ion-icon>
+                          <ion-label>{{
+                            'LOANS.ACTIONS.UNDO_CONTRACT_TERMINATION' | translate
+                          }}</ion-label>
+                        </ion-item>
+                      }
 
                       <ion-item
                         button
@@ -1645,6 +1674,9 @@ export class LoanViewComponent implements OnInit {
   readonly isOverpaid = computed(
     () => (this.loan()?.status as unknown as Record<string, unknown>)?.['overpaid'] === true,
   );
+
+  readonly isContractTerminated = computed(() => isLoanContractTerminated(this.loan()));
+  readonly canTerminateContract = computed(() => canTerminateLoanContract(this.loan()));
 
   /**
    * A cash refund returns money the borrower paid ahead of schedule, so the platform accepts it
