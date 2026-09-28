@@ -63,6 +63,7 @@ import { EntityDocumentsComponent } from '../../shared/components/entity-documen
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { canTerminateLoanContract, isLoanContractTerminated } from './loan-contract-termination';
+import { isRefundableLoanCharge } from './loan-charge-refund';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -599,6 +600,18 @@ export function toEditableDate(value: unknown): string {
                         <ion-label>{{
                           'LOANS.ACTIONS.CREDIT_BALANCE_REFUND' | translate
                         }}</ion-label>
+                      </ion-item>
+                    }
+
+                    @if (canRefundCharge()) {
+                      <ion-item
+                        button
+                        data-testid="loan-charge-refund-action"
+                        appRequiresPermission="CHARGEREFUND_LOAN"
+                        (click)="onLoanTransactionAction('chargeRefund')"
+                      >
+                        <ion-icon slot="start" name="receipt-outline"></ion-icon>
+                        <ion-label>{{ 'LOANS.ACTIONS.CHARGE_REFUND' | translate }}</ion-label>
                       </ion-item>
                     }
 
@@ -1695,6 +1708,25 @@ export class LoanViewComponent implements OnInit {
 
   readonly isContractTerminated = computed(() => isLoanContractTerminated(this.loan()));
   readonly canTerminateContract = computed(() => canTerminateLoanContract(this.loan()));
+
+  /** Charges the shared refund form can reverse without an installment selector. */
+  readonly refundableCharges = computed(() =>
+    this.charges().filter((charge) => isRefundableLoanCharge(charge, this.transactions())),
+  );
+
+  /**
+   * Charge refund is valid for the same broad statuses Fineract accepts and needs at least one
+   * collected charge to reverse. Looking at the loaded charge list avoids offering a menu item
+   * that could only lead to an empty form.
+   */
+  readonly canRefundCharge = computed(() => {
+    const status = this.loan()?.status as unknown as Record<string, unknown> | undefined;
+    const statusAllowsRefund =
+      status?.['active'] === true ||
+      status?.['closedObligationsMet'] === true ||
+      status?.['overpaid'] === true;
+    return statusAllowsRefund && this.refundableCharges().length > 0;
+  });
 
   /**
    * A cash refund returns money the borrower paid ahead of schedule, so the platform accepts it
