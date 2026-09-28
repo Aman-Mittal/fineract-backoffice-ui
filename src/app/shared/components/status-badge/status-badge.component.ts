@@ -143,7 +143,16 @@ export class StatusBadgeComponent {
         ? status.toLowerCase()
         : (statusObj['value'] as string)?.toLowerCase() || '';
 
-    if (code.includes('active') || value.includes('active') || value.includes('approved')) {
+    // Outcomes rather than lifecycle states — the audit log's processing result. Matched whole,
+    // so "unprocessed" is not read as success.
+    const outcome = value || code;
+    if (
+      code.includes('active') ||
+      value.includes('active') ||
+      value.includes('approved') ||
+      outcome === 'processed' ||
+      outcome === 'success'
+    ) {
       return 'status-active';
     }
     if (code.includes('pending') || value.includes('pending') || value.includes('submitted')) {
@@ -154,7 +163,10 @@ export class StatusBadgeComponent {
       value.includes('closed') ||
       code.includes('rejected') ||
       value.includes('rejected') ||
-      code.includes('deleted')
+      code.includes('deleted') ||
+      outcome === 'failure' ||
+      outcome === 'failed' ||
+      outcome === 'error'
     ) {
       return 'status-closed';
     }
