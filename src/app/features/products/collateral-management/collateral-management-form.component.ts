@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,8 +30,6 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  IonSelect,
-  IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
@@ -39,6 +37,10 @@ import {
   CollateralProductCreateRequest,
   CurrencyData,
 } from '../../../api';
+import {
+  SearchableSelectComponent,
+  SearchableSelectOption,
+} from '../../../ui/searchable-select/searchable-select.component';
 
 /**
  * Create / edit form for a collateral product master-data record.
@@ -59,8 +61,7 @@ import {
     IonCardHeader,
     IonCardTitle,
     IonCard,
-    IonSelectOption,
-    IonSelect,
+    SearchableSelectComponent,
   ],
   template: `
     <div class="form-container">
@@ -143,19 +144,15 @@ import {
               <ion-label position="stacked">{{
                 'COLLATERAL_MANAGEMENT.CURRENCY' | translate
               }}</ion-label>
-              <ion-select
-                [attr.aria-label]="'COLLATERAL_MANAGEMENT.CURRENCY' | translate"
-                interface="popover"
+              <app-searchable-select
+                [ariaLabel]="'COLLATERAL_MANAGEMENT.CURRENCY' | translate"
+                [placeholder]="'COLLATERAL_MANAGEMENT.CURRENCY' | translate"
                 name="currency"
+                testId="collateral-currency-select"
+                [options]="currencySelectOptions()"
                 [(ngModel)]="collateral().currency"
                 required
-              >
-                @for (opt of currencyOptions(); track opt.code) {
-                  <ion-select-option [value]="opt.code"
-                    >{{ opt.name }} ({{ opt.code }})</ion-select-option
-                  >
-                }
-              </ion-select>
+              />
             </ion-item>
 
             <div class="form-actions">
@@ -216,6 +213,12 @@ export class CollateralManagementFormComponent implements OnInit {
     locale: 'en',
   });
   readonly currencyOptions = signal<CurrencyData[]>([]);
+  readonly currencySelectOptions = computed<SearchableSelectOption[]>(() =>
+    this.currencyOptions().map((opt) => ({
+      value: opt.code ?? '',
+      label: `${opt.name} (${opt.code})`,
+    })),
+  );
 
   ngOnInit(): void {
     this.collateralService.getCollateralManagementTemplate().subscribe((currencies) => {
