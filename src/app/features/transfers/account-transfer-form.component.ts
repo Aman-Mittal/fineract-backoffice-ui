@@ -200,7 +200,9 @@ export interface MiniAccount {
                         required
                         id="transfer-from-account-type-select"
                         data-testid="transfer-from-account-type-select"
-                        [attr.aria-invalid]="fromAccountTypeModel.invalid && fromAccountTypeModel.touched"
+                        [attr.aria-invalid]="
+                          fromAccountTypeModel.invalid && fromAccountTypeModel.touched
+                        "
                         [attr.aria-describedby]="
                           fromAccountTypeModel.invalid && fromAccountTypeModel.touched
                             ? 'transfer-from-account-type-error'
@@ -241,7 +243,9 @@ export interface MiniAccount {
                         required
                         id="transfer-from-account-select"
                         data-testid="transfer-from-account-select"
-                        [attr.aria-invalid]="fromAccountIdModel.invalid && fromAccountIdModel.touched"
+                        [attr.aria-invalid]="
+                          fromAccountIdModel.invalid && fromAccountIdModel.touched
+                        "
                         [attr.aria-describedby]="
                           fromAccountIdModel.invalid && fromAccountIdModel.touched
                             ? 'transfer-from-account-error'
@@ -370,7 +374,9 @@ export interface MiniAccount {
                         required
                         id="transfer-to-account-type-select"
                         data-testid="transfer-to-account-type-select"
-                        [attr.aria-invalid]="toAccountTypeModel.invalid && toAccountTypeModel.touched"
+                        [attr.aria-invalid]="
+                          toAccountTypeModel.invalid && toAccountTypeModel.touched
+                        "
                         [attr.aria-describedby]="
                           toAccountTypeModel.invalid && toAccountTypeModel.touched
                             ? 'transfer-to-account-type-error'
@@ -479,7 +485,9 @@ export interface MiniAccount {
 
               <div class="field">
                 <ion-item fill="outline">
-                  <ion-label position="stacked">{{ 'CLIENTS.TRANSFER_DATE' | translate }}</ion-label>
+                  <ion-label position="stacked">{{
+                    'CLIENTS.TRANSFER_DATE' | translate
+                  }}</ion-label>
                   @if (pickersReady()) {
                     <ion-datetime-button datetime="transfer-date-picker"></ion-datetime-button>
                   }

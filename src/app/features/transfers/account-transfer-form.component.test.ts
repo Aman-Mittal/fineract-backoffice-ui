@@ -224,7 +224,9 @@ describe('AccountTransferFormComponent', () => {
     it('shows no field error until the user has touched the field', () => {
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector('[data-testid="transfer-amount-error"]')).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="transfer-amount-error"]'),
+      ).toBeNull();
     });
 
     it('shows the required message once an empty required field is blurred', () => {
@@ -282,7 +284,9 @@ describe('AccountTransferFormComponent', () => {
       const amountInput = fixture.nativeElement.querySelector('#transfer-amount-input')!;
       amountInput.dispatchEvent(new CustomEvent('ionBlur'));
       fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('[data-testid="transfer-amount-error"]')).not.toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="transfer-amount-error"]'),
+      ).not.toBeNull();
 
       // Go through the same event the CVA itself listens for (it reads `$event.target.value`,
       // not `detail`), rather than mutating the bound property directly, so this exercises
@@ -291,7 +295,9 @@ describe('AccountTransferFormComponent', () => {
       amountInput.dispatchEvent(new CustomEvent('ionInput'));
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector('[data-testid="transfer-amount-error"]')).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="transfer-amount-error"]'),
+      ).toBeNull();
       expect(amountInput.getAttribute('aria-invalid')).toBe('false');
       expect(amountInput.getAttribute('aria-describedby')).toBeNull();
     });
@@ -323,7 +329,9 @@ describe('AccountTransferFormComponent', () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector('[data-testid="transfer-submit-hint"]')).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="transfer-submit-hint"]'),
+      ).toBeNull();
     });
   });
 });
