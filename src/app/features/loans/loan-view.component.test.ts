@@ -462,6 +462,51 @@ describe('LoanViewComponent', () => {
       expect(component.hasAdvanceBalance()).toBe(true);
     });
   });
+
+  describe('contract termination', () => {
+    const PROGRESSIVE_ACTIVE = {
+      loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+      status: { value: 'Active', active: true },
+      chargedOff: false,
+    };
+
+    it('routes to the shared form for an eligible progressive loan', async () => {
+      await setup(PROGRESSIVE_ACTIVE);
+
+      expect(component.canTerminateContract()).toBe(true);
+      component.onLoanTransactionAction('contractTermination');
+
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/contractTermination`,
+      ]);
+    });
+
+    it('is withheld for cumulative and charged-off loans', async () => {
+      await setup({ status: { value: 'Active', active: true }, chargedOff: false });
+      expect(component.canTerminateContract()).toBe(false);
+
+      await setup({ ...PROGRESSIVE_ACTIVE, chargedOff: true });
+      expect(component.canTerminateContract()).toBe(false);
+    });
+
+    it('offers undo only after the contract-termination sub-status is present', async () => {
+      await setup(PROGRESSIVE_ACTIVE);
+      expect(component.isContractTerminated()).toBe(false);
+
+      await setup({
+        ...PROGRESSIVE_ACTIVE,
+        subStatus: { id: 900, code: 'loanSubStatus.contractTermination' },
+      });
+      expect(component.isContractTerminated()).toBe(true);
+      expect(component.canTerminateContract()).toBe(false);
+
+      component.onLoanTransactionAction('undoContractTermination');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/undoContractTermination`,
+      ]);
+    });
+  });
+
   /**
    * `PUT /loans/{loanId}/disbursements/{disbursementId}` runs Fineract's `updateDisbursementDate`
    * command, which is stricter than the screen used to assume. Verified against a multi-tranche
@@ -475,6 +520,64 @@ describe('LoanViewComponent', () => {
    *   `validation.msg.loan.update.disbursement.principal.cannot.be.blank`.
    * - Omitting `dateFormat`/`locale` fails with `validation.msg.missing.dateFormat.parameter`.
    */
+  /**
+   * `POST /loans/{id}/transactions?command=chargeback` is refused ("unsupported value"), while
+   * `POST /loans/{id}/transactions/{transactionId}?command=chargeback` is accepted — verified
+   * against a running platform. So the action is a row-level one, and only repayments that are
+   * still standing can be charged back.
+   */
+  describe('chargeback', () => {
+    const REPAYMENT = { id: 43, amount: 100, type: { repayment: true }, manuallyReversed: false };
+
+    it('is offered on a repayment that has not been reversed', () => {
+      expect(component.isChargebackEligible(REPAYMENT as any)).toBe(true);
+    });
+
+    it('is withheld from a reversed repayment and from other transaction types', () => {
+      expect(component.isChargebackEligible({ ...REPAYMENT, manuallyReversed: true } as any)).toBe(
+        false,
+      );
+      expect(component.isChargebackEligible({ id: 41, type: { disbursement: true } } as any)).toBe(
+        false,
+      );
+      expect(component.isChargebackEligible({ id: 42, type: { accrual: true } } as any)).toBe(
+        false,
+      );
+    });
+
+    it('posts against the transaction, not the loan, and refreshes the loan afterwards', async () => {
+      transactionsSpy.postLoansLoanIdTransactionsTransactionId = vi
+        .fn()
+        .mockReturnValue(of({}) as any);
+      vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue({
+        transactionAmount: 60,
+        paymentTypeId: 2,
+      });
+      loansServiceSpy.getLoansLoanId.mockClear();
+
+      await component.onChargeback(REPAYMENT as any);
+
+      expect(transactionsSpy.postLoansLoanIdTransactionsTransactionId).toHaveBeenCalledWith(
+        456,
+        43,
+        { transactionAmount: 60, paymentTypeId: 2, locale: 'en' },
+        'chargeback',
+      );
+      expect(transactionsSpy.postLoansLoanIdTransactions).not.toHaveBeenCalled();
+      expect(notificationsSpy.success).toHaveBeenCalled();
+      expect(loansServiceSpy.getLoansLoanId).toHaveBeenCalled();
+    });
+
+    it('sends nothing when the dialog is cancelled', async () => {
+      transactionsSpy.postLoansLoanIdTransactionsTransactionId = vi.fn();
+      vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(undefined);
+
+      await component.onChargeback(REPAYMENT as any);
+
+      expect(transactionsSpy.postLoansLoanIdTransactionsTransactionId).not.toHaveBeenCalled();
+    });
+  });
+
   describe('editing a disbursement tranche', () => {
     const TRANCHE = { id: 1, loanId: 456, expectedDisbursementDate: [2026, 8, 10], principal: 650 };
 

@@ -67,6 +67,19 @@ describe('CollateralManagementFormComponent', () => {
     expect(component.currencyOptions()).toHaveLength(1);
   });
 
+  // Regression coverage for #626: the currency dropdown had no search and forced users to
+  // scroll a long, alphabetical, API-backed list to find one entry.
+  it('exposes the currency template as searchable-select options', () => {
+    expect(component.currencySelectOptions()).toEqual([{ value: 'USD', label: 'US Dollar (USD)' }]);
+  });
+
+  it('renders the currency field as a searchable select rather than a plain ion-select', () => {
+    expect(fixture.nativeElement.querySelector('ion-select')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="collateral-currency-select"]'),
+    ).not.toBeNull();
+  });
+
   it('should post on create and navigate to the list', () => {
     serviceSpy.postCollateralManagement.mockReturnValue(
       of({}) as unknown as ReturnType<CollateralManagementService['postCollateralManagement']>,

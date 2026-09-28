@@ -281,15 +281,15 @@ export class AuditLogsListComponent implements OnInit {
   private readonly download = inject(DOWNLOAD);
 
   columns: ColumnDef[] = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'resourceId', label: 'Resource ID', sortable: true },
-    { key: 'entityName', label: 'Entity', sortable: true },
-    { key: 'actionName', label: 'Action', sortable: true },
-    { key: 'maker', label: 'Maker', sortable: true },
-    { key: 'madeOnDate', label: 'Date', sortable: true },
-    { key: 'checker', label: 'Checker', sortable: true },
-    { key: 'checkedOnDate', label: 'Checked Date', sortable: true },
-    { key: 'processingResult', label: 'Result', sortable: true },
+    { key: 'id', label: 'COMMON.ID', sortable: true },
+    { key: 'resourceId', label: 'SECURITY.RESOURCE_ID', sortable: true },
+    { key: 'entityName', label: 'COMMON.ENTITY', sortable: true },
+    { key: 'actionName', label: 'COMMON.ACTION', sortable: true },
+    { key: 'maker', label: 'COMMON.MAKER', sortable: true },
+    { key: 'madeOnDate', label: 'COMMON.DATE', sortable: true },
+    { key: 'checker', label: 'COMMON.CHECKER', sortable: true },
+    { key: 'checkedOnDate', label: 'COMMON.CHECKED_DATE', sortable: true },
+    { key: 'processingResult', label: 'INLINE_JOB.RESULT', sortable: true },
     { key: 'actions', label: 'COMMON.ACTIONS' },
   ];
 

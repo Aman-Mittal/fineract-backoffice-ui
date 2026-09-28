@@ -139,6 +139,10 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
       - run: npm ci
+      # Three checks: every referenced key exists, no key is interpolated without a translate
+      # pipe, and no catalogue holds a key en.json dropped or loses coverage. What none of them
+      # can see is a key assembled at runtime — the e2e suite fails on those instead, via
+      # ReportingMissingTranslationHandler and the failOnMissingTranslations fixture.
       - name: Verify translations
         run: npm run i18n:check
       - name: Verify every icon name is registered
@@ -162,8 +166,10 @@ jobs:
         run: npm run check:route-permissions
       # Navigation ids are the handle a deployment's config names, in a file this repository
       # never sees. A renamed or removed id silently stops matching there, so the menu a
-      # deployment meant to change comes back on upgrade with no error anywhere.
-      - name: Verify navigation ids are present, unique and stable
+      # deployment meant to change comes back on upgrade with no error anywhere. The same check
+      # holds labelKey to being an actual key: `labelKey: 'Admin'` renders exactly like a
+      # working entry in English and stays English everywhere else.
+      - name: Verify navigation ids are stable and every label is a translation key
         run: npm run check:nav-ids
       # public/branding/ is reserved for deployments. Anything committed there becomes a merge
       # conflict for every downstream that mounts its own overlay.
@@ -454,6 +460,15 @@ jobs:
           code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:18080/)
           [ "$code" = "200" ] || { echo "::error::GET / answered $code"; exit 1; }
 
+      - name: Production HTML does not depend on a blocked inline event handler
+        run: |
+          set -eu
+          page=$(curl -s http://localhost:18080/)
+          if printf '%s' "$page" | grep -q 'onload='; then
+            echo "::error::index.html contains an inline onload handler that script-src blocks"
+            exit 1
+          fi
+
       - name: config.json carries every key the application reads
         run: |
           set -eu
@@ -503,6 +518,20 @@ jobs:
             echo "$headers" | grep -qi "^$header:" || {
               echo "::error::$header missing from the proxied response"; exit 1; }
           done
+
+      - name: CSP admits only the script sources native federation needs
+        run: |
+          set -eu
+          headers=$(curl -s -D - -o /dev/null http://localhost:18080/)
+          csp=$(printf '%s\n' "$headers" | tr -d '\r' | grep -i '^Content-Security-Policy:' | head -n 1)
+          echo "$csp" | grep -Eiq "script-src 'self' blob:;" || {
+            echo "::error::CSP script-src does not contain the required self and blob sources"
+            exit 1
+          }
+          if echo "$csp" | grep -Eiq "script-src[^;]*(unsafe-inline|unsafe-eval)"; then
+            echo "::error::CSP script-src contains an unsafe execution source"
+            exit 1
+          fi
 
       - name: Container logs
         if: always()

@@ -906,9 +906,6 @@
   "src/app/features/organization/currencies/currencies.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/organization/funds/fund-form.component.ts": {
@@ -990,9 +987,6 @@
     }
   },
   "src/app/features/organization/staff/staff-list.component.ts": {
-    "local/no-vendor-ui-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }

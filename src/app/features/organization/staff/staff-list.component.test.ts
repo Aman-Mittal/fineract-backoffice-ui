@@ -17,31 +17,65 @@
  * under the License.
  */
 
-import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { StaffListComponent } from './staff-list.component';
+import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { of, throwError } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { StaffService, StaffData } from '../../../api';
-import { of, throwError, Observable } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
+import { ButtonComponent } from '../../../ui/button/button.component';
+import { provideTestConfig } from '../../../testing/config';
+import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
-import { ActivatedRoute } from '@angular/router';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
+import { StaffListComponent } from './staff-list.component';
 
 describe('StaffListComponent', () => {
   let component: StaffListComponent;
   let fixture: ComponentFixture<StaffListComponent>;
   let staffServiceSpy: SpyObj<StaffService>;
+  let authServiceSpy: SpyObj<AuthService>;
+
+  const staff = [
+    {
+      id: 1,
+      displayName: 'Staff 1',
+      officeName: 'Head Office',
+      isLoanOfficer: true,
+      isActive: true,
+    },
+    {
+      id: 2,
+      displayName: 'Staff 2',
+      officeName: 'Branch 1',
+      isLoanOfficer: false,
+      isActive: false,
+    },
+  ];
+
+  const renderedButtons = (): ButtonComponent[] =>
+    fixture.debugElement
+      .queryAll(By.directive(ButtonComponent))
+      .map((element) => element.componentInstance as ButtonComponent);
 
   beforeEach(async () => {
     staffServiceSpy = createSpyObj(['getStaff']);
-    staffServiceSpy.getStaff.mockReturnValue(of([]) as unknown as Observable<never>);
+    staffServiceSpy.getStaff.mockReturnValue(of(staff) as unknown as Observable<never>);
+    authServiceSpy = Object.assign(createSpyObj<AuthService>(['hasPermission']), {
+      currentUser: () => ({ permissions: [] }),
+    });
+    authServiceSpy.hasPermission.mockReturnValue(true);
 
     await TestBed.configureTestingModule({
       imports: [StaffListComponent],
       providers: [
-        ...provideTranslateTesting(),
         { provide: StaffService, useValue: staffServiceSpy },
-        { provide: ActivatedRoute, useValue: {} },
-        provideNoopAnimations(),
+        { provide: AuthService, useValue: authServiceSpy },
+        provideTestConfig({ rbacEnabled: true }),
+        provideIonicTesting(),
+        provideTranslateTesting(),
+        provideRouter([{ path: '**', children: [] }]),
       ],
     }).compileComponents();
 
@@ -50,30 +84,41 @@ describe('StaffListComponent', () => {
   });
 
   it('should create and load staff', () => {
-    const mockStaff = [
-      {
-        id: 1,
-        displayName: 'Staff 1',
-        officeName: 'Head Office',
-        isLoanOfficer: true,
-        isActive: true,
-      },
-      {
-        id: 2,
-        displayName: 'Staff 2',
-        officeName: 'Branch 1',
-        isLoanOfficer: false,
-        isActive: false,
-      },
-    ];
-    staffServiceSpy.getStaff.mockReturnValue(of(mockStaff) as unknown as Observable<never>);
-
     fixture.detectChanges();
 
     expect(component).toBeTruthy();
     expect(staffServiceSpy.getStaff).toHaveBeenCalledWith(undefined, undefined, undefined, 'all');
-    expect(component.staff()).toEqual(mockStaff as unknown as StaffData[]);
+    expect(component.staff()).toEqual(staff as unknown as StaffData[]);
     expect(component.isLoading()).toBe(false);
+  });
+
+  it('preserves create and edit links through the app-owned button boundary', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const [create, ...edit] = renderedButtons();
+    expect(create.type()).toBe('button');
+    expect(create.link()).toEqual(['create']);
+    expect(create.icon()).toBe('add-outline');
+
+    expect(edit.map((button) => button.type())).toEqual(['button', 'button']);
+    expect(edit.map((button) => button.label())).toEqual(['COMMON.EDIT', 'COMMON.EDIT']);
+    expect(edit.map((button) => button.link())).toEqual([
+      ['edit', 1],
+      ['edit', 2],
+    ]);
+    expect(edit.map((button) => button.icon())).toEqual(['create-outline', 'create-outline']);
+  });
+
+  it('keeps staff actions behind their existing permissions', async () => {
+    authServiceSpy.hasPermission.mockReturnValue(false);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(renderedButtons()).toHaveLength(0);
   });
 
   it('should handle error when loading staff', () => {

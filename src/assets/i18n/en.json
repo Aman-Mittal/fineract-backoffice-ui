@@ -105,6 +105,9 @@
     "loanProductDetails": "Loan Product Details",
     "creditBureauConfig": "Credit Bureau Config",
     "spm": "SPM",
+    "campaigns": "Campaigns",
+    "interop": "Interop",
+    "admin": "Admin",
     "spmSurveys": "SPM Surveys",
     "povertyLine": "Poverty Line",
     "likelihood": "Likelihood",
@@ -134,8 +137,10 @@
     "TITLE": "Currency Configuration",
     "AVAILABLE": "Available Currencies",
     "SELECTED": "Selected Currencies",
-    "ADD": "Add →",
-    "REMOVE": "← Remove",
+    "ADD": "Add",
+    "REMOVE": "Remove",
+    "FILTER": "Filter currencies",
+    "NO_MATCH": "No currencies match your filter.",
     "SAVE": "Save",
     "SAVED_SUCCESS": "Currency configuration saved successfully"
   },
@@ -233,6 +238,7 @@
     "NO": "No",
     "NOTE": "Note",
     "NO_DATA": "No records found.",
+    "NO_RESULTS_FOUND": "No results found.",
     "OF": "of",
     "OFFICE": "Office",
     "OVERPAID": "Overpaid",
@@ -249,6 +255,7 @@
     "RENDER_TIME": "Render Time",
     "REQUIRED": "This field is required",
     "RESET": "Reset",
+    "RESULTS_FOUND": "{{count}} result(s) found",
     "RETRY": "Try again",
     "REVERSED": "Reversed",
     "RUN": "Run",
@@ -284,7 +291,10 @@
     "UNASSIGNED": "Unassigned",
     "ACCOUNTS": "Accounts",
     "CHECK_ALL": "Check All",
-    "UNCHECK_ALL": "Uncheck All"
+    "UNCHECK_ALL": "Uncheck All",
+    "CHECKER": "Checker",
+    "CHECKED_DATE": "Checked Date",
+    "REASON": "Reason"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",
@@ -515,6 +525,8 @@
     "CONFIRM_FORECLOSURE": "This will close the loan early by settling the full outstanding balance as of the transaction date. This action cannot be undone.",
     "CONFIRM_CLOSE": "This will mark the loan as closed. This action cannot be undone.",
     "CONFIRM_UNDO_DISBURSAL": "This will reverse the disbursement and return the loan to Approved status.",
+    "CONFIRM_CONTRACT_TERMINATION": "This will terminate the progressive loan contract and make the outstanding balance immediately due. Continue?",
+    "CONFIRM_UNDO_CONTRACT_TERMINATION": "This will reverse the contract termination and recalculate the original repayment schedule. Continue?",
     "CONFIRM_DELETE_LOAN": "Are you sure you want to delete this loan application? This action cannot be undone.",
     "CONFIRM_DELETE_COLLATERAL": "Are you sure you want to delete this collateral? This action cannot be undone.",
     "CONFIRM_ADJUST_TRANSACTION": "This will reverse the original transaction and record a new one with the corrected details. This action cannot be undone.",
@@ -586,6 +598,8 @@
       "FORECLOSURE": "Foreclosure",
       "PREPAY_LOAN": "Prepay Loan",
       "CLOSE": "Close",
+      "CONTRACT_TERMINATION": "Terminate Contract",
+      "UNDO_CONTRACT_TERMINATION": "Undo Contract Termination",
       "ADJUST_TRANSACTION": "Adjust Transaction",
       "CHARGE_OFF": "Charge Off",
       "UNDO_CHARGE_OFF": "Undo Charge Off",
@@ -604,6 +618,7 @@
       "UNDO_APPROVAL": "Undo Approval",
       "CLOSE_AS_RESCHEDULED": "Close as Rescheduled",
       "DISBURSE_TO_SAVINGS": "Disburse to Savings",
+      "CHARGEBACK": "Chargeback",
       "UNASSIGN_LOAN_OFFICER": "Unassign Loan Officer",
       "UNDO_LAST_DISBURSAL": "Undo Last Disbursal",
       "REVISE_APPROVED_AMOUNT": "Revise Approved Amount",
@@ -660,6 +675,10 @@
     "AVAILABLE_DISBURSEMENT_AMOUNT_HINT": "How much of the approved amount may still be drawn. Changing it also changes the approved amount to match.",
     "APPROVED_AMOUNT_REVISED": "Approved amount updated.",
     "AVAILABLE_DISBURSEMENT_AMOUNT_REVISED": "Available disbursement amount updated.",
+    "CONFIRM_CHARGEBACK": "Charge back this repayment? A separate Chargeback transaction is recorded and the amount is added back to the loan balance.",
+    "CHARGEBACK_RECORDED": "Chargeback recorded.",
+    "CHARGEBACK_REPAYMENT_AMOUNT": "Repayment amount",
+    "CHARGEBACK_AMOUNT_EXCEEDS": "The amount cannot be more than the repayment being charged back.",
     "DELINQUENCY": "Delinquency",
     "DELINQUENCY_SUMMARY": "Delinquency Summary",
     "DELINQUENCY_TAGS": "Delinquency Tags",
@@ -978,7 +997,8 @@
     "SEARCH_FAILED": "Search failed. Please try again."
   },
   "SECURITY": {
-    "AUDIT_LOGS": "Audit Logs"
+    "AUDIT_LOGS": "Audit Logs",
+    "RESOURCE_ID": "Resource ID"
   },
   "SYSTEM": {
     "DATA_TABLES": "Data Tables",
@@ -1298,7 +1318,8 @@
     "CREATE": "Close Period",
     "REOPEN": "Re-open Period",
     "CLOSING_DATE": "Closing Date",
-    "IS_CLOSED": "Is Closed"
+    "IS_CLOSED": "Is Closed",
+    "COMMENTS": "Comments"
   },
   "JOURNAL_ENTRIES": {
     "CREATE": "Add Journal Entry",
@@ -1329,7 +1350,8 @@
     "ALL_OFFICES": "All Offices",
     "ALL_ACCOUNTS": "All Accounts",
     "ALL_ENTRIES": "All Entries",
-    "MANUAL_ENTRIES": "Manual Entries Only"
+    "MANUAL_ENTRIES": "Manual Entries Only",
+    "LEDGER_ACCOUNT": "Ledger Account"
   },
   "OFFICES": {
     "CREATE_OFFICE": "Create Office",
@@ -1459,7 +1481,9 @@
     "INCOME": "Income",
     "EXPENSE": "Expense",
     "HEADER": "Header",
-    "DETAIL": "Detail"
+    "DETAIL": "Detail",
+    "ACCOUNT_NAME": "Account Name",
+    "FINANCIAL_ACTIVITY": "Financial Activity"
   },
   "MODULES": {
     "CLIENTS_CONTRACTS": "Clients & Contracts",
@@ -2491,7 +2515,9 @@
     "TITLE": "External Asset Owners",
     "LOAN_PRODUCT_ATTRIBUTES": "Loan Product Attributes",
     "ATTRIBUTE_KEY": "Key",
-    "ATTRIBUTE_VALUE": "Value"
+    "ATTRIBUTE_VALUE": "Value",
+    "OWNER_ID": "Owner ID",
+    "PURCHASE_RATIO": "Purchase Ratio"
   },
   "SPM": {
     "LOOKUP_TABLES": "Lookup Tables",
@@ -2803,7 +2829,8 @@
     "CORE_READ_ONLY": "This is a core report. The platform allows only the \"In Use\" setting to change; the rest of the definition is shown for reference.",
     "DELETE_CONFIRM": "This removes the report definition. Reports already run from it are not affected.",
     "DELETED": "Report definition deleted",
-    "SAVED": "Report definition saved"
+    "SAVED": "Report definition saved",
+    "ORIGIN": "Origin"
   },
   "NOTES": {
     "ADD": "Add a note",

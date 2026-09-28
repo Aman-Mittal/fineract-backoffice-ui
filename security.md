@@ -384,8 +384,10 @@ What the operator / deployer must do for the assumptions in §5–§7 to hold:
    Without TLS, session tokens are transmitted in plaintext.
 
 2. **Set HTTP security headers on the NGINX or reverse-proxy layer.** At a minimum:
-   - `Content-Security-Policy` — restrict `script-src` to `'self'`; restrict `connect-src`
-     to the Fineract API origin. This is the single most important header for preventing
+   - `Content-Security-Policy` — restrict `script-src` to `'self'` plus the `blob:` URLs
+     created by the application's same-origin native-federation bootstrap; restrict
+     `connect-src` to the Fineract API origin. `blob:` does not admit remote code, inline
+     handlers, or `unsafe-eval`. This is the single most important header for preventing
      session token exfiltration via XSS.
    - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
    - `X-Frame-Options: DENY` (or `SAMEORIGIN` if embedding is needed)
