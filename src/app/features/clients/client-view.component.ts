@@ -1339,7 +1339,12 @@ export class ClientViewComponent implements OnInit {
     return this.dialogService
       .open<ClientActionResult>(ClientActionDialogComponent, {
         data: {
-          title: `ACTIONS.${command.toUpperCase()}_CLIENT`,
+          // `undoReject` has to become UNDO_REJECT_CLIENT, not UNDOREJECT_CLIENT: the
+          // catalogue words the key as the action reads, and a bare toUpperCase() welds the
+          // camel hump shut. The miss was silent — the dialog titled itself
+          // `ACTIONS.UNDOREJECT_CLIENT` — until the e2e translation gate caught it. Same
+          // transformation savings-account-view uses for its confirm keys.
+          title: `ACTIONS.${command.replaceAll(/([A-Z])/g, '_$1').toUpperCase()}_CLIENT`,
           command: command,
           clientId: this.clientId(),
         },

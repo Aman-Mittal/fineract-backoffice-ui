@@ -101,11 +101,11 @@ export class AccountingClosuresListComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly columns: ColumnDef[] = [
-    { key: 'officeName', label: 'Office', sortable: true },
-    { key: 'closingDate', label: 'Closing Date', sortable: true },
-    { key: 'comments', label: 'Comments', sortable: true },
-    { key: 'isClosed', label: 'Status', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false },
+    { key: 'officeName', label: 'COMMON.OFFICE', sortable: true },
+    { key: 'closingDate', label: 'ACCOUNTING_CLOSURES.CLOSING_DATE', sortable: true },
+    { key: 'comments', label: 'ACCOUNTING_CLOSURES.COMMENTS', sortable: true },
+    { key: 'isClosed', label: 'COMMON.STATUS', sortable: true },
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
   readonly closures = signal<GetGlClosureResponse[]>([]);

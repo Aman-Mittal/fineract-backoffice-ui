@@ -109,11 +109,11 @@ export class ChartOfAccountsComponent {
   private readonly router = inject(Router);
 
   columns: ColumnDef[] = [
-    { key: 'glCode', label: 'GL Code', sortable: true },
-    { key: 'name', label: 'Account Name', sortable: true },
-    { key: 'type', label: 'Type', sortable: true },
-    { key: 'usage', label: 'Usage', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false },
+    { key: 'glCode', label: 'ACCOUNTING.GL_CODE', sortable: true },
+    { key: 'name', label: 'ACCOUNTING.ACCOUNT_NAME', sortable: true },
+    { key: 'type', label: 'COMMON.TYPE', sortable: true },
+    { key: 'usage', label: 'TELLERS.USAGE', sortable: true },
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
   readonly accounts = signal<GetGLAccountsResponse[]>([]);

@@ -94,12 +94,12 @@ export class ExternalAssetOwnersListComponent {
   private readonly router = inject(Router);
 
   columns: ColumnDef[] = [
-    { key: 'transferExternalId', label: 'Transfer ID', sortable: false },
-    { key: 'owner.externalId', label: 'Owner ID', sortable: false },
-    { key: 'loan.externalId', label: 'Loan Account', sortable: false },
-    { key: 'purchasePriceRatio', label: 'Purchase Ratio', sortable: false },
-    { key: 'status', label: 'Status', sortable: false },
-    { key: 'actions', label: 'Actions', sortable: false },
+    { key: 'transferExternalId', label: 'LOANS.TRANSFER_ID', sortable: false },
+    { key: 'owner.externalId', label: 'ASSET_OWNERS.OWNER_ID', sortable: false },
+    { key: 'loan.externalId', label: 'ACTIONS.LOAN_ACCOUNT', sortable: false },
+    { key: 'purchasePriceRatio', label: 'ASSET_OWNERS.PURCHASE_RATIO', sortable: false },
+    { key: 'status', label: 'COMMON.STATUS', sortable: false },
+    { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
   readonly transfers = signal<ExternalTransferData[]>([]);

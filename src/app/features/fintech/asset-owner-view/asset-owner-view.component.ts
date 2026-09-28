@@ -248,11 +248,11 @@ export class AssetOwnerViewComponent implements OnInit {
   journalEntries$!: Observable<JournalEntryData[]>;
 
   journalColumns: ColumnDef[] = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'transactionDate', label: 'Date', sortable: true },
-    { key: 'amount', label: 'Amount', sortable: true },
-    { key: 'type.value', label: 'Type', sortable: true },
-    { key: 'glAccountName', label: 'GL Account', sortable: true },
+    { key: 'id', label: 'COMMON.ID', sortable: true },
+    { key: 'transactionDate', label: 'COMMON.DATE', sortable: true },
+    { key: 'amount', label: 'COMMON.AMOUNT', sortable: true },
+    { key: 'type.value', label: 'COMMON.TYPE', sortable: true },
+    { key: 'glAccountName', label: 'JOURNAL_ENTRIES.GL_ACCOUNT', sortable: true },
   ];
 
   ngOnInit() {
