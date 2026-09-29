@@ -28,6 +28,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
 import { BrandingService } from '../../core/services/branding.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { LOGOUT_REASON_MESSAGE, toLogoutReason } from '../../core/router/session-reasons';
 import { TwoFactorStepComponent } from './two-factor/two-factor-step.component';
 import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.component';
@@ -84,6 +85,22 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
             (cancelled)="onTwoFactorCancelled()"
           />
         } @else {
+          @if (configService.oidcLoginEnabled()) {
+            <!-- The round trip to an identity provider is not implemented yet — see issue #370.
+                 Username and password stay in place below rather than being replaced, so this
+                 button can never be the only way in. -->
+            <button
+              type="button"
+              class="sso-btn"
+              data-testid="login-sso-button"
+              (click)="onOidcLogin()"
+            >
+              {{ 'login.sso.button' | translate }}
+            </button>
+            <div class="sso-divider" role="separator">
+              <span>{{ 'login.sso.divider' | translate }}</span>
+            </div>
+          }
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
             <div class="form-field">
               <label for="serverUrl">
@@ -238,6 +255,35 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
         flex-direction: column;
         gap: 1rem;
       }
+      .sso-btn {
+        width: 100%;
+        padding: var(--space-3);
+        background: var(--card-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+      .sso-btn:hover {
+        border-color: var(--primary-color);
+      }
+      .sso-divider {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        margin: var(--space-4) 0;
+      }
+      .sso-divider::before,
+      .sso-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+      }
       .form-field {
         display: flex;
         flex-direction: column;
@@ -335,6 +381,7 @@ export class LoginComponent {
   protected readonly configService = inject(ConfigService);
   private readonly branding = inject(BrandingService);
   private readonly themeService = inject(ThemeService);
+  private readonly notification = inject(NotificationService);
 
   /**
    * The deployment's product name, or `null` when it sets none.
@@ -410,6 +457,18 @@ export class LoginComponent {
    */
   switchLanguage(lang: string) {
     this.translate.use(lang);
+  }
+
+  /**
+   * The identity-provider button is visible (see {@link ConfigService.oidcLoginEnabled}), but
+   * the authorization-code round trip behind it — redirect, PKCE, token exchange, refresh — is
+   * not built yet; see issue #370. Rather than a silent no-op, or a redirect this application
+   * cannot yet complete, clicking it says so plainly and leaves the person at the form below.
+   * This is deliberately the opposite of the bug being fixed: the config that turns this button
+   * on is real, and so is what happens when it is pressed.
+   */
+  protected onOidcLogin(): void {
+    void this.notification.show(this.translate.instant('login.sso.notImplemented'));
   }
 
   /**
