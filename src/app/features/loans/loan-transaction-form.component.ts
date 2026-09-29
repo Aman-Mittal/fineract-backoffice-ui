@@ -20,14 +20,18 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   LoanTransactionsService,
   LoansService,
+  GetLoansLoanIdTransactions,
   PostLoansLoanIdTransactionsRequest,
   GetLoansLoanIdTransactionsTemplateResponse,
   GetPaymentTypeOptions,
+  GetLoansLoanIdLoanChargeData,
+  PaymentTypeService,
 } from '../../api';
 import { LoanSummary } from './loan-summary.model';
 import { DialogService } from '../../core/services/dialog.service';
@@ -54,6 +58,7 @@ import { toIsoDate } from '../../core/utils/date-formatter';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { createPickersReady } from '../../shared/utils/pickers-ready';
 import { loanContractTerminationPayload } from './loan-contract-termination';
+import { isRefundableLoanCharge, refundableChargeAmount } from './loan-charge-refund';
 
 const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   repayment: 'LOANS.REPAYMENT',
@@ -73,6 +78,7 @@ const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   refundByCash: 'LOANS.ACTIONS.REFUND_BY_CASH',
   contractTermination: 'LOANS.ACTIONS.CONTRACT_TERMINATION',
   undoContractTermination: 'LOANS.ACTIONS.UNDO_CONTRACT_TERMINATION',
+  chargeRefund: 'LOANS.ACTIONS.CHARGE_REFUND',
   goodwillCredit: 'LOANS.ACTIONS.GOODWILL_CREDIT',
   downPayment: 'LOANS.ACTIONS.DOWN_PAYMENT',
   interestPaymentWaiver: 'LOANS.ACTIONS.INTEREST_PAYMENT_WAIVER',
@@ -92,6 +98,7 @@ const NO_TEMPLATE_TYPES = new Set([
   'undowriteoff',
   'contractTermination',
   'undoContractTermination',
+  'chargeRefund',
 ]);
 
 const DESTRUCTIVE_TYPES = new Set([
@@ -117,6 +124,7 @@ const AMOUNT_VISIBLE_TYPES = new Set([
   'merchantIssuedRefund',
   'payoutRefund',
   'refundByCash',
+  'chargeRefund',
   'goodwillCredit',
   'downPayment',
   'interestPaymentWaiver',
@@ -143,6 +151,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   standalone: true,
   imports: [
     FormsModule,
+    DecimalPipe,
     TranslateModule,
     IonButton,
     IonSpinner,
@@ -236,6 +245,30 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
                   >
                     @for (type of paymentTypeOptions(); track type.id) {
                       <ion-select-option [value]="type.id">{{ type.name }}</ion-select-option>
+                    }
+                  </ion-select>
+                </ion-item>
+              }
+
+              @if (transactionType() === 'chargeRefund') {
+                <ion-item fill="outline" class="full-width">
+                  <ion-label position="stacked">{{
+                    'LOANS.CHARGE_REFUND_CHARGE' | translate
+                  }}</ion-label>
+                  <ion-select
+                    [attr.aria-label]="'LOANS.CHARGE_REFUND_CHARGE' | translate"
+                    interface="popover"
+                    name="loanChargeId"
+                    data-testid="charge-refund-charge"
+                    [ngModel]="chargeId()"
+                    (ngModelChange)="onChargeSelected($event)"
+                    required
+                  >
+                    @for (charge of chargeOptions(); track charge.id) {
+                      <ion-select-option [value]="charge.id">
+                        {{ charge.name }} &mdash;
+                        {{ remainingRefundAmount(charge) | number: '1.2-2' }}
+                      </ion-select-option>
                     }
                   </ion-select>
                 </ion-item>
@@ -372,6 +405,7 @@ export class LoanTransactionFormComponent implements OnInit {
 
   private readonly transactionService = inject(LoanTransactionsService);
   private readonly loansService = inject(LoansService);
+  private readonly paymentTypeService = inject(PaymentTypeService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifications = inject(NotificationService);
@@ -389,6 +423,9 @@ export class LoanTransactionFormComponent implements OnInit {
   readonly paymentTypeOptions = signal<GetPaymentTypeOptions[]>([]);
   readonly loanSummary = signal<LoanSummary | null>(null);
   readonly chargeOffReasonOptions = signal<{ id?: number; name?: string }[]>([]);
+  readonly chargeOptions = signal<GetLoansLoanIdLoanChargeData[]>([]);
+  private readonly loanTransactions = signal<GetLoansLoanIdTransactions[]>([]);
+  readonly chargeId = signal<number | null>(null);
   chargeOffReasonId: number | null = null;
 
   get transactionTitleKey(): string {
@@ -399,35 +436,78 @@ export class LoanTransactionFormComponent implements OnInit {
     return AMOUNT_VISIBLE_TYPES.has(this.transactionType());
   }
 
-  /** The loan-level contract commands use Fineract's business date, not a client date field. */
+  /** These commands use Fineract's business date, not a client-supplied date field. */
   get dateVisible(): boolean {
-    return !['undoDisbursal', 'contractTermination', 'undoContractTermination'].includes(
-      this.transactionType(),
-    );
+    return ![
+      'undoDisbursal',
+      'contractTermination',
+      'undoContractTermination',
+      'chargeRefund',
+    ].includes(this.transactionType());
   }
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.loanId = +params['loanId'];
-      this.transactionType.set(params['type']);
+      this.transactionType.set(params['type'] ?? this.route.snapshot.data['transactionType']);
       this.loadTemplate();
       this.loadLoanSummary();
     });
   }
 
   private loadLoanSummary(): void {
-    this.loansService.getLoansLoanId(this.loanId).subscribe({
+    const chargeRefund = this.transactionType() === 'chargeRefund';
+    const request = chargeRefund
+      ? this.loansService.getLoansLoanId(this.loanId, false, 'all')
+      : this.loansService.getLoansLoanId(this.loanId);
+
+    if (chargeRefund) this.loadPaymentTypes();
+
+    request.subscribe({
       next: (data) => {
         this.loanSummary.set({
           accountNo: data.accountNo,
           clientName: data.clientName,
           loanProductName: data.loanProductName,
         });
+        if (chargeRefund) {
+          const transactions = data.transactions ?? [];
+          this.loanTransactions.set(transactions);
+          const options = (data.charges ?? []).filter((charge) =>
+            isRefundableLoanCharge(charge, transactions),
+          );
+          this.chargeOptions.set(options);
+          if (options.length === 1) this.onChargeSelected(options[0].id ?? null);
+        }
       },
       error: () => {
         // Non-critical context display; the form still works without it.
+        if (chargeRefund) this.notifications.error('Operation failed. Please try again.');
       },
     });
+  }
+
+  private loadPaymentTypes(): void {
+    this.paymentTypeService.getPaymenttypes().subscribe({
+      next: (options) =>
+        this.paymentTypeOptions.set(
+          options.map(({ id, name, position }) => ({ id, name, position })),
+        ),
+      error: () => this.paymentTypeOptions.set([]),
+    });
+  }
+
+  onChargeSelected(chargeId: number | null): void {
+    this.chargeId.set(chargeId);
+    const charge = this.chargeOptions().find((option) => option.id === chargeId);
+    this.transaction.loanChargeId = charge?.id;
+    this.transaction.transactionAmount = charge
+      ? refundableChargeAmount(charge, this.loanTransactions())
+      : undefined;
+  }
+
+  remainingRefundAmount(charge: GetLoansLoanIdLoanChargeData): number {
+    return refundableChargeAmount(charge, this.loanTransactions());
   }
 
   private loadTemplate(): void {
@@ -485,6 +565,7 @@ export class LoanTransactionFormComponent implements OnInit {
   }
 
   private performSubmit(): void {
+    if (this.transactionType() === 'chargeRefund' && !this.transaction.loanChargeId) return;
     this.isSaving.set(true);
 
     const formattedDate = toIsoDate(this.transactionDate());
@@ -539,9 +620,11 @@ export class LoanTransactionFormComponent implements OnInit {
           error: () => this.isSaving.set(false),
         });
     } else {
-      this.transaction.transactionDate = formattedDate;
-      this.transaction.dateFormat = this.DATE_FORMAT;
-      this.transaction.locale = 'en';
+      if (this.dateVisible) {
+        this.transaction.transactionDate = formattedDate;
+        this.transaction.dateFormat = this.DATE_FORMAT;
+        this.transaction.locale = 'en';
+      }
       if (!this.amountVisible) {
         // writeoff/foreclosure/close/waiveinterest compute their amount
         // server-side from the outstanding balance and reject an explicit

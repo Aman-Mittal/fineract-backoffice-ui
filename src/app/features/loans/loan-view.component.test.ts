@@ -425,6 +425,63 @@ describe('LoanViewComponent', () => {
     });
   });
 
+  describe('charge refund', () => {
+    const PAID_CHARGE = {
+      id: 77,
+      name: 'Documentation fee',
+      amountPaid: 125,
+      chargeTimeType: { code: 'chargeTimeType.specifiedDueDate', value: 'Specified due date' },
+    };
+
+    it('routes to the shared form when a collected charge can be refunded', async () => {
+      await setup({ status: { value: 'Active', active: true }, charges: [PAID_CHARGE] });
+
+      expect(component.canRefundCharge()).toBe(true);
+      component.onLoanTransactionAction('chargeRefund');
+
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/chargeRefund`,
+      ]);
+    });
+
+    it('withholds the action when no collected charge exists', async () => {
+      await setup({
+        status: { value: 'Active', active: true },
+        charges: [{ ...PAID_CHARGE, amountPaid: 0 }],
+      });
+
+      expect(component.canRefundCharge()).toBe(false);
+    });
+
+    it('withholds installment charges until the form can select an installment', async () => {
+      await setup({
+        status: { value: 'Active', active: true },
+        charges: [
+          {
+            ...PAID_CHARGE,
+            chargeTimeType: { code: 'chargeTimeType.installmentFee', value: 'Installment fee' },
+          },
+        ],
+      });
+
+      expect(component.canRefundCharge()).toBe(false);
+    });
+
+    it('allows charge refund for closed-obligations-met and overpaid loans', async () => {
+      await setup({
+        status: { value: 'Closed (obligations met)', closedObligationsMet: true },
+        charges: [PAID_CHARGE],
+      });
+      expect(component.canRefundCharge()).toBe(true);
+
+      await setup({
+        status: { value: 'Overpaid', overpaid: true },
+        charges: [PAID_CHARGE],
+      });
+      expect(component.canRefundCharge()).toBe(true);
+    });
+  });
+
   /**
    * `PUT /loans/{loanId}/disbursements/{disbursementId}` runs Fineract's `updateDisbursementDate`
    * command, which is stricter than the screen used to assume. Verified against a multi-tranche

@@ -51,6 +51,48 @@ const noop = () => {
 Element.prototype.scrollTo ??= noop;
 Element.prototype.scrollIntoView ??= noop;
 
+// `IntersectionObserver` — Ionic's `ion-datetime` waits for its calendar to become visible before
+// it marks itself ready and installs interaction listeners. jsdom has no layout and does not
+// implement the API, so observed elements are reported as intersecting immediately. This matches
+// the visible component state our tests render without leaving Ionic permanently half-initialized.
+if (globalThis.IntersectionObserver === undefined) {
+  class IntersectionObserverStub implements IntersectionObserver {
+    readonly root = null;
+    readonly rootMargin = '0px 0px 0px 0px';
+    readonly scrollMargin = '0px 0px 0px 0px';
+    readonly thresholds = [0];
+
+    constructor(private readonly callback: IntersectionObserverCallback) {}
+
+    disconnect = noop;
+    takeRecords = (): IntersectionObserverEntry[] => [];
+    unobserve = noop;
+
+    observe(target: Element): void {
+      const bounds = target.getBoundingClientRect();
+      this.callback(
+        [
+          {
+            boundingClientRect: bounds,
+            intersectionRatio: 1,
+            intersectionRect: bounds,
+            isIntersecting: true,
+            rootBounds: null,
+            target,
+            time: performance.now(),
+          },
+        ],
+        this,
+      );
+    }
+  }
+
+  Object.defineProperty(globalThis, 'IntersectionObserver', {
+    configurable: true,
+    value: IntersectionObserverStub,
+  });
+}
+
 // `window.matchMedia` — read by `ThemeService` to follow the OS colour-scheme preference.
 // jsdom's implementation lacks the `EventTarget` half, so a listener registration throws.
 // Defaulting `matches` to `false` means "no preference expressed", which is what a spec that

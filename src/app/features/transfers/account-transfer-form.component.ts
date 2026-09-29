@@ -39,6 +39,7 @@ import {
   IonDatetime,
   IonDatetimeButton,
   IonModal,
+  IonNote,
 } from '@ionic/angular/standalone';
 import {
   AccountTransfersService,
@@ -84,6 +85,7 @@ export interface MiniAccount {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    IonNote,
   ],
   template: `
     <div class="form-container">
@@ -101,16 +103,27 @@ export interface MiniAccount {
                   <div class="section">
                     <h3>{{ 'CLIENTS.TRANSFER_FROM' | translate }}</h3>
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                      <ion-label position="stacked"
+                        >{{ 'COMMON.OFFICE' | translate
+                        }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                      >
                       <ion-select
                         [attr.aria-label]="'COMMON.OFFICE' | translate"
                         interface="popover"
                         name="fromOfficeId"
+                        #fromOfficeIdModel="ngModel"
                         [(ngModel)]="request.fromOfficeId"
                         (ionChange)="onOfficeChange('from')"
+                        (ionBlur)="fromOfficeIdModel.control.markAsTouched()"
                         required
                         id="transfer-from-office-select"
                         data-testid="transfer-from-office-select"
+                        [attr.aria-invalid]="fromOfficeIdModel.invalid && fromOfficeIdModel.touched"
+                        [attr.aria-describedby]="
+                          fromOfficeIdModel.invalid && fromOfficeIdModel.touched
+                            ? 'transfer-from-office-error'
+                            : null
+                        "
                       >
                         @for (office of offices(); track office.id) {
                           <ion-select-option [value]="office.id">{{
@@ -119,18 +132,39 @@ export interface MiniAccount {
                         }
                       </ion-select>
                     </ion-item>
+                    @if (fromOfficeIdModel.invalid && fromOfficeIdModel.touched) {
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-from-office-error"
+                        role="alert"
+                        data-testid="transfer-from-office-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
+                    }
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
+                      <ion-label position="stacked"
+                        >{{ 'COMMON.CLIENT' | translate
+                        }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                      >
                       <ion-select
                         [attr.aria-label]="'COMMON.CLIENT' | translate"
                         interface="popover"
                         name="fromClientId"
+                        #fromClientIdModel="ngModel"
                         [(ngModel)]="request.fromClientId"
                         (ionChange)="onClientChange('from')"
+                        (ionBlur)="fromClientIdModel.control.markAsTouched()"
                         required
                         id="transfer-from-client-select"
                         data-testid="transfer-from-client-select"
+                        [attr.aria-invalid]="fromClientIdModel.invalid && fromClientIdModel.touched"
+                        [attr.aria-describedby]="
+                          fromClientIdModel.invalid && fromClientIdModel.touched
+                            ? 'transfer-from-client-error'
+                            : null
+                        "
                       >
                         @for (client of fromClients(); track client.id) {
                           <ion-select-option [value]="client.id">{{
@@ -139,20 +173,41 @@ export interface MiniAccount {
                         }
                       </ion-select>
                     </ion-item>
+                    @if (fromClientIdModel.invalid && fromClientIdModel.touched) {
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-from-client-error"
+                        role="alert"
+                        data-testid="transfer-from-client-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
+                    }
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{
-                        'CLIENTS.ACCOUNT_TYPE' | translate
-                      }}</ion-label>
+                      <ion-label position="stacked"
+                        >{{ 'CLIENTS.ACCOUNT_TYPE' | translate
+                        }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                      >
                       <ion-select
                         [attr.aria-label]="'CLIENTS.ACCOUNT_TYPE' | translate"
                         interface="popover"
                         name="fromAccountType"
+                        #fromAccountTypeModel="ngModel"
                         [(ngModel)]="request.fromAccountType"
                         (ionChange)="onAccountTypeChange('from')"
+                        (ionBlur)="fromAccountTypeModel.control.markAsTouched()"
                         required
                         id="transfer-from-account-type-select"
                         data-testid="transfer-from-account-type-select"
+                        [attr.aria-invalid]="
+                          fromAccountTypeModel.invalid && fromAccountTypeModel.touched
+                        "
+                        [attr.aria-describedby]="
+                          fromAccountTypeModel.invalid && fromAccountTypeModel.touched
+                            ? 'transfer-from-account-type-error'
+                            : null
+                        "
                       >
                         <ion-select-option [value]="'2'">{{
                           'nav.savingsAccounts' | translate
@@ -162,19 +217,40 @@ export interface MiniAccount {
                         }}</ion-select-option>
                       </ion-select>
                     </ion-item>
+                    @if (fromAccountTypeModel.invalid && fromAccountTypeModel.touched) {
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-from-account-type-error"
+                        role="alert"
+                        data-testid="transfer-from-account-type-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
+                    }
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{
-                        'CLIENTS.ACCOUNT_NO' | translate
-                      }}</ion-label>
+                      <ion-label position="stacked"
+                        >{{ 'CLIENTS.ACCOUNT_NO' | translate
+                        }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                      >
                       <ion-select
                         [attr.aria-label]="'CLIENTS.ACCOUNT_NO' | translate"
                         interface="popover"
                         name="fromAccountId"
+                        #fromAccountIdModel="ngModel"
                         [(ngModel)]="request.fromAccountId"
+                        (ionBlur)="fromAccountIdModel.control.markAsTouched()"
                         required
                         id="transfer-from-account-select"
                         data-testid="transfer-from-account-select"
+                        [attr.aria-invalid]="
+                          fromAccountIdModel.invalid && fromAccountIdModel.touched
+                        "
+                        [attr.aria-describedby]="
+                          fromAccountIdModel.invalid && fromAccountIdModel.touched
+                            ? 'transfer-from-account-error'
+                            : null
+                        "
                       >
                         @for (account of fromAccounts(); track account.id) {
                           <ion-select-option [value]="account.id"
@@ -183,6 +259,16 @@ export interface MiniAccount {
                         }
                       </ion-select>
                     </ion-item>
+                    @if (fromAccountIdModel.invalid && fromAccountIdModel.touched) {
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-from-account-error"
+                        role="alert"
+                        data-testid="transfer-from-account-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
+                    }
                   </div>
                 </ion-col>
 
@@ -191,16 +277,27 @@ export interface MiniAccount {
                   <div class="section">
                     <h3>{{ 'CLIENTS.TRANSFER_TO' | translate }}</h3>
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                      <ion-label position="stacked"
+                        >{{ 'COMMON.OFFICE' | translate
+                        }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                      >
                       <ion-select
                         [attr.aria-label]="'COMMON.OFFICE' | translate"
                         interface="popover"
                         name="toOfficeId"
+                        #toOfficeIdModel="ngModel"
                         [(ngModel)]="request.toOfficeId"
                         (ionChange)="onOfficeChange('to')"
+                        (ionBlur)="toOfficeIdModel.control.markAsTouched()"
                         required
                         id="transfer-to-office-select"
                         data-testid="transfer-to-office-select"
+                        [attr.aria-invalid]="toOfficeIdModel.invalid && toOfficeIdModel.touched"
+                        [attr.aria-describedby]="
+                          toOfficeIdModel.invalid && toOfficeIdModel.touched
+                            ? 'transfer-to-office-error'
+                            : null
+                        "
                       >
                         @for (office of offices(); track office.id) {
                           <ion-select-option [value]="office.id">{{
@@ -209,18 +306,39 @@ export interface MiniAccount {
                         }
                       </ion-select>
                     </ion-item>
+                    @if (toOfficeIdModel.invalid && toOfficeIdModel.touched) {
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-to-office-error"
+                        role="alert"
+                        data-testid="transfer-to-office-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
+                    }
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{ 'COMMON.CLIENT' | translate }}</ion-label>
+                      <ion-label position="stacked"
+                        >{{ 'COMMON.CLIENT' | translate
+                        }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                      >
                       <ion-select
                         [attr.aria-label]="'COMMON.CLIENT' | translate"
                         interface="popover"
                         name="toClientId"
+                        #toClientIdModel="ngModel"
                         [(ngModel)]="request.toClientId"
                         (ionChange)="onClientChange('to')"
+                        (ionBlur)="toClientIdModel.control.markAsTouched()"
                         required
                         id="transfer-to-client-select"
                         data-testid="transfer-to-client-select"
+                        [attr.aria-invalid]="toClientIdModel.invalid && toClientIdModel.touched"
+                        [attr.aria-describedby]="
+                          toClientIdModel.invalid && toClientIdModel.touched
+                            ? 'transfer-to-client-error'
+                            : null
+                        "
                       >
                         @for (client of toClients(); track client.id) {
                           <ion-select-option [value]="client.id">{{
@@ -229,20 +347,41 @@ export interface MiniAccount {
                         }
                       </ion-select>
                     </ion-item>
+                    @if (toClientIdModel.invalid && toClientIdModel.touched) {
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-to-client-error"
+                        role="alert"
+                        data-testid="transfer-to-client-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
+                    }
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{
-                        'CLIENTS.ACCOUNT_TYPE' | translate
-                      }}</ion-label>
+                      <ion-label position="stacked"
+                        >{{ 'CLIENTS.ACCOUNT_TYPE' | translate
+                        }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                      >
                       <ion-select
                         [attr.aria-label]="'CLIENTS.ACCOUNT_TYPE' | translate"
                         interface="popover"
                         name="toAccountType"
+                        #toAccountTypeModel="ngModel"
                         [(ngModel)]="request.toAccountType"
                         (ionChange)="onAccountTypeChange('to')"
+                        (ionBlur)="toAccountTypeModel.control.markAsTouched()"
                         required
                         id="transfer-to-account-type-select"
                         data-testid="transfer-to-account-type-select"
+                        [attr.aria-invalid]="
+                          toAccountTypeModel.invalid && toAccountTypeModel.touched
+                        "
+                        [attr.aria-describedby]="
+                          toAccountTypeModel.invalid && toAccountTypeModel.touched
+                            ? 'transfer-to-account-type-error'
+                            : null
+                        "
                       >
                         <ion-select-option [value]="'2'">{{
                           'nav.savingsAccounts' | translate
@@ -252,19 +391,38 @@ export interface MiniAccount {
                         }}</ion-select-option>
                       </ion-select>
                     </ion-item>
+                    @if (toAccountTypeModel.invalid && toAccountTypeModel.touched) {
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-to-account-type-error"
+                        role="alert"
+                        data-testid="transfer-to-account-type-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
+                    }
 
                     <ion-item fill="outline">
-                      <ion-label position="stacked">{{
-                        'CLIENTS.ACCOUNT_NO' | translate
-                      }}</ion-label>
+                      <ion-label position="stacked"
+                        >{{ 'CLIENTS.ACCOUNT_NO' | translate
+                        }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                      >
                       <ion-select
                         [attr.aria-label]="'CLIENTS.ACCOUNT_NO' | translate"
                         interface="popover"
                         name="toAccountId"
+                        #toAccountIdModel="ngModel"
                         [(ngModel)]="request.toAccountId"
+                        (ionBlur)="toAccountIdModel.control.markAsTouched()"
                         required
                         id="transfer-to-account-select"
                         data-testid="transfer-to-account-select"
+                        [attr.aria-invalid]="toAccountIdModel.invalid && toAccountIdModel.touched"
+                        [attr.aria-describedby]="
+                          toAccountIdModel.invalid && toAccountIdModel.touched
+                            ? 'transfer-to-account-error'
+                            : null
+                        "
                       >
                         @for (account of toAccounts(); track account.id) {
                           <ion-select-option [value]="account.id"
@@ -273,43 +431,78 @@ export interface MiniAccount {
                         }
                       </ion-select>
                     </ion-item>
+                    @if (toAccountIdModel.invalid && toAccountIdModel.touched) {
+                      <ion-note
+                        color="danger"
+                        class="field-error"
+                        id="transfer-to-account-error"
+                        role="alert"
+                        data-testid="transfer-to-account-error"
+                        >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                      >
+                    }
                   </div>
                 </ion-col>
               </ion-row>
             </ion-grid>
 
             <div class="transfer-details">
-              <ion-item fill="outline">
-                <ion-label position="stacked">{{
-                  'CLIENTS.TRANSFER_AMOUNT' | translate
-                }}</ion-label>
-                <ion-input
-                  [attr.aria-label]="'CLIENTS.TRANSFER_AMOUNT' | translate"
-                  type="number"
-                  name="transferAmount"
-                  [(ngModel)]="request.transferAmount"
-                  required
-                  id="transfer-amount-input"
-                  data-testid="transfer-amount-input"
-                ></ion-input>
-              </ion-item>
-
-              <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'CLIENTS.TRANSFER_DATE' | translate }}</ion-label>
-                @if (pickersReady()) {
-                  <ion-datetime-button datetime="transfer-date-picker"></ion-datetime-button>
+              <div class="field">
+                <ion-item fill="outline">
+                  <ion-label position="stacked"
+                    >{{ 'CLIENTS.TRANSFER_AMOUNT' | translate
+                    }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                  >
+                  <ion-input
+                    [attr.aria-label]="'CLIENTS.TRANSFER_AMOUNT' | translate"
+                    type="number"
+                    name="transferAmount"
+                    #transferAmountModel="ngModel"
+                    [(ngModel)]="request.transferAmount"
+                    (ionBlur)="transferAmountModel.control.markAsTouched()"
+                    required
+                    id="transfer-amount-input"
+                    data-testid="transfer-amount-input"
+                    [attr.aria-invalid]="transferAmountModel.invalid && transferAmountModel.touched"
+                    [attr.aria-describedby]="
+                      transferAmountModel.invalid && transferAmountModel.touched
+                        ? 'transfer-amount-error'
+                        : null
+                    "
+                  ></ion-input>
+                </ion-item>
+                @if (transferAmountModel.invalid && transferAmountModel.touched) {
+                  <ion-note
+                    color="danger"
+                    class="field-error"
+                    id="transfer-amount-error"
+                    role="alert"
+                    data-testid="transfer-amount-error"
+                    >{{ 'COMMON.REQUIRED' | translate }}</ion-note
+                  >
                 }
-                <ion-modal [keepContentsMounted]="true">
-                  <ng-template>
-                    <ion-datetime
-                      id="transfer-date-picker"
-                      data-testid="transfer-date-picker"
-                      presentation="date"
-                      (ionChange)="onTransferDateChange($event)"
-                    ></ion-datetime>
-                  </ng-template>
-                </ion-modal>
-              </ion-item>
+              </div>
+
+              <div class="field">
+                <ion-item fill="outline">
+                  <ion-label position="stacked">{{
+                    'CLIENTS.TRANSFER_DATE' | translate
+                  }}</ion-label>
+                  @if (pickersReady()) {
+                    <ion-datetime-button datetime="transfer-date-picker"></ion-datetime-button>
+                  }
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="transfer-date-picker"
+                        data-testid="transfer-date-picker"
+                        presentation="date"
+                        (ionChange)="onTransferDateChange($event)"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
+              </div>
 
               <ion-item fill="outline" class="full-width">
                 <ion-label position="stacked">{{ 'COMMON.DESCRIPTION' | translate }}</ion-label>
@@ -345,6 +538,15 @@ export interface MiniAccount {
                 {{ 'COMMON.CONFIRM' | translate }}
               </ion-button>
             </div>
+            @if (!transferForm.form.valid) {
+              <ion-note
+                color="medium"
+                class="submit-hint"
+                data-testid="transfer-submit-hint"
+                aria-live="polite"
+                >{{ 'COMMON.COMPLETE_REQUIRED_FIELDS' | translate }}</ion-note
+              >
+            }
           </form>
         </ion-card-content>
       </ion-card>
@@ -385,6 +587,27 @@ export interface MiniAccount {
         gap: 16px;
         border-top: 1px dashed #ccc;
         padding-top: 24px;
+      }
+      /* One grid cell per field, amount/date included, so an error message rendered
+         underneath a field never shifts its neighbour into the next cell. */
+      .field {
+        display: flex;
+        flex-direction: column;
+      }
+      .required-marker {
+        color: var(--ion-color-danger, #eb445a);
+        margin-inline-start: 2px;
+      }
+      .field-error {
+        display: block;
+        padding-inline-start: 4px;
+        margin-top: -4px;
+        font-size: 0.8125rem;
+      }
+      .submit-hint {
+        display: block;
+        text-align: end;
+        font-size: 0.8125rem;
       }
     `,
   ],
