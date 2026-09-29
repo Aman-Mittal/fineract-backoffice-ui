@@ -98,6 +98,13 @@ export const LOANS_ROUTES: Routes = [
       import('./collateral/collateral-form.component').then((m) => m.CollateralFormComponent),
   },
   {
+    path: ':loanId/transactions/chargeRefund',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'CHARGEREFUND_LOAN', transactionType: 'chargeRefund' },
+    loadComponent: () =>
+      import('./loan-transaction-form.component').then((m) => m.LoanTransactionFormComponent),
+  },
+  {
     path: ':loanId/transactions/:type',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_LOAN' },
