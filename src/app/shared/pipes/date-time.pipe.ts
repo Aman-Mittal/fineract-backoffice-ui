@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
+import { inject, Pipe, PipeTransform } from '@angular/core';
 import { I18N } from '../../core/adapters/i18n/i18n.adapter';
 
 @Pipe({
