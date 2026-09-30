@@ -20,6 +20,7 @@
 import { Injector } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { SystemStatusComponent } from './system-status.component';
 import { AuthService, UserSession } from '../../core/services/auth.service';
@@ -54,6 +55,8 @@ describe('SystemStatusComponent', () => {
       providers: [
         ...provideTranslateTesting(),
         provideTestConfig({ fineractApiUrl: 'https://localhost:8443/fineract-provider/api/v1' }),
+        // The approvals list links to each pending account.
+        provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -157,6 +160,36 @@ describe('SystemStatusComponent', () => {
 
       expect(widget('clients')).toBeTruthy();
       expect(requested().some((u) => u.includes('/clients'))).toBe(true);
+    });
+  });
+
+  describe('pending approvals trend', () => {
+    const trend = (name: string) =>
+      (fixture.nativeElement as HTMLElement).querySelector(
+        `[data-testid="dashboard-${CSS.escape(name)}-widget"] .widget-trend`,
+      );
+
+    function show(loans: number, savings: number): void {
+      component.isLoading.set(false);
+      component.pendingLoans.set(Array.from({ length: loans }, (_, id) => ({ id })));
+      component.pendingSavings.set(Array.from({ length: savings }, (_, id) => ({ id })));
+      fixture.detectChanges();
+    }
+
+    it('does not highlight an empty queue on either card', () => {
+      show(0, 0);
+      expect(trend('loans')?.classList).not.toContain('highlight');
+      expect(trend('savings')?.classList).not.toContain('highlight');
+    });
+
+    it('highlights each card only while it has something waiting', () => {
+      show(2, 0);
+      expect(trend('loans')?.classList).toContain('highlight');
+      expect(trend('savings')?.classList).not.toContain('highlight');
+
+      show(0, 3);
+      expect(trend('loans')?.classList).not.toContain('highlight');
+      expect(trend('savings')?.classList).toContain('highlight');
     });
   });
 });
