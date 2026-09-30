@@ -64,11 +64,15 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
     balance?: GetBalance;
     breach?: GetWorkingCapitalLoanBreach;
     /**
+     * Effective start date of the loan\'s breach, i.e. breachStartDate shifted forward by breachGraceDays (the cool off period). Only the first breach period carries the grace days, so this is null when the earliest breached period is not the first one, when no breach grace days are configured, and when the loan is not in breach
+     */
+    breachEffectiveStartDate?: string;
+    /**
      * Number of days to shift the start of the first breach schedule period after disbursement
      */
     breachGraceDays?: number;
     /**
-     * Start date of the loan\'s breach, i.e. the fromDate of the earliest breached breach schedule period (the breach grace days are already reflected in this date). Null when the loan is not in breach
+     * Start date of the loan\'s breach, i.e. the fromDate of the earliest breached breach schedule period. Null when the loan is not in breach
      */
     breachStartDate?: string;
     breachStartType?: StringEnumOptionData;
@@ -98,11 +102,15 @@ export interface GetWorkingCapitalLoansLoanIdResponse {
     currency?: CurrencyData;
     delinquencyBucket?: GetDelinquencyBucket;
     /**
+     * Effective start date of the loan\'s delinquency, i.e. delinquencyStartDate shifted forward by delinquencyGraceDays (the cool off period). Only the first delinquency period carries the grace days, so this is null when the earliest delinquent period is not the first one, when no delinquency grace days are configured, and when the loan is not delinquent
+     */
+    delinquencyEffectiveStartDate?: string;
+    /**
      * Number of grace days before delinquency tracking starts
      */
     delinquencyGraceDays?: number;
     /**
-     * Start date of the loan\'s delinquency, i.e. the fromDate of the earliest delinquent range schedule period shifted by delinquencyGraceDays. Null when the loan is not delinquent
+     * Start date of the loan\'s delinquency, i.e. the fromDate of the earliest delinquent range schedule period. Null when the loan is not delinquent
      */
     delinquencyStartDate?: string;
     delinquencyStartType?: StringEnumOptionData;

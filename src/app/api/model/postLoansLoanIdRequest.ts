@@ -70,6 +70,7 @@ export interface PostLoansLoanIdRequest {
     rejectedOnDate?: string;
     toLoanOfficerId?: number;
     transactionAmount?: number;
+    transactionDate?: string;
     unassignedDate?: string;
     withdrawnOnDate?: string;
 }
