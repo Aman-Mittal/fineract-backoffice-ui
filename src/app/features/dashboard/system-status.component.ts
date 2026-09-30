@@ -114,7 +114,7 @@ import {
                   </div>
                 } @else {
                   <div class="widget-value">{{ activeLoans() }}</div>
-                  <div class="widget-trend highlight">
+                  <div class="widget-trend" [class.highlight]="pendingLoans().length > 0">
                     {{ pendingLoans().length }} {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
                   </div>
                 }
@@ -139,7 +139,7 @@ import {
                   </div>
                 } @else {
                   <div class="widget-value">{{ savingsCount() }}</div>
-                  <div class="widget-trend">
+                  <div class="widget-trend" [class.highlight]="pendingSavings().length > 0">
                     {{ pendingSavings().length }} {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
                   </div>
                 }
@@ -167,74 +167,72 @@ import {
       </ion-grid>
 
       <div class="dashboard-layout">
-        <div class="main-column">
-          <!--
+        <!--
             OR, not AND: a user who can see one kind of pending approval should get the
             card for it. A user who can see neither would otherwise be shown a reassuring
             "no pending approvals" that only means they were not allowed to look.
           -->
-          <ion-card class="approval-card" *appHasPermission="['READ_LOAN', 'READ_SAVINGSACCOUNT']">
-            <ion-card-header>
-              <ion-card-title>
-                <ion-icon name="time-outline"></ion-icon>
-                {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              @if (isLoading()) {
-                <div class="empty-approvals">
-                  <ion-spinner name="crescent"></ion-spinner>
-                </div>
-              } @else if (pendingLoans().length === 0 && pendingSavings().length === 0) {
-                <div class="empty-approvals">
-                  <ion-icon name="checkmark-circle-outline"></ion-icon>
-                  <p>{{ 'DASHBOARD.NO_PENDING_APPROVALS' | translate }}</p>
-                </div>
-              } @else {
-                <div class="approval-list">
-                  @for (loan of pendingLoans(); track loan['id']) {
-                    <div class="approval-item">
-                      <div class="item-info">
-                        <ion-badge color="primary" class="item-type loan">LOAN</ion-badge>
-                        <span class="item-id">#{{ loan['accountNo'] }}</span>
-                        <span class="item-detail">{{ loan['clientName'] }}</span>
-                      </div>
-                      <ion-button
-                        fill="clear"
-                        color="primary"
-                        [routerLink]="['/loans/view', loan['id']]"
-                        id="dashboard-pending-loans-view-btn"
-                        data-testid="dashboard-pending-loans-view-btn"
-                      >
-                        {{ 'COMMON.VIEW' | translate }}
-                      </ion-button>
+        <ion-card class="approval-card" *appHasPermission="['READ_LOAN', 'READ_SAVINGSACCOUNT']">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="time-outline"></ion-icon>
+              {{ 'DASHBOARD.PENDING_APPROVALS' | translate }}
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            @if (isLoading()) {
+              <div class="empty-approvals">
+                <ion-spinner name="crescent"></ion-spinner>
+              </div>
+            } @else if (pendingLoans().length === 0 && pendingSavings().length === 0) {
+              <div class="empty-approvals">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <p>{{ 'DASHBOARD.NO_PENDING_APPROVALS' | translate }}</p>
+              </div>
+            } @else {
+              <div class="approval-list">
+                @for (loan of pendingLoans(); track loan['id']) {
+                  <div class="approval-item">
+                    <div class="item-info">
+                      <ion-badge color="primary" class="item-type loan">LOAN</ion-badge>
+                      <span class="item-id">#{{ loan['accountNo'] }}</span>
+                      <span class="item-detail">{{ loan['clientName'] }}</span>
                     </div>
-                  }
-                  @for (savings of pendingSavings(); track savings['id']) {
-                    <div class="approval-item">
-                      <div class="item-info">
-                        <ion-badge color="success" class="item-type savings">SAVINGS</ion-badge>
-                        <span class="item-id">#{{ savings['accountNo'] }}</span>
-                        <span class="item-detail">{{ savings['clientName'] }}</span>
-                      </div>
-                      <ion-button
-                        fill="clear"
-                        color="primary"
-                        [routerLink]="['/products/savings-accounts/view', savings['id']]"
-                        id="dashboard-pending-savings-view-btn"
-                        data-testid="dashboard-pending-savings-view-btn"
-                      >
-                        {{ 'COMMON.VIEW' | translate }}
-                      </ion-button>
+                    <ion-button
+                      fill="clear"
+                      color="primary"
+                      [routerLink]="['/loans/view', loan['id']]"
+                      id="dashboard-pending-loans-view-btn"
+                      data-testid="dashboard-pending-loans-view-btn"
+                    >
+                      {{ 'COMMON.VIEW' | translate }}
+                    </ion-button>
+                  </div>
+                }
+                @for (savings of pendingSavings(); track savings['id']) {
+                  <div class="approval-item">
+                    <div class="item-info">
+                      <ion-badge color="success" class="item-type savings">SAVINGS</ion-badge>
+                      <span class="item-id">#{{ savings['accountNo'] }}</span>
+                      <span class="item-detail">{{ savings['clientName'] }}</span>
                     </div>
-                  }
-                </div>
-              }
-            </ion-card-content>
-          </ion-card>
-        </div>
+                    <ion-button
+                      fill="clear"
+                      color="primary"
+                      [routerLink]="['/products/savings-accounts/view', savings['id']]"
+                      id="dashboard-pending-savings-view-btn"
+                      data-testid="dashboard-pending-savings-view-btn"
+                    >
+                      {{ 'COMMON.VIEW' | translate }}
+                    </ion-button>
+                  </div>
+                }
+              </div>
+            }
+          </ion-card-content>
+        </ion-card>
 
-        <div class="side-column">
+        <div class="charts-grid" *appHasPermission="['READ_LOAN', 'READ_SAVINGSACCOUNT']">
           <ion-card class="chart-card" *appHasPermission="'READ_LOAN'">
             <ion-card-header>
               <ion-card-title>
@@ -258,38 +256,38 @@ import {
               <app-donut-chart [data]="savingsChartData()"></app-donut-chart>
             </ion-card-content>
           </ion-card>
-
-          <ion-card class="system-card">
-            <ion-card-header>
-              <ion-card-title>
-                <ion-icon name="settings-outline"></ion-icon>
-                {{ 'DASHBOARD.SYSTEM_STATUS' | translate }}
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <ul class="status-list">
-                <li>
-                  <span class="label">{{ 'DASHBOARD.RUNTIME_API' | translate }}:</span>
-                  <span class="value">{{ configService.apiUrl }}</span>
-                </li>
-                <li>
-                  <span class="label">{{ 'DASHBOARD.FALLBACK_API' | translate }}:</span>
-                  <span class="value">{{ environmentUrl }}</span>
-                </li>
-                <li>
-                  <span class="label">{{ 'DASHBOARD.ENVIRONMENT' | translate }}:</span>
-                  <span class="value badge" [ngClass]="isProd ? 'prod' : 'dev'">
-                    {{ (isProd ? 'DASHBOARD.PRODUCTION' : 'DASHBOARD.DEVELOPMENT') | translate }}
-                  </span>
-                </li>
-                <li>
-                  <span class="label">{{ 'DASHBOARD.ACTIVE_TENANT' | translate }}:</span>
-                  <span class="value">{{ currentTenant() }}</span>
-                </li>
-              </ul>
-            </ion-card-content>
-          </ion-card>
         </div>
+
+        <ion-card class="system-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="settings-outline"></ion-icon>
+              {{ 'DASHBOARD.SYSTEM_STATUS' | translate }}
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ul class="status-list">
+              <li>
+                <span class="label">{{ 'DASHBOARD.RUNTIME_API' | translate }}:</span>
+                <span class="value">{{ configService.apiUrl }}</span>
+              </li>
+              <li>
+                <span class="label">{{ 'DASHBOARD.FALLBACK_API' | translate }}:</span>
+                <span class="value">{{ environmentUrl }}</span>
+              </li>
+              <li>
+                <span class="label">{{ 'DASHBOARD.ENVIRONMENT' | translate }}:</span>
+                <span class="value badge" [ngClass]="isProd ? 'prod' : 'dev'">
+                  {{ (isProd ? 'DASHBOARD.PRODUCTION' : 'DASHBOARD.DEVELOPMENT') | translate }}
+                </span>
+              </li>
+              <li>
+                <span class="label">{{ 'DASHBOARD.ACTIVE_TENANT' | translate }}:</span>
+                <span class="value">{{ currentTenant() }}</span>
+              </li>
+            </ul>
+          </ion-card-content>
+        </ion-card>
       </div>
     </div>
   `,
@@ -303,10 +301,19 @@ import {
         flex-direction: column;
         gap: 24px;
       }
-      .widgets-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
+      /* Ionic's column padding resolves to 0 here, so the gutter is set explicitly. The row's
+         negative margin keeps the outer tiles flush with the cards below. */
+      .widgets-grid-container {
+        padding: 0;
+      }
+      .widgets-grid-container ion-row {
+        margin: -12px;
+      }
+      .widgets-grid-container ion-col {
+        padding: 12px;
+      }
+      .widgets-grid-container .widget-card {
+        height: 100%;
       }
       .widget-card {
         border-radius: 12px;
@@ -361,15 +368,16 @@ import {
       .healthy {
         color: var(--success-text);
       }
+      /* Full-width bands, so no card sits beside empty space: pending approvals, the
+         charts side by side, then the system status, whose URLs then fit on one line. */
       .dashboard-layout {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 24px;
       }
-      .main-column,
-      .side-column {
-        display: flex;
-        flex-direction: column;
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
         gap: 24px;
       }
       .chart-card {
@@ -498,11 +506,6 @@ import {
       :host-context([data-theme='dark']) .dev {
         background: rgba(46, 204, 113, 0.16);
         color: var(--success-color);
-      }
-      @media (max-width: 768px) {
-        .dashboard-layout {
-          grid-template-columns: minmax(0, 1fr);
-        }
       }
     `,
   ],
