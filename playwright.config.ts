@@ -87,6 +87,7 @@ const BACKEND_SPECS = [
   'loan-servicing.spec.ts',
   'share-account-servicing.spec.ts',
   'login.spec.ts',
+  'oidc-login-backend.spec.ts',
   'report-parameter-backend.spec.ts',
   'savings-transaction-correction.spec.ts',
   'share-product-accounting.spec.ts',
