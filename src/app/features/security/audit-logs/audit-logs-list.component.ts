@@ -221,7 +221,7 @@ export interface AuditFilters {
         </ion-button>
 
         <ng-template appCellTemplate="madeOnDate" let-row>
-          {{ row['madeOnDate'] | dateTime}}
+          {{ row['madeOnDate'] | dateTime }}
         </ng-template>
 
         <ng-template appCellTemplate="checkedOnDate" let-row>

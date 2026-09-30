@@ -26,7 +26,6 @@ import { I18N } from '../../core/adapters/i18n/i18n.adapter';
   pure: false,
 })
 export class DateTimePipe implements PipeTransform {
-
   private readonly i18n = inject(I18N);
 
   private memoKey: string | null = null;
@@ -39,8 +38,8 @@ export class DateTimePipe implements PipeTransform {
     if (Number.isNaN(date.getTime())) return '';
 
     const memoKey = `${this.i18n.currentLang()}${date.getTime()}`;
-    if (memoKey !== this.memoKey){
-      this.memoKey=memoKey;
+    if (memoKey !== this.memoKey) {
+      this.memoKey = memoKey;
       this.memoValue = new Intl.DateTimeFormat(this.mapIntlLocale(this.i18n.currentLang()), {
         month: 'short',
         day: 'numeric',
@@ -55,7 +54,7 @@ export class DateTimePipe implements PipeTransform {
     return this.memoValue;
   }
 
-  private mapIntlLocale( lang : string) : string{
+  private mapIntlLocale(lang: string): string {
     const map: Record<string, string> = {
       en: 'en-US',
       hi: 'hi-IN',

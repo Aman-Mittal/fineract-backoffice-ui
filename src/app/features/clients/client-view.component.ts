@@ -564,7 +564,9 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                     </div>
                     <div class="detail-item">
                       <span class="label">{{ 'CLIENTS.TIMELINE_SUBMITTED' | translate }}</span>
-                      <span class="value">{{ this.client()?.timeline?.submittedOnDate | dateTime }}</span>
+                      <span class="value">{{
+                        this.client()?.timeline?.submittedOnDate | dateTime
+                      }}</span>
                     </div>
                   </ion-card-content>
                 </ion-card>
