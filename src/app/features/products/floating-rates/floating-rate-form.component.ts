@@ -42,6 +42,7 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
+  formatArrayDate,
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -267,9 +268,7 @@ export class FloatingRateFormComponent implements OnInit {
           const arr = p.fromDate as unknown as number[];
           return {
             fromDate:
-              Array.isArray(arr) && arr.length >= 3
-                ? toIsoDate(new Date(arr[0], arr[1] - 1, arr[2]))
-                : toIsoDate(new Date()),
+              Array.isArray(arr) && arr.length >= 3 ? formatArrayDate(arr) : toIsoDate(new Date()),
             interestRate: p.interestRate ?? null,
             isDifferentialToBaseLendingRate: !!p.isDifferentialToBaseLendingRate,
           };
