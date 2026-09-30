@@ -80,6 +80,11 @@ describe('SystemStatusComponent', () => {
         ENVIRONMENT: 'Environment',
         ACTIVE_TENANT: 'Active Tenant',
       },
+      COMMON: {
+        ACTIVE: 'Active-test',
+        PENDING: 'Pending-test',
+        CLOSED: 'Closed-test',
+      },
     });
   }
 
@@ -191,5 +196,19 @@ describe('SystemStatusComponent', () => {
       expect(trend('loans')?.classList).not.toContain('highlight');
       expect(trend('savings')?.classList).toContain('highlight');
     });
+  });
+
+  it('translates dashboard chart labels', () => {
+    component.loanChartData.set([
+      { label: 'COMMON.ACTIVE', value: 3, color: 'green' },
+      { label: 'COMMON.CLOSED', value: 1, color: 'gray' },
+    ]);
+    fixture.detectChanges();
+
+    const labels = (fixture.nativeElement as HTMLElement).querySelectorAll(
+      'app-donut-chart .legend-item .label',
+    );
+    expect(labels[0]?.textContent).toContain('Active-test');
+    expect(labels[1]?.textContent).toContain('Closed-test');
   });
 });

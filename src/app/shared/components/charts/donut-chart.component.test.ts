@@ -19,14 +19,17 @@
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DonutChartComponent, ChartData } from './donut-chart.component';
+import { provideFakeAdapters } from '../../../testing/adapters';
 
 describe('DonutChartComponent', () => {
   let component: DonutChartComponent;
   let fixture: ComponentFixture<DonutChartComponent>;
+  const adapters = provideFakeAdapters();
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DonutChartComponent],
+      providers: adapters.providers,
     }).compileComponents();
 
     fixture = TestBed.createComponent(DonutChartComponent);
@@ -87,5 +90,16 @@ describe('DonutChartComponent', () => {
     expect(legendItems[0].querySelector('.value')?.textContent).toContain('30');
     expect(legendItems[1].querySelector('.label')?.textContent).toContain('Inactive');
     expect(legendItems[1].querySelector('.value')?.textContent).toContain('10');
+  });
+
+  it('translates key-backed labels when requested', () => {
+    adapters.i18n.catalogue.set('COMMON.ACTIVE', 'Aktiv');
+    fixture.componentRef.setInput('data', [{ label: 'COMMON.ACTIVE', value: 30, color: 'green' }]);
+    fixture.componentRef.setInput('labelsAreTranslationKeys', true);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.legend-item .label')?.textContent).toContain('Aktiv');
+    expect(compiled.querySelector('title')?.textContent).toContain('Aktiv');
   });
 });

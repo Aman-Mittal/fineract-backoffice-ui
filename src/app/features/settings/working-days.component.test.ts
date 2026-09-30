@@ -19,10 +19,14 @@
 
 import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Injector } from '@angular/core';
 import { WorkingDaysComponent } from './working-days.component';
 import { WorkingDaysService } from '../../api';
 import { of } from 'rxjs';
-import { provideTranslateTesting } from '../../testing/i18n-testing';
+import {
+  provideTranslateTesting,
+  setTranslateTestingTranslations,
+} from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NotificationService } from '../../core/services/notification.service';
 
@@ -63,6 +67,18 @@ describe('WorkingDaysComponent', () => {
       ],
     }).compileComponents();
 
+    setTranslateTestingTranslations(TestBed.inject(Injector), 'test', {
+      COMMON: {
+        MONDAY: 'Mon-test',
+        TUESDAY: 'Tue-test',
+        WEDNESDAY: 'Wed-test',
+        THURSDAY: 'Thu-test',
+        FRIDAY: 'Fri-test',
+        SATURDAY: 'Sat-test',
+        SUNDAY: 'Sun-test',
+      },
+    });
+
     fixture = TestBed.createComponent(WorkingDaysComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -71,6 +87,13 @@ describe('WorkingDaysComponent', () => {
   it('should create and load working days on init', () => {
     expect(component).toBeTruthy();
     expect(workingDaysServiceSpy.getWorkingdays).toHaveBeenCalled();
+  });
+
+  it('renders weekday labels through the translation adapter', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent;
+    expect(text).toContain('Mon-test');
+    expect(text).toContain('Sun-test');
+    expect(text).not.toContain('COMMON.MONDAY');
   });
 
   it('should submit a WorkingDaysUpdateRequest on save', () => {
