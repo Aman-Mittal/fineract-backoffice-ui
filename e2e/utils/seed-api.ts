@@ -723,6 +723,59 @@ export async function seedActiveLoan(
   return { ...client, ...product, loanId };
 }
 
+/**
+ * The same shape as {@link seedActiveLoan}, but disbursing only part of the approved amount —
+ * the starting point Fineract's own `LoanUpdateApprovedAmount.feature` uses for revising the
+ * approved amount on a loan that has already released some of it (UC3). Fully disbursing first,
+ * as `seedActiveLoan` does, leaves nothing this revision could legally change: reducing the
+ * approved amount below what has already gone out is refused, and this product's default (0%)
+ * over-applied tolerance means it cannot go any higher either. Verified live.
+ */
+export async function seedPartiallyDisbursedLoan(
+  api: APIRequestContext,
+  disbursedAmount: number,
+  namePrefix = 'E2ESeed',
+): Promise<SeededLoan> {
+  const client = await seedClient(api, namePrefix);
+  const product = await seedLoanProduct(api, namePrefix);
+  const today = fineractDate();
+
+  const { loanId } = await post<{ loanId: number }>(api, '/loans', {
+    clientId: client.clientId,
+    productId: product.productId,
+    principal: 1000,
+    loanTermFrequency: 3,
+    loanTermFrequencyType: 2,
+    numberOfRepayments: 3,
+    repaymentEvery: 1,
+    repaymentFrequencyType: 2,
+    interestRatePerPeriod: 10,
+    amortizationType: 1,
+    interestType: 0,
+    interestCalculationPeriodType: 1,
+    transactionProcessingStrategyCode: 'mifos-standard-strategy',
+    expectedDisbursementDate: today,
+    submittedOnDate: today,
+    loanType: 'individual',
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+
+  await post(api, `/loans/${loanId}?command=approve`, {
+    approvedOnDate: today,
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+  await post(api, `/loans/${loanId}?command=disburse`, {
+    actualDisbursementDate: today,
+    transactionAmount: disbursedAmount,
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+
+  return { ...client, ...product, loanId };
+}
+
 /** Repayment against an active loan — the precondition for adjustment specs. */
 export async function seedRepayment(
   api: APIRequestContext,

@@ -48,7 +48,32 @@ describe('GuidanceTourComponent', () => {
     return main;
   }
 
+  /**
+   * Frames delivered on a microtask instead of jsdom's timer-driven `requestAnimationFrame`.
+   *
+   * The component repositions its card and scrim on the next frame once a target is found, and
+   * `whenStable()` waits for that frame as a pending task. jsdom paces frames off wall-clock
+   * time, so on a loaded CI runner the frame can fail to land and every spec that highlights a
+   * target hangs until the 30s timeout — while passing in well under a second locally. A
+   * microtask still runs the reposition code, just deterministically.
+   */
+  function stubAnimationFrames(): void {
+    let nextHandle = 0;
+    const cancelled = new Set<number>();
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback): number => {
+      const handle = ++nextHandle;
+      queueMicrotask(() => {
+        if (!cancelled.delete(handle)) callback(performance.now());
+      });
+      return handle;
+    });
+    vi.stubGlobal('cancelAnimationFrame', (handle: number): void => {
+      cancelled.add(handle);
+    });
+  }
+
   beforeEach(async () => {
+    stubAnimationFrames();
     routerEvents = new Subject<NavigationEnd>();
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
@@ -70,6 +95,7 @@ describe('GuidanceTourComponent', () => {
   afterEach(() => {
     guidance.endTour();
     document.querySelectorAll('main').forEach((el) => el.remove());
+    vi.unstubAllGlobals();
   });
 
   it('renders nothing until a tour is playing', () => {

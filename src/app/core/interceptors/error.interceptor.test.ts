@@ -336,6 +336,48 @@ describe('errorInterceptor', () => {
       expect(message).toContain('Loan is not in a state where it can be disbursed.');
     });
 
+    it('should unwrap a doubly-nested validation error to the reason it actually names', () => {
+      // Captured verbatim from a live Fineract instance: PUT .../loans/{id}/approved-amount
+      // with an amount above the applied principal. The outer `errors[0]` says only
+      // "Validation errors exist." — the real reason is one level deeper, at `args[0].value`.
+      httpClient.get(testUrl, authorized).subscribe({ error: () => undefined });
+
+      httpTestingController.expectOne(testUrl).flush(
+        {
+          userMessageGlobalisationCode: 'validation.msg.domain.rule.violation',
+          defaultUserMessage: 'Errors contain reason for domain rule violation.',
+          errors: [
+            {
+              developerMessage: 'Validation errors exist.',
+              defaultUserMessage: 'Validation errors exist.',
+              userMessageGlobalisationCode: 'validation.msg.validation.errors.exist',
+              parameterName: 'id',
+              args: [
+                {
+                  value: {
+                    developerMessage:
+                      "Failed data validation due to: can't.be.greater.than.maximum.applied.loan.amount.calculation.",
+                    defaultUserMessage:
+                      "Failed data validation due to: can't.be.greater.than.maximum.applied.loan.amount.calculation.",
+                    userMessageGlobalisationCode:
+                      "validation.msg.loan.approved.amount.amount.can't.be.greater.than.maximum.applied.loan.amount.calculation",
+                    parameterName: 'amount',
+                    args: [],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        { status: 403, statusText: 'Forbidden' },
+      );
+
+      const [message] = notificationsSpy.error.mock.lastCall! as [string];
+      expect(message).toContain("can't.be.greater.than.maximum.applied.loan.amount.calculation");
+      expect(message).toContain('[amount]');
+      expect(message).not.toContain('Validation errors exist.');
+    });
+
     it('should keep the permission message when the errors array is empty', () => {
       // Deliberately conservative: anything that is not recognisably a domain-rule violation
       // behaves exactly as it did before.

@@ -20,6 +20,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { DateTimePipe } from '../../../shared/pipes/date-time.pipe';
 import { forkJoin } from 'rxjs';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
@@ -55,6 +56,7 @@ import {
     IonCheckbox,
     IonToggle,
     TooltipDirective,
+    DateTimePipe,
   ],
   template: `
     <ion-card class="scheduler-status">
@@ -107,6 +109,9 @@ import {
       </ng-template>
       <ng-template appCellTemplate="active" let-row>
         {{ (row.active ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+      </ng-template>
+      <ng-template appCellTemplate="nextRunTime" let-row>
+        {{ row.nextRunTime | dateTime }}
       </ng-template>
       <ng-template appCellTemplate="actions" let-row>
         <ion-button
