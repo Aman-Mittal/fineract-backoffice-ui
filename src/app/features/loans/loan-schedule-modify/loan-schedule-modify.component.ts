@@ -21,6 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoanReschedulingService } from '../../../api';
+import { TranslatePipe } from '../../../core/adapters';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
@@ -44,6 +45,7 @@ import {
     FormsModule,
     JsonPipe,
     TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonInput,
@@ -87,7 +89,9 @@ import {
               required
             >
               @for (cmd of commands; track cmd.value) {
-                <ion-select-option [value]="cmd.value">{{ cmd.label }}</ion-select-option>
+                <ion-select-option [value]="cmd.value">{{
+                  cmd.label | appTranslate
+                }}</ion-select-option>
               }
             </ion-select>
           </ion-item>
@@ -175,8 +179,14 @@ export class LoanScheduleModifyComponent {
   readonly response = signal<unknown>(null);
 
   commands = [
-    { value: 'calculateRepaymentSchedule', label: 'Calculate Repayment Schedule' },
-    { value: 'forceRecalculateRepaymentSchedule', label: 'Force Recalculate Repayment Schedule' },
+    {
+      value: 'calculateRepaymentSchedule',
+      label: 'LOAN_SCHEDULE_MODIFY.CALCULATE_REPAYMENT_SCHEDULE',
+    },
+    {
+      value: 'forceRecalculateRepaymentSchedule',
+      label: 'LOAN_SCHEDULE_MODIFY.FORCE_RECALCULATE_REPAYMENT_SCHEDULE',
+    },
   ];
 
   submit(): void {

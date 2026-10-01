@@ -241,7 +241,10 @@ import {
               </ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              <app-donut-chart [data]="loanChartData()"></app-donut-chart>
+              <app-donut-chart
+                [data]="loanChartData()"
+                [labelsAreTranslationKeys]="true"
+              ></app-donut-chart>
             </ion-card-content>
           </ion-card>
 
@@ -253,7 +256,10 @@ import {
               </ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              <app-donut-chart [data]="savingsChartData()"></app-donut-chart>
+              <app-donut-chart
+                [data]="savingsChartData()"
+                [labelsAreTranslationKeys]="true"
+              ></app-donut-chart>
             </ion-card-content>
           </ion-card>
         </div>
@@ -649,9 +655,9 @@ export class SystemStatusComponent implements OnInit {
 
       this.activeLoans.set(active);
       this.loanChartData.set([
-        { label: 'Active', value: active, color: '#2ecc71' },
-        { label: 'Pending', value: pending, color: '#f39c12' },
-        { label: 'Closed', value: closed, color: '#95a5a6' },
+        { label: 'COMMON.ACTIVE', value: active, color: '#2ecc71' },
+        { label: 'COMMON.PENDING', value: pending, color: '#f39c12' },
+        { label: 'COMMON.CLOSED', value: closed, color: '#95a5a6' },
       ]);
 
       // Savings
@@ -676,8 +682,8 @@ export class SystemStatusComponent implements OnInit {
         );
 
         this.savingsChartData.set([
-          { label: 'Active', value: sActive, color: '#3498db' },
-          { label: 'Pending', value: sPending, color: '#f39c12' },
+          { label: 'COMMON.ACTIVE', value: sActive, color: '#3498db' },
+          { label: 'COMMON.PENDING', value: sPending, color: '#f39c12' },
         ]);
       }
     });

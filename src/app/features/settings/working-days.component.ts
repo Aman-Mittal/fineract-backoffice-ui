@@ -22,6 +22,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '../../api';
+import { TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -45,6 +46,7 @@ import {
   imports: [
     FormsModule,
     TranslateModule,
+    TranslatePipe,
     IonButton,
     IonItem,
     IonLabel,
@@ -71,7 +73,7 @@ import {
                   [name]="day.name"
                   [ngModel]="recurrence()[day.code]"
                   (ngModelChange)="setDay(day.code, $event)"
-                  >{{ day.label }}</ion-checkbox
+                  >{{ day.label | appTranslate }}</ion-checkbox
                 >
               }
             </div>
@@ -154,13 +156,13 @@ export class WorkingDaysComponent implements OnInit {
 
   /** Rendered in order; `code` is the BYDAY token the API uses. */
   protected readonly DAYS = [
-    { code: 'MO', name: 'monday', label: 'Monday' },
-    { code: 'TU', name: 'tuesday', label: 'Tuesday' },
-    { code: 'WE', name: 'wednesday', label: 'Wednesday' },
-    { code: 'TH', name: 'thursday', label: 'Thursday' },
-    { code: 'FR', name: 'friday', label: 'Friday' },
-    { code: 'SA', name: 'saturday', label: 'Saturday' },
-    { code: 'SU', name: 'sunday', label: 'Sunday' },
+    { code: 'MO', name: 'monday', label: 'COMMON.MONDAY' },
+    { code: 'TU', name: 'tuesday', label: 'COMMON.TUESDAY' },
+    { code: 'WE', name: 'wednesday', label: 'COMMON.WEDNESDAY' },
+    { code: 'TH', name: 'thursday', label: 'COMMON.THURSDAY' },
+    { code: 'FR', name: 'friday', label: 'COMMON.FRIDAY' },
+    { code: 'SA', name: 'saturday', label: 'COMMON.SATURDAY' },
+    { code: 'SU', name: 'sunday', label: 'COMMON.SUNDAY' },
   ] as const;
 
   workingDays: Record<string, unknown> = {};
