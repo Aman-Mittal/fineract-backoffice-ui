@@ -1682,7 +1682,12 @@
       "invalidCode": "That code was not accepted. Request another and try again.",
       "requestFailed": "The code could not be sent. Try another method, or contact an administrator."
     },
-    "signedOutForInactivity": "You were signed out after a period of inactivity. Please sign in again."
+    "signedOutForInactivity": "You were signed out after a period of inactivity. Please sign in again.",
+    "sso": {
+      "button": "Sign in with your identity provider",
+      "divider": "or",
+      "notImplemented": "Sign-in through your identity provider is not available yet. Use your username and password below."
+    }
   },
   "idle": {
     "warning": {

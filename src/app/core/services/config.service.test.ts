@@ -170,6 +170,24 @@ describe('ConfigService', () => {
     expect(service.rbacEnabled()).toBe(false);
   });
 
+  describe('oidcLoginEnabled', () => {
+    it('is off when an existing config.json predates the flag', async () => {
+      await load({ fineractApiUrl: '/api/v1', defaultTenant: TEST_TENANT });
+
+      expect(service.oidcLoginEnabled()).toBe(false);
+    });
+
+    it('turns on when the deployment sets it', async () => {
+      await load({
+        fineractApiUrl: '/api/v1',
+        defaultTenant: TEST_TENANT,
+        oidcLoginEnabled: true,
+      });
+
+      expect(service.oidcLoginEnabled()).toBe(true);
+    });
+  });
+
   /**
    * The overlay is absent on every default install, so probing for it reported a 404 in the
    * browser console on every load. The application can decline to *report* a 404 and does, but

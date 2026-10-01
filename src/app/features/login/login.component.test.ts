@@ -25,6 +25,7 @@ import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService, UserSession } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { WritableSignal, signal } from '@angular/core';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 
@@ -33,6 +34,7 @@ describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let authServiceSpy: SpyObj<AuthService>;
   let configServiceSpy: SpyObj<ConfigService>;
+  let notificationSpy: SpyObj<NotificationService>;
   let routerSpy: SpyObj<Router>;
   const mockApiUrl = 'https://localhost:8443/fineract-provider/api/v1';
 
@@ -49,10 +51,14 @@ describe('LoginComponent', () => {
         apiUrl: mockApiUrl,
         // The component reads the allow-list to build the endpoint picker.
         config: signal({ allowedApiOrigins: [] }),
+        // Off by default, matching every existing config.json — see ConfigService.oidcLoginEnabled.
+        oidcLoginEnabled: signal(false),
       },
     );
     configServiceSpy.setApiUrl.mockReturnValue(true);
     configServiceSpy.isAllowedApiUrl.mockReturnValue(true);
+
+    notificationSpy = createSpyObj(['success', 'error', 'show']);
 
     routerSpy = createSpyObj(['navigate']);
 
@@ -62,6 +68,7 @@ describe('LoginComponent', () => {
         ...provideTranslateTesting(),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ConfigService, useValue: configServiceSpy },
+        { provide: NotificationService, useValue: notificationSpy },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
@@ -141,6 +148,42 @@ describe('LoginComponent', () => {
     expect((component as unknown as { isLoading: WritableSignal<boolean> }).isLoading()).toBe(
       false,
     );
+  });
+
+  describe('identity-provider button', () => {
+    it('is absent when the deployment has not turned it on', () => {
+      expect(fixture.nativeElement.querySelector('[data-testid="login-sso-button"]')).toBeNull();
+    });
+
+    it('appears alongside the username/password form, not instead of it, when turned on', async () => {
+      TestBed.resetTestingModule();
+      await setup();
+      (configServiceSpy.oidcLoginEnabled as unknown as WritableSignal<boolean>).set(true);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="login-sso-button"]'),
+      ).not.toBeNull();
+      // The fallback this flag must never remove — see the config field's own doc comment.
+      expect(fixture.nativeElement.querySelector('#username')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('#password')).not.toBeNull();
+    });
+
+    it('says the provider round trip is not built yet, rather than doing nothing or pretending to redirect', async () => {
+      TestBed.resetTestingModule();
+      await setup();
+      (configServiceSpy.oidcLoginEnabled as unknown as WritableSignal<boolean>).set(true);
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector(
+        '[data-testid="login-sso-button"]',
+      ) as HTMLButtonElement;
+      button.click();
+
+      expect(notificationSpy.show).toHaveBeenCalledWith('login.sso.notImplemented');
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      expect(authServiceSpy.login).not.toHaveBeenCalled();
+    });
   });
 
   describe('session expiry notice', () => {

@@ -158,6 +158,20 @@ export interface AppConfig {
   nav?: NavOverrides;
   /** Deployment-specific appearance. See {@link BrandingConfig}. */
   branding?: BrandingConfig;
+  /**
+   * Whether the login page offers a "Sign in with your identity provider" route alongside
+   * username and password, for a tenant an administrator has configured under
+   * Settings → OIDC Configuration.
+   *
+   * **Provisional.** The login page cannot itself ask Fineract whether OIDC is configured:
+   * `GET /v1/tenants/{tenantId}/oidc-config` requires an authenticated session, which does not
+   * exist yet at that point (see issue #370). Until that is resolved, a deployment sets this
+   * flag by hand to match what it configured on the OIDC screen — it is not read from Fineract.
+   * The button it shows only announces that sign-in through a provider is not implemented yet;
+   * see `LoginComponent.onOidcLogin`. Username and password keep working either way, on purpose:
+   * this flag must never be the only way in, the way #369 made 2FA.
+   */
+  oidcLoginEnabled?: boolean;
 }
 
 /**
@@ -328,6 +342,13 @@ export class ConfigService {
    * directory, and both are silent on a default install because of this flag.
    */
   readonly brandingOverlayEnabled = computed(() => this._config().brandingOverlayEnabled === true);
+
+  /**
+   * Whether the login page offers an identity-provider route. See
+   * {@link AppConfig.oidcLoginEnabled}. Defaults to `false`, so an existing `config.json` that
+   * predates this flag keeps today's username-and-password-only screen.
+   */
+  readonly oidcLoginEnabled = computed(() => this._config().oidcLoginEnabled === true);
 
   /** Navigation entries this deployment hides, as a set of `labelKey`s. */
   readonly hiddenNavKeys = computed(() => new Set(this._config().nav?.hidden));
