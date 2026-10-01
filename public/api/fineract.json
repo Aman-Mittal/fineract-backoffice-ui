@@ -42124,6 +42124,11 @@
           },
           "balance": { "$ref": "#/components/schemas/GetBalance" },
           "breach": { "$ref": "#/components/schemas/GetWorkingCapitalLoanBreach" },
+          "breachEffectiveStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Effective start date of the loan's breach, i.e. breachStartDate shifted forward by breachGraceDays (the cool off period). Only the first breach period carries the grace days, so this is null when the earliest breached period is not the first one, when no breach grace days are configured, and when the loan is not in breach"
+          },
           "breachGraceDays": {
             "type": "integer",
             "format": "int32",
@@ -42133,7 +42138,7 @@
           "breachStartDate": {
             "type": "string",
             "format": "date",
-            "description": "Start date of the loan's breach, i.e. the fromDate of the earliest breached breach schedule period (the breach grace days are already reflected in this date). Null when the loan is not in breach"
+            "description": "Start date of the loan's breach, i.e. the fromDate of the earliest breached breach schedule period. Null when the loan is not in breach"
           },
           "breachStartType": { "$ref": "#/components/schemas/StringEnumOptionData" },
           "calculatedAnnualEir": {
@@ -42165,6 +42170,11 @@
           "clientOfficeId": { "type": "integer", "format": "int64", "example": 1 },
           "currency": { "$ref": "#/components/schemas/CurrencyData" },
           "delinquencyBucket": { "$ref": "#/components/schemas/GetDelinquencyBucket" },
+          "delinquencyEffectiveStartDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Effective start date of the loan's delinquency, i.e. delinquencyStartDate shifted forward by delinquencyGraceDays (the cool off period). Only the first delinquency period carries the grace days, so this is null when the earliest delinquent period is not the first one, when no delinquency grace days are configured, and when the loan is not delinquent"
+          },
           "delinquencyGraceDays": {
             "type": "integer",
             "format": "int32",
@@ -42174,7 +42184,7 @@
           "delinquencyStartDate": {
             "type": "string",
             "format": "date",
-            "description": "Start date of the loan's delinquency, i.e. the fromDate of the earliest delinquent range schedule period shifted by delinquencyGraceDays. Null when the loan is not delinquent"
+            "description": "Start date of the loan's delinquency, i.e. the fromDate of the earliest delinquent range schedule period. Null when the loan is not delinquent"
           },
           "delinquencyStartType": { "$ref": "#/components/schemas/StringEnumOptionData" },
           "delinquent": { "$ref": "#/components/schemas/WorkingCapitalCollection" },
@@ -47558,6 +47568,7 @@
           "rejectedOnDate": { "type": "string", "example": "28 June 2022" },
           "toLoanOfficerId": { "type": "integer", "format": "int64", "example": 2 },
           "transactionAmount": { "type": "number", "example": 5000.33 },
+          "transactionDate": { "type": "string", "example": "31 March 2024" },
           "unassignedDate": { "type": "string", "example": "02 September 2014" },
           "withdrawnOnDate": { "type": "string", "example": "28 June 2022" }
         }
