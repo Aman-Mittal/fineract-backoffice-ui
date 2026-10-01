@@ -74,6 +74,28 @@ describe('FloatingRateFormComponent', () => {
     expect(component.periods()).toHaveLength(1);
   });
 
+  it('formats Fineract array dates when loading rate periods', () => {
+    serviceSpy.getFloatingratesFloatingRateId.mockReturnValue(
+      of({
+        name: 'Base rate',
+        ratePeriods: [
+          {
+            fromDate: [2026, 1, 5],
+            interestRate: 9.5,
+            isDifferentialToBaseLendingRate: false,
+          },
+        ],
+      }) as unknown as ReturnType<FloatingRatesService['getFloatingratesFloatingRateId']>,
+    );
+    component.rateId = 42;
+
+    component.load();
+
+    expect(component.periods()).toEqual([
+      { fromDate: '2026-01-05', interestRate: 9.5, isDifferentialToBaseLendingRate: false },
+    ]);
+  });
+
   it('should post a floating rate with mapped rate periods in create mode, filtering null interest rates but keeping 0', () => {
     serviceSpy.postFloatingrates.mockReturnValue(
       of({}) as unknown as ReturnType<FloatingRatesService['postFloatingrates']>,
