@@ -154,4 +154,68 @@ describe('AuditLogsListComponent', () => {
     expect(csv).toContain('CREATE');
     expect(csv).not.toContain('COMMON.ACTIONS');
   });
+
+  describe('checker columns', () => {
+    const columnKeys = () => component.columns().map((c) => c.key);
+
+    it('shows Checker and Checked Date when a loaded row has been checked', () => {
+      fixture.detectChanges();
+
+      expect(columnKeys()).toContain('checker');
+      expect(columnKeys()).toContain('checkedOnDate');
+    });
+
+    it('hides them when no loaded row has a checker, as with maker-checker off', () => {
+      auditsServiceSpy.getAudits.mockReturnValue(
+        of({
+          pageItems: [
+            { id: 2, entityName: 'Loan', actionName: 'UPDATE', maker: 'mifos', checker: null },
+          ],
+          totalFilteredRecords: 1,
+        }) as unknown as Observable<never>,
+      );
+      fixture.detectChanges();
+
+      expect(columnKeys()).not.toContain('checker');
+      expect(columnKeys()).not.toContain('checkedOnDate');
+      expect(columnKeys()).toContain('processingResult');
+    });
+  });
+
+  describe('search', () => {
+    beforeEach(() => {
+      auditsServiceSpy.getAudits.mockReturnValue(
+        of({
+          pageItems: [
+            { id: 1, entityName: 'Client', actionName: 'CREATE', maker: 'mifos' },
+            { id: 2, entityName: 'Loan', actionName: 'APPROVE', maker: 'admin' },
+          ],
+          totalFilteredRecords: 2,
+        }) as unknown as Observable<never>,
+      );
+      fixture.detectChanges();
+    });
+
+    it('narrows the loaded rows to those matching any visible field, ignoring case', () => {
+      component.onSearch('  APPROVE ');
+      expect(component.visibleLogs().map((r) => r['id'])).toEqual([2]);
+
+      component.onSearch('mifos');
+      expect(component.visibleLogs().map((r) => r['id'])).toEqual([1]);
+    });
+
+    it('restores every row when the search is cleared', () => {
+      component.onSearch('loan');
+      expect(component.visibleLogs()).toHaveLength(1);
+
+      component.onSearch('');
+      expect(component.visibleLogs()).toHaveLength(2);
+    });
+
+    it('does not refetch, since the endpoint has no free-text parameter', () => {
+      auditsServiceSpy.getAudits.mockClear();
+      component.onSearch('loan');
+      expect(auditsServiceSpy.getAudits).not.toHaveBeenCalled();
+    });
+  });
 });
