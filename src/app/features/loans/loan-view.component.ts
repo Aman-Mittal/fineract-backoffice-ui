@@ -1481,6 +1481,8 @@ export function toEditableDate(value: unknown): string {
             <app-loan-delinquency-tab
               [loanId]="loanId()"
               [summary]="loan()?.delinquent"
+              [isActive]="isLoanActive"
+              (changed)="loadLoanData()"
             ></app-loan-delinquency-tab>
           </div>
         }
