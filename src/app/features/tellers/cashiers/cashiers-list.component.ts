@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
@@ -59,14 +59,14 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       </ng-template>
 
       <ng-template appCellTemplate="fullDay" let-cashier>
-        {{ (cashier.isFullDay ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+        {{ (cashier.isFullDay ? 'COMMON.YES' : 'COMMON.NO') | appTranslate }}
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-cashier>
         <ion-button
           fill="clear"
-          [attr.aria-label]="'TELLERS.CASHIER_TRANSACTIONS' | translate"
-          [appTooltip]="'TELLERS.CASHIER_TRANSACTIONS' | translate"
+          [attr.aria-label]="'TELLERS.CASHIER_TRANSACTIONS' | appTranslate"
+          [appTooltip]="'TELLERS.CASHIER_TRANSACTIONS' | appTranslate"
           (click)="onViewTransactions(cashier)"
           [id]="'cashier-transactions-btn-' + cashier.id"
           [attr.data-testid]="'cashier-transactions-btn-' + cashier.id"
@@ -76,7 +76,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
         <ion-button
           fill="clear"
           color="danger"
-          [attr.aria-label]="'COMMON.DELETE' | translate"
+          [attr.aria-label]="'COMMON.DELETE' | appTranslate"
           [appTooltip]="'Remove Cashier Allocation'"
           (click)="onRemoveCashier(cashier)"
           [id]="'delete-cashier-btn-' + cashier.id"

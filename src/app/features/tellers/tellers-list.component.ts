@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
 import { DataTableComponent } from '../../shared/components/data-table/data-table.component';
@@ -69,7 +69,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
         <ion-button
           fill="clear"
           color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
+          [attr.aria-label]="'COMMON.EDIT' | appTranslate"
           [appTooltip]="'Edit Teller Details'"
           (click)="onEditTeller(teller)"
           [id]="'edit-teller-btn-' + teller.id"
@@ -80,7 +80,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
         <ion-button
           fill="clear"
           color="secondary"
-          [attr.aria-label]="'TELLERS.CASHIERS' | translate"
+          [attr.aria-label]="'TELLERS.CASHIERS' | appTranslate"
           [appTooltip]="'Manage Cashiers'"
           (click)="onManageCashiers(teller)"
           [id]="'manage-cashiers-btn-' + teller.id"

@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { ENTITY_NOTES_API, TranslatePipe } from '../../../core/adapters';
 import {
   IonCard,
   IonCardHeader,
@@ -31,8 +31,6 @@ import {
   IonTextarea,
   IonButton,
 } from '@ionic/angular/standalone';
-import { ENTITY_NOTES_API } from '../../../core/adapters';
-
 @Component({
   selector: 'app-client-note-form',
   standalone: true,
@@ -53,16 +51,20 @@ import { ENTITY_NOTES_API } from '../../../core/adapters';
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode ? ('CLIENTS.EDIT_NOTE' | translate) : ('CLIENTS.ADD_NOTE' | translate) }}
+            {{
+              isEditMode
+                ? ('CLIENTS.EDIT_NOTE' | appTranslate)
+                : ('CLIENTS.ADD_NOTE' | appTranslate)
+            }}
           </ion-card-title>
         </ion-card-header>
 
         <ion-card-content>
           <form #noteForm="ngForm" (ngSubmit)="onSubmit()" class="note-form">
             <ion-item fill="outline" class="full-width">
-              <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+              <ion-label position="stacked">{{ 'COMMON.NOTE' | appTranslate }}</ion-label>
               <ion-textarea
-                [attr.aria-label]="'COMMON.NOTE' | translate"
+                [attr.aria-label]="'COMMON.NOTE' | appTranslate"
                 name="note"
                 [ngModel]="note()"
                 (ngModelChange)="note.set($event)"
@@ -82,7 +84,7 @@ import { ENTITY_NOTES_API } from '../../../core/adapters';
                 id="client-note-cancel-btn"
                 data-testid="client-note-cancel-btn"
               >
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button
                 color="primary"
@@ -91,7 +93,7 @@ import { ENTITY_NOTES_API } from '../../../core/adapters';
                 id="client-note-submit-btn"
                 data-testid="client-note-submit-btn"
               >
-                {{ 'COMMON.SAVE' | translate }}
+                {{ 'COMMON.SAVE' | appTranslate }}
               </ion-button>
             </div>
           </form>

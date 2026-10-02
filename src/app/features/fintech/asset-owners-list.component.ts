@@ -18,7 +18,7 @@
  */
 
 import { Component, inject, signal } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { Router } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { Subject, merge, of } from 'rxjs';
@@ -56,7 +56,7 @@ import { ButtonComponent } from '../../ui/button/button.component';
           type="button"
           intent="primary"
           emphasis="quiet"
-          [label]="'COMMON.VIEW_DETAILS' | translate"
+          [label]="'COMMON.VIEW_DETAILS' | appTranslate"
           icon="eye-outline"
           (click)="onViewDetails(transfer)"
         />

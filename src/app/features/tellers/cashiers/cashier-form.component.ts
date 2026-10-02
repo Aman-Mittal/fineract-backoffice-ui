@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { toIsoDate } from '../../../core/utils/date-formatter';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
@@ -82,7 +82,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
     <div class="form-container">
       <ion-card>
         <ion-card-header>
-          <ion-card-title>{{ 'TELLERS.ALLOCATE_CASHIER' | translate }}</ion-card-title>
+          <ion-card-title>{{ 'TELLERS.ALLOCATE_CASHIER' | appTranslate }}</ion-card-title>
         </ion-card-header>
 
         <ion-card-content>
@@ -91,10 +91,10 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
               <ion-row>
                 <!-- Staff Selection -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [appTooltip]="'HELP.CASHIER_STAFF_DESC' | translate">
-                    <ion-label position="stacked">{{ 'TELLERS.STAFF' | translate }}</ion-label>
+                  <ion-item fill="outline" [appTooltip]="'HELP.CASHIER_STAFF_DESC' | appTranslate">
+                    <ion-label position="stacked">{{ 'TELLERS.STAFF' | appTranslate }}</ion-label>
                     <ion-select
-                      [attr.aria-label]="'TELLERS.STAFF' | translate"
+                      [attr.aria-label]="'TELLERS.STAFF' | appTranslate"
                       interface="popover"
                       name="staffId"
                       [(ngModel)]="cashier.staffId"
@@ -114,7 +114,9 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 <!-- Start Date -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'TELLERS.START_DATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'TELLERS.START_DATE' | appTranslate
+                    }}</ion-label>
                     @if (pickersReady()) {
                       <ion-datetime-button
                         datetime="cashier-start-date-picker"
@@ -136,7 +138,9 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 <!-- End Date -->
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{ 'TELLERS.END_DATE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{
+                      'TELLERS.END_DATE' | appTranslate
+                    }}</ion-label>
                     @if (pickersReady()) {
                       <ion-datetime-button datetime="cashier-end-date-picker"></ion-datetime-button>
                     }
@@ -156,7 +160,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 <!-- Full Time Toggle -->
                 <ion-col size="12" size-md="6">
                   <ion-item>
-                    <ion-label>{{ 'TELLERS.IS_FULL_TIME' | translate }}</ion-label>
+                    <ion-label>{{ 'TELLERS.IS_FULL_TIME' | appTranslate }}</ion-label>
                     <ion-toggle
                       name="isFullDay"
                       [(ngModel)]="cashier.isFullDay"
@@ -170,9 +174,9 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 <!-- Description -->
                 <ion-col size="12">
                   <ion-item fill="outline" class="full-width">
-                    <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                    <ion-label position="stacked">{{ 'COMMON.NOTE' | appTranslate }}</ion-label>
                     <ion-textarea
-                      [attr.aria-label]="'COMMON.NOTE' | translate"
+                      [attr.aria-label]="'COMMON.NOTE' | appTranslate"
                       name="description"
                       [(ngModel)]="cashier.description"
                       rows="2"
@@ -194,7 +198,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 id="cashier-cancel-btn"
                 data-testid="cashier-cancel-btn"
               >
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button
                 color="primary"
@@ -205,9 +209,9 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
               >
                 @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
-                  {{ 'COMMON.SAVING' | translate }}
+                  {{ 'COMMON.SAVING' | appTranslate }}
                 } @else {
-                  {{ 'COMMON.SAVE' | translate }}
+                  {{ 'COMMON.SAVE' | appTranslate }}
                 }
               </ion-button>
             </div>

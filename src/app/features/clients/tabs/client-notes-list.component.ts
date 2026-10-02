@@ -19,7 +19,7 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { ENTITY_NOTES_API, TranslatePipe } from '../../../core/adapters';
 import { DatePipe } from '@angular/common';
 import {
   DataTableComponent,
@@ -27,7 +27,6 @@ import {
   HasPermissionDirective,
   CellTemplateDirective,
 } from '../../../shared';
-import { ENTITY_NOTES_API } from '../../../core/adapters';
 import type { EntityNote } from '../../../core/adapters';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ButtonComponent } from '../../../ui/button/button.component';
@@ -53,7 +52,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
         [link]="['/clients', clientId(), 'notes', 'create']"
         icon="add-outline"
         *appHasPermission="'CREATE_CLIENTNOTE'"
-        >{{ 'CLIENTS.ADD_NOTE' | translate }}</app-button
+        >{{ 'CLIENTS.ADD_NOTE' | appTranslate }}</app-button
       >
     </div>
 
@@ -73,21 +72,21 @@ import { ButtonComponent } from '../../../ui/button/button.component';
             type="button"
             intent="primary"
             emphasis="quiet"
-            [label]="'COMMON.EDIT' | translate"
+            [label]="'COMMON.EDIT' | appTranslate"
             [link]="['/clients', clientId(), 'notes', 'edit', row.id]"
             icon="create-outline"
             *appHasPermission="'UPDATE_CLIENTNOTE'"
-            [appTooltip]="'COMMON.EDIT' | translate"
+            [appTooltip]="'COMMON.EDIT' | appTranslate"
           />
           <app-button
             type="button"
             intent="danger"
             emphasis="quiet"
-            [label]="'COMMON.DELETE' | translate"
+            [label]="'COMMON.DELETE' | appTranslate"
             icon="trash-outline"
             (click)="onDelete(row.id)"
             *appHasPermission="'DELETE_CLIENTNOTE'"
-            [appTooltip]="'COMMON.DELETE' | translate"
+            [appTooltip]="'COMMON.DELETE' | appTranslate"
           />
         </div>
       </ng-template>

@@ -19,7 +19,7 @@
 
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
@@ -66,7 +66,7 @@ interface OfficeTransaction {
     <div class="list-container">
       <ion-card>
         <ion-card-header>
-          <ion-card-title>{{ 'OFFICE_TRANSACTIONS.TITLE' | translate }}</ion-card-title>
+          <ion-card-title>{{ 'OFFICE_TRANSACTIONS.TITLE' | appTranslate }}</ion-card-title>
           <span class="spacer"></span>
           <!--
             Gated like every other list's create action. This screen builds its own header
@@ -80,7 +80,7 @@ interface OfficeTransaction {
             routerLink="/organization/office-transactions/create"
           >
             <ion-icon name="add-outline"></ion-icon>
-            {{ 'COMMON.CREATE' | translate }}
+            {{ 'COMMON.CREATE' | appTranslate }}
           </ion-button>
         </ion-card-header>
 
@@ -93,61 +93,61 @@ interface OfficeTransaction {
               <p>
                 {{
                   (isForbidden() ? 'COMMON.ERRORS.LOAD_FORBIDDEN' : 'COMMON.ERRORS.LOAD_FAILED')
-                    | translate
+                    | appTranslate
                 }}
               </p>
             </div>
           } @else {
             <table cdk-table [dataSource]="transactions()" class="full-width">
               <ng-container cdkColumnDef="id">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | appTranslate }}</th>
                 <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
               </ng-container>
 
               <ng-container cdkColumnDef="fromOffice">
                 <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'OFFICE_TRANSACTIONS.FROM_OFFICE' | translate }}
+                  {{ 'OFFICE_TRANSACTIONS.FROM_OFFICE' | appTranslate }}
                 </th>
                 <td cdk-cell *cdkCellDef="let row">{{ row.fromOfficeName || row.fromOffice }}</td>
               </ng-container>
 
               <ng-container cdkColumnDef="toOffice">
                 <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'OFFICE_TRANSACTIONS.TO_OFFICE' | translate }}
+                  {{ 'OFFICE_TRANSACTIONS.TO_OFFICE' | appTranslate }}
                 </th>
                 <td cdk-cell *cdkCellDef="let row">{{ row.toOfficeName || row.toOffice }}</td>
               </ng-container>
 
               <ng-container cdkColumnDef="transactionDate">
                 <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'OFFICE_TRANSACTIONS.DATE' | translate }}
+                  {{ 'OFFICE_TRANSACTIONS.DATE' | appTranslate }}
                 </th>
                 <td cdk-cell *cdkCellDef="let row">{{ formatDate(row.transactionDate) }}</td>
               </ng-container>
 
               <ng-container cdkColumnDef="amount">
                 <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'OFFICE_TRANSACTIONS.AMOUNT' | translate }}
+                  {{ 'OFFICE_TRANSACTIONS.AMOUNT' | appTranslate }}
                 </th>
                 <td cdk-cell *cdkCellDef="let row">{{ row.transactionAmount ?? row.amount }}</td>
               </ng-container>
 
               <ng-container cdkColumnDef="description">
                 <th cdk-header-cell *cdkHeaderCellDef>
-                  {{ 'OFFICE_TRANSACTIONS.DESC' | translate }}
+                  {{ 'OFFICE_TRANSACTIONS.DESC' | appTranslate }}
                 </th>
                 <td cdk-cell *cdkCellDef="let row">{{ row.description }}</td>
               </ng-container>
 
               <ng-container cdkColumnDef="actions">
-                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+                <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | appTranslate }}</th>
                 <td cdk-cell *cdkCellDef="let row">
                   <ion-button
                     fill="clear"
                     color="danger"
                     (click)="onDelete(row)"
                     appRequiresPermission="DELETE_OFFICETRANSACTION"
-                    [attr.aria-label]="'OFFICE_TRANSACTIONS.DELETE' | translate"
+                    [attr.aria-label]="'OFFICE_TRANSACTIONS.DELETE' | appTranslate"
                   >
                     <ion-icon name="trash-outline"></ion-icon>
                   </ion-button>

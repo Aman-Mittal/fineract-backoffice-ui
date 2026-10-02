@@ -20,7 +20,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import {
   CollectionSheetService,
   OfficesService,
@@ -76,7 +76,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
   template: `
     <ion-card>
       <ion-card-header>
-        <ion-card-title>{{ 'COLLECTION_SHEET.TITLE' | translate }}</ion-card-title>
+        <ion-card-title>{{ 'COLLECTION_SHEET.TITLE' | appTranslate }}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
         @if (isLoading()) {
@@ -88,9 +88,11 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
         @if (!generated() && !isLoading()) {
           <form #filterForm="ngForm" (ngSubmit)="generate()">
             <ion-item fill="outline" class="full-width">
-              <ion-label position="stacked">{{ 'COLLECTION_SHEET.OFFICE' | translate }}</ion-label>
+              <ion-label position="stacked">{{
+                'COLLECTION_SHEET.OFFICE' | appTranslate
+              }}</ion-label>
               <ion-select
-                [attr.aria-label]="'COLLECTION_SHEET.OFFICE' | translate"
+                [attr.aria-label]="'COLLECTION_SHEET.OFFICE' | appTranslate"
                 interface="popover"
                 name="officeId"
                 [(ngModel)]="request.officeId"
@@ -103,7 +105,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
             </ion-item>
 
             <ion-item fill="outline" class="full-width">
-              <ion-label position="stacked">{{ 'COLLECTION_SHEET.DATE' | translate }}</ion-label>
+              <ion-label position="stacked">{{ 'COLLECTION_SHEET.DATE' | appTranslate }}</ion-label>
               @if (pickersReady()) {
                 <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
               }
@@ -122,9 +124,11 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
             </ion-item>
 
             <ion-item fill="outline" class="full-width">
-              <ion-label position="stacked">{{ 'COLLECTION_SHEET.STAFF' | translate }}</ion-label>
+              <ion-label position="stacked">{{
+                'COLLECTION_SHEET.STAFF' | appTranslate
+              }}</ion-label>
               <ion-input
-                [attr.aria-label]="'COLLECTION_SHEET.STAFF' | translate"
+                [attr.aria-label]="'COLLECTION_SHEET.STAFF' | appTranslate"
                 type="number"
                 name="staffId"
                 [(ngModel)]="staffId"
@@ -133,21 +137,21 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
             <div class="actions">
               <ion-button color="primary" type="submit" [disabled]="filterForm.invalid">
-                {{ 'COLLECTION_SHEET.GENERATE' | translate }}
+                {{ 'COLLECTION_SHEET.GENERATE' | appTranslate }}
               </ion-button>
             </div>
           </form>
         }
 
         @if (generated() && !isLoading()) {
-          <h3>{{ 'COLLECTION_SHEET.RESULTS' | translate }}</h3>
+          <h3>{{ 'COLLECTION_SHEET.RESULTS' | appTranslate }}</h3>
           <pre class="json-output">{{ collectionData() | json }}</pre>
           <div class="actions">
             <ion-button fill="clear" (click)="back()">
-              {{ 'COLLECTION_SHEET.BACK' | translate }}
+              {{ 'COLLECTION_SHEET.BACK' | appTranslate }}
             </ion-button>
             <ion-button color="primary" (click)="save()">
-              {{ 'COLLECTION_SHEET.SAVE' | translate }}
+              {{ 'COLLECTION_SHEET.SAVE' | appTranslate }}
             </ion-button>
           </div>
         }

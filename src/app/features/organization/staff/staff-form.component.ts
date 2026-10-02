@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
   IonButton,
@@ -97,8 +97,8 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
           <ion-card-title>
             {{
               isEditMode
-                ? ('ORGANIZATION.EDIT_STAFF' | translate)
-                : ('ORGANIZATION.CREATE_STAFF' | translate)
+                ? ('ORGANIZATION.EDIT_STAFF' | appTranslate)
+                : ('ORGANIZATION.CREATE_STAFF' | appTranslate)
             }}
           </ion-card-title>
         </ion-card-header>
@@ -107,9 +107,9 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
           <form #staffForm="ngForm" (ngSubmit)="onSubmit()" class="staff-form">
             <div class="form-grid">
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'COMMON.OFFICE' | appTranslate }}</ion-label>
                 <ion-select
-                  [attr.aria-label]="'COMMON.OFFICE' | translate"
+                  [attr.aria-label]="'COMMON.OFFICE' | appTranslate"
                   interface="popover"
                   name="officeId"
                   [(ngModel)]="staff().officeId"
@@ -123,9 +123,9 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
+                  [attr.aria-label]="'CLIENTS.FIRST_NAME' | appTranslate"
                   name="firstname"
                   [(ngModel)]="staff().firstname"
                   required
@@ -134,9 +134,9 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
+                  [attr.aria-label]="'CLIENTS.LAST_NAME' | appTranslate"
                   name="lastname"
                   [(ngModel)]="staff().lastname"
                   required
@@ -145,18 +145,18 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'COMMON.EXTERNAL_ID' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'COMMON.EXTERNAL_ID' | translate"
+                  [attr.aria-label]="'COMMON.EXTERNAL_ID' | appTranslate"
                   name="externalId"
                   [(ngModel)]="staff().externalId"
                 ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'CLIENTS.MOBILE_NO' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'CLIENTS.MOBILE_NO' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'CLIENTS.MOBILE_NO' | translate"
+                  [attr.aria-label]="'CLIENTS.MOBILE_NO' | appTranslate"
                   name="mobileNo"
                   [(ngModel)]="staff().mobileNo"
                   [disabled]="isEditMode"
@@ -164,9 +164,9 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'COMMON.EMAIL' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'COMMON.EMAIL' | translate"
+                  [attr.aria-label]="'COMMON.EMAIL' | appTranslate"
                   type="email"
                   name="emailAddress"
                   [(ngModel)]="staff().emailAddress"
@@ -175,7 +175,7 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
 
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
-                  'ACTIONS.ACTIVATION_DATE' | translate
+                  'ACTIONS.ACTIVATION_DATE' | appTranslate
                 }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="joiningDate-picker"></ion-datetime-button>
@@ -198,26 +198,26 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
 
             <div class="checkbox-group">
               <ion-checkbox name="isLoanOfficer" [(ngModel)]="staff().isLoanOfficer">
-                {{ 'ORGANIZATION.IS_LOAN_OFFICER' | translate }}
+                {{ 'ORGANIZATION.IS_LOAN_OFFICER' | appTranslate }}
               </ion-checkbox>
 
               <ion-checkbox name="forceStatus" [(ngModel)]="staff().forceStatus">
-                {{ 'ORGANIZATION.FORCE_STATUS' | translate }}
+                {{ 'ORGANIZATION.FORCE_STATUS' | appTranslate }}
               </ion-checkbox>
 
               @if (!isEditMode) {
                 <ion-checkbox name="isActive" [(ngModel)]="staff().isActive">
-                  {{ 'COMMON.ACTIVE' | translate }}
+                  {{ 'COMMON.ACTIVE' | appTranslate }}
                 </ion-checkbox>
               }
             </div>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()">
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button color="primary" type="submit" [disabled]="!staffForm.form.valid">
-                {{ 'COMMON.SAVE' | translate }}
+                {{ 'COMMON.SAVE' | appTranslate }}
               </ion-button>
             </div>
           </form>

@@ -19,7 +19,7 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -53,16 +53,16 @@ import {
   standalone: true,
   imports: [TranslatePipe, IonButton],
   template: `
-    <h2 class="dialog-title">{{ data().title | translate }}</h2>
+    <h2 class="dialog-title">{{ data().title | appTranslate }}</h2>
     <div class="dialog-content">
-      <p>{{ data().message | translate: data().params }}</p>
+      <p>{{ data().message | appTranslate: data().params }}</p>
     </div>
     <div class="dialog-actions">
       <ion-button fill="clear" (click)="dismiss(false)">
-        {{ 'COMMON.CANCEL' | translate }}
+        {{ 'COMMON.CANCEL' | appTranslate }}
       </ion-button>
       <ion-button color="primary" (click)="dismiss(true)">
-        {{ 'COMMON.CONFIRM' | translate }}
+        {{ 'COMMON.CONFIRM' | appTranslate }}
       </ion-button>
     </div>
   `,
@@ -116,9 +116,11 @@ export class ConfirmDialogComponent {
     >
       <div filters class="office-filter-container">
         <ion-item fill="outline" class="office-filter-field">
-          <ion-label position="stacked">{{ 'HOLIDAYS.APPLICABLE_OFFICES' | translate }}</ion-label>
+          <ion-label position="stacked">{{
+            'HOLIDAYS.APPLICABLE_OFFICES' | appTranslate
+          }}</ion-label>
           <ion-select
-            [attr.aria-label]="'HOLIDAYS.APPLICABLE_OFFICES' | translate"
+            [attr.aria-label]="'HOLIDAYS.APPLICABLE_OFFICES' | appTranslate"
             interface="popover"
             [value]="selectedOfficeId()"
             (ionChange)="onOfficeChange($event.detail.value)"
@@ -152,8 +154,8 @@ export class ConfirmDialogComponent {
           <ion-button
             fill="clear"
             color="primary"
-            [attr.aria-label]="'HOLIDAYS.ACTIVATE' | translate"
-            [appTooltip]="'HOLIDAYS.ACTIVATE' | translate"
+            [attr.aria-label]="'HOLIDAYS.ACTIVATE' | appTranslate"
+            [appTooltip]="'HOLIDAYS.ACTIVATE' | appTranslate"
             (click)="onActivateHoliday(holiday)"
           >
             <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -162,8 +164,8 @@ export class ConfirmDialogComponent {
             fill="clear"
             color="primary"
             data-testid="holiday-edit"
-            [attr.aria-label]="'COMMON.EDIT' | translate"
-            [appTooltip]="'COMMON.EDIT' | translate"
+            [attr.aria-label]="'COMMON.EDIT' | appTranslate"
+            [appTooltip]="'COMMON.EDIT' | appTranslate"
             (click)="onEditHoliday(holiday)"
           >
             <ion-icon name="create-outline"></ion-icon>
@@ -172,8 +174,8 @@ export class ConfirmDialogComponent {
             fill="clear"
             color="danger"
             data-testid="holiday-delete"
-            [attr.aria-label]="'COMMON.DELETE' | translate"
-            [appTooltip]="'COMMON.DELETE' | translate"
+            [attr.aria-label]="'COMMON.DELETE' | appTranslate"
+            [appTooltip]="'COMMON.DELETE' | appTranslate"
             (click)="onDeleteHoliday(holiday)"
           >
             <ion-icon name="trash-outline"></ion-icon>

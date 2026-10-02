@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { FundsService, FundData } from '../../../api';
@@ -57,9 +57,9 @@ import { ButtonComponent } from '../../../ui/button/button.component';
           type="button"
           intent="primary"
           emphasis="quiet"
-          [label]="'COMMON.EDIT' | translate"
+          [label]="'COMMON.EDIT' | appTranslate"
           icon="create-outline"
-          [appTooltip]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | appTranslate"
           (click)="onEdit(fund)"
         />
       </ng-template>
