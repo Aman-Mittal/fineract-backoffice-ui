@@ -22,7 +22,7 @@ under the License.
 Day-to-day use of `src/app/core/adapters/`. `DOCS/adr/0003-adapter-boundary.md` records why
 the boundary exists; this is what to do at a keyboard.
 
-## The four adapters
+## The library adapters
 
 | Token      | Import instead of                         | Usually reached through                |
 | ---------- | ----------------------------------------- | -------------------------------------- |
@@ -33,6 +33,11 @@ the boundary exists; this is what to do at a keyboard.
 
 All four resolve without a provider. You inject the token and it works, in the app and in a
 TestBed alike.
+
+A fifth boundary, `ADR 0006`, works the same way but answers a different question — see
+[The generated API client](#the-generated-api-client) below. The four above isolate a _library_
+this application might one day replace. That one isolates a _payload shape_ nobody here
+controls.
 
 ```ts
 import { I18N, STORAGE, DOWNLOAD } from '../../core/adapters';
@@ -160,10 +165,95 @@ State the contract in terms of what the application needs, not what the library 
 `I18nAdapter` has nine members because that is what a count of the call sites found, not
 because `TranslateService` has thirty.
 
+## The generated API client
+
+`src/app/api` is regenerated from Fineract's OpenAPI spec. Importing it outside
+`src/app/core/adapters/api/` fails `npm run lint`
+(`local/no-generated-api-import`); the 469 files that already do are recorded in
+`eslint-suppressions.json` and that number may only fall. ADR 0006 has the reasoning.
+
+There is still **no facade over the 155 generated services**, and adding one is still rejected.
+What the boundary asks for is narrower: when you touch a screen, consider giving its domain a
+contract and a mapper, and leave the rest alone.
+
+`accounting-closure.api.ts` is the worked example. The shape of it:
+
+```ts
+// What the application means by a closed period — not what the generator emits.
+export interface AccountingClosure {
+  readonly id: number; // non-optional: the generated type marks everything optional
+  readonly closingDate: string | null; // absent is null, never undefined
+  readonly isClosed: boolean; // derived once, in a tested mapper
+}
+
+export interface AccountingClosureApi {
+  list(): Observable<AccountingClosure[]>;
+  create(closure: NewAccountingClosure): Observable<void>;
+  remove(id: number): Observable<void>;
+}
+
+export const ACCOUNTING_CLOSURE_API = new InjectionToken<AccountingClosureApi>(/* … */);
+```
+
+Three rules it follows, each for a reason worth repeating:
+
+1. **The model is not the generated type renamed.** Every field on a generated response is
+   optional, because the spec marks nothing required. The screen built on
+   `GetGlClosureResponse` read an `isClosed` that no payload contains and rendered every closed
+   period as "Open" — through an untyped `ng-template` context, so `strictTemplates` could not
+   see it. Non-optional fields and `null` for absence are what make that a compile error.
+2. **Transport details stay in the adapter.** The closure form used to set `dateFormat` and
+   `locale` on the request object, so a screen knew how Fineract parses dates. The adapter owns
+   that now.
+3. **Specs mock the contract, not the generated service.** A fixture built from a generated type
+   inherits the spec's blind spots, and will happily confirm a screen that is broken in a
+   browser. Mapping is tested where mapping happens.
+
+### A second example: when the generated type is simply wrong
+
+`office.api.ts` is the same pattern against a worse disagreement. `GetOfficesResponse` declares
+`openingDate?: string`; Fineract sends `[2009, 1, 1]`. It also omits `parentId` and `parentName`,
+which the payload carries. Issue #653 has the captured responses.
+
+The application already knew, 35 times over — `formatArrayDate()` takes `unknown` because the
+declared type cannot be used, fixtures wrote `openingDate: [2026, 6, 16] as unknown as number[]`
+to get a realistic value past the compiler, and `offices-list.component.ts` carried a third
+inline copy of the conversion. The adapter writes the disagreement down as a type:
+
+```ts
+type OfficePayload = Omit<GetOfficesResponse, 'openingDate'> & {
+  readonly openingDate?: string | number[]; // declared string, sent as [y, m, d]
+  readonly parentId?: number; // sent, never declared
+  readonly parentName?: string;
+};
+```
+
+`Omit` is needed because declaring `string | number[]` on a subtype of a `string` field is not a
+legal override — TypeScript stating, correctly, that the generated type and the payload are not
+compatible.
+
+`Office.openingDate` is then an ISO string everywhere downstream, and `toIsoFineractDate()`
+accepts both forms, so a corrected spec upstream needs no change here. It returns `null` rather
+than `formatArrayDate()`'s `'-'`: a placeholder stored as data cannot be sorted or compared, and
+it hides the difference between "no opening date" and "a date we failed to read". Turning null
+into a dash stays the view's job.
+
+`npm run api:surface` remains the complement: it records which generated _operations_ are
+called, so one disappearing upstream produces a single diagnostic rather than a compile error
+per call site. The two are orthogonal — every operation can still exist while every response
+shape changes.
+
 ## What is deliberately not adapted
 
-- **`<ion-*>` components.** They are the UI layer (`AGENTS.md`), 250 files, and migrate one
+- **`<ion-*>` components.** They are the UI layer (`AGENTS.md`), 227 files, and migrate one
   component at a time. Only Ionic's imperative controllers are behind the boundary.
-- **The generated OpenAPI client.** ADR 0001 considered a facade over its ~54 services and
-  rejected it on maintenance cost. `npm run api:surface` is the complement — it verifies the
-  dependency rather than wrapping it.
+- **A contract per generated service.** 155 services, most called from one screen. ADR 0001
+  rejected that facade on maintenance cost and ADR 0006 keeps the rejection. A contract earns
+  its place by removing a coupling that has cost something.
+- **RxJS.** An Angular peer dependency, and wrapping `Observable` would mean wrapping the
+  framework.
+- **`@angular/cdk`.** Deliberately retained when Angular Material was removed: it is the
+  unstyled-primitives package, versioned with Angular itself, and `src/app/ui/` is built on it.
+- **`@angular/*` generally.** The framework is not a swappable dependency. ADR 0003 draws the
+  boundary around libraries that could be replaced without rewriting the application, and
+  Angular is not one of them.

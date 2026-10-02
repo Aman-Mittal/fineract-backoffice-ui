@@ -202,7 +202,7 @@ function withoutBlanks<T extends Record<string, unknown>>(payload: T): T {
               </ion-checkbox>
 
               <ion-checkbox name="forceStatus" [(ngModel)]="staff().forceStatus">
-                Force Status
+                {{ 'ORGANIZATION.FORCE_STATUS' | translate }}
               </ion-checkbox>
 
               @if (!isEditMode) {

@@ -64,7 +64,7 @@ npm run lint
 ESLint over `src/**/*.ts` and `src/**/*.html`, for both projects in the workspace.
 `src/app/api/**` is excluded — it is generated.
 
-Four rules here are deliberate and worth knowing before you fight them:
+Five rules here are deliberate and worth knowing before you fight them:
 
 - **`no-restricted-imports` bans `@angular/material`.** The app migrated to Ionic;
   this is what stops it creeping back. See `STYLE.md` for the component mapping.
@@ -75,6 +75,13 @@ Four rules here are deliberate and worth knowing before you fight them:
   only shrinks. It is a separate rule from the one above on purpose — the suppressions file
   counts per rule id, so a shared counter would let an Ionic violation pay for a Material or
   i18n one. See `DOCS/adr/0005-ui-boundary.md`.
+- **`local/no-generated-api-import` bans new imports of `src/app/api`** outside
+  `src/app/core/adapters/api/**` and `app.config.ts`. The generated client is regenerated from
+  an upstream spec on Fineract's cadence, and a generated response type bound into a template
+  is how the accounting-closures list came to read an `isClosed` field that no payload contains,
+  rendering every closed period as "Open". 469 existing imports are a recorded baseline that
+  only shrinks. Separate rule id for the same reason as the one above. See
+  `DOCS/adr/0006-generated-api-boundary.md`.
 - **`sonarjs/*` is on**, and is stricter than most setups — it will reject nested
   ternaries and string literals repeated three times or more. Extracting a named
   constant is usually the right response, not a disable comment.
@@ -140,7 +147,7 @@ announcing itself to a screen reader as "button" and nothing else.
 | ------------ | ------------------------------------------------------------------------- |
 | `MISSING`    | a key referenced in code that `en.json` does not define                   |
 | `UNWRAPPED`  | `{{ 'COMMON.SAVE' }}` — a key interpolated with no `\| appTranslate` pipe |
-| `PHRASES`    | a `ColumnDef.label` holding `'Office'` where a key belongs                |
+| `PHRASES`    | any `label:` holding `'Office'` where a key belongs                       |
 | `CATALOGUES` | `hi`/`ko` defining a key `en.json` dropped, or coverage going backwards   |
 
 Coverage is a ratchet, not a threshold: `scripts/i18n-coverage.json` records what each
@@ -156,7 +163,15 @@ baseline with `npm run i18n:check -- --update` when a catalogue legitimately shr
 while its type stays `string`. Eight components filled it with English — `label:
 'Office'`, `label: 'Closing Date'` — and each one reached `translate()`, missed, and
 rendered the phrase back unchanged. That is indistinguishable from working until the
-language changes. The check applies to any file importing `ColumnDef`.
+language changes.
+
+It applies to every `label:` literal, not only to files importing `ColumnDef`. It was
+contract-specific at first because 46 literals elsewhere were phrases; [#627] turned the last of
+them into keys, so the narrow form would only have left room for the defect to return where the
+contract does not reach — `{{ day.label }}` rendered with no pipe at all stayed English in every
+language and nothing reported it. All 590 `label:` literals under `src/app` are now key-shaped.
+
+[#627]: https://github.com/apache/fineract-backoffice-ui/issues/627
 
 #### Keys built at runtime
 
@@ -171,6 +186,35 @@ to downgrade that to a warning for a local run.
 The handler stays quiet until the current language's catalogue has actually loaded —
 every key misses during startup — and ngx-translate consults the fallback catalogue
 before calling it, so a key present in `en` but missing from `hi` is never reported.
+
+### `check:template-text`
+
+```bash
+npm run check:template-text              # fail if any file exceeds its baseline
+node scripts/check-template-text.mjs --list     # print every occurrence
+node scripts/check-template-text.mjs --update   # record a fix, or re-seed
+```
+
+The one shape none of the four `i18n:check` checks can see, and the runtime handler cannot
+either — English written straight into a template, with no key and no pipe:
+
+```html
+<ion-label position="stacked">Repayments Rescheduling Rule</ion-label>
+```
+
+Nothing is looked up, so nothing misses and no raw key ever appears. It renders correctly in
+English and stays English in Hindi and Korean indefinitely. A review does not catch it because
+it reads exactly like the working line above it, and the screenshots are all in English. [#627]
+was three screens of this found by hand; this check finds the rest.
+
+It reports a text node of **two or more words** starting with a capital, with comments stripped
+first so a JSDoc example is not mistaken for UI. Deliberately conservative — a single word is
+too often a unit or an acronym (`USD`, `ID`, `JSON`) to flag without a false-positive rate that
+would get the check switched off. So it under-reports on purpose.
+
+`scripts/template-text-baseline.json` records the count per file and may only shrink: a new
+occurrence fails the job, and fixing one fails it too until `--update` records the lower number,
+which keeps the fix and the baseline in the same commit. 68 occurrences in 15 files remain.
 
 #### `check:a11y-names`
 

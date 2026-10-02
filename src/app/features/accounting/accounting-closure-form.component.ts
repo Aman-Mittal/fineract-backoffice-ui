@@ -21,12 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {
-  AccountingClosureService,
-  PostGlClosuresRequest,
-  OfficesService,
-  GetOfficesResponse,
-} from '../../api';
+import { ACCOUNTING_CLOSURE_API, OFFICE_API } from '../../core/adapters';
+import type { Office } from '../../core/adapters';
 import { HelpIconComponent } from '../../shared';
 import {
   IonButton,
@@ -178,12 +174,17 @@ export class AccountingClosureFormComponent implements OnInit {
   /** See `createPickersReady` — the date buttons must not outrun their pickers. */
   readonly pickersReady = createPickersReady();
 
-  private readonly closureService = inject(AccountingClosureService);
-  private readonly officeService = inject(OfficesService);
+  private readonly closureApi = inject(ACCOUNTING_CLOSURE_API);
+  private readonly officeApi = inject(OFFICE_API);
   private readonly router = inject(Router);
 
-  readonly offices = signal<GetOfficesResponse[]>([]);
-  request: PostGlClosuresRequest = {
+  readonly offices = signal<Office[]>([]);
+  /**
+   * The form's own state, rather than the generated request shape it used to bind to directly.
+   * `dateFormat` and `locale` are gone from here on purpose — how Fineract parses a date is the
+   * adapter's business, not this screen's. See ADR 0006.
+   */
+  request: { officeId?: number; comments: string } = {
     officeId: undefined,
     comments: '',
   };
@@ -191,23 +192,23 @@ export class AccountingClosureFormComponent implements OnInit {
   readonly isSaving = signal(false);
 
   ngOnInit() {
-    this.officeService
-      .getOffices()
-      .subscribe((data: GetOfficesResponse[]) => this.offices.set(data));
+    this.officeApi.list().subscribe((data: Office[]) => this.offices.set(data));
   }
 
   onSubmit() {
+    if (this.request.officeId === undefined) return;
     this.isSaving.set(true);
-    const formattedDate = toIsoDate(this.closingDate);
 
-    this.request.closingDate = formattedDate;
-    this.request.dateFormat = 'yyyy-MM-dd';
-    this.request.locale = 'en';
-
-    this.closureService.postGlclosures(this.request).subscribe({
-      next: () => this.router.navigate(['/accounting/closures']),
-      error: () => this.isSaving.set(false),
-    });
+    this.closureApi
+      .create({
+        officeId: this.request.officeId,
+        closingDate: toIsoDate(this.closingDate),
+        comments: this.request.comments,
+      })
+      .subscribe({
+        next: () => this.router.navigate(['/accounting/closures']),
+        error: () => this.isSaving.set(false),
+      });
   }
 
   onCancel() {
