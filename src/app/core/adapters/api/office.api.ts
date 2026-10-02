@@ -58,14 +58,24 @@ export interface Office {
   readonly openingDate: string | null;
 }
 
+/** What creating or editing an office collects. The adapter adds the date format and locale. */
+export interface OfficeDraft {
+  readonly name: string;
+  readonly externalId?: string | null;
+  /** ISO-8601 `YYYY-MM-DD`. Converted to Fineract's wire format by the adapter. */
+  readonly openingDate: string;
+  /** Omitted when creating the head office, which has no parent. */
+  readonly parentId?: number | null;
+}
+
 /**
  * Offices, stated as application operations.
  *
- * `list()` only, for now. It is what the 17 screens reading `GetOfficesResponse` need — an
- * office picker, or a table of offices. Creating and editing an office stays on the generated
- * client until `office-form.component.ts` is migrated; adding `create()` and `update()` here
- * before anything calls them would be the speculative abstraction ADR 0006 and `AGENTS.md`
- * both warn against.
+ * `get`, `create` and `update` were added when `office-form.component.ts` and
+ * `create-office-dialog.component.ts` were migrated — the condition the previous version of
+ * this comment set for adding them. Adding them earlier would have been the speculative
+ * abstraction ADR 0006 and `AGENTS.md` both warn against; adding them now is what lets those
+ * two screens stop knowing that Fineract parses `openingDate` against a format it is told.
  */
 export interface OfficeApi {
   /**
@@ -76,6 +86,27 @@ export interface OfficeApi {
    *   come back, which is an application-level question, not a transport detail.
    */
   list(includeAllOffices?: boolean): Observable<Office[]>;
+
+  /** One office by id, which is what the edit form loads. */
+  get(officeId: number): Observable<Office>;
+
+  /**
+   * Creates an office and answers its id.
+   *
+   * The id is returned rather than discarded because `create-office-dialog` hands it straight
+   * back to whatever opened it — a client or group form that then selects the office it just
+   * made. A `void` here would have quietly broken that.
+   */
+  create(draft: OfficeDraft): Observable<number>;
+
+  /**
+   * Updates an office.
+   *
+   * `parentId` is deliberately not accepted: `PUT /offices/{id}` does not move an office in the
+   * hierarchy, and the form has never offered it on the edit path. Taking a field the platform
+   * ignores would be a contract that lies.
+   */
+  update(officeId: number, draft: Omit<OfficeDraft, 'parentId'>): Observable<void>;
 }
 
 /** Injection token for the active {@link OfficeApi}. Defaults to the Fineract implementation. */

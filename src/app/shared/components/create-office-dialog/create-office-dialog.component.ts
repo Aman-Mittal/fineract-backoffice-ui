@@ -33,7 +33,8 @@ import {
   IonSelectOption,
   ModalController,
 } from '@ionic/angular/standalone';
-import { OfficesService, PostOfficesRequest, GetOfficesResponse } from '../../../api';
+import { OFFICE_API } from '../../../core/adapters';
+import type { Office } from '../../../core/adapters';
 import { toIsoDate } from '../../../core/utils/date-formatter';
 
 /**
@@ -149,18 +150,17 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
   ],
 })
 export class CreateOfficeDialogComponent implements OnInit {
-  private readonly officesService = inject(OfficesService);
+  private readonly officeApi = inject(OFFICE_API);
   private readonly modalController = inject(ModalController);
 
-  office: PostOfficesRequest = {
-    parentId: 1, // Default to head office
-  };
+  /** Head office by default, which is the only parent a first branch can have. */
+  office: { name?: string; externalId?: string; parentId: number } = { parentId: 1 };
   openingDate = toIsoDate(new Date());
-  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly offices = signal<readonly Office[]>([]);
   readonly isSaving = signal(false);
 
   ngOnInit() {
-    this.officesService.getOffices(true).subscribe((offices) => {
+    this.officeApi.list(true).subscribe((offices) => {
       this.offices.set(offices);
     });
   }
@@ -174,14 +174,20 @@ export class CreateOfficeDialogComponent implements OnInit {
 
   onSubmit() {
     this.isSaving.set(true);
-    this.office.openingDate = this.openingDate;
-    this.office.dateFormat = 'yyyy-MM-dd';
-    this.office.locale = 'en';
 
-    this.officesService.postOffices(this.office).subscribe({
-      next: (response) => this.modalController.dismiss(response.resourceId),
-      error: () => this.isSaving.set(false),
-    });
+    // The date format and locale Fineract parses the opening date against are the adapter's
+    // business now, not this dialog's.
+    this.officeApi
+      .create({
+        name: this.office.name ?? '',
+        externalId: this.office.externalId,
+        openingDate: this.openingDate,
+        parentId: this.office.parentId,
+      })
+      .subscribe({
+        next: (officeId) => this.modalController.dismiss(officeId),
+        error: () => this.isSaving.set(false),
+      });
   }
 
   onCancel() {

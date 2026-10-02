@@ -24,7 +24,7 @@ import type { Observable } from 'rxjs';
 import { OfficesService } from '../../../api';
 import type { GetOfficesResponse } from '../../../api';
 import { toIsoFineractDate } from './fineract-date';
-import type { Office, OfficeApi } from './office.api';
+import type { Office, OfficeApi, OfficeDraft } from './office.api';
 
 /**
  * What `GET /offices` actually sends, where that differs from the generated type.
@@ -72,6 +72,26 @@ function required<T>(value: T | undefined, field: string): T {
 }
 
 /**
+ * The three fields Fineract needs to read a date out of a request body.
+ *
+ * Fineract parses a date strictly against the `dateFormat` it is told to use, so a request that
+ * sends one without the other does not fail validation — it fails to parse, and answers 500.
+ * The two screens that used to set these themselves are exactly why this belongs here: that is
+ * rule 2 in `DOCS/ADAPTERS.md`, and a form that owns a transport detail is a form that can get
+ * it wrong.
+ *
+ * `yyyy-MM-dd` rather than the `dd MMMM yyyy` other screens use: both call sites already sent
+ * the ISO form, and it needs no month-name localisation to round-trip.
+ */
+function dateFields(openingDate: string): {
+  openingDate: string;
+  dateFormat: string;
+  locale: string;
+} {
+  return { openingDate, dateFormat: 'yyyy-MM-dd', locale: 'en' };
+}
+
+/**
  * {@link OfficeApi} over the generated OpenAPI client.
  *
  * One of the few places allowed to import `src/app/api` — see ADR 0006 and the `files` override
@@ -87,5 +107,34 @@ export class FineractOfficeApi implements OfficeApi {
       // arrives as `null` through HttpClient, and the previous call sites all guarded for it.
       map((payloads) => (payloads || []).map((payload) => mapOffice(payload as OfficePayload))),
     );
+  }
+
+  get(officeId: number): Observable<Office> {
+    return this.offices
+      .getOfficesOfficeId(officeId)
+      .pipe(map((payload) => mapOffice(payload as OfficePayload)));
+  }
+
+  create(draft: OfficeDraft): Observable<number> {
+    return this.offices
+      .postOffices({
+        name: draft.name,
+        externalId: draft.externalId ?? undefined,
+        ...(draft.parentId === undefined || draft.parentId === null
+          ? {}
+          : { parentId: draft.parentId }),
+        ...dateFields(draft.openingDate),
+      })
+      .pipe(map((response) => required(response.resourceId, 'resourceId')));
+  }
+
+  update(officeId: number, draft: Omit<OfficeDraft, 'parentId'>): Observable<void> {
+    return this.offices
+      .putOfficesOfficeId(officeId, {
+        name: draft.name,
+        externalId: draft.externalId ?? undefined,
+        ...dateFields(draft.openingDate),
+      })
+      .pipe(map(() => undefined));
   }
 }

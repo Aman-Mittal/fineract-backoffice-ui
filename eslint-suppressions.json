@@ -1316,23 +1316,12 @@
       "count": 1
     }
   },
-  "src/app/features/organization/offices/office-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/offices/office-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
   },
   "src/app/features/organization/offices/office-view.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
@@ -1368,26 +1357,8 @@
       "count": 1
     }
   },
-  "src/app/features/organization/staff/staff-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/staff/staff-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/organization/staff/staff-list.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/organization/staff/staff-list.component.ts": {
-    "local/no-generated-api-import": {
       "count": 1
     }
   },
@@ -1823,9 +1794,6 @@
     }
   },
   "src/app/features/products/savings-officer-dialog.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
@@ -2101,28 +2069,12 @@
       "count": 1
     }
   },
-  "src/app/features/settings/holiday-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/settings/holiday-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
   },
-  "src/app/features/settings/holidays-list.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/settings/holidays-list.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     },
@@ -3105,17 +3057,11 @@
     }
   },
   "src/app/shared/components/create-office-dialog/create-office-dialog.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
   },
   "src/app/shared/components/create-office-dialog/create-office-dialog.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     },

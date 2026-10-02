@@ -18,14 +18,14 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { TranslatePipe } from '../../../core/adapters';
+import { STAFF_API, TranslatePipe } from '../../../core/adapters';
+import type { Staff } from '../../../core/adapters';
 import {
   DataTableComponent,
   ColumnDef,
   HasPermissionDirective,
   CellTemplateDirective,
 } from '../../../shared';
-import { StaffService, StaffData } from '../../../api';
 import { IconComponent } from '../../../ui/icon/icon.component';
 import { ButtonComponent } from '../../../ui/button/button.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -101,9 +101,9 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
 })
 export class StaffListComponent implements OnInit {
-  private readonly staffService = inject(StaffService);
+  private readonly staffApi = inject(STAFF_API);
 
-  readonly staff = signal<StaffData[]>([]);
+  readonly staff = signal<Staff[]>([]);
   readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
@@ -135,7 +135,7 @@ export class StaffListComponent implements OnInit {
 
   loadStaff(): void {
     this.isLoading.set(true);
-    this.staffService.getStaff(undefined, undefined, undefined, 'all').subscribe({
+    this.staffApi.list({ status: 'all' }).subscribe({
       next: (data) => {
         this.staff.set(data);
         this.isLoading.set(false);
