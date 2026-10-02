@@ -256,6 +256,14 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
          attribute and a scoped tbody selector silently does not match it. It stayed
          display: table-row-group, shrank to its content, and the cards came out narrower than
          the page. */
+      /* The help icon describes the search field, so it has to sit beside it. The class carried
+         no rule at all, which left it display: block — the icon wrapped onto its own line and
+         rendered as a lone "?" under the search box, on every list screen using this component. */
+      .search-container {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
       .table-container {
         overflow: auto;
       }
