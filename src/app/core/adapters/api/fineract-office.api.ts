@@ -23,6 +23,7 @@ import type { Observable } from 'rxjs';
 
 import { OfficesService } from '../../../api';
 import type { GetOfficesResponse } from '../../../api';
+import { toIsoFineractDate } from './fineract-date';
 import type { Office, OfficeApi } from './office.api';
 
 /**
@@ -40,38 +41,6 @@ type OfficePayload = Omit<GetOfficesResponse, 'openingDate'> & {
   readonly parentId?: number;
   readonly parentName?: string;
 };
-
-/**
- * Converts a Fineract date to ISO-8601 `YYYY-MM-DD`.
- *
- * Accepts the array form Fineract sends and the string form the spec claims, so a corrected
- * spec upstream would need no change here.
- *
- * Named to distinguish it from `toIsoDate()` in `core/utils/date-formatter.ts`, which converts
- * a `Date` or an `ion-datetime` string on the way *out* to Fineract. This converts what comes
- * *in*.
- *
- * Deliberately not `formatArrayDate()` from the same file: that returns `'-'`
- * for anything it cannot read, which is the right answer for a table cell and the wrong one for
- * a model. A placeholder stored as data cannot be formatted, compared or sorted, and it hides
- * the difference between "no opening date" and "an opening date we failed to read". This
- * returns `null` and lets the view decide how to show that.
- */
-export function toIsoFineractDate(value: string | number[] | undefined): string | null {
-  if (value === undefined || value === null) return null;
-
-  if (Array.isArray(value)) {
-    // Fineract's month is 1-based here, unlike `Date`'s. No arithmetic, so no conversion.
-    const [year, month, day] = value;
-    if (typeof year !== 'number' || typeof month !== 'number' || typeof day !== 'number') {
-      return null;
-    }
-    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  }
-
-  // Already a date-shaped string; keep the date part, drop any time.
-  return value === '' ? null : (value.split('T', 1)[0] ?? null);
-}
 
 /**
  * Maps one office payload onto the application model.

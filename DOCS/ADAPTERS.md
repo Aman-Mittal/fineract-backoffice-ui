@@ -169,7 +169,7 @@ because `TranslateService` has thirty.
 
 `src/app/api` is regenerated from Fineract's OpenAPI spec. Importing it outside
 `src/app/core/adapters/api/` fails `npm run lint`
-(`local/no-generated-api-import`); the 462 files that already do are recorded in
+(`local/no-generated-api-import`); the 458 files that already do are recorded in
 `eslint-suppressions.json` and that number may only fall. ADR 0006 has the reasoning.
 
 There is still **no facade over the 155 generated services**, and adding one is still rejected.
@@ -260,6 +260,54 @@ quietly fixes:
 - `client-notes-list`'s spec had `createdOn: 1_757_000_000_000` — epoch millis, which is neither
   what the generated type declares nor what Fineract sends. It reached the component through an
   `as unknown as Observable<never>` cast, so nothing checked it. Typed fixtures have to be real.
+
+### A fourth example: one payload, two generated types, both wrong
+
+`loan.api.ts` and `loan-transaction.api.ts` cover the domain with the most consumers, and the
+disagreements are the clearest yet. All verified against a running instance.
+
+`GetLoansLoanIdStatus` does not declare `value`, which every loan status carries, and does
+declare `description`, which no payload sends. The application had been reaching around it in
+eight places, two of them like this:
+
+```ts
+return (status as unknown as Record<string, unknown>)?.['value'] === 'Approved';
+```
+
+A cast like that is worse than ugly: it compiles whatever the payload does. The day `value`
+goes away it keeps compiling, silently answers `false`, and a button stops being offered with
+nothing to show why.
+
+The loans list did the same comparison in a template, and that one was a live defect:
+
+```html
+@if (loan.status?.value === 'Approved') {
+<!-- offers Disburse -->
+}
+```
+
+`value` comes from a localisable enum, so a platform serving any other locale offered neither
+Approve nor Disburse. Nothing caught it: the buttons sit in an `<ng-template appCellTemplate>`
+whose `let-loan` context is `any`, so `strictTemplates` never checked a field the generated
+model does not declare. `Loan.status` carries Fineract's own flags —
+`pendingApproval`, `waitingForDisbursal`, `active` — and the gates read those instead.
+
+**Branch on the flags or the `code`, never on `value`.** `value` is display text, and the model
+keeps it under that name only so `StatusLike` in `shared/components/status-badge` still matches.
+
+Transactions show the same thing twice over. The generated client has _two_ types for one
+payload: `GetLoansLoanIdLoanTransactionEnumData` declares `value`, and `GetLoansType` — used on
+the single-transaction response — does not, declaring `description` instead. `date` is declared
+`string` on both and arrives as `[2026, 10, 2]`, which left one dialog converting it twice, two
+different ways, both through a cast or an `unknown`. `LoanTransaction.date` is an ISO string and
+`type.displayName` is just a string.
+
+One more field worth naming, because it is the kind a cast hides: `GetPaymentTypeOptions`
+declares `id`, `name` and `position`, while the payload also carries `description`,
+`isCashPayment`, `isSystemDefined` and — on system-defined types only — `codeName`. The
+chargeback dialog selects its default payment type by `codeName` and had to write
+`(o as { codeName?: string }).codeName` to reach it. That lookup does work today, which is the
+point: nothing was checking whether it still would.
 
 `npm run api:surface` remains the complement: it records which generated _operations_ are
 called, so one disappearing upstream produces a single diagnostic rather than a compile error

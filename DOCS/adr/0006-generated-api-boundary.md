@@ -67,20 +67,33 @@ non-increasing.
    or is known to move. A contract whose only content is a rename of a generated method is the
    facade ADR 0001 rejected, and is still rejected.
 
-Three domains are migrated so far. Two were chosen because each had a defect the generated type
-could not prevent: accounting closures (a field read that no payload contains) and offices (a
-date typed `string` that arrives as `[y, m, d]`, plus two fields the type never declares). The
-third, entity notes, was chosen on reach rather than on a defect — its payload agrees with the
+Five domains are migrated so far. Three were chosen because each had a defect the generated type
+could not prevent: accounting closures (a field read that no payload contains), offices (a
+date typed `string` that arrives as `[y, m, d]`, plus two fields the type never declares) and
+loans (a status `value` the type does not declare, which a template was comparing against
+English display text as control flow — so a non-English platform offered neither Approve nor
+Disburse). Entity notes was chosen on reach rather than on a defect — its payload agrees with the
 generated type, but it is consumed from client, group, loan and savings screens, and the
-`resourceType` path segment was a bare `string` in both the client and the component. All three
+`resourceType` path segment was a bare `string` in both the client and the component. Loan
+transactions came with the loan domain: one payload that the generated client models with two
+mutually inconsistent types, and a `date` declared `string` that arrives as an array. All five
 are written up in `DOCS/ADAPTERS.md`; issue #653 records the shape disagreements. The baseline
-stands at 462 after them.
+stands at 458 after them.
 
-That arithmetic is worth stating plainly: three domains, seven files cleared. 462 files import
-the client across 462 of them, and 361 depend on exactly one generated service, so the work is
-tractable — but the distribution is flat. The largest single domain left is nine files. This is a
-long campaign of small PRs, not something one change finishes, and the ratchet exists so that it
-can proceed at that pace without the number going back up.
+That arithmetic is worth stating plainly: five domains, eleven files cleared. 458 files import
+the client, and most depend on exactly one generated service, so the work is tractable — but the
+distribution is flat. The largest single domain left is nine files. This is a long campaign of
+small PRs, not something one change finishes, and the ratchet exists so that it can proceed at
+that pace without the number going back up.
+
+A second thing the loan domain showed, which is worth recording for whoever picks the next one:
+the files a greedy "clears the most violations" search ranks highest are often pure functions
+that merely _name_ generated types in their signatures — `loan-charge-refund.ts`,
+`loan-contract-termination.ts`, `loan-delinquency-action.model.ts`. Re-typing those onto
+application models does not clear anything on its own, because their callers are the large
+components that still hold generated types, so the change cascades into whatever was not being
+migrated. Prefer the files that _inject_ a generated service: there the adapter replaces the
+dependency outright and the blast radius stops at the file.
 
 This is deliberately not the facade from ADR 0001. It renames nothing, it does not require a
 wrapper per service, and it adds no indirection on day one. It is a measurement that fails CI

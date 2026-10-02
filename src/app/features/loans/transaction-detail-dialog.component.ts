@@ -21,10 +21,8 @@ import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
-import {
-  LoanTransactionsService,
-  GetLoansLoanIdTransactionsTransactionIdResponse,
-} from '../../api';
+import { LOAN_TRANSACTION_API } from '../../core/adapters';
+import type { LoanTransaction } from '../../core/adapters';
 import { DialogService } from '../../core/services/dialog.service';
 import {
   IonButton,
@@ -38,7 +36,7 @@ import {
   IonTextarea,
   ModalController,
 } from '@ionic/angular/standalone';
-import { formatArrayDate, toIsoDate } from '../../core/utils/date-formatter';
+import { formatDateToFineract, toIsoDate } from '../../core/utils/date-formatter';
 
 export interface TransactionDetailDialogData {
   loanId: number;
@@ -49,8 +47,6 @@ export interface TransactionDetailDialogData {
    *  disbursement/approval no). */
   adjustable: boolean;
 }
-
-const DATE_FORMAT = 'yyyy-MM-dd';
 
 @Component({
   selector: 'app-transaction-detail-dialog',
@@ -76,11 +72,11 @@ const DATE_FORMAT = 'yyyy-MM-dd';
         <table class="detail-table">
           <tr>
             <td class="label">{{ 'COMMON.TYPE' | translate }}</td>
-            <td class="value">{{ transactionTypeLabel(tx) }}</td>
+            <td class="value">{{ tx.type.displayName }}</td>
           </tr>
           <tr>
             <td class="label">{{ 'COMMON.TRANSACTION_DATE' | translate }}</td>
-            <td class="value">{{ formatDate(tx.date) }}</td>
+            <td class="value">{{ displayDate(tx.date) }}</td>
           </tr>
           <tr>
             <td class="label">{{ 'COMMON.AMOUNT' | translate }}</td>
@@ -112,10 +108,10 @@ const DATE_FORMAT = 'yyyy-MM-dd';
               {{ data().currencySymbol }}{{ tx.penaltyChargesPortion | number: '1.2-2' }}
             </td>
           </tr>
-          @if (tx.paymentDetailData?.receiptNumber) {
+          @if (tx.receiptNumber) {
             <tr>
               <td class="label">{{ 'LOANS.RECEIPT_NUMBER' | translate }}</td>
-              <td class="value">{{ tx.paymentDetailData.receiptNumber }}</td>
+              <td class="value">{{ tx.receiptNumber }}</td>
             </tr>
           }
           @if (tx.manuallyReversed) {
@@ -237,11 +233,11 @@ const DATE_FORMAT = 'yyyy-MM-dd';
 })
 export class TransactionDetailDialogComponent implements OnInit {
   readonly modalController = inject(ModalController);
-  private readonly transactionsService = inject(LoanTransactionsService);
+  private readonly transactionApi = inject(LOAN_TRANSACTION_API);
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
-  readonly detail = signal<GetLoansLoanIdTransactionsTransactionIdResponse | null>(null);
+  readonly detail = signal<LoanTransaction | null>(null);
   readonly showAdjustForm = signal(false);
   readonly isSaving = signal(false);
 
@@ -252,40 +248,28 @@ export class TransactionDetailDialogComponent implements OnInit {
   readonly data = input.required<TransactionDetailDialogData>();
 
   ngOnInit(): void {
-    this.transactionsService
-      .getLoansLoanIdTransactionsTransactionId(this.data().loanId, this.data().transactionId)
-      .subscribe({
-        next: (data) => {
-          this.detail.set(data);
-          this.adjustAmount.set(data.amount ?? 0);
-          const dateArray = data.date as unknown as number[];
-          if (Array.isArray(dateArray)) {
-            this.adjustDate.set(formatArrayDate(dateArray));
-          }
-        },
-        error: (err) => console.error('Failed to load transaction detail', err),
-      });
+    this.transactionApi.get(this.data().loanId, this.data().transactionId).subscribe({
+      next: (transaction) => {
+        this.detail.set(transaction);
+        this.adjustAmount.set(transaction.amount);
+        // Already `YYYY-MM-DD`, which is what the picker binds to. Only moved when the
+        // transaction has a date; otherwise today's default stands.
+        if (transaction.date) this.adjustDate.set(transaction.date);
+      },
+      error: (err) => console.error('Failed to load transaction detail', err),
+    });
   }
 
-  formatDate(dates: unknown): string {
-    const arr = dates as number[];
-    if (Array.isArray(arr)) {
-      return new Date(arr[0], arr[1] - 1, arr[2]).toLocaleDateString();
-    }
-    return '';
-  }
-
-  // The generated GetLoansType model omits the `value` field that Fineract
-  // actually returns (e.g. "Repayment") alongside `code`/`description` — the
-  // OpenAPI spec under-documents this endpoint's response shape.
-  transactionTypeLabel(tx: GetLoansLoanIdTransactionsTransactionIdResponse): string {
-    const type = tx.type as unknown as Record<string, unknown> | undefined;
-    return (
-      (type?.['value'] as string) ||
-      (type?.['description'] as string) ||
-      (type?.['code'] as string) ||
-      ''
-    );
+  /**
+   * The transaction date as `02 October 2026`.
+   *
+   * `formatDateToFineract` rather than `toLocaleDateString()`, which this dialog used to call on
+   * the raw `[year, month, day]` array. It reads a date-only string through its parts, so it does
+   * not drift a day west of Greenwich the way `new Date('2026-10-02')` does — the hazard
+   * `core/utils/date-formatter.ts` documents at length.
+   */
+  displayDate(date: string | null): string {
+    return date === null ? '' : formatDateToFineract(date);
   }
 
   onConfirmAdjust(): void {
@@ -298,14 +282,11 @@ export class TransactionDetailDialogComponent implements OnInit {
       .then((confirmed) => {
         if (!confirmed) return;
         this.isSaving.set(true);
-        const formattedDate = toIsoDate(this.adjustDate());
-        this.transactionsService
-          .postLoansLoanIdTransactionsTransactionId(this.data().loanId, this.data().transactionId, {
-            transactionDate: formattedDate,
-            transactionAmount: this.adjustAmount(),
+        this.transactionApi
+          .adjust(this.data().loanId, this.data().transactionId, {
+            date: toIsoDate(this.adjustDate()),
+            amount: this.adjustAmount(),
             note: this.adjustNote,
-            dateFormat: DATE_FORMAT,
-            locale: 'en',
           })
           .subscribe({
             next: () => {

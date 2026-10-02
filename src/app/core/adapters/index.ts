@@ -38,6 +38,8 @@ export * from './storage/storage.adapter';
 export * from './api/accounting-closure.api';
 export * from './api/office.api';
 export * from './api/entity-notes.api';
+export * from './api/loan.api';
+export * from './api/loan-transaction.api';
 
 // The default implementations each token resolves to. Exported so a deployment swapping one
 // can name what it is replacing, and so a TestBed can ask for the real thing explicitly.
@@ -49,3 +51,5 @@ export { BrowserDownloadAdapter } from './download/browser-download.adapter';
 export { FineractAccountingClosureApi } from './api/fineract-accounting-closure.api';
 export { FineractOfficeApi } from './api/fineract-office.api';
 export { FineractEntityNotesApi } from './api/fineract-entity-notes.api';
+export { FineractLoanApi } from './api/fineract-loan.api';
+export { FineractLoanTransactionApi } from './api/fineract-loan-transaction.api';
