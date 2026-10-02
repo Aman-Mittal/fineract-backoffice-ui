@@ -438,18 +438,29 @@ export interface SeededSavingsAccount {
  * `transactionAmount` rather than `amount`, and needs a `reasonForBlock` from the
  * `SavingsAccountBlockReasons` code.
  */
-export async function seedSavingsAccountWithTransactions(
+/**
+ * Seeds a client and a savings account left in `Submitted and pending approval`.
+ *
+ * The state in which the platform refuses a deposit or a withdrawal:
+ *
+ *     POST /savingsaccounts/{id}/transactions?command=deposit
+ *     400 error.msg.savingsaccount.transaction.account.is.not.active
+ *
+ * Note this is an ordinary savings account, not a deposit product — a fixed deposit in the same
+ * status answers a different error (`Fixed Depositaccount deposit transaction not allowed`),
+ * from a different code path.
+ */
+export async function seedSubmittedSavingsAccount(
   api: APIRequestContext,
   namePrefix = 'E2ESavings',
 ): Promise<SeededSavingsAccount> {
   const client = await seedClient(api, namePrefix);
   const suffix = seedSuffix();
-  const today = fineractDate();
 
   const { resourceId: productId } = await post<{ resourceId: number }>(api, '/savingsproducts', {
     name: `${namePrefix} Savings ${suffix}`,
     shortName: `V${suffix.slice(-3).toUpperCase()}`,
-    description: 'Seeded for savings transaction correction coverage',
+    description: 'Seeded for savings transaction coverage',
     currencyCode: 'USD',
     digitsAfterDecimal: 2,
     inMultiplesOf: 0,
@@ -465,20 +476,40 @@ export async function seedSavingsAccountWithTransactions(
   const { savingsId } = await post<{ savingsId: number }>(api, '/savingsaccounts', {
     clientId: client.clientId,
     productId,
-    submittedOnDate: today,
+    submittedOnDate: fineractDate(),
     dateFormat: DATE_FORMAT,
     locale: LOCALE,
   });
+
+  return { savingsId, clientId: client.clientId, clientName: client.displayName };
+}
+
+/** Approves and activates a savings account, which is what makes transactions legal on it. */
+export async function activateSavingsAccount(
+  api: APIRequestContext,
+  savingsId: number,
+): Promise<void> {
   for (const [command, field] of [
     ['approve', 'approvedOnDate'],
     ['activate', 'activatedOnDate'],
   ] as const) {
     await post(api, `/savingsaccounts/${savingsId}?command=${command}`, {
-      [field]: today,
+      [field]: fineractDate(),
       dateFormat: DATE_FORMAT,
       locale: LOCALE,
     });
   }
+}
+
+export async function seedSavingsAccountWithTransactions(
+  api: APIRequestContext,
+  namePrefix = 'E2ESavings',
+): Promise<SeededSavingsAccount> {
+  const seeded = await seedSubmittedSavingsAccount(api, namePrefix);
+  const { savingsId } = seeded;
+  const today = fineractDate();
+
+  await activateSavingsAccount(api, savingsId);
 
   await post(api, `/savingsaccounts/${savingsId}/transactions?command=deposit`, {
     transactionDate: today,
@@ -495,7 +526,7 @@ export async function seedSavingsAccountWithTransactions(
     locale: LOCALE,
   });
 
-  return { savingsId, clientId: client.clientId, clientName: client.displayName };
+  return seeded;
 }
 
 /**
@@ -676,11 +707,17 @@ export interface SeededLoan extends SeededClient, SeededLoanProduct {
 }
 
 /**
- * Creates a client, a loan product and a loan application, then approves and
- * disburses it — leaving an Active loan, the starting point the servicing specs
- * (repayment, notes, adjustment, write-off) assume.
+ * Creates a client, a loan product and a loan application, and **stops there** — the loan is left
+ * in `Submitted and pending approval`.
+ *
+ * This is the state in which the platform refuses a repayment outright:
+ *
+ *     POST /loans/{id}/transactions?command=repayment
+ *     400 error.msg.loan.must.be.active.fully.paid.or.overpaid
+ *
+ * so it is the starting point for anything asserting on what a non-active loan may be offered.
  */
-export async function seedActiveLoan(
+export async function seedSubmittedLoan(
   api: APIRequestContext,
   namePrefix = 'E2ESeed',
 ): Promise<SeededLoan> {
@@ -709,18 +746,40 @@ export async function seedActiveLoan(
     locale: LOCALE,
   });
 
-  await post(api, `/loans/${loanId}?command=approve`, {
-    approvedOnDate: today,
-    dateFormat: DATE_FORMAT,
-    locale: LOCALE,
-  });
-  await post(api, `/loans/${loanId}?command=disburse`, {
-    actualDisbursementDate: today,
-    dateFormat: DATE_FORMAT,
-    locale: LOCALE,
-  });
-
   return { ...client, ...product, loanId };
+}
+
+/** Approves a loan application. Separate from the seeding so a spec can watch the state change. */
+export async function approveLoan(api: APIRequestContext, loanId: number): Promise<void> {
+  await post(api, `/loans/${loanId}?command=approve`, {
+    approvedOnDate: fineractDate(),
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+}
+
+/** Disburses an approved loan, which is what makes it Active. */
+export async function disburseLoan(api: APIRequestContext, loanId: number): Promise<void> {
+  await post(api, `/loans/${loanId}?command=disburse`, {
+    actualDisbursementDate: fineractDate(),
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+  });
+}
+
+/**
+ * Creates a client, a loan product and a loan application, then approves and
+ * disburses it — leaving an Active loan, the starting point the servicing specs
+ * (repayment, notes, adjustment, write-off) assume.
+ */
+export async function seedActiveLoan(
+  api: APIRequestContext,
+  namePrefix = 'E2ESeed',
+): Promise<SeededLoan> {
+  const loan = await seedSubmittedLoan(api, namePrefix);
+  await approveLoan(api, loan.loanId);
+  await disburseLoan(api, loan.loanId);
+  return loan;
 }
 
 /**

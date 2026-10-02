@@ -69,6 +69,8 @@ const BACKEND_SPECS = [
   'delinquency-configuration.spec.ts',
   'interest-rate-charts.spec.ts',
   'accounting-closure-backend.spec.ts',
+  'loan-repayment-gating.spec.ts',
+  'savings-transaction-gating.spec.ts',
   'rbac-dead-end-controls.spec.ts',
   'batch-api-operations.spec.ts',
   'center-servicing.spec.ts',
