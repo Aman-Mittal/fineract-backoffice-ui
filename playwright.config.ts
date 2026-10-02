@@ -68,6 +68,7 @@ const BACKEND_SPECS = [
   'bulk-import-entity-types.spec.ts',
   'delinquency-configuration.spec.ts',
   'interest-rate-charts.spec.ts',
+  'accounting-closure-backend.spec.ts',
   'batch-api-operations.spec.ts',
   'center-servicing.spec.ts',
   'parity-screens.spec.ts',
