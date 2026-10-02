@@ -22,7 +22,8 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 import { OfficesService } from '../../../api';
-import { FineractOfficeApi, mapOffice, toIsoFineractDate } from './fineract-office.api';
+import { toIsoFineractDate } from './fineract-date';
+import { FineractOfficeApi, mapOffice } from './fineract-office.api';
 
 /**
  * Payloads copied from a running `apache/fineract:latest`, not written from the generated type.

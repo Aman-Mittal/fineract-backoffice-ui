@@ -994,16 +994,6 @@
       "count": 1
     }
   },
-  "src/app/features/loans/loan-chargeback-dialog.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/loans/loan-command-dialogs.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/loans/loan-contract-termination-command.test.ts": {
     "local/no-generated-api-import": {
       "count": 1
@@ -1086,9 +1076,6 @@
     }
   },
   "src/app/features/loans/loans-list.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
@@ -1184,9 +1171,6 @@
     }
   },
   "src/app/features/loans/transaction-detail-dialog.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     },

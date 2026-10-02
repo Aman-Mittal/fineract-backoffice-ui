@@ -21,7 +21,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../core/adapters';
+import { LOAN_API, TranslatePipe } from '../../core/adapters';
+import type { Loan } from '../../core/adapters';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
@@ -32,7 +33,6 @@ import {
   ColumnDef,
   HasPermissionDirective,
 } from '../../shared';
-import { LoansService, GetLoansLoanIdResponse } from '../../api';
 import { PageEvent, SortEvent } from '../../shared/models/table.model';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -147,10 +147,11 @@ import {
           <ion-icon name="repeat-outline"></ion-icon>
         </ion-button>
 
-        @if (loan.status?.value === 'Submitted and pending approval') {
+        @if (loan.status.pendingApproval) {
           <ion-button
             fill="clear"
             color="secondary"
+            data-testid="loan-list-approve-action"
             [attr.aria-label]="'LOANS.APPROVE_LOAN_APPLICATION' | appTranslate"
             [appTooltip]="'LOANS.APPROVE_LOAN_APPLICATION' | appTranslate"
             (click)="onLoanAction(loan, 'approve')"
@@ -158,10 +159,11 @@ import {
             <ion-icon name="checkmark-circle-outline"></ion-icon>
           </ion-button>
         }
-        @if (loan.status?.value === 'Approved') {
+        @if (loan.status.waitingForDisbursal) {
           <ion-button
             fill="clear"
             color="secondary"
+            data-testid="loan-list-disburse-action"
             [attr.aria-label]="'LOANS.DISBURSE_LOAN' | appTranslate"
             [appTooltip]="'LOANS.DISBURSE_LOAN' | appTranslate"
             (click)="onLoanAction(loan, 'disburse')"
@@ -198,7 +200,7 @@ export class LoansListComponent {
   /** Re-runs the query behind the table when the user asks to try again. */
   private readonly retrySubject = new Subject<void>();
 
-  private readonly loansService = inject(LoansService);
+  private readonly loanApi = inject(LOAN_API);
   private readonly router = inject(Router);
 
   columns: ColumnDef[] = [
@@ -209,7 +211,7 @@ export class LoansListComponent {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  readonly loans = signal<GetLoansLoanIdResponse[]>([]);
+  readonly loans = signal<Loan[]>([]);
   readonly totalRecords = signal(0);
 
   // Empty string, not `undefined`, so it round-trips through `<ion-select>`'s ngModel
@@ -253,18 +255,8 @@ export class LoansListComponent {
           // to mean "any status", so the "All" sentinel is never forwarded as-is.
           const status = this.activeFilters.status || undefined;
 
-          return this.loansService
-            .getLoans(
-              undefined,
-              offset,
-              limit,
-              orderBy,
-              sortOrder,
-              searchVal,
-              undefined,
-              undefined,
-              status,
-            )
+          return this.loanApi
+            .list({ offset, limit, orderBy, sortOrder, accountNo: searchVal, status })
             .pipe(
               tap(() => {
                 this.hasError.set(false);
@@ -277,10 +269,10 @@ export class LoansListComponent {
               }),
             );
         }),
-        map((response) => {
-          if (response === null) return [];
-          this.totalRecords.set(response.totalFilteredRecords || 0);
-          return Array.from((response.pageItems as unknown as GetLoansLoanIdResponse[]) || []);
+        map((page) => {
+          if (page === null) return [];
+          this.totalRecords.set(page.totalFilteredRecords);
+          return Array.from(page.items);
         }),
       )
       .subscribe((data) => {
@@ -318,19 +310,19 @@ export class LoansListComponent {
     this.router.navigate(['/loans/create']);
   }
 
-  onEditLoan(loan: GetLoansLoanIdResponse) {
+  onEditLoan(loan: Loan) {
     this.router.navigate(['/loans/edit', loan.id]);
   }
 
-  onViewCollateral(loan: GetLoansLoanIdResponse) {
+  onViewCollateral(loan: Loan) {
     this.router.navigate(['/loans', loan.id, 'collateral']);
   }
 
-  onViewRescheduling(loan: GetLoansLoanIdResponse) {
+  onViewRescheduling(loan: Loan) {
     this.router.navigate(['/loans', loan.id, 'rescheduling']);
   }
 
-  onLoanAction(loan: GetLoansLoanIdResponse, command: string) {
+  onLoanAction(loan: Loan, command: string) {
     this.router.navigate([`/products/loan/${loan.id}/action/${command}`]);
   }
 
