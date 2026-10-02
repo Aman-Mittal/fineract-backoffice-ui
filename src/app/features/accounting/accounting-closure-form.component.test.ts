@@ -20,14 +20,11 @@
 import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AccountingClosureFormComponent } from './accounting-closure-form.component';
-import {
-  AccountingClosureService,
-  OfficesService,
-  GetOfficesResponse,
-  PostGlClosuresResponse,
-} from '../../api';
+import { OfficesService, GetOfficesResponse } from '../../api';
+import { ACCOUNTING_CLOSURE_API } from '../../core/adapters';
+import type { AccountingClosureApi } from '../../core/adapters';
 import { Router } from '@angular/router';
-import { of, Observable } from 'rxjs';
+import { of, throwError, Observable } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -35,12 +32,12 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 describe('AccountingClosureFormComponent', () => {
   let component: AccountingClosureFormComponent;
   let fixture: ComponentFixture<AccountingClosureFormComponent>;
-  let closureServiceSpy: SpyObj<AccountingClosureService>;
+  let closureApiSpy: SpyObj<AccountingClosureApi>;
   let officeServiceSpy: SpyObj<OfficesService>;
   let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
-    closureServiceSpy = createSpyObj(['postGlclosures']);
+    closureApiSpy = createSpyObj(['list', 'create', 'remove']);
     officeServiceSpy = createSpyObj(['getOffices']);
     routerSpy = createSpyObj(['navigate']);
 
@@ -48,7 +45,7 @@ describe('AccountingClosureFormComponent', () => {
       imports: [AccountingClosureFormComponent],
       providers: [
         ...provideTranslateTesting(),
-        { provide: AccountingClosureService, useValue: closureServiceSpy },
+        { provide: ACCOUNTING_CLOSURE_API, useValue: closureApiSpy },
         { provide: OfficesService, useValue: officeServiceSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
@@ -66,25 +63,49 @@ describe('AccountingClosureFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should format payload correctly on submission', () => {
+  it('asks the API to close the period the form describes', () => {
     component.request.officeId = 1;
     component.closingDate = '2026-05-31';
     component.request.comments = 'Monthly closure';
 
-    closureServiceSpy.postGlclosures.mockReturnValue(
-      of({}) as unknown as Observable<HttpEvent<PostGlClosuresResponse>>,
-    );
+    closureApiSpy.create.mockReturnValue(of(undefined));
 
     component.onSubmit();
 
-    expect(closureServiceSpy.postGlclosures).toHaveBeenCalledWith(
-      expect.objectContaining({
-        officeId: 1,
-        closingDate: '2026-05-31',
-        comments: 'Monthly closure',
-        dateFormat: 'yyyy-MM-dd',
-        locale: 'en',
-      }),
-    );
+    // `dateFormat` and `locale` are deliberately absent. They are how Fineract parses a date,
+    // which moved into the adapter with ADR 0006; the adapter's own spec pins them. This screen
+    // is specified to send an ISO date and nothing about transport.
+    expect(closureApiSpy.create).toHaveBeenCalledWith({
+      officeId: 1,
+      closingDate: '2026-05-31',
+      comments: 'Monthly closure',
+    });
+  });
+
+  it('navigates back to the list once the period is closed', () => {
+    component.request.officeId = 1;
+    closureApiSpy.create.mockReturnValue(of(undefined));
+
+    component.onSubmit();
+
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/accounting/closures']);
+  });
+
+  it('stops saving when closing the period fails', () => {
+    component.request.officeId = 1;
+    closureApiSpy.create.mockReturnValue(throwError(() => new Error('rejected')));
+
+    component.onSubmit();
+
+    expect(component.isSaving()).toBe(false);
+  });
+
+  it('does not submit without an office, which the API requires', () => {
+    component.request.officeId = undefined;
+
+    component.onSubmit();
+
+    expect(closureApiSpy.create).not.toHaveBeenCalled();
+    expect(component.isSaving()).toBe(false);
   });
 });

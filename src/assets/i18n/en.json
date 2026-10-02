@@ -186,6 +186,7 @@
     "CLIENT_ID": "Client ID",
     "CLOSE": "Close",
     "CLOSED": "Closed",
+    "OPEN": "Open",
     "COMMENT": "Comment",
     "CONFIRM": "Confirm",
     "CREATE": "Create",

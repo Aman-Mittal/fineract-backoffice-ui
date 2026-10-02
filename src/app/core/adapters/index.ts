@@ -32,6 +32,11 @@ export * from './overlay/overlay.adapter';
 export * from './download/download.adapter';
 export * from './storage/storage.adapter';
 
+// ADR 0006's boundary around the generated OpenAPI client. Unlike the tokens above, this one
+// does not isolate a library the application might swap — the generated client stays. It
+// isolates a *shape* the application does not control, regenerated on Fineract's cadence.
+export * from './api/accounting-closure.api';
+
 // The default implementations each token resolves to. Exported so a deployment swapping one
 // can name what it is replacing, and so a TestBed can ask for the real thing explicitly.
 // Application code should depend on the tokens above, never on these.
@@ -39,3 +44,4 @@ export { NgxTranslateI18nAdapter } from './i18n/ngx-translate-i18n.adapter';
 export { IonicOverlayAdapter } from './overlay/ionic-overlay.adapter';
 export { WebStorageAdapter } from './storage/web-storage.adapter';
 export { BrowserDownloadAdapter } from './download/browser-download.adapter';
+export { FineractAccountingClosureApi } from './api/fineract-accounting-closure.api';
