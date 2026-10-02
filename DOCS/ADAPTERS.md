@@ -169,7 +169,7 @@ because `TranslateService` has thirty.
 
 `src/app/api` is regenerated from Fineract's OpenAPI spec. Importing it outside
 `src/app/core/adapters/api/` fails `npm run lint`
-(`local/no-generated-api-import`); the 473 files that already do are recorded in
+(`local/no-generated-api-import`); the 469 files that already do are recorded in
 `eslint-suppressions.json` and that number may only fall. ADR 0006 has the reasoning.
 
 There is still **no facade over the 155 generated services**, and adding one is still rejected.
@@ -208,6 +208,35 @@ Three rules it follows, each for a reason worth repeating:
 3. **Specs mock the contract, not the generated service.** A fixture built from a generated type
    inherits the spec's blind spots, and will happily confirm a screen that is broken in a
    browser. Mapping is tested where mapping happens.
+
+### A second example: when the generated type is simply wrong
+
+`office.api.ts` is the same pattern against a worse disagreement. `GetOfficesResponse` declares
+`openingDate?: string`; Fineract sends `[2009, 1, 1]`. It also omits `parentId` and `parentName`,
+which the payload carries. Issue #653 has the captured responses.
+
+The application already knew, 35 times over — `formatArrayDate()` takes `unknown` because the
+declared type cannot be used, fixtures wrote `openingDate: [2026, 6, 16] as unknown as number[]`
+to get a realistic value past the compiler, and `offices-list.component.ts` carried a third
+inline copy of the conversion. The adapter writes the disagreement down as a type:
+
+```ts
+type OfficePayload = Omit<GetOfficesResponse, 'openingDate'> & {
+  readonly openingDate?: string | number[]; // declared string, sent as [y, m, d]
+  readonly parentId?: number; // sent, never declared
+  readonly parentName?: string;
+};
+```
+
+`Omit` is needed because declaring `string | number[]` on a subtype of a `string` field is not a
+legal override — TypeScript stating, correctly, that the generated type and the payload are not
+compatible.
+
+`Office.openingDate` is then an ISO string everywhere downstream, and `toIsoFineractDate()`
+accepts both forms, so a corrected spec upstream needs no change here. It returns `null` rather
+than `formatArrayDate()`'s `'-'`: a placeholder stored as data cannot be sorted or compared, and
+it hides the difference between "no opening date" and "a date we failed to read". Turning null
+into a dash stays the view's job.
 
 `npm run api:surface` remains the complement: it records which generated _operations_ are
 called, so one disappearing upstream produces a single diagnostic rather than a compile error

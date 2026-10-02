@@ -21,8 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { OfficesService, GetOfficesResponse } from '../../api';
-import { ACCOUNTING_CLOSURE_API } from '../../core/adapters';
+import { ACCOUNTING_CLOSURE_API, OFFICE_API } from '../../core/adapters';
+import type { Office } from '../../core/adapters';
 import { HelpIconComponent } from '../../shared';
 import {
   IonButton,
@@ -175,10 +175,10 @@ export class AccountingClosureFormComponent implements OnInit {
   readonly pickersReady = createPickersReady();
 
   private readonly closureApi = inject(ACCOUNTING_CLOSURE_API);
-  private readonly officeService = inject(OfficesService);
+  private readonly officeApi = inject(OFFICE_API);
   private readonly router = inject(Router);
 
-  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly offices = signal<Office[]>([]);
   /**
    * The form's own state, rather than the generated request shape it used to bind to directly.
    * `dateFormat` and `locale` are gone from here on purpose — how Fineract parses a date is the
@@ -192,9 +192,7 @@ export class AccountingClosureFormComponent implements OnInit {
   readonly isSaving = signal(false);
 
   ngOnInit() {
-    this.officeService
-      .getOffices()
-      .subscribe((data: GetOfficesResponse[]) => this.offices.set(data));
+    this.officeApi.list().subscribe((data: Office[]) => this.offices.set(data));
   }
 
   onSubmit() {

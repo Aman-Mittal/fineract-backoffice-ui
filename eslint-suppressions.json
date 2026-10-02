@@ -39,15 +39,7 @@
       "count": 4
     }
   },
-  "src/app/features/accounting/accounting-closure-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/accounting/accounting-closure-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
@@ -1573,15 +1565,7 @@
       "count": 1
     }
   },
-  "src/app/features/organization/offices/offices-list.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/offices/offices-list.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }

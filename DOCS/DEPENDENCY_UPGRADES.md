@@ -66,7 +66,7 @@ column, that is the interesting finding — write it up rather than patching cal
 
 Two of those rows are honest admissions rather than reassurance. **Angular** has no boundary and
 is not going to get one. And an **upstream spec change** only lands in the adapter layer for
-domains that have been migrated — 473 files still import the generated client directly, so for
+domains that have been migrated — 469 files still import the generated client directly, so for
 most domains the blast radius is still the whole consumer set. ADR 0006 explains why that number
 is recorded and shrinking rather than fixed in one pass.
 

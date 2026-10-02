@@ -79,7 +79,7 @@ Five rules here are deliberate and worth knowing before you fight them:
   `src/app/core/adapters/api/**` and `app.config.ts`. The generated client is regenerated from
   an upstream spec on Fineract's cadence, and a generated response type bound into a template
   is how the accounting-closures list came to read an `isClosed` field that no payload contains,
-  rendering every closed period as "Open". 473 existing imports are a recorded baseline that
+  rendering every closed period as "Open". 469 existing imports are a recorded baseline that
   only shrinks. Separate rule id for the same reason as the one above. See
   `DOCS/adr/0006-generated-api-boundary.md`.
 - **`sonarjs/*` is on**, and is stricter than most setups — it will reject nested

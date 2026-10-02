@@ -67,6 +67,12 @@ non-increasing.
    or is known to move. A contract whose only content is a rename of a generated method is the
    facade ADR 0001 rejected, and is still rejected.
 
+Two domains are migrated as worked examples, chosen because each had a defect the generated type
+could not prevent: accounting closures (a field read that no payload contains) and offices (a
+date typed `string` that arrives as `[y, m, d]`, plus two fields the type never declares). Both
+are written up in `DOCS/ADAPTERS.md`; issue #653 records the shape disagreements. The baseline
+stands at 469 after them.
+
 This is deliberately not the facade from ADR 0001. It renames nothing, it does not require a
 wrapper per service, and it adds no indirection on day one. It is a measurement that fails CI
 when it worsens, plus a sanctioned place to put a mapping when a mapping earns its keep.

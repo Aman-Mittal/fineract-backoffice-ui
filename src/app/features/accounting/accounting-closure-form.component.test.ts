@@ -20,12 +20,10 @@
 import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AccountingClosureFormComponent } from './accounting-closure-form.component';
-import { OfficesService, GetOfficesResponse } from '../../api';
-import { ACCOUNTING_CLOSURE_API } from '../../core/adapters';
-import type { AccountingClosureApi } from '../../core/adapters';
+import { ACCOUNTING_CLOSURE_API, OFFICE_API } from '../../core/adapters';
+import type { AccountingClosureApi, OfficeApi } from '../../core/adapters';
 import { Router } from '@angular/router';
-import { of, throwError, Observable } from 'rxjs';
-import { HttpEvent } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
@@ -33,12 +31,12 @@ describe('AccountingClosureFormComponent', () => {
   let component: AccountingClosureFormComponent;
   let fixture: ComponentFixture<AccountingClosureFormComponent>;
   let closureApiSpy: SpyObj<AccountingClosureApi>;
-  let officeServiceSpy: SpyObj<OfficesService>;
+  let officeApiSpy: SpyObj<OfficeApi>;
   let routerSpy: SpyObj<Router>;
 
   beforeEach(async () => {
     closureApiSpy = createSpyObj(['list', 'create', 'remove']);
-    officeServiceSpy = createSpyObj(['getOffices']);
+    officeApiSpy = createSpyObj(['list']);
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
@@ -46,14 +44,12 @@ describe('AccountingClosureFormComponent', () => {
       providers: [
         ...provideTranslateTesting(),
         { provide: ACCOUNTING_CLOSURE_API, useValue: closureApiSpy },
-        { provide: OfficesService, useValue: officeServiceSpy },
+        { provide: OFFICE_API, useValue: officeApiSpy },
         { provide: Router, useValue: routerSpy },
         provideNoopAnimations(),
       ],
     }).compileComponents();
-    officeServiceSpy.getOffices.mockReturnValue(
-      of([]) as unknown as Observable<HttpEvent<GetOfficesResponse[]>>,
-    );
+    officeApiSpy.list.mockReturnValue(of([]));
     fixture = TestBed.createComponent(AccountingClosureFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
