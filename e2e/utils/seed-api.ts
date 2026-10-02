@@ -862,6 +862,7 @@ export interface SeededGroup {
 export async function seedGroup(
   api: APIRequestContext,
   namePrefix = 'E2EGroup',
+  clientIds: number[] = [],
 ): Promise<SeededGroup> {
   const groupName = `${namePrefix} ${seedSuffix()}`;
   const { resourceId } = await post<{ resourceId: number }>(api, '/groups', {
@@ -870,6 +871,10 @@ export async function seedGroup(
     active: false,
     locale: LOCALE,
     dateFormat: DATE_FORMAT,
+    // `clientMembers` at creation rather than a follow-up association command: the group screen
+    // reads `clientMembers` from the `associations=all` fetch, and this is the shorter path to a
+    // group that has one.
+    ...(clientIds.length ? { clientMembers: clientIds } : {}),
   });
   return { groupId: resourceId, groupName };
 }

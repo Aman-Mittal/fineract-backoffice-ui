@@ -43,7 +43,14 @@
 import { test, expect } from './fixtures';
 import { login, loginAsSeededUser } from './utils/fineract-login';
 import { selectTab } from './utils/ionic-locators';
-import { createApiContext, seedActiveLoan, seedRestrictedUser, statusAs } from './utils/seed-api';
+import {
+  createApiContext,
+  seedActiveLoan,
+  seedClient,
+  seedGroup,
+  seedRestrictedUser,
+  statusAs,
+} from './utils/seed-api';
 
 // Seeds a loan and two users, then signs in as each.
 test.describe.configure({ mode: 'serial', timeout: 180_000 });
@@ -139,5 +146,49 @@ test.describe('the office transactions list', () => {
     await expect(error).toContainText('Your role does not cover this list');
     // The headers are what made the empty state read as "there is nothing here".
     await expect(page.locator('table[cdk-table]')).toHaveCount(0);
+  });
+});
+
+test.describe("a group's member list", () => {
+  test('names the member without linking when the reader cannot open clients', async ({ page }) => {
+    const api = await createApiContext();
+    const member = await seedClient(api, 'E2EGroupDeadEnd');
+    const group = await seedGroup(api, 'E2EGroupDeadEnd', [member.clientId]);
+    const reader = await seedRestrictedUser(api, ['READ_GROUP']);
+    await api.dispose();
+
+    expect(await statusAs(reader, 'GET', `/clients/${member.clientId}`)).toBe(403);
+
+    await loginAsSeededUser(page, reader);
+    await page.goto(`/groups/view/${group.groupId}`);
+    await expect(page.getByText(group.groupName).first()).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId('group-tab-members').click();
+
+    // The membership is what this screen is for, so the member is still named...
+    await expect(page.getByText(member.displayName).first()).toBeVisible({ timeout: 20_000 });
+    // ...but not offered as a door that only opens onto Access Denied.
+    await expect(page.locator(`[href*="/clients/view/${member.clientId}"]`)).toHaveCount(0);
+  });
+
+  test('keeps the link for a reader who holds READ_CLIENT', async ({ page }) => {
+    const api = await createApiContext();
+    const member = await seedClient(api, 'E2EGroupDeadEndOk');
+    const group = await seedGroup(api, 'E2EGroupDeadEndOk', [member.clientId]);
+    const reader = await seedRestrictedUser(api, ['READ_GROUP', 'READ_CLIENT']);
+    await api.dispose();
+
+    expect(await statusAs(reader, 'GET', `/clients/${member.clientId}`)).toBe(200);
+
+    await loginAsSeededUser(page, reader);
+    await page.goto(`/groups/view/${group.groupId}`);
+    await expect(page.getByText(group.groupName).first()).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId('group-tab-members').click();
+
+    const link = page.locator(`[href*="/clients/view/${member.clientId}"]`).first();
+    await expect(link).toBeVisible({ timeout: 20_000 });
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`/clients/view/${member.clientId}$`), {
+      timeout: 30_000,
+    });
   });
 });
