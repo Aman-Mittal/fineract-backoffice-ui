@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { CellTemplateDirective, ColumnDef } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { SCHEDULERJOBService, JobDetailHistoryDataSwagger } from '../../../api';
@@ -42,7 +42,7 @@ import { DateTimePipe } from '../../../shared/pipes/date-time.pipe';
   template: `
     <div class="history-actions">
       <app-button type="button" emphasis="quiet" (click)="onBack()">{{
-        'COMMON.BACK' | translate
+        'COMMON.BACK' | appTranslate
       }}</app-button>
     </div>
     <app-data-table

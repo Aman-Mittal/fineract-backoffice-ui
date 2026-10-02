@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import {
   LoanInterestPauseService,
   InterestPauseRequestDto,
@@ -88,7 +88,7 @@ function toRouteId(value: string | null): number | null {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ (isEditMode() ? 'INTEREST_PAUSES.EDIT' : 'INTEREST_PAUSES.CREATE') | translate }}
+            {{ (isEditMode() ? 'INTEREST_PAUSES.EDIT' : 'INTEREST_PAUSES.CREATE') | appTranslate }}
           </ion-card-title>
         </ion-card-header>
 
@@ -96,7 +96,7 @@ function toRouteId(value: string | null): number | null {
           <form #pauseForm="ngForm" (ngSubmit)="onSubmit()" class="pause-form">
             <ion-item fill="outline">
               <ion-label position="stacked">{{
-                'INTEREST_PAUSES.START_DATE' | translate
+                'INTEREST_PAUSES.START_DATE' | appTranslate
               }}</ion-label>
               @if (pickersReady()) {
                 <ion-datetime-button datetime="startDate-picker"></ion-datetime-button>
@@ -117,7 +117,9 @@ function toRouteId(value: string | null): number | null {
             </ion-item>
 
             <ion-item fill="outline">
-              <ion-label position="stacked">{{ 'INTEREST_PAUSES.END_DATE' | translate }}</ion-label>
+              <ion-label position="stacked">{{
+                'INTEREST_PAUSES.END_DATE' | appTranslate
+              }}</ion-label>
               @if (pickersReady()) {
                 <ion-datetime-button datetime="endDate-picker"></ion-datetime-button>
               }
@@ -138,7 +140,7 @@ function toRouteId(value: string | null): number | null {
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button
                 color="primary"
@@ -147,9 +149,9 @@ function toRouteId(value: string | null): number | null {
               >
                 @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
-                  {{ 'COMMON.SAVING' | translate }}
+                  {{ 'COMMON.SAVING' | appTranslate }}
                 } @else {
-                  {{ 'COMMON.SAVE' | translate }}
+                  {{ 'COMMON.SAVE' | appTranslate }}
                 }
               </ion-button>
             </div>

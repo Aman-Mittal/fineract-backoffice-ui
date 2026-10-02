@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { LoanCollateralService, CollateralData, LoansService } from '../../../api';
 import { LoanSummary } from '../loan-summary.model';
@@ -36,9 +36,9 @@ import { ButtonComponent } from '../../../ui/button/button.component';
   template: `
     @if (loanSummary(); as summary) {
       <div class="loan-context">
-        {{ 'LOANS.ACCOUNT_NO' | translate }}: {{ summary.accountNo }} &middot;
-        {{ 'COMMON.CLIENT' | translate }}: {{ summary.clientName }} &middot;
-        {{ 'LOANS.PRODUCT_NAME' | translate }}: {{ summary.loanProductName }}
+        {{ 'LOANS.ACCOUNT_NO' | appTranslate }}: {{ summary.accountNo }} &middot;
+        {{ 'COMMON.CLIENT' | appTranslate }}: {{ summary.clientName }} &middot;
+        {{ 'LOANS.PRODUCT_NAME' | appTranslate }}: {{ summary.loanProductName }}
       </div>
     }
     <app-data-table
@@ -63,7 +63,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
           emphasis="quiet"
           intent="primary"
           icon="create-outline"
-          [label]="'COMMON.EDIT' | translate"
+          [label]="'COMMON.EDIT' | appTranslate"
           (click)="onEditCollateral(collateral)"
         />
         <app-button
@@ -71,7 +71,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
           emphasis="quiet"
           intent="danger"
           icon="trash-outline"
-          [label]="'COMMON.DELETE' | translate"
+          [label]="'COMMON.DELETE' | appTranslate"
           (click)="onDeleteCollateral(collateral)"
         />
       </ng-template>

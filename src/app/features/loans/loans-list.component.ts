@@ -21,7 +21,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
@@ -85,23 +85,25 @@ import {
         (click)="onCreateLoan()"
       >
         <ion-icon name="add-outline"></ion-icon>
-        {{ 'LOANS.CREATE_LOAN_ACCOUNT' | translate }}
+        {{ 'LOANS.CREATE_LOAN_ACCOUNT' | appTranslate }}
       </ion-button>
 
       <div filters class="filter-row">
         <ion-item fill="outline" class="filter-field">
-          <ion-label position="stacked">{{ 'COMMON.STATUS' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'COMMON.STATUS' | appTranslate }}</ion-label>
           <ion-select
-            [attr.aria-label]="'COMMON.STATUS' | translate"
+            [attr.aria-label]="'COMMON.STATUS' | appTranslate"
             interface="popover"
             [(ngModel)]="activeFilters.status"
             (ionChange)="onFilterChange()"
           >
-            <ion-select-option value="">{{ 'COMMON.ALL' | translate }}</ion-select-option>
-            <ion-select-option value="300">{{ 'COMMON.ACTIVE' | translate }}</ion-select-option>
-            <ion-select-option value="100">{{ 'COMMON.PENDING' | translate }}</ion-select-option>
-            <ion-select-option value="600">{{ 'COMMON.CLOSED' | translate }}</ion-select-option>
-            <ion-select-option value="700">{{ 'COMMON.OVERPAID' | translate }}</ion-select-option>
+            <ion-select-option value="">{{ 'COMMON.ALL' | appTranslate }}</ion-select-option>
+            <ion-select-option value="300">{{ 'COMMON.ACTIVE' | appTranslate }}</ion-select-option>
+            <ion-select-option value="100">{{ 'COMMON.PENDING' | appTranslate }}</ion-select-option>
+            <ion-select-option value="600">{{ 'COMMON.CLOSED' | appTranslate }}</ion-select-option>
+            <ion-select-option value="700">{{
+              'COMMON.OVERPAID' | appTranslate
+            }}</ion-select-option>
           </ion-select>
         </ion-item>
       </div>
@@ -118,8 +120,8 @@ import {
         <ion-button
           fill="clear"
           color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
-          [appTooltip]="'LOANS.EDIT_LOAN_APPLICATION' | translate"
+          [attr.aria-label]="'COMMON.EDIT' | appTranslate"
+          [appTooltip]="'LOANS.EDIT_LOAN_APPLICATION' | appTranslate"
           (click)="onEditLoan(loan)"
           *appHasPermission="'UPDATE_LOAN'"
         >
@@ -128,8 +130,8 @@ import {
         <ion-button
           fill="clear"
           color="secondary"
-          [attr.aria-label]="'LOANS.COLLATERAL' | translate"
-          [appTooltip]="'LOANS.MANAGE_COLLATERAL' | translate"
+          [attr.aria-label]="'LOANS.COLLATERAL' | appTranslate"
+          [appTooltip]="'LOANS.MANAGE_COLLATERAL' | appTranslate"
           (click)="onViewCollateral(loan)"
           *appHasPermission="'READ_COLLATERAL'"
         >
@@ -138,8 +140,8 @@ import {
         <ion-button
           fill="clear"
           color="primary"
-          [attr.aria-label]="'LOANS.RESCHEDULE' | translate"
-          [appTooltip]="'LOANS.MANAGE_RESCHEDULING' | translate"
+          [attr.aria-label]="'LOANS.RESCHEDULE' | appTranslate"
+          [appTooltip]="'LOANS.MANAGE_RESCHEDULING' | appTranslate"
           (click)="onViewRescheduling(loan)"
         >
           <ion-icon name="repeat-outline"></ion-icon>
@@ -149,8 +151,8 @@ import {
           <ion-button
             fill="clear"
             color="secondary"
-            [attr.aria-label]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
-            [appTooltip]="'LOANS.APPROVE_LOAN_APPLICATION' | translate"
+            [attr.aria-label]="'LOANS.APPROVE_LOAN_APPLICATION' | appTranslate"
+            [appTooltip]="'LOANS.APPROVE_LOAN_APPLICATION' | appTranslate"
             (click)="onLoanAction(loan, 'approve')"
           >
             <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -160,8 +162,8 @@ import {
           <ion-button
             fill="clear"
             color="secondary"
-            [attr.aria-label]="'LOANS.DISBURSE_LOAN' | translate"
-            [appTooltip]="'LOANS.DISBURSE_LOAN' | translate"
+            [attr.aria-label]="'LOANS.DISBURSE_LOAN' | appTranslate"
+            [appTooltip]="'LOANS.DISBURSE_LOAN' | appTranslate"
             (click)="onLoanAction(loan, 'disburse')"
           >
             <ion-icon name="open-outline"></ion-icon>

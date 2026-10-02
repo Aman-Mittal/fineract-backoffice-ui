@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import {
   DataTableComponent,
@@ -68,7 +68,7 @@ import { PageEvent } from '../../../shared/models/table.model';
         <ion-button
           fill="clear"
           color="primary"
-          [attr.aria-label]="'COMMON.VIEW' | translate"
+          [attr.aria-label]="'COMMON.VIEW' | appTranslate"
           [attr.data-testid]="'share-account-view-' + account.id"
           (click)="onViewAccount(account)"
         >
@@ -77,7 +77,7 @@ import { PageEvent } from '../../../shared/models/table.model';
         <ion-button
           fill="clear"
           color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
+          [attr.aria-label]="'COMMON.EDIT' | appTranslate"
           (click)="onEditAccount(account)"
         >
           <ion-icon name="create-outline" slot="icon-only"></ion-icon>
