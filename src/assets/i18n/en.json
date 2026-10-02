@@ -206,7 +206,8 @@
       "FORBIDDEN": "You do not have permission to perform this action. Contact an administrator if you believe this is a mistake.",
       "NETWORK": "Unable to connect to the server. Please check your network or CORS settings.",
       "UNEXPECTED": "Something went wrong. The action was not completed — please try again.",
-      "LOAD_FAILED": "This list could not be loaded."
+      "LOAD_FAILED": "This list could not be loaded.",
+      "LOAD_FORBIDDEN": "Your role does not cover this list. Contact an administrator if you believe this is a mistake."
     },
     "EVERY": "every",
     "EXIT": "Exit",

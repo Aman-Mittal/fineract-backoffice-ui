@@ -151,17 +151,29 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                empty, and an empty table reads as "there is nothing here" — the opposite of
                what happened. -->
           <div class="error-state" role="alert" data-testid="data-table-error">
-            <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
-            <p class="error-text">{{ 'COMMON.ERRORS.LOAD_FAILED' | translate }}</p>
-            <ion-button
-              fill="outline"
-              size="small"
-              data-testid="data-table-retry"
-              (click)="onRetry()"
-            >
-              <ion-icon name="refresh-outline" slot="start"></ion-icon>
-              {{ 'COMMON.RETRY' | translate }}
-            </ion-button>
+            <ion-icon
+              [name]="isForbidden() ? 'lock-closed-outline' : 'alert-circle-outline'"
+              class="error-icon"
+            ></ion-icon>
+            <p class="error-text">
+              {{
+                (isForbidden() ? 'COMMON.ERRORS.LOAD_FORBIDDEN' : 'COMMON.ERRORS.LOAD_FAILED')
+                  | translate
+              }}
+            </p>
+            <!-- No retry for a refusal: the same request made again is refused again, so the
+                 button offers a loop rather than a way out. -->
+            @if (!isForbidden()) {
+              <ion-button
+                fill="outline"
+                size="small"
+                data-testid="data-table-retry"
+                (click)="onRetry()"
+              >
+                <ion-icon name="refresh-outline" slot="start"></ion-icon>
+                {{ 'COMMON.RETRY' | translate }}
+              </ion-button>
+            }
           </div>
         } @else {
           <div class="table-container">
@@ -376,6 +388,26 @@ export class DataTableComponent<T> {
    * in fact nobody knows — and leaves them no way to ask again short of reloading the page.
    */
   readonly hasError = input(false);
+
+  /**
+   * The HTTP status the failed load came back with, when the caller knows it.
+   *
+   * A refused read and a broken one are the same picture to {@link hasError} alone, and they are
+   * not the same situation: "this list could not be loaded, try again" told to someone whose role
+   * does not cover the read sends them round a loop that cannot end, because the request is
+   * refused on every attempt. Passing the status lets the table say which of the two happened.
+   *
+   * `null` keeps the generic treatment, so a caller that does not forward the status is unchanged.
+   */
+  readonly errorStatus = input<number | null>(null);
+
+  /**
+   * Whether the failure was Fineract declining the read rather than failing at it.
+   *
+   * This is a presentation decision, not an authorization one — Fineract has already refused by
+   * the time anything here runs. See `security.md`.
+   */
+  protected readonly isForbidden = computed(() => this.hasError() && this.errorStatus() === 403);
 
   readonly create = output<void>();
   readonly searchChange = output<string>();

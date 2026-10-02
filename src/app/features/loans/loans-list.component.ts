@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -65,6 +66,7 @@ import {
   template: `
     <app-data-table
       [hasError]="hasError()"
+      [errorStatus]="errorStatus()"
       (retry)="onRetry()"
       title="MODULES.LOANS_PORTFOLIO"
       helpTextKey="HELP.LOANS_PORTFOLIO_DESC"
@@ -184,6 +186,12 @@ import {
 export class LoansListComponent {
   /** True when the last load failed, so the table offers a retry instead of an empty list. */
   readonly hasError = signal(false);
+  /**
+   * The status that failure came back with, so the table can tell a refused read from a broken
+   * one. A role without READ_LOAN gets the same refusal on every attempt, and offering a retry
+   * for it is a loop with no end.
+   */
+  readonly errorStatus = signal<number | null>(null);
 
   /** Re-runs the query behind the table when the user asks to try again. */
   private readonly retrySubject = new Subject<void>();
@@ -256,9 +264,13 @@ export class LoansListComponent {
               status,
             )
             .pipe(
-              tap(() => this.hasError.set(false)),
-              catchError(() => {
+              tap(() => {
+                this.hasError.set(false);
+                this.errorStatus.set(null);
+              }),
+              catchError((error: HttpErrorResponse) => {
                 this.hasError.set(true);
+                this.errorStatus.set(error.status);
                 return of(null);
               }),
             );

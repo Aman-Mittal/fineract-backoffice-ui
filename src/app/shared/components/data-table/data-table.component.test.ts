@@ -452,6 +452,47 @@ describe('DataTableComponent', () => {
       expect(errorPanel()).toBeNull();
       expect(renderedNames()).toEqual(['Alice', 'Bob']);
     });
+
+    it('withholds the retry when the read was refused rather than broken', () => {
+      // A 403 is refused identically on every attempt, so "try again" is a loop with no exit.
+      // Presentation only — Fineract has already refused by the time this renders.
+      setInputs({ hasError: true, errorStatus: 403 });
+
+      expect(errorPanel()).not.toBeNull();
+      expect(errorPanel().textContent).toContain('COMMON.ERRORS.LOAD_FORBIDDEN');
+      expect(fixture.nativeElement.querySelector('[data-testid="data-table-retry"]')).toBeNull();
+    });
+
+    it.each([500, 0, 404])(
+      'keeps the retry for a status that could succeed again (%i)',
+      (status) => {
+        setInputs({ hasError: true, errorStatus: status });
+
+        expect(errorPanel().textContent).toContain('COMMON.ERRORS.LOAD_FAILED');
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="data-table-retry"]'),
+        ).not.toBeNull();
+      },
+    );
+
+    it('keeps the generic failure state when the caller forwards no status', () => {
+      // Every call site that has not been updated passes `hasError` alone, and must be unchanged.
+      setInputs({ hasError: true });
+
+      expect(errorPanel().textContent).toContain('COMMON.ERRORS.LOAD_FAILED');
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="data-table-retry"]'),
+      ).not.toBeNull();
+    });
+
+    it('shows nothing about a refusal once the error clears', () => {
+      // `isForbidden` reads `hasError` too, so a stale 403 cannot leak into a healthy table.
+      setInputs({ hasError: true, errorStatus: 403 });
+      setInputs({ hasError: false });
+
+      expect(errorPanel()).toBeNull();
+      expect(renderedNames()).toEqual(['Alice', 'Bob']);
+    });
   });
   describe('projected cell templates', () => {
     /**
