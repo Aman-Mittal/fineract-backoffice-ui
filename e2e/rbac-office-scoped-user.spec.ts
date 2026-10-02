@@ -172,7 +172,12 @@ test.describe('an account scoped to a branch office', () => {
     await loginAsSeededUser(page, branchUser);
     expect(await landsOn(page, '/organization/offices')).toBe('/organization/offices');
 
+    // Filtered rather than read off the first page. The table is `localLogic` with the shared
+    // ten-row default, and offices accumulate on an instance that is not torn down between runs,
+    // so the office seeded moments ago is not necessarily on the page that renders first. The
+    // name is unique per run, so the filter leaves exactly the row this test is about.
     const table = page.locator('.data-table');
+    await page.getByPlaceholder('Type to search...').fill(branch.officeName);
     await expect(table.getByText(branch.officeName).first()).toBeVisible();
 
     // READ_OFFICE is held, so viewing is offered...
