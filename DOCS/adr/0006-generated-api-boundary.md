@@ -76,11 +76,21 @@ Disburse). Entity notes was chosen on reach rather than on a defect — its payl
 generated type, but it is consumed from client, group, loan and savings screens, and the
 `resourceType` path segment was a bare `string` in both the client and the component. Loan
 transactions came with the loan domain: one payload that the generated client models with two
-mutually inconsistent types, and a `date` declared `string` that arrives as an array. All five
-are written up in `DOCS/ADAPTERS.md`; issue #653 records the shape disagreements. The baseline
-stands at 458 after them.
+mutually inconsistent types, and a `date` declared `string` that arrives as an array. Staff and
+holidays came with offices, which is how Fineract models them — all three are scoped by office —
+and holidays carry three array dates where the type says `string`, plus an update endpoint that
+accepts seven fields its request type does not declare.
 
-That arithmetic is worth stating plainly: five domains, eleven files cleared. 458 files import
+Staff are the instructive one, because the generated type is **right** there: `joiningDate` is
+declared `string` and really is one. The application distrusted it anyway and ran the value
+through the array converter, which answers `'-'` for a string, so the staff edit form displayed
+a dash instead of a date. Two endpoints in the same Organization area encode dates two different
+ways, and nothing in the type says which. That is the case for converting once at a boundary
+rather than for trusting or distrusting any particular declaration. All five
+are written up in `DOCS/ADAPTERS.md`; issue #653 records the shape disagreements. The baseline
+stands at 444 after them.
+
+That arithmetic is worth stating plainly: seven domains, twenty-five files cleared. 444 files import
 the client, and most depend on exactly one generated service, so the work is tractable — but the
 distribution is flat. The largest single domain left is nine files. This is a long campaign of
 small PRs, not something one change finishes, and the ratchet exists so that it can proceed at

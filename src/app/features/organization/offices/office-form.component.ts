@@ -21,7 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
+import { OFFICE_API, TranslatePipe } from '../../../core/adapters';
+import type { Office } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -38,14 +39,8 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
-import { formatArrayDate, toIsoDate } from '../../../core/utils/date-formatter';
+import { toIsoDate } from '../../../core/utils/date-formatter';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
-import {
-  OfficesService,
-  PostOfficesRequest,
-  PutOfficesOfficeIdRequest,
-  GetOfficesResponse,
-} from '../../../api';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
@@ -190,7 +185,7 @@ export class OfficeFormComponent implements OnInit {
   /** See `createPickersReady` — the date buttons must not outrun their pickers. */
   readonly pickersReady = createPickersReady();
 
-  private readonly officesService = inject(OfficesService);
+  private readonly officeApi = inject(OFFICE_API);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -200,9 +195,11 @@ export class OfficeFormComponent implements OnInit {
   readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
-  readonly office = signal<PostOfficesRequest>({});
+  readonly office = signal<{ name?: string; externalId?: string | null; parentId?: number | null }>(
+    {},
+  );
   readonly openingDate = signal(toIsoDate(new Date()));
-  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly offices = signal<readonly Office[]>([]);
 
   ngOnInit() {
     this.loadOffices();
@@ -217,21 +214,21 @@ export class OfficeFormComponent implements OnInit {
   }
 
   loadOffices() {
-    this.officesService.getOffices(true).subscribe((offices) => {
+    this.officeApi.list(true).subscribe((offices) => {
       this.offices.set(offices);
     });
   }
 
   loadOfficeData() {
     if (!this.officeId) return;
-    this.officesService.getOfficesOfficeId(this.officeId).subscribe((data) => {
-      if (data.openingDate) {
-        this.openingDate.set(formatArrayDate(data.openingDate));
-      }
+    this.officeApi.get(this.officeId).subscribe((office) => {
+      // Already `YYYY-MM-DD`, which is what the picker binds to. `parentId` needs no cast: the
+      // model declares it, where the generated response type does not.
+      if (office.openingDate) this.openingDate.set(office.openingDate);
       this.office.set({
-        name: data.name,
-        externalId: data.externalId,
-        parentId: (data as Record<string, unknown>)['parentId'] as number,
+        name: office.name,
+        externalId: office.externalId,
+        parentId: office.parentId,
       });
     });
   }
@@ -240,26 +237,33 @@ export class OfficeFormComponent implements OnInit {
     this.isSaving.set(true);
     const formattedDate = toIsoDate(this.openingDate());
 
+    // The date format and locale Fineract parses `openingDate` against are the adapter's
+    // business now. The create path used to mutate the signal's value in place to attach them.
+    // Subscribed per branch rather than through one shared observable: `create` answers the new
+    // office's id and `update` answers nothing, and a union of two differently-typed Observables
+    // has no single callable `subscribe`.
+    const done = {
+      next: () => void this.router.navigate([this.LIST_PATH]),
+      error: () => this.isSaving.set(false),
+    };
+
     if (this.isEditMode() && this.officeId) {
-      const payload: PutOfficesOfficeIdRequest = {
-        name: this.office().name,
-        externalId: this.office().externalId,
-        openingDate: formattedDate,
-        dateFormat: 'yyyy-MM-dd',
-        locale: 'en',
-      };
-      this.officesService.putOfficesOfficeId(this.officeId, payload).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving.set(false),
-      });
+      this.officeApi
+        .update(this.officeId, {
+          name: this.office().name ?? '',
+          externalId: this.office().externalId,
+          openingDate: formattedDate,
+        })
+        .subscribe(done);
     } else {
-      this.office().openingDate = formattedDate;
-      this.office().dateFormat = 'yyyy-MM-dd';
-      this.office().locale = 'en';
-      this.officesService.postOffices(this.office()).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving.set(false),
-      });
+      this.officeApi
+        .create({
+          name: this.office().name ?? '',
+          externalId: this.office().externalId,
+          openingDate: formattedDate,
+          parentId: this.office().parentId,
+        })
+        .subscribe(done);
     }
   }
 

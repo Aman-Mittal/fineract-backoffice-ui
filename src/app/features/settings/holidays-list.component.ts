@@ -19,7 +19,8 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '../../core/adapters';
+import { HOLIDAY_API, OFFICE_API, TranslatePipe } from '../../core/adapters';
+import type { Holiday, Office } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -38,12 +39,6 @@ import {
   CellTemplateDirective,
   StatusBadgeComponent,
 } from '../../shared';
-import {
-  HolidaysService,
-  OfficesService,
-  GetHolidaysResponse,
-  GetOfficesResponse,
-} from '../../api';
 
 /**
  * Inline Dialog component for activation confirmation.
@@ -133,11 +128,11 @@ export class ConfirmDialogComponent {
       </div>
 
       <ng-template appCellTemplate="fromDate" let-holiday>
-        {{ formatArrayDate(holiday.fromDate) }}
+        {{ holiday.fromDate ?? '-' }}
       </ng-template>
 
       <ng-template appCellTemplate="toDate" let-holiday>
-        {{ formatArrayDate(holiday.toDate) }}
+        {{ holiday.toDate ?? '-' }}
       </ng-template>
 
       <ng-template appCellTemplate="status" let-holiday>
@@ -150,7 +145,7 @@ export class ConfirmDialogComponent {
         holiday entered with the wrong dates was permanent — and holidays move repayment dates.
       -->
       <ng-template appCellTemplate="actions" let-holiday>
-        @if (holiday.status?.code === 'holidayStatusType.pending.for.activation') {
+        @if (holiday.status.isPending) {
           <ion-button
             fill="clear"
             color="primary"
@@ -199,8 +194,8 @@ export class ConfirmDialogComponent {
   ],
 })
 export class HolidaysListComponent implements OnInit {
-  private readonly holidaysService = inject(HolidaysService);
-  private readonly officesService = inject(OfficesService);
+  private readonly holidayApi = inject(HOLIDAY_API);
+  private readonly officeApi = inject(OFFICE_API);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
   private readonly notifications = inject(NotificationService);
@@ -213,8 +208,8 @@ export class HolidaysListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  readonly holidays = signal<GetHolidaysResponse[]>([]);
-  readonly offices = signal<GetOfficesResponse[]>([]);
+  readonly holidays = signal<Holiday[]>([]);
+  readonly offices = signal<readonly Office[]>([]);
   readonly selectedOfficeId = signal(1);
   readonly isLoading = signal(false);
 
@@ -224,12 +219,14 @@ export class HolidaysListComponent implements OnInit {
 
   private loadOffices(): void {
     this.isLoading.set(true);
-    this.officesService.getOffices(true).subscribe({
+    this.officeApi.list(true).subscribe({
       next: (data) => {
-        this.offices.set(data || []);
-        if (this.offices().length > 0) {
-          const hasOffice1 = this.offices().some((o) => o.id === 1);
-          this.selectedOfficeId.set(hasOffice1 ? 1 : this.offices()[0].id!);
+        this.offices.set(data);
+        const [first] = this.offices();
+        if (first !== undefined) {
+          // `id` is non-optional on the model, so no `!` is needed to read the fallback.
+          const hasHeadOffice = this.offices().some((o) => o.id === 1);
+          this.selectedOfficeId.set(hasHeadOffice ? 1 : first.id);
         }
         this.loadHolidays();
       },
@@ -242,9 +239,9 @@ export class HolidaysListComponent implements OnInit {
 
   private loadHolidays(): void {
     this.isLoading.set(true);
-    this.holidaysService.getHolidays(this.selectedOfficeId()).subscribe({
+    this.holidayApi.list(this.selectedOfficeId()).subscribe({
       next: (data) => {
-        this.holidays.set(data || []);
+        this.holidays.set(data);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -263,7 +260,7 @@ export class HolidaysListComponent implements OnInit {
     this.router.navigate(['/settings/holidays/create']);
   }
 
-  onActivateHoliday(holiday: GetHolidaysResponse): Promise<void> {
+  onActivateHoliday(holiday: Holiday): Promise<void> {
     return this.dialogService
       .open(ConfirmDialogComponent, {
         data: {
@@ -275,7 +272,7 @@ export class HolidaysListComponent implements OnInit {
       .then((result) => {
         if (result) {
           this.isLoading.set(true);
-          this.holidaysService.postHolidaysHolidayId(holiday.id!, {}, 'activate').subscribe({
+          this.holidayApi.activate(holiday.id).subscribe({
             next: () => {
               this.notifications.success('Holiday activated successfully');
               this.loadHolidays();
@@ -290,11 +287,11 @@ export class HolidaysListComponent implements OnInit {
       });
   }
 
-  onEditHoliday(holiday: GetHolidaysResponse): void {
+  onEditHoliday(holiday: Holiday): void {
     void this.router.navigate(['/settings/holidays/edit', holiday.id]);
   }
 
-  onDeleteHoliday(holiday: GetHolidaysResponse): Promise<void> {
+  onDeleteHoliday(holiday: Holiday): Promise<void> {
     return this.dialogService
       .open(ConfirmDialogComponent, {
         data: {
@@ -308,7 +305,7 @@ export class HolidaysListComponent implements OnInit {
           return;
         }
         this.isLoading.set(true);
-        this.holidaysService.deleteHolidaysHolidayId(holiday.id!).subscribe({
+        this.holidayApi.remove(holiday.id).subscribe({
           next: () => {
             this.notifications.success('Holiday deleted successfully');
             this.loadHolidays();
@@ -320,12 +317,5 @@ export class HolidaysListComponent implements OnInit {
           },
         });
       });
-  }
-
-  formatArrayDate(dateArray: unknown): string {
-    if (!dateArray || !Array.isArray(dateArray) || dateArray.length < 3) {
-      return '-';
-    }
-    return `${dateArray[0]}-${String(dateArray[1]).padStart(2, '0')}-${String(dateArray[2]).padStart(2, '0')}`;
   }
 }

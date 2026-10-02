@@ -122,11 +122,21 @@ describe('mapOffice', () => {
 });
 
 describe('FineractOfficeApi', () => {
-  let generated: { getOffices: ReturnType<typeof vi.fn> };
+  let generated: {
+    getOffices: ReturnType<typeof vi.fn>;
+    getOfficesOfficeId: ReturnType<typeof vi.fn>;
+    postOffices: ReturnType<typeof vi.fn>;
+    putOfficesOfficeId: ReturnType<typeof vi.fn>;
+  };
   let api: FineractOfficeApi;
 
   beforeEach(() => {
-    generated = { getOffices: vi.fn().mockReturnValue(of([HEAD_OFFICE, BRANCH])) };
+    generated = {
+      getOffices: vi.fn().mockReturnValue(of([HEAD_OFFICE, BRANCH])),
+      getOfficesOfficeId: vi.fn().mockReturnValue(of(BRANCH)),
+      postOffices: vi.fn().mockReturnValue(of({ resourceId: 42, officeId: 42 })),
+      putOfficesOfficeId: vi.fn().mockReturnValue(of({})),
+    };
     TestBed.configureTestingModule({
       providers: [{ provide: OfficesService, useValue: generated }],
     });
@@ -152,5 +162,72 @@ describe('FineractOfficeApi', () => {
     generated.getOffices.mockReturnValue(of(null));
     const offices = await new Promise<unknown>((resolve) => api.list().subscribe(resolve));
     expect(offices).toEqual([]);
+  });
+
+  it('maps a single office through the same mapper as the list', async () => {
+    // `GET /offices/{id}` sends the same disagreements as the collection — verified against a
+    // running instance — so the parent fields and the array date are handled identically.
+    const office = await new Promise<unknown>((resolve) => api.get(10).subscribe(resolve));
+    expect(generated.getOfficesOfficeId).toHaveBeenCalledWith(10);
+    expect(office).toEqual(
+      expect.objectContaining({
+        openingDate: '2026-10-02',
+        parentId: 1,
+        parentName: 'Head Office',
+      }),
+    );
+  });
+
+  it('sends the date format it tells Fineract to parse the opening date against', () => {
+    // Fineract parses strictly against `dateFormat`, so a body carrying one without the other
+    // answers 500 rather than a validation error. Both forms used to set this themselves.
+    api.create({ name: 'Kampala Branch', openingDate: '2026-10-02', parentId: 1 }).subscribe();
+
+    expect(generated.postOffices).toHaveBeenCalledWith({
+      name: 'Kampala Branch',
+      externalId: undefined,
+      parentId: 1,
+      openingDate: '2026-10-02',
+      dateFormat: 'yyyy-MM-dd',
+      locale: 'en',
+    });
+  });
+
+  it('answers the new office id, which the create dialog hands back to its caller', async () => {
+    // Not cosmetic: `create-office-dialog` dismisses with this value so that whatever opened it
+    // — a client or group form — can select the office that was just made. Discarding it here
+    // is invisible to the dialog's own spec, which mocks this contract.
+    const officeId = await new Promise((resolve) =>
+      api.create({ name: 'Kampala Branch', openingDate: '2026-10-02' }).subscribe(resolve),
+    );
+    expect(officeId).toBe(42);
+  });
+
+  it('refuses a create that answers no id rather than reporting a bogus one', async () => {
+    generated.postOffices.mockReturnValue(of({}));
+    await expect(
+      new Promise((resolve, reject) =>
+        api
+          .create({ name: 'Kampala Branch', openingDate: '2026-10-02' })
+          .subscribe({ next: resolve, error: reject }),
+      ),
+    ).rejects.toThrow(/no resourceId/);
+  });
+
+  it('omits parentId entirely when there is none, rather than sending null', () => {
+    api.create({ name: 'Head Office', openingDate: '2009-01-01' }).subscribe();
+    expect(generated.postOffices.mock.calls[0][0]).not.toHaveProperty('parentId');
+  });
+
+  it('does not send parentId on update, because the endpoint does not move an office', () => {
+    api.update(10, { name: 'Renamed', openingDate: '2026-10-02' }).subscribe();
+
+    expect(generated.putOfficesOfficeId).toHaveBeenCalledWith(10, {
+      name: 'Renamed',
+      externalId: undefined,
+      openingDate: '2026-10-02',
+      dateFormat: 'yyyy-MM-dd',
+      locale: 'en',
+    });
   });
 });

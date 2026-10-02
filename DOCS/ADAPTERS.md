@@ -169,7 +169,7 @@ because `TranslateService` has thirty.
 
 `src/app/api` is regenerated from Fineract's OpenAPI spec. Importing it outside
 `src/app/core/adapters/api/` fails `npm run lint`
-(`local/no-generated-api-import`); the 458 files that already do are recorded in
+(`local/no-generated-api-import`); the 444 files that already do are recorded in
 `eslint-suppressions.json` and that number may only fall. ADR 0006 has the reasoning.
 
 There is still **no facade over the 155 generated services**, and adding one is still rejected.
@@ -308,6 +308,57 @@ declares `id`, `name` and `position`, while the payload also carries `descriptio
 chargeback dialog selects its default payment type by `codeName` and had to write
 `(o as { codeName?: string }).codeName` to reach it. That lookup does work today, which is the
 point: nothing was checking whether it still would.
+
+### A fifth example: the Organization area, and five copies of one conversion
+
+`staff.api.ts` and `holiday.api.ts` finish what `office.api.ts` started — offices, staff and
+holidays are one domain in Fineract's model, all scoped by office — and between them they show
+both directions the generated types can be wrong in.
+
+**Holidays** are the familiar direction, three times over. `GetHolidaysResponse` declares
+`fromDate`, `toDate` and `repaymentsRescheduledTo` as `string`; all three arrive as
+`[year, month, day]`. `description` and `reschedulingType` are sent and not declared at all,
+which left the form recovering the rescheduling rule by checking whether a reschedule date
+happened to be set. And `PutHolidaysHolidayIdRequest` declares only `name` and `description`
+while the endpoint accepts everything the form sends — verified against a running instance,
+which answers with the dates in its `changes` block — so the form cast a
+`Record<string, unknown>` to a type that declared none of it.
+
+That domain is also where the cost of leaving conversion to each screen became impossible to
+miss. Before these adapters, `toIsoFineractDate`'s logic existed in **five** places: the shared
+helper, `formatArrayDate` in `core/utils/date-formatter.ts`, a local `formatArrayDate` method on
+`holidays-list.component.ts`, `pickerDate` in `holiday-form.component.ts` (the same function
+rewritten line for line), and inline in `transaction-detail-dialog.component.ts`. Every one of
+them takes `unknown` or widens, because the declared type cannot be used.
+
+**Staff** are the other direction, and worth reading carefully, because the lesson is not the
+obvious one. `StaffData` declares `joiningDate?: string` and that is **correct** —
+`GET /staff/{id}` really does send a string. But `GET /offices` sends an array for the same kind
+of field, so the application distrusted the type that happened to be right:
+
+```ts
+this.joiningDate.set(formatArrayDate(data.joiningDate));
+```
+
+`formatArrayDate()` answers `'-'` for anything that is not an array, so the staff edit form
+displayed a dash where the joining date should be. Its spec passed throughout, on a fixture
+that invented `joiningDate: [2026, 1, 5]`.
+
+So the rule is not "trust the generated type" and not "distrust it" — it is that **a screen
+cannot tell from the type which encoding it is getting, and should not have to.**
+`toIsoFineractDate()` accepts both, and the model is an ISO string either way.
+
+Two things these adapters took off their screens that are worth copying:
+
+- **Blank optional fields.** Sending `mobileNo: ''` is not an omission; Fineract rejects the
+  whole submission with "mobileNo must contain only digits", naming a field the user left empty.
+  `staff-form` had a `withoutBlanks()` helper for this. The adapter promises it instead, and its
+  spec asserts the key is absent rather than merely falsy — an `undefined` under a present key
+  would pass a truthiness check while still being a key the adapter said it would not send.
+- **Returning what the caller needs.** `OfficeApi.create` answers the new office's id, because
+  `create-office-dialog` dismisses with it so the form that opened it can select the office just
+  created. A `void` there is invisible to the dialog's own spec, which mocks the contract — it
+  took a mutation test on the adapter to catch it.
 
 `npm run api:surface` remains the complement: it records which generated _operations_ are
 called, so one disappearing upstream produces a single diagnostic rather than a compile error
