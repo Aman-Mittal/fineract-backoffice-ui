@@ -911,6 +911,8 @@ export interface SeededRestrictedUser {
   userId: number;
   /** Exactly the permission codes the user holds, as granted to their role. */
   permissions: string[];
+  /** The office the user belongs to, which scopes the records they can see at all. */
+  officeId: number;
 }
 
 /**
@@ -987,12 +989,19 @@ export function generatePassword(): string {
  * class, no whitespace, and no character repeated consecutively — which rejects most obvious
  * literals with a validation error that does not mention the rule until you read `args`.
  *
+ * Permission codes are only half of what Fineract decides with. The other half is the user's
+ * **office**: every query is scoped to the office hierarchy beneath the one the user belongs to,
+ * so two users holding an identical role see different records. `officeId` defaults to Head
+ * Office, whose subtree is everything — which is why a spec about scoping has to pass a branch.
+ *
  * @param api - an API context authenticated as a user who may administer roles and users
  * @param permissions - permission codes the user should hold, and only those
+ * @param officeId - the office the user belongs to; Head Office (1) unless given
  */
 export async function seedRestrictedUser(
   api: APIRequestContext,
   permissions: string[],
+  officeId = 1,
 ): Promise<SeededRestrictedUser> {
   const roleId = await seedRole(api, permissions);
   const suffix = seedSuffix();
@@ -1004,14 +1013,14 @@ export async function seedRestrictedUser(
     firstname: 'Restricted',
     lastname: `User${suffix}`,
     email: `${username}@example.invalid`,
-    officeId: 1,
+    officeId,
     roles: [roleId],
     sendPasswordToEmail: false,
     password,
     repeatPassword: password,
   });
 
-  return { username, password, roleId, userId: resourceId, permissions };
+  return { username, password, roleId, userId: resourceId, permissions, officeId };
 }
 
 /**
