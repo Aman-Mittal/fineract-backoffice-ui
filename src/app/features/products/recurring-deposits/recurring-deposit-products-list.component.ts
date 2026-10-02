@@ -43,7 +43,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
     <app-data-table
       [hasError]="hasError()"
       (retry)="onRetry()"
-      title="nav.recurringDeposits"
+      title="nav.recurringDepositProducts"
       createButtonLabel="PRODUCTS.CREATE_RECURRING_DEPOSIT_PRODUCT"
       createPermission="CREATE_RECURRINGDEPOSITPRODUCT"
       [columns]="columns"
