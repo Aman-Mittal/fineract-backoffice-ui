@@ -78,7 +78,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            Close Accounting Period
+            {{ 'ACCOUNTING_CLOSURES.CLOSE_ACCOUNTING_PERIOD' | translate }}
             <app-help-icon [helpTextKey]="'HELP.ACCOUNTING_CLOSURES_DESC'"></app-help-icon>
           </ion-card-title>
         </ion-card-header>
@@ -104,7 +104,9 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
               <!-- Closing Date -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Closing Date</ion-label>
+                <ion-label position="stacked">{{
+                  'ACCOUNTING_CLOSURES.CLOSING_DATE' | translate
+                }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="closingDate-picker"></ion-datetime-button>
                 }

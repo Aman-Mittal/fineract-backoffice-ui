@@ -31,6 +31,7 @@ import { of, Observable } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { expectLookedUp } from '../../testing/translated-text';
 
 describe('AccountingClosureFormComponent', () => {
   let component: AccountingClosureFormComponent;
@@ -86,5 +87,12 @@ describe('AccountingClosureFormComponent', () => {
         locale: 'en',
       }),
     );
+  });
+
+  it('renders its heading and date label through the translation adapter', () => {
+    expectLookedUp(fixture.nativeElement, [
+      'ACCOUNTING_CLOSURES.CLOSE_ACCOUNTING_PERIOD',
+      'ACCOUNTING_CLOSURES.CLOSING_DATE',
+    ]);
   });
 });
