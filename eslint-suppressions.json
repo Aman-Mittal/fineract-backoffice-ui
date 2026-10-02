@@ -2210,9 +2210,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/system/business-dates/business-dates.component.ts": {
@@ -2274,9 +2271,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/system/codes/codes-list.component.ts": {
@@ -2284,9 +2278,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2597,9 +2588,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/system/sms/sms-form.component.test.ts": {
@@ -2643,9 +2631,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2803,9 +2788,6 @@
   "src/app/features/working-capital/breach/wc-breach-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/working-capital/loan-products/wc-loan-product-form.component.test.ts": {
@@ -2829,9 +2811,6 @@
   "src/app/features/working-capital/loan-products/wc-loan-products-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/working-capital/loans/wc-account-lock/wc-loan-account-lock.component.ts": {
@@ -2839,9 +2818,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2863,9 +2839,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2977,9 +2950,6 @@
   },
   "src/app/features/working-capital/near-breach/wc-near-breach-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
