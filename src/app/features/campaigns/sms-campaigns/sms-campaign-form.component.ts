@@ -130,9 +130,11 @@ import {
           </ion-item>
 
           <ion-item fill="outline" class="full-width">
-            <ion-label position="stacked">Parameterized Message</ion-label>
+            <ion-label position="stacked">{{
+              'SMS_CAMPAIGNS.PARAMETERIZED_MESSAGE' | translate
+            }}</ion-label>
             <ion-input
-              aria-label="Parameterized Message"
+              [attr.aria-label]="'SMS_CAMPAIGNS.PARAMETERIZED_MESSAGE' | translate"
               name="parameterizedMessage"
               [(ngModel)]="model.parameterizedMessage"
             ></ion-input>

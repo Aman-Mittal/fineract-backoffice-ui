@@ -96,7 +96,7 @@ export type InteropTab = (typeof INTEROP_TAB)[keyof typeof INTEROP_TAB];
             <ion-label>{{ 'INTEROP.CREATE_TRANSFER' | translate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.result">
-            <ion-label>Disburse / Repay</ion-label>
+            <ion-label>{{ 'INTEROP.DISBURSE_REPAY' | translate }}</ion-label>
           </ion-segment-button>
         </ion-segment>
 

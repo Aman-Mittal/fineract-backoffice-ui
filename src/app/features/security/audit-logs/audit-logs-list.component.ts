@@ -99,27 +99,33 @@ export interface AuditFilters {
           <div slot="content">
             <div class="filter-grid">
               <ion-item fill="outline">
-                <ion-label position="stacked">Action Name</ion-label>
+                <ion-label position="stacked">{{
+                  'SECURITY.ACTION_NAME' | appTranslate
+                }}</ion-label>
                 <ion-input
-                  aria-label="Action Name"
+                  [attr.aria-label]="'SECURITY.ACTION_NAME' | appTranslate"
                   [(ngModel)]="activeFilters.actionName"
                   (keyup.enter)="onApplyFilters()"
                 ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">Entity Name</ion-label>
+                <ion-label position="stacked">{{
+                  'SECURITY.ENTITY_NAME' | appTranslate
+                }}</ion-label>
                 <ion-input
-                  aria-label="Entity Name"
+                  [attr.aria-label]="'SECURITY.ENTITY_NAME' | appTranslate"
                   [(ngModel)]="activeFilters.entityName"
                   (keyup.enter)="onApplyFilters()"
                 ></ion-input>
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">Resource ID</ion-label>
+                <ion-label position="stacked">{{
+                  'SECURITY.RESOURCE_ID' | appTranslate
+                }}</ion-label>
                 <ion-input
-                  aria-label="Resource ID"
+                  [attr.aria-label]="'SECURITY.RESOURCE_ID' | appTranslate"
                   type="number"
                   [(ngModel)]="activeFilters.resourceId"
                   (keyup.enter)="onApplyFilters()"
@@ -127,9 +133,9 @@ export interface AuditFilters {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">Maker ID</ion-label>
+                <ion-label position="stacked">{{ 'SECURITY.MAKER_ID' | appTranslate }}</ion-label>
                 <ion-input
-                  aria-label="Maker ID"
+                  [attr.aria-label]="'SECURITY.MAKER_ID' | appTranslate"
                   type="number"
                   [(ngModel)]="activeFilters.makerId"
                   (keyup.enter)="onApplyFilters()"
@@ -137,7 +143,9 @@ export interface AuditFilters {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">Maker Date From</ion-label>
+                <ion-label position="stacked">{{
+                  'SECURITY.MAKER_DATE_FROM' | appTranslate
+                }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button
                     datetime="activeFiltersmakerDateTimeFrom-picker"
@@ -157,7 +165,9 @@ export interface AuditFilters {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">Maker Date To</ion-label>
+                <ion-label position="stacked">{{
+                  'SECURITY.MAKER_DATE_TO' | appTranslate
+                }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button
                     datetime="activeFiltersmakerDateTimeTo-picker"
@@ -177,9 +187,11 @@ export interface AuditFilters {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">Processing Result</ion-label>
+                <ion-label position="stacked">{{
+                  'SECURITY.PROCESSING_RESULT' | appTranslate
+                }}</ion-label>
                 <ion-select
-                  aria-label="Processing Result"
+                  [attr.aria-label]="'SECURITY.PROCESSING_RESULT' | appTranslate"
                   interface="popover"
                   [(ngModel)]="activeFilters.processingResult"
                 >

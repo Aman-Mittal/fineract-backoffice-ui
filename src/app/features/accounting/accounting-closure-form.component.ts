@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ACCOUNTING_CLOSURE_API, OFFICE_API } from '../../core/adapters';
+import { ACCOUNTING_CLOSURE_API, OFFICE_API, TranslatePipe } from '../../core/adapters';
 import type { Office } from '../../core/adapters';
 import { HelpIconComponent } from '../../shared';
 import {
@@ -51,6 +51,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
   standalone: true,
   imports: [
     FormsModule,
+    TranslatePipe,
     HelpIconComponent,
     IonButton,
     IonSpinner,
@@ -72,7 +73,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            Close Accounting Period
+            {{ 'ACCOUNTING_CLOSURES.CLOSE_ACCOUNTING_PERIOD' | appTranslate }}
             <app-help-icon [helpTextKey]="'HELP.ACCOUNTING_CLOSURES_DESC'"></app-help-icon>
           </ion-card-title>
         </ion-card-header>
@@ -98,7 +99,9 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
               <!-- Closing Date -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Closing Date</ion-label>
+                <ion-label position="stacked">{{
+                  'ACCOUNTING_CLOSURES.CLOSING_DATE' | appTranslate
+                }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="closingDate-picker"></ion-datetime-button>
                 }

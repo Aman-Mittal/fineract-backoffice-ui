@@ -96,9 +96,9 @@ import {
 
               <!-- Charge Applies To -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Applies To</ion-label>
+                <ion-label position="stacked">{{ 'CHARGES.APPLIES_TO' | translate }}</ion-label>
                 <ion-select
-                  aria-label="Applies To"
+                  [attr.aria-label]="'CHARGES.APPLIES_TO' | translate"
                   interface="popover"
                   name="chargeAppliesTo"
                   [(ngModel)]="charge().chargeAppliesTo"
@@ -132,9 +132,9 @@ import {
 
               <!-- Charge Time Type -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Charge Time Type</ion-label>
+                <ion-label position="stacked">{{ 'CHARGES.TIME_TYPE' | translate }}</ion-label>
                 <ion-select
-                  aria-label="Charge Time Type"
+                  [attr.aria-label]="'CHARGES.TIME_TYPE' | translate"
                   interface="popover"
                   name="chargeTimeType"
                   [(ngModel)]="charge().chargeTimeType"
@@ -150,9 +150,11 @@ import {
 
               <!-- Charge Calculation Type -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Calculation Type</ion-label>
+                <ion-label position="stacked">{{
+                  'CHARGES.CALCULATION_TYPE' | translate
+                }}</ion-label>
                 <ion-select
-                  aria-label="Calculation Type"
+                  [attr.aria-label]="'CHARGES.CALCULATION_TYPE' | translate"
                   interface="popover"
                   name="chargeCalculationType"
                   [(ngModel)]="charge().chargeCalculationType"

@@ -420,24 +420,28 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                 <ion-card-header>
                   <ion-card-title>
                     <ion-icon name="information-circle-outline"></ion-icon>
-                    Interest Settings
+                    {{ 'SAVINGS.INTEREST_SETTINGS' | appTranslate }}
                   </ion-card-title>
                 </ion-card-header>
                 <ion-card-content class="details-list">
                   <div class="detail-item">
-                    <span class="label">Nominal Annual Interest Rate</span>
+                    <span class="label">{{
+                      'SAVINGS.NOMINAL_ANNUAL_INTEREST_RATE' | appTranslate
+                    }}</span>
                     <span class="value">{{ account()?.nominalAnnualInterestRate }}%</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">Compounding Period</span>
+                    <span class="label">{{ 'SAVINGS.COMPOUNDING_PERIOD' | appTranslate }}</span>
                     <span class="value">{{ account()?.interestCompoundingPeriodType?.value }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">Posting Period</span>
+                    <span class="label">{{ 'SAVINGS.POSTING_PERIOD' | appTranslate }}</span>
                     <span class="value">{{ account()?.interestPostingPeriodType?.value }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">Interest Calculation Day-in-Year</span>
+                    <span class="label">{{
+                      'SAVINGS.INTEREST_CALC_DAYS_IN_YEAR' | appTranslate
+                    }}</span>
                     <span class="value">{{
                       account()?.interestCalculationDaysInYearType?.value
                     }}</span>
@@ -449,24 +453,24 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                 <ion-card-header>
                   <ion-card-title>
                     <ion-icon name="pulse-outline"></ion-icon>
-                    Timeline & Balance
+                    {{ 'SAVINGS.TIMELINE_AND_BALANCE' | appTranslate }}
                   </ion-card-title>
                 </ion-card-header>
                 <ion-card-content class="details-list">
                   <div class="detail-item">
-                    <span class="label">Submitted On Date</span>
+                    <span class="label">{{ 'COMMON.SUBMITTED_ON_DATE' | appTranslate }}</span>
                     <span class="value">{{ formattedSubmittedDate }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">Activated On Date</span>
+                    <span class="label">{{ 'SAVINGS.ACTIVATED_ON_DATE' | appTranslate }}</span>
                     <span class="value">{{ formattedActivatedDate }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">Field Officer</span>
+                    <span class="label">{{ 'SAVINGS.FIELD_OFFICER' | appTranslate }}</span>
                     <span class="value">{{ account()?.fieldOfficerName || '-' }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">Account Balance</span>
+                    <span class="label">{{ 'SAVINGS.BALANCE' | appTranslate }}</span>
                     <span class="value">
                       {{ account()?.currency?.displaySymbol }}
                       {{ account()?.summary?.accountBalance || 0 | number: '1.2-2' }}

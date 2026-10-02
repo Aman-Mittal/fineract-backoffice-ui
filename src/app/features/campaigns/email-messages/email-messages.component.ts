@@ -285,9 +285,11 @@ export type EmailTab = (typeof EMAIL_TAB)[keyof typeof EMAIL_TAB];
           @if (activeTab() === TAB.configuration) {
             <div class="tab-content">
               <ion-item fill="outline" class="full-width">
-                <ion-label position="stacked">Configuration JSON</ion-label>
+                <ion-label position="stacked">{{
+                  'EMAIL_MESSAGES.CONFIGURATION_JSON' | translate
+                }}</ion-label>
                 <ion-textarea
-                  aria-label="Configuration JSON"
+                  [attr.aria-label]="'EMAIL_MESSAGES.CONFIGURATION_JSON' | translate"
                   rows="10"
                   [ngModel]="configJson()"
                   (ngModelChange)="configJson.set($event)"

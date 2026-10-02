@@ -1,17 +1,1 @@
-{
-  "src/app/features/accounting/accounting-closure-form.component.ts": 2,
-  "src/app/features/accounting/accounting-rule-form.component.ts": 13,
-  "src/app/features/accounting/charges/charge-form.component.ts": 3,
-  "src/app/features/accounting/financial-activity-mapping-form.component.ts": 2,
-  "src/app/features/accounting/journal-entry-form.component.ts": 5,
-  "src/app/features/campaigns/email-messages/email-messages.component.ts": 1,
-  "src/app/features/campaigns/sms-campaigns/sms-campaign-form.component.ts": 1,
-  "src/app/features/fintech/asset-owner-view/asset-owner-view.component.ts": 2,
-  "src/app/features/interop/interop-transfers.component.ts": 1,
-  "src/app/features/loans/point-in-time/loans-point-in-time.component.ts": 5,
-  "src/app/features/loans/rescheduling/reschedule-form.component.ts": 10,
-  "src/app/features/products/savings-account-view.component.ts": 10,
-  "src/app/features/security/audit-logs/audit-logs-list.component.ts": 7,
-  "src/app/features/settings/working-days.component.ts": 4,
-  "src/app/features/transfers/standing-instruction-form.component.ts": 2
-}
+{}

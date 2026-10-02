@@ -268,8 +268,12 @@ export interface MiniAccount {
                     [(ngModel)]="request.transferType"
                     required
                   >
-                    <ion-select-option [value]="'1'">Account Transfer</ion-select-option>
-                    <ion-select-option [value]="'2'">Loan Repayment</ion-select-option>
+                    <ion-select-option [value]="'1'">{{
+                      'CLIENTS.TRANSFER_TYPE_ACCOUNT_TRANSFER' | translate
+                    }}</ion-select-option>
+                    <ion-select-option [value]="'2'">{{
+                      'CLIENTS.TRANSFER_TYPE_LOAN_REPAYMENT' | translate
+                    }}</ion-select-option>
                   </ion-select>
                 </ion-item>
 

@@ -95,7 +95,7 @@ export type AssetOwnerTab = (typeof ASSET_OWNER_TAB)[keyof typeof ASSET_OWNER_TA
                 [routerLink]="['/loans/view', transfer.loan?.loanId]"
               >
                 <ion-icon name="business-outline"></ion-icon>
-                View Loan Account
+                {{ 'ASSET_OWNERS.VIEW_LOAN_ACCOUNT' | translate }}
               </ion-button>
             </div>
           </ion-card-header>
@@ -130,7 +130,7 @@ export type AssetOwnerTab = (typeof ASSET_OWNER_TAB)[keyof typeof ASSET_OWNER_TA
         </ion-card>
         <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
           <ion-segment-button [value]="TAB.details">
-            <ion-label>Journal Entries</ion-label>
+            <ion-label>{{ 'nav.journalEntries' | translate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.loanProductAttributes">
             <ion-label>{{ 'ASSET_OWNERS.LOAN_PRODUCT_ATTRIBUTES' | translate }}</ion-label>

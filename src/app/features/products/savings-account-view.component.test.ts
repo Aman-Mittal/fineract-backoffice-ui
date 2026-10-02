@@ -31,6 +31,7 @@ import { signal } from '@angular/core';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { provideFakeAdapters } from '../../testing/adapters';
+import { expectLookedUp } from '../../testing/translated-text';
 
 describe('SavingsAccountViewComponent', () => {
   let component: SavingsAccountViewComponent;
@@ -114,6 +115,21 @@ describe('SavingsAccountViewComponent', () => {
       'all',
     );
     expect(component.account()?.savingsProductName).toBe('Regular Savings');
+  });
+
+  it('renders the overview labels through the translation adapter', () => {
+    expectLookedUp(fixture.nativeElement, [
+      'SAVINGS.INTEREST_SETTINGS',
+      'SAVINGS.NOMINAL_ANNUAL_INTEREST_RATE',
+      'SAVINGS.COMPOUNDING_PERIOD',
+      'SAVINGS.POSTING_PERIOD',
+      'SAVINGS.INTEREST_CALC_DAYS_IN_YEAR',
+      'SAVINGS.TIMELINE_AND_BALANCE',
+      'COMMON.SUBMITTED_ON_DATE',
+      'SAVINGS.ACTIVATED_ON_DATE',
+      'SAVINGS.FIELD_OFFICER',
+      'SAVINGS.BALANCE',
+    ]);
   });
 
   /**
