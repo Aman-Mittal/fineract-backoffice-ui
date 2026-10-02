@@ -73,7 +73,10 @@ describe('LoanViewComponent', () => {
     charges: [],
   };
 
-  async function setup(loanOverrides: Record<string, unknown> = {}): Promise<void> {
+  async function setup(
+    loanOverrides: Record<string, unknown> = {},
+    capitalizedIncomeRows: unknown[] = [],
+  ): Promise<void> {
     TestBed.resetTestingModule();
 
     loansServiceSpy = createSpyObj([
@@ -111,7 +114,9 @@ describe('LoanViewComponent', () => {
       of({ ...cumulativeLoan, ...loanOverrides }) as any,
     );
     buyDownFeesSpy.getLoansLoanIdBuydownFees.mockReturnValue(of([]) as any);
-    capitalizedIncomeSpy.getLoansLoanIdCapitalizedIncomes.mockReturnValue(of([]) as any);
+    capitalizedIncomeSpy.getLoansLoanIdCapitalizedIncomes.mockReturnValue(
+      of(capitalizedIncomeRows) as any,
+    );
 
     await TestBed.configureTestingModule({
       imports: [LoanViewComponent],
@@ -207,6 +212,37 @@ describe('LoanViewComponent', () => {
       expect(component.showCapitalizedIncome()).toBe(true);
       expect(component.showBuyDownFees()).toBe(false);
       expect(capitalizedIncomeSpy.getLoansLoanIdCapitalizedIncomes).toHaveBeenCalledWith(LOAN_ID);
+    });
+
+    /**
+     * The row carries amountAdjustment and chargedOffAmount alongside the three fields already
+     * rendered; both were previously fetched and dropped silently on the floor.
+     */
+    it('renders the amount adjustment and charged-off amount columns', async () => {
+      await setup(
+        {
+          loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+          enableIncomeCapitalization: true,
+        },
+        [
+          {
+            amount: 500,
+            amortizedAmount: 120,
+            unrecognizedAmount: 380,
+            amountAdjustment: 25,
+            chargedOffAmount: 50,
+          },
+        ],
+      );
+
+      component.activeTab.set(LOAN_TAB.capitalizedIncome);
+      fixture.detectChanges();
+
+      const rendered = fixture.nativeElement.textContent as string;
+      expect(rendered).toContain('LOANS.AMOUNT_ADJUSTMENT');
+      expect(rendered).toContain('LOANS.CHARGED_OFF_AMOUNT');
+      expect(rendered).toContain('25');
+      expect(rendered).toContain('50');
     });
 
     /**
