@@ -1334,6 +1334,18 @@ export function toEditableDate(value: unknown): string {
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.unrecognizedAmount | number }}</td>
                 </ng-container>
+                <ng-container cdkColumnDef="amountAdjustment">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'LOANS.AMOUNT_ADJUSTMENT' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.amountAdjustment | number }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="chargedOffAmount">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'LOANS.CHARGED_OFF_AMOUNT' | translate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">{{ row.chargedOffAmount | number }}</td>
+                </ng-container>
                 <tr cdk-header-row *cdkHeaderRowDef="capitalizedIncomeColumns"></tr>
                 <tr cdk-row *cdkRowDef="let row; columns: capitalizedIncomeColumns"></tr>
               </table>
@@ -1927,7 +1939,13 @@ export class LoanViewComponent implements OnInit {
     'amortizedAmount',
     'notYetAmortizedAmount',
   ];
-  capitalizedIncomeColumns = ['amount', 'amortizedAmount', 'unrecognizedAmount'];
+  capitalizedIncomeColumns = [
+    'amount',
+    'amortizedAmount',
+    'unrecognizedAmount',
+    'amountAdjustment',
+    'chargedOffAmount',
+  ];
 
   get totalPrincipalDue(): number {
     return this.periods().reduce((acc, p) => acc + (p.principalDue || 0), 0);
