@@ -1385,11 +1385,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/accounting/product-accounting-section.component.test.ts": {
-    "unicorn/no-array-sort": {
-      "count": 4
-    }
-  },
   "src/app/features/products/accounting/product-accounting-section.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1972,11 +1967,6 @@
       "count": 1
     }
   },
-  "src/app/features/reporting/report-execution.service.test.ts": {
-    "unicorn/no-array-sort": {
-      "count": 1
-    }
-  },
   "src/app/features/reporting/reports-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
@@ -2230,9 +2220,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "unicorn/no-array-sort": {
       "count": 1
     }
   },
@@ -3039,20 +3026,12 @@
       "count": 2
     }
   },
-  "src/app/shared/components/data-table/data-table.component.test.ts": {
-    "unicorn/no-array-sort": {
-      "count": 3
-    }
-  },
   "src/app/shared/components/data-table/data-table.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     },
     "no-restricted-imports": {
       "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 5
     }
   },
   "src/app/shared/components/datatable-entry-dialog/datatable-entry-dialog.component.ts": {

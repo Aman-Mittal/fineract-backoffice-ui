@@ -160,7 +160,7 @@ export class BusinessStepsComponent implements OnInit {
     if (!this.selectedJob) return;
     this.service.getJobsJobNameSteps(this.selectedJob).subscribe((data) => {
       this.steps.set(
-        [...(data.businessSteps ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+        (data.businessSteps ?? []).toSorted((a, b) => (a.order ?? 0) - (b.order ?? 0)),
       );
     });
   }

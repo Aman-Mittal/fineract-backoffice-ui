@@ -163,7 +163,7 @@ describe('DataTableComponent', () => {
 
       component.onSortHeaderClick(nameColumn);
       fixture.detectChanges();
-      expect(component.sort()).toEqual({ active: '', direction: '' });
+      expect(component.currentSort()).toEqual({ active: '', direction: '' });
     });
 
     it('ignores clicks on non-sortable columns', () => {
@@ -172,7 +172,7 @@ describe('DataTableComponent', () => {
 
       component.onSortHeaderClick(COLUMNS[2]);
 
-      expect(component.sort().direction).toBe('');
+      expect(component.currentSort().direction).toBe('');
       expect(emitted).toBeUndefined();
     });
 
@@ -405,7 +405,7 @@ describe('DataTableComponent', () => {
       fixture.detectChanges();
 
       expect(document.activeElement).toBe(nameSortButton);
-      expect(component.sort()).toEqual({ active: 'name', direction: 'asc' });
+      expect(component.currentSort()).toEqual({ active: 'name', direction: 'asc' });
     });
 
     it('exposes the sorted column via aria-sort', () => {
