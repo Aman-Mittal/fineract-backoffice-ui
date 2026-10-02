@@ -21,11 +21,11 @@ import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateOfficeDialogComponent } from './create-office-dialog.component';
 import { ModalController } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { OfficesService, GetOfficesResponse, PostOfficesResponse } from '../../../api';
 import { Observable, of, throwError } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 describe('CreateOfficeDialogComponent', () => {
   let component: CreateOfficeDialogComponent;
@@ -49,8 +49,9 @@ describe('CreateOfficeDialogComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [CreateOfficeDialogComponent, TranslateModule.forRoot()],
+      imports: [CreateOfficeDialogComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideIonicTesting(),
         { provide: ModalController, useValue: mockModalController },
         { provide: OfficesService, useValue: mockOfficesService },

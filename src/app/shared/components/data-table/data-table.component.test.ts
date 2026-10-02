@@ -21,13 +21,13 @@ import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef } from './data-table.component';
 import { CellTemplateDirective } from './cell-template.directive';
 import { PageEvent, SortEvent } from '../../models/table.model';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { provideTestConfig } from '../../../testing/config';
 import { AuthService } from '../../../core/services/auth.service';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 interface TestData {
   id: number;
@@ -66,8 +66,9 @@ describe('DataTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DataTableComponent, TranslateModule.forRoot()],
+      imports: [DataTableComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideIonicTesting(),
         // The create button is now gated by `*appHasPermission`, which reads both the session
         // and the deployment's `rbacEnabled`; neither has a usable default in a bare TestBed.
