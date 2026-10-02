@@ -20,7 +20,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ProvisioningEntriesService, ProvisionEntryRequest } from '../../../api';
 import { formatDateToFineract } from '../../../core/utils/date-formatter';
 import {
@@ -48,7 +48,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonCardContent,

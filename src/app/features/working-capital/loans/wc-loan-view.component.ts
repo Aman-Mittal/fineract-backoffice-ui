@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import {
   IonButton,
@@ -97,7 +97,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
   selector: 'app-wc-loan-view',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     FormsModule,
     CdkTableModule,
     DecimalPipe,

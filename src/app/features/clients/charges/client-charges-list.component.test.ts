@@ -23,9 +23,9 @@ import { ClientChargesListComponent } from './client-charges-list.component';
 import { ClientChargesService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 describe('ClientChargesListComponent', () => {
   let component: ClientChargesListComponent;
@@ -49,8 +49,9 @@ describe('ClientChargesListComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [ClientChargesListComponent, TranslateModule.forRoot()],
+      imports: [ClientChargesListComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: ClientChargesService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: DialogService, useValue: dialogService },

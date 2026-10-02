@@ -19,7 +19,7 @@
 
 import { computed, input, model, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonCard,
   IonCardHeader,
@@ -41,7 +41,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonCard,
     IonCardHeader,
     IonCardTitle,

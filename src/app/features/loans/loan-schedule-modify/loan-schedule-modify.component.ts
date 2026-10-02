@@ -19,7 +19,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { LoanReschedulingService } from '../../../api';
 import { TranslatePipe } from '../../../core/adapters';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -44,7 +44,7 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    TranslateModule,
+    NgxTranslatePipe,
     TranslatePipe,
     IonButton,
     IonSpinner,

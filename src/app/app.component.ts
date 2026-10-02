@@ -19,12 +19,12 @@
 
 import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { IdleService } from './core/services/idle.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TranslateModule],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

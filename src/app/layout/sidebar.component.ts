@@ -33,7 +33,7 @@ import { filter } from 'rxjs';
 import { NgTemplateOutlet } from '@angular/common';
 
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonIcon } from '@ionic/angular/standalone';
 import { SidebarService } from '../core/services/sidebar.service';
 import { ViewportService } from '../core/services/viewport.service';
@@ -57,7 +57,7 @@ function entityOf(code: string): string | null {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, TranslateModule, IonIcon, NgTemplateOutlet],
+  imports: [RouterModule, TranslatePipe, IonIcon, NgTemplateOutlet],
   template: `
     <!--
       One element, two components. Wide: a permanent navigation landmark. Narrow: a modal drawer,

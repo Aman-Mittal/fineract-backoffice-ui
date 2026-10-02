@@ -24,8 +24,8 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { SidebarComponent } from './sidebar.component';
 import { SidebarService } from '../core/services/sidebar.service';
 import { ViewportService } from '../core/services/viewport.service';
-import { TranslateModule } from '@ngx-translate/core';
 import { Router, RouterModule } from '@angular/router';
+import { provideTranslateTesting } from '../testing/i18n-testing';
 
 describe('SidebarComponent', () => {
   let component: SidebarComponent;
@@ -44,8 +44,9 @@ describe('SidebarComponent', () => {
     isMobile = signal(false);
 
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), RouterModule.forRoot([]), SidebarComponent],
+      imports: [RouterModule.forRoot([]), SidebarComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ViewportService, useValue: { isMobile } },

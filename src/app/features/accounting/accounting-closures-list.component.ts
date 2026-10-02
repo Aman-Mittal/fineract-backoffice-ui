@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
@@ -35,7 +34,6 @@ import { ButtonComponent } from '../../ui/button/button.component';
   selector: 'app-accounting-closures-list',
   standalone: true,
   imports: [
-    TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
     TranslatePipe,

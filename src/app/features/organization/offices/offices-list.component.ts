@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { OfficesService, GetOfficesResponse } from '../../../api';
@@ -32,7 +32,7 @@ import { TranslatePipe } from '../../../core/adapters';
   selector: 'app-offices-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    NgxTranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     ButtonComponent,

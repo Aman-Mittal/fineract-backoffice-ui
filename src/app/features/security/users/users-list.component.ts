@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { UsersService, GetUsersResponse } from '../../../api';
 import { ButtonComponent } from '../../../ui/button/button.component';
@@ -31,7 +31,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, ButtonComponent],
+  imports: [TranslatePipe, DataTableComponent, CellTemplateDirective, ButtonComponent],
   template: `
     <app-data-table
       title="nav.users"

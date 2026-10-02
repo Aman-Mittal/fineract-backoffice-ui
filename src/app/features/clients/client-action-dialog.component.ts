@@ -19,7 +19,7 @@
 
 import { inject, input, Component, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
   IonDatetime,
@@ -52,7 +52,7 @@ export interface ClientActionDialogData {
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonTextarea,
     IonItem,

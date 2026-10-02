@@ -19,7 +19,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanCOBCatchUpService, OldestCOBProcessedLoanDTO } from '../../../../api';
 import { NotificationService } from '../../../../core/services/notification.service';
 import {
@@ -39,7 +39,7 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonInput,
     IonItem,

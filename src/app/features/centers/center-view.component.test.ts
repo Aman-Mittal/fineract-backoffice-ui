@@ -102,7 +102,7 @@ describe('CenterViewComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideNoopAnimations(),
-        // The datatables tab pulls in TranslateModule, which needs the library configured.
+        // The datatables tab renders through the library's pipe, which needs it configured.
         ...provideTranslateTesting(),
         ...adapters.providers,
       ],

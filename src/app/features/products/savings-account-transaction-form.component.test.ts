@@ -23,9 +23,9 @@ import { SavingsAccountTransactionFormComponent } from './savings-account-transa
 import { SavingsAccountTransactionsService } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideFakeAdapters } from '../../testing/adapters';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 
 function createComponent(command: string) {
   const transactionSpy: SpyObj<SavingsAccountTransactionsService> = createSpyObj([
@@ -48,8 +48,9 @@ function createComponent(command: string) {
   const adapters = provideFakeAdapters();
 
   TestBed.configureTestingModule({
-    imports: [SavingsAccountTransactionFormComponent, TranslateModule.forRoot()],
+    imports: [SavingsAccountTransactionFormComponent],
     providers: [
+      ...provideTranslateTesting(),
       ...adapters.providers,
       { provide: SavingsAccountTransactionsService, useValue: transactionSpy },
       { provide: Router, useValue: routerSpy },

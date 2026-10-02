@@ -35,12 +35,12 @@ import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { DialogService } from '../../core/services/dialog.service';
 import { LOAN_SCHEDULE_TYPE } from '../products/loan-schedule-type';
+import { provideTranslateTesting } from '../../testing/i18n-testing';
 
 const PRODUCT_NAME = 'Micro Loan Product';
 const EXTERNAL_ID = 'ext-456';
@@ -114,8 +114,9 @@ describe('LoanViewComponent', () => {
     capitalizedIncomeSpy.getLoansLoanIdCapitalizedIncomes.mockReturnValue(of([]) as any);
 
     await TestBed.configureTestingModule({
-      imports: [LoanViewComponent, TranslateModule.forRoot()],
+      imports: [LoanViewComponent],
       providers: [
+        ...provideTranslateTesting(),
         provideNoopAnimations(),
         provideIonicTesting(),
         { provide: LoansService, useValue: loansServiceSpy },

@@ -19,7 +19,7 @@
 
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { HelpIconComponent } from '../../../shared';
 import { PovertyLineService } from '../../../api';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -51,7 +51,7 @@ interface PovertyLineRow {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     HelpIconComponent,
     IonButton,

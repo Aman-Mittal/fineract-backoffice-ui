@@ -19,14 +19,14 @@
 
 import { inject, input, Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { GlobalConfigurationService, PutGlobalConfigurationsRequest } from '../../api';
 import { IonButton, IonInput, IonItem, IonLabel, ModalController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-edit-configuration-dialog',
   standalone: true,
-  imports: [FormsModule, TranslateModule, IonButton, IonInput, IonItem, IonLabel],
+  imports: [FormsModule, TranslatePipe, IonButton, IonInput, IonItem, IonLabel],
   template: `
     <h2 class="dialog-title">
       {{ 'SETTINGS.EDIT_CONFIG_TITLE' | translate: { name: config['name'] } }}

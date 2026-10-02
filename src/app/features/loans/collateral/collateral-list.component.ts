@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { LoanCollateralService, CollateralData, LoansService } from '../../../api';
 import { LoanSummary } from '../loan-summary.model';
@@ -32,7 +32,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
 @Component({
   selector: 'app-collateral-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, ButtonComponent],
+  imports: [TranslatePipe, DataTableComponent, CellTemplateDirective, ButtonComponent],
   template: `
     @if (loanSummary(); as summary) {
       <div class="loan-context">

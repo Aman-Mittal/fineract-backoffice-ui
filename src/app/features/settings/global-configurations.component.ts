@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import {
   GlobalConfigurationService,
@@ -39,7 +39,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
   selector: 'app-global-configurations',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     IonIcon,

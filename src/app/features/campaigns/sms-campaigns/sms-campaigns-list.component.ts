@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -49,7 +49,7 @@ interface SmsCampaign {
     CommonModule,
     CdkTableModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     IonIcon,
     IonButton,
     IonSpinner,

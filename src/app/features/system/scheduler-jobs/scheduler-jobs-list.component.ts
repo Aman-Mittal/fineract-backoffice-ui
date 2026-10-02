@@ -19,7 +19,7 @@
 
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { DateTimePipe } from '../../../shared/pipes/date-time.pipe';
 import { forkJoin } from 'rxjs';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -46,7 +46,7 @@ import {
   selector: 'app-scheduler-jobs-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    NgxTranslatePipe,
     TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,

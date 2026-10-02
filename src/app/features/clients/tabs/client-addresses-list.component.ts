@@ -19,7 +19,7 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   DataTableComponent,
   ColumnDef,
@@ -36,7 +36,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   standalone: true,
   imports: [
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,

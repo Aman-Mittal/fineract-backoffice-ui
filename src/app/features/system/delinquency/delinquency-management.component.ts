@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { I18N } from '../../../core/adapters';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -61,7 +61,7 @@ export type DelinquencyTab = (typeof DELINQUENCY_TAB)[keyof typeof DELINQUENCY_T
   standalone: true,
   imports: [
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,

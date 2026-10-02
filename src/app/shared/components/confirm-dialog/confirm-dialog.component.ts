@@ -18,7 +18,7 @@
  */
 
 import { inject, input, Component } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular/standalone';
 
 export interface ConfirmDialogData {
@@ -37,7 +37,7 @@ export interface ConfirmDialogData {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [TranslateModule, IonButton, IonIcon],
+  imports: [TranslatePipe, IonButton, IonIcon],
   template: `
     <div class="dialog">
       <h2 class="dialog-title">

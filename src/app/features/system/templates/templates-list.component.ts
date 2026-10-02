@@ -19,7 +19,7 @@
 
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -31,7 +31,7 @@ import { DataTableComponent } from '../../../shared/components/data-table/data-t
 @Component({
   selector: 'app-templates-list',
   standalone: true,
-  imports: [TranslateModule, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
+  imports: [TranslatePipe, DataTableComponent, CellTemplateDirective, IonIcon, IonButton],
   template: `
     <app-data-table
       title="TEMPLATES.TITLE"

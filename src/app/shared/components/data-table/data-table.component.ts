@@ -29,7 +29,7 @@ import {
 } from '@angular/core';
 import { CdkTableModule } from '@angular/cdk/table';
 import { NgTemplateOutlet } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -85,7 +85,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
   },
   imports: [
     CdkTableModule,
-    TranslateModule,
+    TranslatePipe,
     NgTemplateOutlet,
     IonCard,
     IonCardHeader,

@@ -19,7 +19,7 @@
 import { Component, OnInit, computed, signal, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   GetPasswordPreferencesTemplateResponse,
   GetUsersUserIdResponse,
@@ -50,7 +50,7 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonSpinner,
     IonIcon,
     IonButton,

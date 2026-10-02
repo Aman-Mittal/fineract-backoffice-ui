@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DefaultService, CommandWrapper, SmsCampaignData } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -43,7 +43,7 @@ import {
   imports: [
     FormsModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonInput,
     IonTextarea,

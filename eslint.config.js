@@ -276,15 +276,15 @@ module.exports = tseslint.config(
     // that is what makes them adapters. Nothing else may reach past the boundary.
     files: [
       'src/app/core/adapters/**/*.ts',
-      // `TranslateModule.forRoot()` and `provideTranslateHttpLoader()` configure the library
-      // itself, which is composition-root work rather than a call site.
+      // `provideTranslateService()` and the loader and missing-translation plugins configure the
+      // library itself, which is composition-root work rather than a call site.
       'src/app/app.config.ts',
       // The fakes must implement the same contracts, and the storage spec asserts against
       // real Web Storage to prove the adapter writes where its scope says it does.
       'src/app/testing/adapters.ts',
       // Same composition-root argument as app.config.ts, for specs: a spec that renders a
       // shared component still using `| translate` needs the library configured. Keeping that
-      // in one helper stops `TranslateModule.forRoot()` from being re-imported by every spec,
+      // in one helper stops `provideTranslateService()` from being re-imported by every spec,
       // which is what would actually erode the boundary.
       'src/app/testing/i18n-testing.ts',
     ],

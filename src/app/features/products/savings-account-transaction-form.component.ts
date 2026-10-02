@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import {
@@ -54,7 +54,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    NgxTranslatePipe,
     TranslatePipe,
     IonButton,
     IonSpinner,

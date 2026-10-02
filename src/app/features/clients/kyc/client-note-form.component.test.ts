@@ -23,8 +23,8 @@ import { ClientNoteFormComponent } from './client-note-form.component';
 import { NotesService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 describe('ClientNoteFormComponent', () => {
   let component: ClientNoteFormComponent;
@@ -41,8 +41,9 @@ describe('ClientNoteFormComponent', () => {
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [ClientNoteFormComponent, TranslateModule.forRoot()],
+      imports: [ClientNoteFormComponent],
       providers: [
+        ...provideTranslateTesting(),
         { provide: NotesService, useValue: noteServiceSpy },
         { provide: Router, useValue: routerSpy },
         {

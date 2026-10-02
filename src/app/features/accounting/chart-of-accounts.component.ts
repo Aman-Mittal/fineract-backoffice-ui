@@ -18,7 +18,6 @@
  */
 
 import { Component, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { of } from 'rxjs';
@@ -31,14 +30,7 @@ import { ButtonComponent } from '../../ui/button/button.component';
 @Component({
   selector: 'app-chart-of-accounts',
   standalone: true,
-  imports: [
-    TranslateModule,
-    DataTableComponent,
-    CellTemplateDirective,
-    TranslatePipe,
-    NgClass,
-    ButtonComponent,
-  ],
+  imports: [DataTableComponent, CellTemplateDirective, TranslatePipe, NgClass, ButtonComponent],
   template: `
     <app-data-table
       [hasError]="hasError()"
