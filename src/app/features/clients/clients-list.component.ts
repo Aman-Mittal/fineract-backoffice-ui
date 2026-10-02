@@ -142,7 +142,7 @@ import {
           fill="clear"
           color="primary"
           [attr.aria-label]="'COMMON.EDIT' | appTranslate"
-          title="Edit Client Details"
+          [title]="'CLIENTS.EDIT_CLIENT' | appTranslate"
           (click)="onEditClient(client)"
           *appHasPermission="'UPDATE_CLIENT'"
         >

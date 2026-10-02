@@ -42,7 +42,7 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
     <app-data-table
       [hasError]="hasError()"
       (retry)="onRetry()"
-      title="nav.shares"
+      title="nav.shareProducts"
       createButtonLabel="PRODUCTS.CREATE_SHARE_PRODUCT"
       createPermission="CREATE_SHAREPRODUCT"
       [columns]="columns"

@@ -52,7 +52,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
   template: `
     <app-data-table
-      title="Recurring Deposit Accounts"
+      title="nav.recurringDeposits"
       helpTextKey="HELP.RECURRING_DEPOSITS_DESC"
       createButtonLabel="RECURRING_DEPOSITS.CREATE"
       createPermission="CREATE_RECURRINGDEPOSITACCOUNT"

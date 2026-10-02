@@ -48,7 +48,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
   ],
   template: `
     <app-data-table
-      title="Loan Reschedule Requests"
+      title="LOANS.RESCHEDULE_REQUESTS"
       helpTextKey="HELP.RESCHEDULING_DESC"
       [createButtonLabel]="loanId() ? 'LOANS.REQUEST_RESCHEDULE' : ''"
       [columns]="columns"
