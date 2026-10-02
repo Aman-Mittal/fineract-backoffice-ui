@@ -238,16 +238,24 @@ export function toEditableDate(value: unknown): string {
               </div>
             </div>
             <div class="actions-area">
-              <ion-button
-                color="primary"
-                data-testid="loan-repayment-action"
-                appRequiresPermission="REPAYMENT_LOAN"
-                (click)="onRepayment()"
-                [appTooltip]="'LOANS.REPAYMENT' | translate"
-              >
-                <ion-icon name="card-outline"></ion-icon>
-                {{ 'LOANS.REPAYMENT' | translate }}
-              </ion-button>
+              <!--
+                Hidden rather than disabled, like the Approve and Disburse buttons beside it: the
+                platform refuses a repayment unless the loan is active, fully paid or overpaid
+                (error.msg.loan.must.be.active.fully.paid.or.overpaid), so on a loan awaiting
+                approval the button only led to a filled-in form and a rejection on submit.
+              -->
+              @if (canAcceptRepayment) {
+                <ion-button
+                  color="primary"
+                  data-testid="loan-repayment-action"
+                  appRequiresPermission="REPAYMENT_LOAN"
+                  (click)="onRepayment()"
+                  [appTooltip]="'LOANS.REPAYMENT' | translate"
+                >
+                  <ion-icon name="card-outline"></ion-icon>
+                  {{ 'LOANS.REPAYMENT' | translate }}
+                </ion-button>
+              }
 
               @if (isLoanPendingApproval) {
                 <ion-button
@@ -1880,6 +1888,19 @@ export class LoanViewComponent implements OnInit {
 
   get isLoanActive(): boolean {
     return !!this.loan()?.status?.active;
+  }
+
+  /**
+   * Whether the platform will accept a repayment on this loan.
+   *
+   * `LoanRepaymentValidator` refuses anything else with
+   * `error.msg.loan.must.be.active.fully.paid.or.overpaid`, so these three flags are the whole
+   * rule — a loan awaiting approval, awaiting disbursal, rejected, withdrawn or written off
+   * cannot take one.
+   */
+  get canAcceptRepayment(): boolean {
+    const status = this.loan()?.status;
+    return !!(status?.active || status?.overpaid || status?.closedObligationsMet);
   }
 
   /**

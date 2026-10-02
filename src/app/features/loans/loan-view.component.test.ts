@@ -354,6 +354,54 @@ describe('LoanViewComponent', () => {
   });
 
   /**
+   * `error.msg.loan.must.be.active.fully.paid.or.overpaid` — the platform takes a repayment in
+   * exactly three states. The button sat outside the state checks that already governed Approve
+   * and Disburse beside it, so a loan awaiting approval offered a repayment form that could only
+   * be rejected on submit.
+   */
+  describe('the repayment button by loan state', () => {
+    function repaymentButton(): Element | null {
+      return fixture.nativeElement.querySelector('[data-testid="loan-repayment-action"]');
+    }
+
+    it('is offered on an active loan', async () => {
+      await setup({ status: { value: 'Active', active: true } });
+
+      expect(component.canAcceptRepayment).toBe(true);
+      expect(repaymentButton()).not.toBeNull();
+    });
+
+    it('is offered on an overpaid loan and on one whose obligations are met', async () => {
+      await setup({ status: { value: 'Overpaid', overpaid: true } });
+      expect(component.canAcceptRepayment).toBe(true);
+
+      await setup({ status: { value: 'Closed (obligations met)', closedObligationsMet: true } });
+      expect(component.canAcceptRepayment).toBe(true);
+    });
+
+    it('is withheld from a loan awaiting approval', async () => {
+      await setup({ status: { value: 'Submitted and pending approval', pendingApproval: true } });
+
+      expect(component.canAcceptRepayment).toBe(false);
+      expect(repaymentButton()).toBeNull();
+    });
+
+    it('is withheld from an approved loan that has not been disbursed', async () => {
+      await setup({ status: { value: 'Approved', waitingForDisbursal: true } });
+
+      expect(component.canAcceptRepayment).toBe(false);
+      expect(repaymentButton()).toBeNull();
+    });
+
+    it('is withheld from a written-off loan', async () => {
+      await setup({ status: { value: 'Closed (written off)', closedWrittenOff: true } });
+
+      expect(component.canAcceptRepayment).toBe(false);
+      expect(repaymentButton()).toBeNull();
+    });
+  });
+
+  /**
    * `PUT .../approved-amount` and `PUT .../available-disbursement-amount` — #284. Both are their
    * own sub-resources, not `postLoansLoanId` commands, and both are legal on an approved loan and
    * on an active one — verified live against `apache/fineract`'s own UC3 acceptance scenario,
