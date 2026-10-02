@@ -48,8 +48,8 @@ In a template, swap the pipe and its import:
 
 ```ts
 // before
-import { TranslateModule } from '@ngx-translate/core';
-imports: [TranslateModule],
+import { TranslatePipe } from '@ngx-translate/core';
+imports: [TranslatePipe],
 // {{ 'LOANS.APPROVE' | translate }}
 
 // after

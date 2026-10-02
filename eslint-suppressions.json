@@ -1,9 +1,4 @@
 {
-  "src/app/app.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/app.component.ts": {
     "no-restricted-imports": {
       "count": 1
@@ -37,14 +32,6 @@
   "src/app/features/accounting/accounting-closure-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/accounting-closures-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/accounting/accounting-rule-form.component.ts": {
@@ -61,11 +48,6 @@
     }
   },
   "src/app/features/accounting/charges/charges-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/chart-of-accounts.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -90,9 +72,6 @@
   },
   "src/app/features/accounting/journal-entries-list.component.ts": {
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -144,11 +123,6 @@
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/accounting/provisioning-entries/provisioning-entries-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -303,25 +277,10 @@
       "count": 1
     }
   },
-  "src/app/features/centers/centers-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/clients/charges/client-charge-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/clients/charges/client-charge-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/clients/charges/client-charges-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -333,7 +292,7 @@
   },
   "src/app/features/clients/client-action-dialog.component.test.ts": {
     "no-restricted-imports": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/features/clients/client-action-dialog.component.ts": {
@@ -342,11 +301,6 @@
     },
     "no-restricted-imports": {
       "count": 2
-    }
-  },
-  "src/app/features/clients/client-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/clients/client-form.component.ts": {
@@ -377,11 +331,6 @@
       "count": 1
     }
   },
-  "src/app/features/clients/client-view.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/clients/client-view.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -395,20 +344,10 @@
       "count": 1
     }
   },
-  "src/app/features/clients/collateral/client-collateral-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/clients/collateral/client-collateral-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/clients/collateral/client-collateral-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -422,11 +361,6 @@
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/clients/kyc/client-document-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -455,11 +389,6 @@
       "count": 1
     }
   },
-  "src/app/features/clients/kyc/client-note-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/clients/kyc/client-note-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -472,11 +401,6 @@
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/clients/tabs/client-documents-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -497,11 +421,6 @@
     }
   },
   "src/app/features/clients/tabs/client-notes-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/clients/transactions/client-transactions-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -547,11 +466,6 @@
   },
   "src/app/features/groups/group-action-dialog.component.ts": {
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/groups/group-form.component.test.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -636,11 +550,6 @@
       "count": 1
     }
   },
-  "src/app/features/loans/bulk-reassignment/bulk-reassignment.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/loans/bulk-reassignment/bulk-reassignment.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -670,11 +579,6 @@
       "count": 1
     }
   },
-  "src/app/features/loans/collateral/collateral-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/loans/collateral/collateral-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -683,17 +587,7 @@
       "count": 1
     }
   },
-  "src/app/features/loans/collateral/collateral-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/loans/collateral/collateral-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/loans/guarantors/guarantor-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -706,17 +600,7 @@
       "count": 1
     }
   },
-  "src/app/features/loans/guarantors/guarantors-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/loans/guarantors/guarantors-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/loans/interest-pauses/interest-pause-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -725,11 +609,6 @@
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/loans/interest-pauses/interest-pauses-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -786,11 +665,6 @@
       "count": 1
     }
   },
-  "src/app/features/loans/loan-view.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/loans/loan-view.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -815,20 +689,10 @@
       "count": 1
     }
   },
-  "src/app/features/loans/post-dated-checks/post-dated-check-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/loans/post-dated-checks/post-dated-check-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/loans/post-dated-checks/post-dated-checks-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -921,11 +785,6 @@
       "count": 1
     }
   },
-  "src/app/features/organization/group-levels/group-levels-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/loan-portfolio-summary/loan-portfolio-summary.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -991,11 +850,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/account-action-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/account-action-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1021,11 +875,6 @@
   },
   "src/app/features/products/accounting/product-accounting-section.component.ts": {
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/collateral-management/collateral-management-form.component.test.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1060,30 +909,10 @@
       "count": 1
     }
   },
-  "src/app/features/products/fixed-deposit-transactions/fixed-deposit-transactions-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/fixed-deposit-transactions/fixed-deposit-transactions-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/fixed-deposits/fixed-deposit-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/fixed-deposits/fixed-deposit-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/fixed-deposits/fixed-deposit-product-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1096,27 +925,12 @@
       "count": 1
     }
   },
-  "src/app/features/products/fixed-deposits/fixed-deposit-products-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/fixed-deposits/fixed-deposit-products-list.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
   },
-  "src/app/features/products/fixed-deposits/fixed-deposits-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/fixed-deposits/fixed-deposits-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/floating-rates/floating-rate-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1129,17 +943,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/floating-rates/floating-rates-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/floating-rates/floating-rates-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/interest-rate-charts/interest-rate-chart-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1165,11 +969,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/loan-originators/loan-originator-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/loan-originators/loan-originator-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1179,11 +978,6 @@
     }
   },
   "src/app/features/products/loan-originators/loan-originators-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/loan-product-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1212,16 +1006,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/on-hold-transactions/on-hold-transactions-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/on-hold-transactions/on-hold-transactions-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/payment-credit-allocation-editor.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1238,11 +1022,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/rates/rate-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/rates/rate-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1251,17 +1030,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/rates/rates-list.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/rates/rates-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/recurring-deposit-transactions/recurring-deposit-transaction-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1308,11 +1077,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/savings-account-transaction-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/savings-account-transaction-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1328,11 +1092,6 @@
   },
   "src/app/features/products/savings-block-dialog.component.ts": {
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/savings-charges/savings-charge-form.component.test.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1375,11 +1134,6 @@
       "count": 1
     }
   },
-  "src/app/features/products/share-dividends/share-dividend-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/share-dividends/share-dividend-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1389,11 +1143,6 @@
     }
   },
   "src/app/features/products/share-dividends/share-dividends-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/shares/share-account-form.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1408,11 +1157,6 @@
   },
   "src/app/features/products/shares/share-account-view.component.ts": {
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/shares/share-accounts-list.component.test.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1445,20 +1189,10 @@
       "count": 1
     }
   },
-  "src/app/features/products/tax-components/tax-component-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/tax-components/tax-component-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/tax-components/tax-components-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1471,20 +1205,10 @@
       "count": 1
     }
   },
-  "src/app/features/products/tax-groups/tax-group-form.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/products/tax-groups/tax-group-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/tax-groups/tax-groups-list.component.test.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1625,11 +1349,6 @@
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/spm/scorecards/scorecards.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -1835,11 +1554,6 @@
       "count": 1
     }
   },
-  "src/app/features/system/loan-product-details/loan-product-details.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/system/notifications-config/notifications-config.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -1935,11 +1649,6 @@
       "count": 1
     }
   },
-  "src/app/features/tasks/checker-inbox/view-payload-dialog.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/tasks/work-queues/work-queues.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -2007,11 +1716,6 @@
     "local/no-vendor-ui-import": {
       "count": 1
     },
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/features/transfers/standing-instruction-history.component.ts": {
     "no-restricted-imports": {
       "count": 1
     }
@@ -2143,7 +1847,7 @@
   },
   "src/app/layout/inactivity-dialog.component.test.ts": {
     "no-restricted-imports": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/layout/inactivity-dialog.component.ts": {
@@ -2156,11 +1860,6 @@
   },
   "src/app/layout/main-layout.component.ts": {
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/layout/sidebar.component.test.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2190,7 +1889,7 @@
   },
   "src/app/shared/components/create-office-dialog/create-office-dialog.component.test.ts": {
     "no-restricted-imports": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/shared/components/create-office-dialog/create-office-dialog.component.ts": {
@@ -2202,9 +1901,6 @@
     }
   },
   "src/app/shared/components/data-table/data-table.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    },
     "unicorn/no-array-sort": {
       "count": 3
     }
@@ -2228,11 +1924,6 @@
       "count": 2
     }
   },
-  "src/app/shared/components/entity-datatables/entity-datatables.component.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/shared/components/entity-documents/entity-documents.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -2240,11 +1931,6 @@
   },
   "src/app/shared/components/entity-notes/entity-notes.component.ts": {
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/guidance-tour/guidance-tour.component.test.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2258,11 +1944,6 @@
   },
   "src/app/shared/components/help-icon/help-icon.component.ts": {
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/paginator/paginator.component.test.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
