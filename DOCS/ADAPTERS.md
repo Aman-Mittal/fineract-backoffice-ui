@@ -169,7 +169,7 @@ because `TranslateService` has thirty.
 
 `src/app/api` is regenerated from Fineract's OpenAPI spec. Importing it outside
 `src/app/core/adapters/api/` fails `npm run lint`
-(`local/no-generated-api-import`); the 469 files that already do are recorded in
+(`local/no-generated-api-import`); the 462 files that already do are recorded in
 `eslint-suppressions.json` and that number may only fall. ADR 0006 has the reasoning.
 
 There is still **no facade over the 155 generated services**, and adding one is still rejected.
@@ -237,6 +237,29 @@ accepts both forms, so a corrected spec upstream needs no change here. It return
 than `formatArrayDate()`'s `'-'`: a placeholder stored as data cannot be sorted or compared, and
 it hides the difference between "no opening date" and "a date we failed to read". Turning null
 into a dash stays the view's job.
+
+### A third example: reach without a defect
+
+`entity-notes.api.ts` is the one contract here that does _not_ correct a disagreement. Notes
+agree with their generated type — `createdOn` is declared `string` and really is an ISO-8601
+timestamp with offset, verified against a running instance.
+
+It earns its place on reach and on one type. Notes are read from client, group, loan and savings
+screens, and Fineract serves all four from one templated path, `/{resourceType}/{resourceId}/notes`.
+Both the generated client and `EntityNotesComponent.resourceType` typed that segment as a bare
+`string`, so a typo was a runtime 404 on a tab that rendered empty. `NoteResourceType` is a
+closed union of the four values actually used, which makes the same mistake a compile error.
+
+Two things fell out of it that are worth noticing, because they are the kind of thing a contract
+quietly fixes:
+
+- `group-note-form` carried a comment explaining why its save had to be `Observable<unknown>` —
+  the generated create and update resolve to different response models, and the union of the two
+  overload sets has no callable `subscribe`. Both are `Observable<void>` on the contract, so the
+  workaround is gone.
+- `client-notes-list`'s spec had `createdOn: 1_757_000_000_000` — epoch millis, which is neither
+  what the generated type declares nor what Fineract sends. It reached the component through an
+  `as unknown as Observable<never>` cast, so nothing checked it. Typed fixtures have to be real.
 
 `npm run api:surface` remains the complement: it records which generated _operations_ are
 called, so one disappearing upstream produces a single diagnostic rather than a compile error
