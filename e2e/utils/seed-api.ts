@@ -36,7 +36,7 @@
  */
 
 import { randomInt } from 'node:crypto';
-import { APIRequestContext, request as playwrightRequest } from '@playwright/test';
+import { APIRequestContext, APIResponse, request as playwrightRequest } from '@playwright/test';
 
 import { API_BASE, PASSWORD, TENANT_ID, USERNAME, assertBackendReachable } from './backend-env';
 
@@ -1065,10 +1065,25 @@ export interface SeededJournalEntry {
  * or savings transaction — so a spec covering the reverse action cannot reuse whatever the other
  * specs happen to have posted. It has to make one by hand, which is what this does.
  */
-export async function seedManualJournalEntry(
+export interface SeededGlAccountPair {
+  debitId: number;
+  creditId: number;
+  debitAccountName: string;
+  creditAccountName: string;
+}
+
+/**
+ * Two manual-entry GL accounts, one asset and one income, that a journal entry can be posted
+ * against.
+ *
+ * `manualEntriesAllowed` is the part that matters: the platform refuses a hand-written entry
+ * against an account that does not carry it, and the stock chart of accounts cannot be relied on
+ * to hold a pair that does.
+ */
+export async function seedGlAccountPair(
   api: APIRequestContext,
   namePrefix = 'E2EJournal',
-): Promise<SeededJournalEntry> {
+): Promise<SeededGlAccountPair> {
   const suffix = seedSuffix();
   const debitAccountName = `${namePrefix} Cash ${suffix}`;
   const creditAccountName = `${namePrefix} Income ${suffix}`;
@@ -1088,16 +1103,57 @@ export async function seedManualJournalEntry(
     manualEntriesAllowed: true,
   });
 
-  const { transactionId } = await post<{ transactionId: string }>(api, '/journalentries', {
-    officeId: 1,
-    currencyCode: 'USD',
-    transactionDate: fineractDate(),
-    dateFormat: DATE_FORMAT,
-    locale: LOCALE,
-    comments: 'Seeded for reversal coverage',
-    debits: [{ glAccountId: debitId, amount: 100 }],
-    credits: [{ glAccountId: creditId, amount: 100 }],
+  return { debitId, creditId, debitAccountName, creditAccountName };
+}
+
+/**
+ * Posts a balanced manual journal entry and hands back the raw response.
+ *
+ * Raw, rather than parsed, because the interesting cases are the refusals: an accounting closure
+ * covering the transaction date makes the platform reject this, and a caller proving that needs
+ * the status and the body rather than an exception. {@link seedManualJournalEntry} wraps it for
+ * the callers that only want the entry to exist.
+ */
+export async function attemptJournalEntry(
+  api: APIRequestContext,
+  options: {
+    pair: SeededGlAccountPair;
+    officeId?: number;
+    date?: Date;
+    amount?: number;
+    comments?: string;
+  },
+): Promise<APIResponse> {
+  const { pair, officeId = 1, date = new Date(), amount = 100, comments = '' } = options;
+  return api.post(`${API_BASE}/journalentries`, {
+    data: {
+      officeId,
+      currencyCode: 'USD',
+      transactionDate: fineractDate(date),
+      dateFormat: DATE_FORMAT,
+      locale: LOCALE,
+      comments,
+      debits: [{ glAccountId: pair.debitId, amount }],
+      credits: [{ glAccountId: pair.creditId, amount }],
+    },
   });
+}
+
+export async function seedManualJournalEntry(
+  api: APIRequestContext,
+  namePrefix = 'E2EJournal',
+): Promise<SeededJournalEntry> {
+  const pair = await seedGlAccountPair(api, namePrefix);
+  const response = await attemptJournalEntry(api, {
+    pair,
+    comments: 'Seeded for reversal coverage',
+  });
+  if (!response.ok()) {
+    throw new Error(
+      `POST /journalentries -> ${response.status()}: ${(await response.text()).slice(0, 400)}`,
+    );
+  }
+  const { transactionId } = (await response.json()) as { transactionId: string };
 
   const page = await get<{ pageItems: { id: number }[] }>(
     api,
@@ -1106,9 +1162,56 @@ export async function seedManualJournalEntry(
   return {
     entryId: page.pageItems[0].id,
     transactionId,
-    debitAccountName,
-    creditAccountName,
+    debitAccountName: pair.debitAccountName,
+    creditAccountName: pair.creditAccountName,
   };
+}
+
+export interface SeededAccountingClosure {
+  closureId: number;
+  officeId: number;
+}
+
+/**
+ * Closes an accounting period for one office.
+ *
+ * Always pass a seeded branch rather than Head Office. A closure is enforced over the office's
+ * whole subtree, so closing Head Office would make the platform refuse every posting the rest of
+ * the backend suite makes — including the loan and savings specs, which post through the
+ * accounting rules rather than by hand and would fail for a reason nothing in them names.
+ */
+export async function seedAccountingClosure(
+  api: APIRequestContext,
+  officeId: number,
+  date: Date = new Date(),
+  comments = 'Seeded for closure coverage',
+): Promise<SeededAccountingClosure> {
+  const { resourceId } = await post<{ resourceId: number }>(api, '/glclosures', {
+    officeId,
+    closingDate: fineractDate(date),
+    dateFormat: DATE_FORMAT,
+    locale: LOCALE,
+    comments,
+  });
+  return { closureId: resourceId, officeId };
+}
+
+/**
+ * Re-opens a closed period, so a spec does not leave one behind.
+ *
+ * Tolerates a closure that is already gone: a spec that re-opens through the UI and then cleans
+ * up should not fail in teardown for having succeeded.
+ */
+export async function deleteAccountingClosure(
+  api: APIRequestContext,
+  closureId: number,
+): Promise<void> {
+  const response = await api.delete(`${API_BASE}/glclosures/${closureId}`);
+  if (!response.ok() && response.status() !== 404) {
+    throw new Error(
+      `DELETE /glclosures/${closureId} -> ${response.status()}: ${(await response.text()).slice(0, 200)}`,
+    );
+  }
 }
 
 export interface SeededReportDefinition {
