@@ -18,6 +18,8 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -65,6 +67,7 @@ export type AssetOwnerTab = (typeof ASSET_OWNER_TAB)[keyof typeof ASSET_OWNER_TA
   imports: [
     CommonModule,
     RouterModule,
+    HasPermissionDirective,
     TranslatePipe,
     CdkTableModule,
     DataTableComponent,
@@ -89,9 +92,16 @@ export type AssetOwnerTab = (typeof ASSET_OWNER_TAB)[keyof typeof ASSET_OWNER_TA
               <app-status-badge [status]="transfer.status"></app-status-badge>
             </ion-card-title>
             <div class="header-actions">
+              <!--
+                Removed rather than disabled: it navigates elsewhere, and the loan screen is
+                gated on READ_LOAN while this one is not, so a reader without it was offered a
+                button whose only destination was Access Denied.
+              -->
               <ion-button
+                *appHasPermission="'READ_LOAN'"
                 fill="outline"
                 color="primary"
+                data-testid="asset-owner-view-loan"
                 [routerLink]="['/loans/view', transfer.loan?.loanId]"
               >
                 <ion-icon name="business-outline"></ion-icon>

@@ -19,6 +19,8 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+
+import { createPermissionCheck } from '../../shared/utils/permission-check';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 import {
@@ -320,9 +322,13 @@ export type CenterTab = (typeof CENTER_TAB)[keyof typeof CENTER_TAB];
                   [localLogic]="true"
                 >
                   <ng-template appCellTemplate="name" let-row>
-                    <a [routerLink]="['/groups/view', row.id]" data-testid="center-group-link">
+                    @if (canViewGroup()) {
+                      <a [routerLink]="['/groups/view', row.id]" data-testid="center-group-link">
+                        {{ row.name }}
+                      </a>
+                    } @else {
                       {{ row.name }}
-                    </a>
+                    }
                   </ng-template>
                   <ng-template appCellTemplate="status" let-row>
                     <app-status-badge [status]="row.status?.value ?? ''"></app-status-badge>
@@ -442,6 +448,12 @@ export class CenterViewComponent implements OnInit {
     { key: 'accountNo', label: 'COMMON.ACCOUNT_NO', sortable: true },
     { key: 'status', label: 'COMMON.STATUS', sortable: false },
   ];
+
+  /**
+   * A center's groups come back with READ_CENTER alone, but the group screen is gated on
+   * READ_GROUP. Same shape as the client link on the group screen.
+   */
+  protected readonly canViewGroup = createPermissionCheck('READ_GROUP');
 
   readonly groupMembers = computed<CenterGroupMember[]>(() => this.center()?.groupMembers ?? []);
   readonly activationDate = computed(() =>
