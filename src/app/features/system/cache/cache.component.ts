@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CacheService, CacheData } from '../../../api';
 import {
   IonButton,
@@ -41,7 +41,7 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonCardContent,

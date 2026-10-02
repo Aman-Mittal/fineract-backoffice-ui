@@ -19,7 +19,7 @@
 
 import { inject, input, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   IonButton,
   IonCheckbox,
@@ -51,7 +51,7 @@ const AUDIT_COLUMN_NAMES = new Set(['created_at', 'updated_at']);
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonItem,
     IonLabel,
     IonInput,

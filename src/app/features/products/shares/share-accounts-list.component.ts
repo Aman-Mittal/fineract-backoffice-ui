@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import {
   DataTableComponent,
@@ -40,7 +40,7 @@ import { PageEvent } from '../../../shared/models/table.model';
   selector: 'app-share-accounts-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonIcon,
     DataTableComponent,

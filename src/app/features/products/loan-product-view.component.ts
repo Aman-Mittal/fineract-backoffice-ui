@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonCard,
   IonCardHeader,
@@ -36,7 +36,7 @@ import { LOAN_SCHEDULE_TYPE } from './loan-schedule-type';
   selector: 'app-loan-product-view',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     IonCard,
     IonCardHeader,
     IonCardTitle,

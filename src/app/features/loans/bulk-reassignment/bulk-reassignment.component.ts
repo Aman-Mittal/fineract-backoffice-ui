@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { BulkLoansService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -73,7 +73,7 @@ interface ReassignmentTemplate {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonItem,

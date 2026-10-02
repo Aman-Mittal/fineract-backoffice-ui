@@ -27,7 +27,7 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -70,7 +70,7 @@ const CARD_VIEWPORT_MARGIN_PX = 24;
   selector: 'app-guidance-tour',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     IonCard,
     IonCardHeader,
     IonCardTitle,

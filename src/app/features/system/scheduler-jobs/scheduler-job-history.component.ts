@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CellTemplateDirective, ColumnDef } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { SCHEDULERJOBService, JobDetailHistoryDataSwagger } from '../../../api';
@@ -33,7 +33,7 @@ import { DateTimePipe } from '../../../shared/pipes/date-time.pipe';
   selector: 'app-scheduler-job-history',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     ButtonComponent,
     CellTemplateDirective,

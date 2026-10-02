@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonCard,
   IonCardHeader,
@@ -45,7 +45,7 @@ import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonCard,
     IonCardHeader,
     IonCardTitle,

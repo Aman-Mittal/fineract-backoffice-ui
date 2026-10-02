@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   LoanInterestPauseService,
   InterestPauseRequestDto,
@@ -70,7 +70,7 @@ function toRouteId(value: string | null): number | null {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonCardContent,

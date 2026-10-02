@@ -21,7 +21,7 @@ import { Component, OnInit, afterNextRender, computed, inject, signal } from '@a
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { HelpIconComponent, StepperComponent } from '../../shared';
 import { TranslatePipe } from '../../core/adapters';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
@@ -65,7 +65,7 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    NgxTranslatePipe,
     TranslatePipe,
     HelpIconComponent,
     StepperComponent,

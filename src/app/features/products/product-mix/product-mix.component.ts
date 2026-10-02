@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonCard,
   IonCardHeader,
@@ -48,7 +48,7 @@ import { DialogService } from '../../../core/services/dialog.service';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonCard,
     IonCardHeader,
     IonCardTitle,

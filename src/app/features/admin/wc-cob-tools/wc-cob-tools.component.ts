@@ -17,7 +17,7 @@
  * under the License.
  */
 import { Component, inject } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { WorkingCapitalLoanInternalCOBApiService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -31,7 +31,7 @@ import {
 @Component({
   selector: 'app-wc-cob-tools',
   standalone: true,
-  imports: [TranslateModule, IonButton, IonCardContent, IonCardHeader, IonCardTitle, IonCard],
+  imports: [TranslatePipe, IonButton, IonCardContent, IonCardHeader, IonCardTitle, IonCard],
   template: `
     <ion-card>
       <ion-card-header>

@@ -19,7 +19,7 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import {
   LoanTransactionsService,
@@ -57,7 +57,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     DecimalPipe,
     IonIcon,
     IonButton,

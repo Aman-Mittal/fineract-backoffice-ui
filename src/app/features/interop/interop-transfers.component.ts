@@ -19,7 +19,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -67,7 +67,7 @@ export type InteropTab = (typeof INTEROP_TAB)[keyof typeof INTEROP_TAB];
   imports: [
     FormsModule,
     JsonPipe,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonInput,
     IonTextarea,

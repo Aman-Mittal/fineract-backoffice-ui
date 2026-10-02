@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import { formatDateToFineract, toIsoDate } from '../../../core/utils/date-formatter';
@@ -48,7 +48,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   imports: [
     FormsModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonInput,
     IonTextarea,

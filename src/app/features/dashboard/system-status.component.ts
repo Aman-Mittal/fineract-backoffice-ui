@@ -18,7 +18,7 @@
  */
 
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonCard,
   IonCardHeader,
@@ -53,7 +53,7 @@ import {
   selector: 'app-system-status',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     IonCard,
     IonCardHeader,
     IonCardTitle,

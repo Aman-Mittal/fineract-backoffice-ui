@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   DataTableComponent,
   ColumnDef,
@@ -34,7 +34,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   selector: 'app-staff-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,

@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { toIsoDate } from '../../../core/utils/date-formatter';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
@@ -57,7 +57,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonCard,
     IonCardHeader,
     IonCardTitle,

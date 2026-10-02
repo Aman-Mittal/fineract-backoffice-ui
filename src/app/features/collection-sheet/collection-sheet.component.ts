@@ -20,7 +20,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   CollectionSheetService,
   OfficesService,
@@ -57,7 +57,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
   imports: [
     FormsModule,
     JsonPipe,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonInput,

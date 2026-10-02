@@ -23,7 +23,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
 import { BrandingService } from '../../core/services/branding.service';
@@ -42,7 +42,7 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, HelpIconComponent, TwoFactorStepComponent],
+  imports: [ReactiveFormsModule, TranslatePipe, HelpIconComponent, TwoFactorStepComponent],
   template: `
     <div class="login-page">
       <div class="login-card" role="main">

@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective, LoadErrorComponent } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { FineractEntityService } from '../../../api';
@@ -68,7 +68,7 @@ export function readMappings(body: unknown): EntityToEntityMapping[] {
   selector: 'app-entity-mapping-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     ButtonComponent,

@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   DataTableComponent,
   ColumnDef,
@@ -40,7 +40,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
   selector: 'app-reschedule-requests-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,

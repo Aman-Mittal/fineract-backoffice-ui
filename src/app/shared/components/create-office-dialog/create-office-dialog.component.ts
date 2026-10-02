@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
   IonDatetime,
@@ -44,7 +44,7 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonItem,
     IonLabel,
     IonInput,

@@ -20,7 +20,7 @@
 import { Component, inject } from '@angular/core';
 
 import { IonButton, ModalController } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * Modal dialog that warns the user about an impending session timeout.
@@ -30,7 +30,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-inactivity-dialog',
   standalone: true,
-  imports: [IonButton, TranslateModule],
+  imports: [IonButton, TranslatePipe],
   template: `
     <div class="dialog">
       <h2 class="dialog-title">{{ 'idle.warning.title' | translate }}</h2>

@@ -20,7 +20,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { SearchAPIService, GetSearchResponse } from '../../api';
 import {
   NavigationConfigService,
@@ -49,7 +49,7 @@ import {
     FormsModule,
     CdkTableModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonInput,

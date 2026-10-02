@@ -31,7 +31,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonItem, IonLabel, IonInput, IonList, IonSpinner } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged, switchMap, startWith } from 'rxjs/operators';
 import { ClientService, GetClientsResponse } from '../../../api';
 
@@ -44,7 +44,7 @@ import { ClientService, GetClientsResponse } from '../../../api';
 @Component({
   selector: 'app-client-search',
   standalone: true,
-  imports: [ReactiveFormsModule, IonItem, IonLabel, IonInput, IonList, IonSpinner, TranslateModule],
+  imports: [ReactiveFormsModule, IonItem, IonLabel, IonInput, IonList, IonSpinner, TranslatePipe],
   template: `
     <div class="client-search-wrapper">
       <ion-item fill="outline">

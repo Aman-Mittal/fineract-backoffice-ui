@@ -19,7 +19,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -71,7 +71,7 @@ export type EmailTab = (typeof EMAIL_TAB)[keyof typeof EMAIL_TAB];
     CommonModule,
     FormsModule,
     CdkTableModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonInput,
     IonTextarea,

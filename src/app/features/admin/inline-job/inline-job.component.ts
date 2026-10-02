@@ -19,7 +19,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { InlineJobService, InlineJobRequest, InlineJobResponse } from '../../../api';
 import {
   IonButton,
@@ -40,7 +40,7 @@ import {
   imports: [
     FormsModule,
     JsonPipe,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonInput,

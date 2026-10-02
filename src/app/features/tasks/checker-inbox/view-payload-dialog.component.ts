@@ -19,7 +19,6 @@
 
 import { computed, input, Component } from '@angular/core';
 
-import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../../ui/button/button.component';
 
 /**
@@ -28,7 +27,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
 @Component({
   selector: 'app-view-payload-dialog',
   standalone: true,
-  imports: [TranslateModule, ButtonComponent],
+  imports: [ButtonComponent],
   template: `
     <h2 class="dialog-title">Command Payload</h2>
     <div class="dialog-content">

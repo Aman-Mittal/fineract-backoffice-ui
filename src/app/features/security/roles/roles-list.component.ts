@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { RolesService, GetRolesResponse } from '../../../api';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -30,7 +30,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
   selector: 'app-roles-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     ButtonComponent,

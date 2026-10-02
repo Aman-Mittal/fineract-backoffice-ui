@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TenantOIDCConfigurationService } from '../../../api';
 import { I18N } from '../../../core/adapters';
@@ -104,7 +104,7 @@ const DEFAULTS: OidcConfig = {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonInput,
     IonItem,

@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -31,7 +31,7 @@ import { SavingsProductService, GetSavingsProductsResponse } from '../../api';
 @Component({
   selector: 'app-savings-products-list',
   standalone: true,
-  imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
+  imports: [TranslatePipe, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
   template: `
     <app-data-table
       [hasError]="hasError()"

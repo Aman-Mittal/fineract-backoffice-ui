@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { EntityDataTableService, GetEntityDatatableChecksResponse } from '../../../api';
@@ -36,7 +36,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
   selector: 'app-entity-data-table-checks-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     ButtonComponent,

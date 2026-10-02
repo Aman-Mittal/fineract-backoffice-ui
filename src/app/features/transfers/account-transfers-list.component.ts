@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/angular/standalone';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import {
   AccountTransfersService,
@@ -39,7 +39,7 @@ import {
     IonCardContent,
     DataTableComponent,
     CellTemplateDirective,
-    TranslateModule,
+    TranslatePipe,
     DecimalPipe,
     DatePipe,
   ],
