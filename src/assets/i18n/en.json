@@ -2037,7 +2037,8 @@
     "GENERATE": "Generate",
     "SAVE": "Save Collection Sheet",
     "BACK": "Back",
-    "RESULTS": "Collection Results"
+    "RESULTS": "Collection Results",
+    "NOTHING_DUE": "Nothing is due for this office on this date."
   },
   "COLLATERAL_MANAGEMENT": {
     "CREATE": "Create Collateral",
