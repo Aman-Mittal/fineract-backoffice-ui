@@ -49,7 +49,7 @@ import { PageEvent } from '../../../shared/models/table.model';
   ],
   template: `
     <app-data-table
-      title="Share Accounts"
+      title="nav.shares"
       helpTextKey="HELP.SHARE_ACCOUNTS_DESC"
       createButtonLabel="SHARE_ACCOUNTS.CREATE"
       createPermission="CREATE_SHAREACCOUNT"

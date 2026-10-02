@@ -46,7 +46,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   ],
   template: `
     <app-data-table
-      title="Fixed Deposit Accounts"
+      title="nav.fixedDeposits"
       helpTextKey="HELP.FIXED_DEPOSITS_DESC"
       createButtonLabel="FIXED_DEPOSITS.CREATE"
       createPermission="CREATE_FIXEDDEPOSITACCOUNT"
