@@ -187,6 +187,35 @@ The handler stays quiet until the current language's catalogue has actually load
 every key misses during startup — and ngx-translate consults the fallback catalogue
 before calling it, so a key present in `en` but missing from `hi` is never reported.
 
+### `check:template-text`
+
+```bash
+npm run check:template-text              # fail if any file exceeds its baseline
+node scripts/check-template-text.mjs --list     # print every occurrence
+node scripts/check-template-text.mjs --update   # record a fix, or re-seed
+```
+
+The one shape none of the four `i18n:check` checks can see, and the runtime handler cannot
+either — English written straight into a template, with no key and no pipe:
+
+```html
+<ion-label position="stacked">Repayments Rescheduling Rule</ion-label>
+```
+
+Nothing is looked up, so nothing misses and no raw key ever appears. It renders correctly in
+English and stays English in Hindi and Korean indefinitely. A review does not catch it because
+it reads exactly like the working line above it, and the screenshots are all in English. [#627]
+was three screens of this found by hand; this check finds the rest.
+
+It reports a text node of **two or more words** starting with a capital, with comments stripped
+first so a JSDoc example is not mistaken for UI. Deliberately conservative — a single word is
+too often a unit or an acronym (`USD`, `ID`, `JSON`) to flag without a false-positive rate that
+would get the check switched off. So it under-reports on purpose.
+
+`scripts/template-text-baseline.json` records the count per file and may only shrink: a new
+occurrence fails the job, and fixing one fails it too until `--update` records the lower number,
+which keeps the fix and the baseline in the same commit. 68 occurrences in 15 files remain.
+
 #### `check:a11y-names`
 
 An `<ion-button>` whose only content is an `<ion-icon>` has no text to compute an

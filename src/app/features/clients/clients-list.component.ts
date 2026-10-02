@@ -92,7 +92,7 @@ import {
         (click)="onCreateClient()"
       >
         <ion-icon name="add-outline"></ion-icon>
-        Create Client
+        {{ 'CLIENTS.CREATE_CLIENT' | appTranslate }}
       </ion-button>
 
       <div filters class="filter-row">
