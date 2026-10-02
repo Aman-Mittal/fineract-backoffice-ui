@@ -1194,7 +1194,6 @@ export class ClientViewComponent implements OnInit {
       if (id) {
         this.clientId.set(+id);
         this.loadClientData();
-        this.loadClientAccounts();
       }
     });
   }
@@ -1203,6 +1202,14 @@ export class ClientViewComponent implements OnInit {
    * `skipErrorToast()` because this screen renders the failure itself — the global toast
    * otherwise prints Fineract's raw `defaultUserMessage`/parameter name (e.g. "[id] Client not
    * found with valuer 99999") over a blank page.
+   *
+   * The accounts are fetched from here rather than beside this call for the same reason. They
+   * are derived from the client, so when the client cannot be read — a different office's
+   * record, or a role without READ_CLIENT — the accounts request is refused identically, and it
+   * does *not* skip the toast. Firing the two in parallel therefore put exactly the toast this
+   * method suppresses back on the screen, beside the page's own "this client doesn't exist, or
+   * you don't have permission to view it". Ordering them removes the duplicate and the
+   * request that could never have succeeded.
    */
   loadClientData() {
     this.clientService
@@ -1213,6 +1220,7 @@ export class ClientViewComponent implements OnInit {
         next: (data) => {
           this.client.set(data);
           this.loadError.set(null);
+          this.loadClientAccounts();
         },
         error: (err: HttpErrorResponse) => {
           this.loadError.set(err.status === 404 || err.status === 403 ? 'not-found' : 'failed');

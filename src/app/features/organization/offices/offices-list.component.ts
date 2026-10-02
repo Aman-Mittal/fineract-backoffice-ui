@@ -27,6 +27,7 @@ import { OFFICE_API, TranslatePipe } from '../../../core/adapters';
 import type { Office } from '../../../core/adapters';
 import { ButtonComponent } from '../../../ui/button/button.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-offices-list',
@@ -38,6 +39,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     ButtonComponent,
     TooltipDirective,
     TranslatePipe,
+    HasPermissionDirective,
   ],
   template: `
     <app-data-table
@@ -64,10 +66,18 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
           [label]="'COMMON.VIEW' | appTranslate"
           (click)="onViewOffice(office)"
         />
+        <!--
+          Gated for the same reason the create button above is: the offices/edit/:id route
+          declares UPDATE_OFFICE, so a reader offered this control is being led to Access
+          Denied. The directive decides what is offered, never what is allowed — Fineract
+          refuses the PUT either way. See DOCS/RBAC.md step 4 and security.md.
+        -->
         <app-button
+          *appHasPermission="'UPDATE_OFFICE'"
           type="button"
           emphasis="quiet"
           intent="primary"
+          data-testid="office-edit"
           icon="create-outline"
           [appTooltip]="'COMMON.EDIT' | translate"
           [label]="'COMMON.EDIT' | translate"
