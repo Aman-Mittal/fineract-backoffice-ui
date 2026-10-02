@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import { formatDateToFineract } from '../../core/utils/date-formatter';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
@@ -92,7 +92,7 @@ function pickerDate(value: unknown): string | null {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ 'HOLIDAYS.CREATE_HOLIDAY' | translate }}
+            {{ 'HOLIDAYS.CREATE_HOLIDAY' | appTranslate }}
           </ion-card-title>
         </ion-card-header>
 
@@ -102,11 +102,11 @@ function pickerDate(value: unknown): string | null {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [appTooltip]="'HELP.HOLIDAY_NAME_DESC' | translate"
+                [appTooltip]="'HELP.HOLIDAY_NAME_DESC' | appTranslate"
               >
-                <ion-label position="stacked">{{ 'HOLIDAYS.NAME' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'HOLIDAYS.NAME' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'HOLIDAYS.NAME' | translate"
+                  [attr.aria-label]="'HOLIDAYS.NAME' | appTranslate"
                   name="name"
                   [(ngModel)]="holiday.name"
                   required
@@ -116,13 +116,13 @@ function pickerDate(value: unknown): string | null {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [appTooltip]="'HELP.APPLICABLE_OFFICES_DESC' | translate"
+                [appTooltip]="'HELP.APPLICABLE_OFFICES_DESC' | appTranslate"
               >
                 <ion-label position="stacked">{{
-                  'HOLIDAYS.APPLICABLE_OFFICES' | translate
+                  'HOLIDAYS.APPLICABLE_OFFICES' | appTranslate
                 }}</ion-label>
                 <ion-select
-                  [attr.aria-label]="'HOLIDAYS.APPLICABLE_OFFICES' | translate"
+                  [attr.aria-label]="'HOLIDAYS.APPLICABLE_OFFICES' | appTranslate"
                   interface="popover"
                   name="offices"
                   [(ngModel)]="selectedOfficeIds"
@@ -138,9 +138,9 @@ function pickerDate(value: unknown): string | null {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [appTooltip]="'HELP.FROM_DATE_DESC' | translate"
+                [appTooltip]="'HELP.FROM_DATE_DESC' | appTranslate"
               >
-                <ion-label position="stacked">{{ 'HOLIDAYS.FROM_DATE' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'HOLIDAYS.FROM_DATE' | appTranslate }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="fromDate-picker"></ion-datetime-button>
                 }
@@ -161,9 +161,9 @@ function pickerDate(value: unknown): string | null {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [appTooltip]="'HELP.TO_DATE_DESC' | translate"
+                [appTooltip]="'HELP.TO_DATE_DESC' | appTranslate"
               >
-                <ion-label position="stacked">{{ 'HOLIDAYS.TO_DATE' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'HOLIDAYS.TO_DATE' | appTranslate }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="toDate-picker"></ion-datetime-button>
                 }
@@ -184,13 +184,13 @@ function pickerDate(value: unknown): string | null {
               <ion-item
                 fill="outline"
                 class="full-width"
-                [appTooltip]="'HELP.RESCHEDULING_TYPE_DESC' | translate"
+                [appTooltip]="'HELP.RESCHEDULING_TYPE_DESC' | appTranslate"
               >
                 <ion-label position="stacked">{{
-                  'HOLIDAYS.RESCHEDULING_TYPE' | translate
+                  'HOLIDAYS.RESCHEDULING_TYPE' | appTranslate
                 }}</ion-label>
                 <ion-select
-                  [attr.aria-label]="'HOLIDAYS.RESCHEDULING_TYPE' | translate"
+                  [attr.aria-label]="'HOLIDAYS.RESCHEDULING_TYPE' | appTranslate"
                   interface="popover"
                   name="reschedulingType"
                   [(ngModel)]="reschedulingType"
@@ -206,10 +206,10 @@ function pickerDate(value: unknown): string | null {
                 <ion-item
                   fill="outline"
                   class="full-width"
-                  [appTooltip]="'HELP.REPAYMENTS_RESCHEDULED_TO_DESC' | translate"
+                  [appTooltip]="'HELP.REPAYMENTS_RESCHEDULED_TO_DESC' | appTranslate"
                 >
                   <ion-label position="stacked">{{
-                    'HOLIDAYS.REPAYMENTS_RESCHEDULED_TO' | translate
+                    'HOLIDAYS.REPAYMENTS_RESCHEDULED_TO' | appTranslate
                   }}</ion-label>
                   @if (pickersReady()) {
                     <ion-datetime-button
@@ -235,11 +235,11 @@ function pickerDate(value: unknown): string | null {
             <ion-item
               fill="outline"
               class="full-width"
-              [appTooltip]="'HELP.HOLIDAY_DESCRIPTION_DESC' | translate"
+              [appTooltip]="'HELP.HOLIDAY_DESCRIPTION_DESC' | appTranslate"
             >
-              <ion-label position="stacked">{{ 'HOLIDAYS.DESCRIPTION' | translate }}</ion-label>
+              <ion-label position="stacked">{{ 'HOLIDAYS.DESCRIPTION' | appTranslate }}</ion-label>
               <ion-textarea
-                [attr.aria-label]="'HOLIDAYS.DESCRIPTION' | translate"
+                [attr.aria-label]="'HOLIDAYS.DESCRIPTION' | appTranslate"
                 name="description"
                 [(ngModel)]="holiday.description"
                 rows="3"
@@ -248,7 +248,7 @@ function pickerDate(value: unknown): string | null {
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button
                 color="primary"
@@ -257,9 +257,9 @@ function pickerDate(value: unknown): string | null {
               >
                 @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
-                  {{ 'COMMON.SAVING' | translate }}
+                  {{ 'COMMON.SAVING' | appTranslate }}
                 } @else {
-                  {{ 'COMMON.SAVE' | translate }}
+                  {{ 'COMMON.SAVE' | appTranslate }}
                 }
               </ion-button>
             </div>

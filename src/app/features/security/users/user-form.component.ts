@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -71,7 +71,11 @@ import {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
-            {{ isEditMode() ? ('USERS.EDIT_USER' | translate) : ('USERS.CREATE_USER' | translate) }}
+            {{
+              isEditMode()
+                ? ('USERS.EDIT_USER' | appTranslate)
+                : ('USERS.CREATE_USER' | appTranslate)
+            }}
           </ion-card-title>
         </ion-card-header>
 
@@ -79,9 +83,9 @@ import {
           <form #userForm="ngForm" (ngSubmit)="onSubmit()" class="user-form">
             <div class="form-grid">
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'USERS.USERNAME' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'USERS.USERNAME' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'USERS.USERNAME' | translate"
+                  [attr.aria-label]="'USERS.USERNAME' | appTranslate"
                   name="username"
                   [(ngModel)]="user().username"
                   required
@@ -90,9 +94,9 @@ import {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'CLIENTS.FIRST_NAME' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'CLIENTS.FIRST_NAME' | translate"
+                  [attr.aria-label]="'CLIENTS.FIRST_NAME' | appTranslate"
                   name="firstname"
                   [(ngModel)]="user().firstname"
                   required
@@ -100,9 +104,9 @@ import {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'CLIENTS.LAST_NAME' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'CLIENTS.LAST_NAME' | translate"
+                  [attr.aria-label]="'CLIENTS.LAST_NAME' | appTranslate"
                   name="lastname"
                   [(ngModel)]="user().lastname"
                   required
@@ -110,9 +114,9 @@ import {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'COMMON.EMAIL' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'COMMON.EMAIL' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'COMMON.EMAIL' | translate"
+                  [attr.aria-label]="'COMMON.EMAIL' | appTranslate"
                   type="email"
                   name="email"
                   [(ngModel)]="user().email"
@@ -121,9 +125,9 @@ import {
               </ion-item>
 
               <ion-item fill="outline">
-                <ion-label position="stacked">{{ 'COMMON.OFFICE' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'COMMON.OFFICE' | appTranslate }}</ion-label>
                 <ion-select
-                  [attr.aria-label]="'COMMON.OFFICE' | translate"
+                  [attr.aria-label]="'COMMON.OFFICE' | appTranslate"
                   interface="popover"
                   name="officeId"
                   [(ngModel)]="user().officeId"
@@ -139,9 +143,9 @@ import {
 
               @if (!isEditMode()) {
                 <ion-item fill="outline">
-                  <ion-label position="stacked">{{ 'USERS.PASSWORD' | translate }}</ion-label>
+                  <ion-label position="stacked">{{ 'USERS.PASSWORD' | appTranslate }}</ion-label>
                   <ion-input
-                    [attr.aria-label]="'USERS.PASSWORD' | translate"
+                    [attr.aria-label]="'USERS.PASSWORD' | appTranslate"
                     type="password"
                     name="password"
                     [(ngModel)]="user().password"
@@ -151,10 +155,10 @@ import {
 
                 <ion-item fill="outline">
                   <ion-label position="stacked">{{
-                    'USERS.REPEAT_PASSWORD' | translate
+                    'USERS.REPEAT_PASSWORD' | appTranslate
                   }}</ion-label>
                   <ion-input
-                    [attr.aria-label]="'USERS.REPEAT_PASSWORD' | translate"
+                    [attr.aria-label]="'USERS.REPEAT_PASSWORD' | appTranslate"
                     type="password"
                     name="repeatPassword"
                     [(ngModel)]="user().repeatPassword"
@@ -164,9 +168,9 @@ import {
               }
 
               <ion-item fill="outline" class="full-width">
-                <ion-label position="stacked">{{ 'USERS.ROLES' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'USERS.ROLES' | appTranslate }}</ion-label>
                 <ion-select
-                  [attr.aria-label]="'USERS.ROLES' | translate"
+                  [attr.aria-label]="'USERS.ROLES' | appTranslate"
                   interface="popover"
                   name="roles"
                   [(ngModel)]="user().roles"
@@ -182,24 +186,24 @@ import {
 
             <div class="checkbox-container" style="display: flex; gap: 16px; flex-wrap: wrap;">
               <ion-checkbox name="passwordNeverExpires" [(ngModel)]="user().passwordNeverExpires">
-                {{ 'USERS.PASSWORD_NEVER_EXPIRES' | translate }}
+                {{ 'USERS.PASSWORD_NEVER_EXPIRES' | appTranslate }}
               </ion-checkbox>
 
               <ion-checkbox name="sendPasswordToEmail" [(ngModel)]="user().sendPasswordToEmail">
-                {{ 'USERS.SEND_PASSWORD_TO_EMAIL' | translate }}
+                {{ 'USERS.SEND_PASSWORD_TO_EMAIL' | appTranslate }}
               </ion-checkbox>
             </div>
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button color="primary" type="submit" [disabled]="userForm.invalid || isSaving()">
                 @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
-                  {{ 'COMMON.SAVING' | translate }}
+                  {{ 'COMMON.SAVING' | appTranslate }}
                 } @else {
-                  {{ 'COMMON.SAVE' | translate }}
+                  {{ 'COMMON.SAVE' | appTranslate }}
                 }
               </ion-button>
             </div>

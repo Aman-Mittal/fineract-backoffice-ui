@@ -68,9 +68,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/accounting/charges/charges-list.component.test.ts": {
@@ -123,9 +120,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/accounting/journal-entries-list.component.test.ts": {
@@ -151,9 +145,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -194,9 +185,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/accounting/provisioning-categories/provisioning-categories-list.component.test.ts": {
@@ -222,9 +210,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -252,9 +237,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/accounting/provisioning-entries/provisioning-entries-list.component.test.ts": {
@@ -277,9 +259,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -395,9 +374,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/campaigns/email-campaigns/email-campaigns-list.component.ts": {
@@ -416,9 +392,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -929,9 +902,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/interop/interop-health.component.test.ts": {
@@ -945,9 +915,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/interop/interop-party-lookup.component.ts": {
@@ -955,9 +922,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -967,9 +931,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/interop/interop-transfers.component.ts": {
@@ -977,9 +938,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1412,9 +1370,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/organization/account-number-formats/account-number-formats-list.component.test.ts": {
@@ -1454,9 +1409,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/organization/funds/funds-list.component.test.ts": {
@@ -1466,9 +1418,6 @@
   },
   "src/app/features/organization/funds/funds-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1501,9 +1450,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/organization/office-transactions/office-transactions-list.component.ts": {
@@ -1511,9 +1457,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1527,9 +1470,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1557,9 +1497,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/organization/payment-types/payment-types-list.component.test.ts": {
@@ -1586,9 +1523,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/organization/staff/staff-list.component.test.ts": {
@@ -1598,9 +1532,6 @@
   },
   "src/app/features/organization/staff/staff-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2402,9 +2333,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/security/roles/roles-list.component.test.ts": {
@@ -2415,9 +2343,6 @@
   "src/app/features/security/roles/roles-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/security/users/user-form.component.ts": {
@@ -2426,16 +2351,10 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/security/users/users-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2447,7 +2366,7 @@
       "count": 1
     },
     "no-restricted-imports": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/features/settings/global-configurations.component.ts": {
@@ -2455,9 +2374,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2471,9 +2387,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2490,7 +2403,7 @@
       "count": 1
     },
     "no-restricted-imports": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/features/settings/two-factor-config.component.ts": {
@@ -2531,9 +2444,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/spm/poverty-line/poverty-line.component.test.ts": {
@@ -2546,9 +2456,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2568,9 +2475,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/spm/surveys/spm-surveys-form.component.test.ts": {
@@ -2584,9 +2488,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/spm/surveys/spm-surveys-list.component.test.ts": {
@@ -2596,9 +2497,6 @@
   },
   "src/app/features/spm/surveys/spm-surveys-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -3197,9 +3095,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/tellers/cashiers/cashier-transaction-form.component.test.ts": {
@@ -3234,9 +3129,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/tellers/teller-form.component.test.ts": {
@@ -3250,9 +3142,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/tellers/tellers-list.component.ts": {
@@ -3260,9 +3149,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -3277,9 +3163,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/transfers/account-transfers-list.component.ts": {
@@ -3287,9 +3170,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -3304,9 +3184,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/transfers/standing-instruction-history.component.ts": {
@@ -3319,9 +3196,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },

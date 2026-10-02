@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { RolesService, GetRolesResponse } from '../../../api';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -54,9 +54,9 @@ import { ButtonComponent } from '../../../ui/button/button.component';
           type="button"
           intent="primary"
           emphasis="quiet"
-          [label]="'COMMON.EDIT' | translate"
+          [label]="'COMMON.EDIT' | appTranslate"
           icon="create-outline"
-          [appTooltip]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | appTranslate"
           (click)="onEditRole(role)"
         />
       </ng-template>

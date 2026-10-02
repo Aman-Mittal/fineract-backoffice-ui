@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { toIsoDate } from '../../core/utils/date-formatter';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -95,8 +95,8 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
           <ion-card-title>
             {{
               isEditMode()
-                ? ('TELLERS.EDIT_TELLER' | translate)
-                : ('TELLERS.CREATE_TELLER' | translate)
+                ? ('TELLERS.EDIT_TELLER' | appTranslate)
+                : ('TELLERS.CREATE_TELLER' | appTranslate)
             }}
           </ion-card-title>
         </ion-card-header>
@@ -107,10 +107,10 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
               <ion-row>
                 <!-- Name -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_NAME_DESC' | translate">
-                    <ion-label position="stacked">{{ 'TELLERS.NAME' | translate }}</ion-label>
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_NAME_DESC' | appTranslate">
+                    <ion-label position="stacked">{{ 'TELLERS.NAME' | appTranslate }}</ion-label>
                     <ion-input
-                      [attr.aria-label]="'TELLERS.NAME' | translate"
+                      [attr.aria-label]="'TELLERS.NAME' | appTranslate"
                       type="text"
                       name="name"
                       [(ngModel)]="teller().name"
@@ -123,10 +123,10 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
                 <!-- Office -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_OFFICE_DESC' | translate">
-                    <ion-label position="stacked">{{ 'TELLERS.OFFICE' | translate }}</ion-label>
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_OFFICE_DESC' | appTranslate">
+                    <ion-label position="stacked">{{ 'TELLERS.OFFICE' | appTranslate }}</ion-label>
                     <ion-select
-                      [attr.aria-label]="'TELLERS.OFFICE' | translate"
+                      [attr.aria-label]="'TELLERS.OFFICE' | appTranslate"
                       interface="popover"
                       name="officeId"
                       [(ngModel)]="teller().officeId"
@@ -146,14 +146,14 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                 <ion-col size="12">
                   <ion-item
                     fill="outline"
-                    [appTooltip]="'HELP.TELLER_DESCRIPTION_DESC' | translate"
+                    [appTooltip]="'HELP.TELLER_DESCRIPTION_DESC' | appTranslate"
                     class="full-width"
                   >
                     <ion-label position="stacked">{{
-                      'TELLERS.DESCRIPTION' | translate
+                      'TELLERS.DESCRIPTION' | appTranslate
                     }}</ion-label>
                     <ion-textarea
-                      [attr.aria-label]="'TELLERS.DESCRIPTION' | translate"
+                      [attr.aria-label]="'TELLERS.DESCRIPTION' | appTranslate"
                       name="description"
                       [(ngModel)]="teller().description"
                       rows="3"
@@ -165,8 +165,13 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
                 <!-- Start Date -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_START_DATE_DESC' | translate">
-                    <ion-label position="stacked">{{ 'TELLERS.START_DATE' | translate }}</ion-label>
+                  <ion-item
+                    fill="outline"
+                    [appTooltip]="'HELP.TELLER_START_DATE_DESC' | appTranslate"
+                  >
+                    <ion-label position="stacked">{{
+                      'TELLERS.START_DATE' | appTranslate
+                    }}</ion-label>
                     @if (pickersReady()) {
                       <ion-datetime-button
                         datetime="teller-start-date-picker"
@@ -187,10 +192,10 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
                 <!-- Status -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_STATUS_DESC' | translate">
-                    <ion-label position="stacked">{{ 'TELLERS.STATUS' | translate }}</ion-label>
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_STATUS_DESC' | appTranslate">
+                    <ion-label position="stacked">{{ 'TELLERS.STATUS' | appTranslate }}</ion-label>
                     <ion-select
-                      [attr.aria-label]="'TELLERS.STATUS' | translate"
+                      [attr.aria-label]="'TELLERS.STATUS' | appTranslate"
                       interface="popover"
                       name="status"
                       [(ngModel)]="teller().status"
@@ -199,10 +204,10 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                       data-testid="teller-status-select"
                     >
                       <ion-select-option value="ACTIVE">{{
-                        'COMMON.ACTIVE' | translate
+                        'COMMON.ACTIVE' | appTranslate
                       }}</ion-select-option>
                       <ion-select-option value="INACTIVE">{{
-                        'COMMON.INACTIVE' | translate
+                        'COMMON.INACTIVE' | appTranslate
                       }}</ion-select-option>
                     </ion-select>
                   </ion-item>
@@ -210,10 +215,10 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
                 <!-- Usage -->
                 <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_USAGE_DESC' | translate">
-                    <ion-label position="stacked">{{ 'TELLERS.USAGE' | translate }}</ion-label>
+                  <ion-item fill="outline" [appTooltip]="'HELP.TELLER_USAGE_DESC' | appTranslate">
+                    <ion-label position="stacked">{{ 'TELLERS.USAGE' | appTranslate }}</ion-label>
                     <ion-select
-                      [attr.aria-label]="'TELLERS.USAGE' | translate"
+                      [attr.aria-label]="'TELLERS.USAGE' | appTranslate"
                       interface="popover"
                       name="usage"
                       [(ngModel)]="usage"
@@ -238,7 +243,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                 id="teller-cancel-btn"
                 data-testid="teller-cancel-btn"
               >
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button
                 color="primary"
@@ -249,9 +254,9 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
               >
                 @if (isSaving()) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
-                  {{ 'COMMON.SAVING' | translate }}
+                  {{ 'COMMON.SAVING' | appTranslate }}
                 } @else {
-                  {{ 'COMMON.SAVE' | translate }}
+                  {{ 'COMMON.SAVE' | appTranslate }}
                 }
               </ion-button>
             </div>

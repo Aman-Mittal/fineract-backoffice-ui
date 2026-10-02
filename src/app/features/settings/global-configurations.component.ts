@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../core/adapters';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
 import {
   GlobalConfigurationService,
@@ -70,8 +70,8 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
         <ion-button
           fill="clear"
           color="primary"
-          [attr.aria-label]="'COMMON.EDIT' | translate"
-          [appTooltip]="'COMMON.EDIT' | translate"
+          [attr.aria-label]="'COMMON.EDIT' | appTranslate"
+          [appTooltip]="'COMMON.EDIT' | appTranslate"
           (click)="onEditConfig(config)"
         >
           <ion-icon name="create-outline"></ion-icon>

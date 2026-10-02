@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { UsersService, GetUsersResponse } from '../../../api';
 import { ButtonComponent } from '../../../ui/button/button.component';
@@ -51,7 +51,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
           emphasis="quiet"
           intent="primary"
           icon="create-outline"
-          [label]="'COMMON.EDIT' | translate"
+          [label]="'COMMON.EDIT' | appTranslate"
           (click)="onEditUser(user)"
         />
       </ng-template>

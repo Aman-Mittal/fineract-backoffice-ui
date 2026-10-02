@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -77,8 +77,8 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
           <ion-card-title>
             {{
               isEditMode()
-                ? ('OFFICES.EDIT_OFFICE' | translate)
-                : ('OFFICES.CREATE_OFFICE' | translate)
+                ? ('OFFICES.EDIT_OFFICE' | appTranslate)
+                : ('OFFICES.CREATE_OFFICE' | appTranslate)
             }}
           </ion-card-title>
         </ion-card-header>
@@ -86,20 +86,20 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
         <ion-card-content>
           <form #officeForm="ngForm" (ngSubmit)="onSubmit()" class="office-form">
             <div class="form-grid">
-              <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_NAME_DESC' | translate">
-                <ion-label position="stacked">{{ 'OFFICES.NAME' | translate }}</ion-label>
+              <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_NAME_DESC' | appTranslate">
+                <ion-label position="stacked">{{ 'OFFICES.NAME' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'OFFICES.NAME' | translate"
+                  [attr.aria-label]="'OFFICES.NAME' | appTranslate"
                   name="name"
                   [(ngModel)]="office().name"
                   required
                 ></ion-input>
               </ion-item>
 
-              <ion-item fill="outline" [appTooltip]="'HELP.PARENT_OFFICE_DESC' | translate">
-                <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
+              <ion-item fill="outline" [appTooltip]="'HELP.PARENT_OFFICE_DESC' | appTranslate">
+                <ion-label position="stacked">{{ 'OFFICES.PARENT' | appTranslate }}</ion-label>
                 <ion-select
-                  [attr.aria-label]="'OFFICES.PARENT' | translate"
+                  [attr.aria-label]="'OFFICES.PARENT' | appTranslate"
                   interface="popover"
                   name="parentId"
                   [(ngModel)]="office().parentId"
@@ -112,17 +112,19 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 </ion-select>
               </ion-item>
 
-              <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | translate">
-                <ion-label position="stacked">{{ 'OFFICES.EXTERNAL_ID' | translate }}</ion-label>
+              <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | appTranslate">
+                <ion-label position="stacked">{{ 'OFFICES.EXTERNAL_ID' | appTranslate }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'OFFICES.EXTERNAL_ID' | translate"
+                  [attr.aria-label]="'OFFICES.EXTERNAL_ID' | appTranslate"
                   name="externalId"
                   [(ngModel)]="office().externalId"
                 ></ion-input>
               </ion-item>
 
-              <ion-item fill="outline" [appTooltip]="'HELP.OPENING_DATE_DESC' | translate">
-                <ion-label position="stacked">{{ 'OFFICES.OPENING_DATE' | translate }}</ion-label>
+              <ion-item fill="outline" [appTooltip]="'HELP.OPENING_DATE_DESC' | appTranslate">
+                <ion-label position="stacked">{{
+                  'OFFICES.OPENING_DATE' | appTranslate
+                }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="openingDate-picker"></ion-datetime-button>
                 }
@@ -144,7 +146,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button
                 color="primary"
@@ -153,9 +155,9 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
               >
                 @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
-                  {{ 'COMMON.SAVING' | translate }}
+                  {{ 'COMMON.SAVING' | appTranslate }}
                 } @else {
-                  {{ 'COMMON.SAVE' | translate }}
+                  {{ 'COMMON.SAVE' | appTranslate }}
                 }
               </ion-button>
             </div>
