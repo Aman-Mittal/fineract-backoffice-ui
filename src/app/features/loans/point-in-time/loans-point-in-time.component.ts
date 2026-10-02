@@ -122,12 +122,14 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
         @if (!isLoading() && results().length > 0) {
           <table cdk-table [dataSource]="results()" class="results-table">
             <ng-container cdkColumnDef="id">
-              <th cdk-header-cell *cdkHeaderCellDef>Loan ID</th>
+              <th cdk-header-cell *cdkHeaderCellDef>
+                {{ 'LOANS_POINT_IN_TIME.LOAN_ID' | translate }}
+              </th>
               <td cdk-cell *cdkCellDef="let row">{{ row.id }}</td>
             </ng-container>
 
             <ng-container cdkColumnDef="accountNo">
-              <th cdk-header-cell *cdkHeaderCellDef>Account No</th>
+              <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACCOUNT_NO' | translate }}</th>
               <td cdk-cell *cdkCellDef="let row">{{ row.accountNo }}</td>
             </ng-container>
 
@@ -137,21 +139,27 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
             </ng-container>
 
             <ng-container cdkColumnDef="principalDisbursed">
-              <th cdk-header-cell *cdkHeaderCellDef>Principal Disbursed</th>
+              <th cdk-header-cell *cdkHeaderCellDef>
+                {{ 'LOANS_POINT_IN_TIME.PRINCIPAL_DISBURSED' | translate }}
+              </th>
               <td cdk-cell *cdkCellDef="let row">
                 {{ row.principal?.principalDisbursed | number: '1.2-2' }}
               </td>
             </ng-container>
 
             <ng-container cdkColumnDef="principalOutstanding">
-              <th cdk-header-cell *cdkHeaderCellDef>Principal Outstanding</th>
+              <th cdk-header-cell *cdkHeaderCellDef>
+                {{ 'LOANS_POINT_IN_TIME.PRINCIPAL_OUTSTANDING' | translate }}
+              </th>
               <td cdk-cell *cdkCellDef="let row">
                 {{ row.principal?.principalOutstanding | number: '1.2-2' }}
               </td>
             </ng-container>
 
             <ng-container cdkColumnDef="totalOutstanding">
-              <th cdk-header-cell *cdkHeaderCellDef>Total Outstanding</th>
+              <th cdk-header-cell *cdkHeaderCellDef>
+                {{ 'LOANS_POINT_IN_TIME.TOTAL_OUTSTANDING' | translate }}
+              </th>
               <td cdk-cell *cdkCellDef="let row">
                 {{ row.total?.totalOutstanding | number: '1.2-2' }}
               </td>

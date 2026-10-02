@@ -84,7 +84,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
     <div class="form-container">
       <ion-card>
         <ion-card-header>
-          <ion-card-title>Request Loan Reschedule</ion-card-title>
+          <ion-card-title>{{ 'LOANS.RESCHEDULE_FORM.TITLE' | translate }}</ion-card-title>
         </ion-card-header>
 
         <ion-card-content>
@@ -92,9 +92,11 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
             <div class="form-grid">
               <!-- Reschedule From Date (Select Unpaid Installment) -->
               <ion-item fill="outline" [appTooltip]="'HELP.RESCHEDULE_FROM_DESC' | translate">
-                <ion-label position="stacked">Reschedule From Date</ion-label>
+                <ion-label position="stacked">{{
+                  'LOANS.RESCHEDULE_FORM.FROM_DATE' | translate
+                }}</ion-label>
                 <ion-select
-                  aria-label="Reschedule From Date"
+                  [attr.aria-label]="'LOANS.RESCHEDULE_FORM.FROM_DATE' | translate"
                   interface="popover"
                   name="rescheduleFromDate"
                   [(ngModel)]="rescheduleFromDateString"
@@ -108,16 +110,18 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                     </ion-select-option>
                   }
                 </ion-select>
-                <ion-note>Must be an existing installment date</ion-note>
+                <ion-note>{{ 'LOANS.RESCHEDULE_FORM.FROM_DATE_HINT' | translate }}</ion-note>
               </ion-item>
 
               <!-- Reason Container (Dropdown or Custom entry) -->
               <div class="reason-container">
                 @if (isAddingCustomReason()) {
                   <ion-item fill="outline">
-                    <ion-label position="stacked">Reason Name (Manual)</ion-label>
+                    <ion-label position="stacked">{{
+                      'LOANS.RESCHEDULE_FORM.REASON_NAME_MANUAL' | translate
+                    }}</ion-label>
                     <ion-input
-                      aria-label="Reason Name (Manual)"
+                      [attr.aria-label]="'LOANS.RESCHEDULE_FORM.REASON_NAME_MANUAL' | translate"
                       name="customReasonName"
                       [(ngModel)]="customReasonName"
                       required
@@ -158,7 +162,9 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
               <!-- Submitted On Date -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Submitted On Date</ion-label>
+                <ion-label position="stacked">{{
+                  'COMMON.SUBMITTED_ON_DATE' | translate
+                }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="submittedOnDate-picker"></ion-datetime-button>
                 }
@@ -178,7 +184,9 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
               <!-- Adjusted Due Date (Optional) -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Adjusted Due Date (Optional)</ion-label>
+                <ion-label position="stacked">{{
+                  'LOANS.RESCHEDULE_FORM.ADJUSTED_DUE_DATE' | translate
+                }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="adjustedDueDate-picker"></ion-datetime-button>
                 }
@@ -208,9 +216,11 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
               <!-- Grace on Principal -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Grace on Principal</ion-label>
+                <ion-label position="stacked">{{
+                  'LOANS.RESCHEDULE_FORM.GRACE_ON_PRINCIPAL' | translate
+                }}</ion-label>
                 <ion-input
-                  aria-label="Grace on Principal"
+                  [attr.aria-label]="'LOANS.RESCHEDULE_FORM.GRACE_ON_PRINCIPAL' | translate"
                   type="number"
                   name="graceOnPrincipal"
                   [(ngModel)]="request.graceOnPrincipal"
@@ -219,9 +229,11 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
               <!-- Grace on Interest -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Grace on Interest</ion-label>
+                <ion-label position="stacked">{{
+                  'LOANS.RESCHEDULE_FORM.GRACE_ON_INTEREST' | translate
+                }}</ion-label>
                 <ion-input
-                  aria-label="Grace on Interest"
+                  [attr.aria-label]="'LOANS.RESCHEDULE_FORM.GRACE_ON_INTEREST' | translate"
                   type="number"
                   name="graceOnInterest"
                   [(ngModel)]="request.graceOnInterest"
@@ -230,9 +242,11 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
               <!-- Extra Terms -->
               <ion-item fill="outline">
-                <ion-label position="stacked">Extra Terms</ion-label>
+                <ion-label position="stacked">{{
+                  'LOANS.RESCHEDULE_FORM.EXTRA_TERMS' | translate
+                }}</ion-label>
                 <ion-input
-                  aria-label="Extra Terms"
+                  [attr.aria-label]="'LOANS.RESCHEDULE_FORM.EXTRA_TERMS' | translate"
                   type="number"
                   name="extraTerms"
                   [(ngModel)]="request.extraTerms"
@@ -241,9 +255,11 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
               <!-- New Interest Rate -->
               <ion-item fill="outline">
-                <ion-label position="stacked">New Interest Rate</ion-label>
+                <ion-label position="stacked">{{
+                  'LOANS.RESCHEDULE_FORM.NEW_INTEREST_RATE' | translate
+                }}</ion-label>
                 <ion-input
-                  aria-label="New Interest Rate"
+                  [attr.aria-label]="'LOANS.RESCHEDULE_FORM.NEW_INTEREST_RATE' | translate"
                   type="number"
                   name="newInterestRate"
                   [(ngModel)]="request.newInterestRate"
