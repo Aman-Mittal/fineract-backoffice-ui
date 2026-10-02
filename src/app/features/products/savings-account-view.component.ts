@@ -220,25 +220,34 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   {{ 'SAVINGS.CLOSE' | appTranslate }}
                 </ion-button>
               }
-              <ion-button
-                color="primary"
-                appRequiresPermission="DEPOSIT_SAVINGSACCOUNT"
-                (click)="onTransaction('deposit')"
-                [appTooltip]="'SAVINGS.DEPOSIT_CASH' | appTranslate"
-              >
-                <ion-icon name="add-circle-outline"></ion-icon>
-                {{ 'SAVINGS.DEPOSIT' | appTranslate }}
-              </ion-button>
-              <ion-button
-                color="danger"
-                appRequiresPermission="WITHDRAW_SAVINGSACCOUNT"
-                (click)="onTransaction('withdrawal')"
-                [appTooltip]="'SAVINGS.WITHDRAW_CASH' | appTranslate"
-              >
-                <ion-icon name="remove-circle-outline"></ion-icon>
-                {{ 'SAVINGS.WITHDRAW' | appTranslate }}
-              </ion-button>
+              <!--
+                Behind the same status check as Close and the Actions menu below. The platform
+                refuses a deposit or a withdrawal on anything but an active account
+                (error.msg.savingsaccount.transaction.account.is.not.active), so on an account
+                still awaiting approval these two offered a transaction form that could only end
+                in a rejection.
+              -->
               @if (isActive()) {
+                <ion-button
+                  color="primary"
+                  data-testid="savings-deposit-action"
+                  appRequiresPermission="DEPOSIT_SAVINGSACCOUNT"
+                  (click)="onTransaction('deposit')"
+                  [appTooltip]="'SAVINGS.DEPOSIT_CASH' | appTranslate"
+                >
+                  <ion-icon name="add-circle-outline"></ion-icon>
+                  {{ 'SAVINGS.DEPOSIT' | appTranslate }}
+                </ion-button>
+                <ion-button
+                  color="danger"
+                  data-testid="savings-withdraw-action"
+                  appRequiresPermission="WITHDRAW_SAVINGSACCOUNT"
+                  (click)="onTransaction('withdrawal')"
+                  [appTooltip]="'SAVINGS.WITHDRAW_CASH' | appTranslate"
+                >
+                  <ion-icon name="remove-circle-outline"></ion-icon>
+                  {{ 'SAVINGS.WITHDRAW' | appTranslate }}
+                </ion-button>
                 <ion-button color="primary" id="savingsMenu-trigger" data-testid="savings-actions">
                   <ion-icon name="caret-down-outline"></ion-icon>
                   {{ 'COMMON.ACTIONS' | appTranslate }}
