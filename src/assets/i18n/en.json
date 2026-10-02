@@ -662,6 +662,8 @@
     "BUY_DOWN_FEE_AMOUNT": "Buy Down Fee Amount",
     "NOT_YET_AMORTIZED_AMOUNT": "Not Yet Amortized Amount",
     "UNRECOGNIZED_AMOUNT": "Unrecognized Amount",
+    "AMOUNT_ADJUSTMENT": "Amount Adjustment",
+    "CHARGED_OFF_AMOUNT": "Charged Off Amount",
     "NOTES": "Notes",
     "ADD_NOTE": "Add a note",
     "DELETE_NOTE": "Delete note",
