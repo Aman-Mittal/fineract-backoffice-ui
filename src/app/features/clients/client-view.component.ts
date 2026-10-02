@@ -33,6 +33,8 @@ import {
 } from '../../api';
 import { StatusBadgeComponent, LoadErrorComponent } from '../../shared';
 import { RequiresPermissionDirective } from '../../shared/directives/requires-permission.directive';
+import { AuthService } from '../../core/services/auth.service';
+import { ConfigService } from '../../core/services/config.service';
 import { skipErrorToast } from '../../core/http/http-context';
 import { resolveAccountActionType } from '../../core/utils/account-type-resolver';
 import { ClientActionDialogComponent } from './client-action-dialog.component';
@@ -584,12 +586,16 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                           {{ 'COMMON.ACCOUNT_NO' | translate }}
                         </th>
                         <td cdk-cell *cdkCellDef="let account">
-                          <a
-                            class="clickable-link"
-                            [routerLink]="['/products/savings-accounts/view', account.id]"
-                          >
+                          @if (canViewSavings()) {
+                            <a
+                              class="clickable-link"
+                              [routerLink]="['/products/savings-accounts/view', account.id]"
+                            >
+                              {{ account.accountNo }}
+                            </a>
+                          } @else {
                             {{ account.accountNo }}
-                          </a>
+                          }
                         </td>
                       </ng-container>
 
@@ -720,9 +726,13 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                           {{ 'COMMON.ACCOUNT_NO' | translate }}
                         </th>
                         <td cdk-cell *cdkCellDef="let account">
-                          <a class="clickable-link" [routerLink]="['/loans/view', account.id]">
+                          @if (canViewLoan()) {
+                            <a class="clickable-link" [routerLink]="['/loans/view', account.id]">
+                              {{ account.accountNo }}
+                            </a>
+                          } @else {
                             {{ account.accountNo }}
-                          </a>
+                          }
                         </td>
                       </ng-container>
 
@@ -878,11 +888,15 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                     @for (account of fixedDepositAccounts(); track account.id) {
                       <tr>
                         <td>
-                          <a
-                            class="clickable-link"
-                            [routerLink]="['/products/fixed-deposits/view', account.id]"
-                            >{{ account.accountNo }}</a
-                          >
+                          @if (canViewFixedDeposit()) {
+                            <a
+                              class="clickable-link"
+                              [routerLink]="['/products/fixed-deposits/view', account.id]"
+                              >{{ account.accountNo }}</a
+                            >
+                          } @else {
+                            {{ account.accountNo }}
+                          }
                         </td>
                         <td>{{ account.productName }}</td>
                         <td>{{ account.status?.value }}</td>
@@ -903,11 +917,15 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                     @for (account of recurringDepositAccounts(); track account.id) {
                       <tr>
                         <td>
-                          <a
-                            class="clickable-link"
-                            [routerLink]="['/products/recurring-deposits/view', account.id]"
-                            >{{ account.accountNo }}</a
-                          >
+                          @if (canViewRecurringDeposit()) {
+                            <a
+                              class="clickable-link"
+                              [routerLink]="['/products/recurring-deposits/view', account.id]"
+                              >{{ account.accountNo }}</a
+                            >
+                          } @else {
+                            {{ account.accountNo }}
+                          }
                         </td>
                         <td>{{ account.productName }}</td>
                         <td>{{ account.status?.value }}</td>
@@ -1121,6 +1139,35 @@ export class ClientViewComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly shareAccountService = inject(ShareAccountService);
   private readonly i18n = inject(I18N);
+  private readonly auth = inject(AuthService);
+  private readonly config = inject(ConfigService);
+
+  /**
+   * Whether the account screens this client's tables link to can actually be opened.
+   *
+   * A client's accounts come back with READ_CLIENT alone, but each account screen is gated on its
+   * own code. Without this, a user holding only READ_CLIENT was shown the account numbers as
+   * links whose single destination was `/forbidden` — confirmed against a real Fineract instance,
+   * where the same click succeeds for a user who also holds READ_LOAN. The number is still
+   * rendered; only the link is withheld, because the account's existence is not the secret.
+   *
+   * Mirrors {@link HasPermissionDirective}, short-circuit included, rather than using it: the
+   * directive has no else-branch, and the plain-text fallback is the point. `currentUser()` is
+   * read so the computed re-evaluates on a session change — `hasPermission` reads it internally,
+   * but not through a signal this would otherwise track.
+   */
+  private canRead(code: string): boolean {
+    if (!this.config.rbacEnabled()) return true;
+    this.auth.currentUser();
+    return this.auth.hasPermission(code);
+  }
+
+  protected readonly canViewLoan = computed(() => this.canRead('READ_LOAN'));
+  protected readonly canViewSavings = computed(() => this.canRead('READ_SAVINGSACCOUNT'));
+  protected readonly canViewFixedDeposit = computed(() => this.canRead('READ_FIXEDDEPOSITACCOUNT'));
+  protected readonly canViewRecurringDeposit = computed(() =>
+    this.canRead('READ_RECURRINGDEPOSITACCOUNT'),
+  );
 
   readonly clientId = signal(0);
   readonly client = signal<GetClientsClientIdResponse | null>(null);
