@@ -715,15 +715,7 @@
       "count": 1
     }
   },
-  "src/app/features/clients/kyc/client-note-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/clients/kyc/client-note-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     },
@@ -771,15 +763,7 @@
       "count": 1
     }
   },
-  "src/app/features/clients/tabs/client-notes-list.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/clients/tabs/client-notes-list.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "no-restricted-imports": {
       "count": 1
     }
@@ -891,9 +875,6 @@
     }
   },
   "src/app/features/groups/group-note-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
@@ -938,11 +919,6 @@
     }
   },
   "src/app/features/groups/tabs/group-accounts-tab.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/groups/tabs/group-notes-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
     }
@@ -3712,9 +3688,6 @@
     }
   },
   "src/app/shared/components/entity-notes/entity-notes.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }

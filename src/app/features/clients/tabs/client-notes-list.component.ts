@@ -27,7 +27,8 @@ import {
   HasPermissionDirective,
   CellTemplateDirective,
 } from '../../../shared';
-import { NotesService, NoteData } from '../../../api';
+import { ENTITY_NOTES_API } from '../../../core/adapters';
+import type { EntityNote } from '../../../core/adapters';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ButtonComponent } from '../../../ui/button/button.component';
 
@@ -109,9 +110,9 @@ import { ButtonComponent } from '../../../ui/button/button.component';
 export class ClientNotesListComponent implements OnInit {
   readonly clientId = input.required<number>();
 
-  private readonly noteService = inject(NotesService);
+  private readonly notesApi = inject(ENTITY_NOTES_API);
 
-  readonly notes = signal<NoteData[]>([]);
+  readonly notes = signal<EntityNote[]>([]);
   readonly isLoading = signal<boolean>(false);
 
   columns: ColumnDef[] = [
@@ -139,8 +140,8 @@ export class ClientNotesListComponent implements OnInit {
 
   loadNotes(): void {
     this.isLoading.set(true);
-    this.noteService.getResourceTypeResourceIdNotes('clients', this.clientId()).subscribe({
-      next: (data: NoteData[]) => {
+    this.notesApi.list('clients', this.clientId()).subscribe({
+      next: (data: EntityNote[]) => {
         this.notes.set(data);
         this.isLoading.set(false);
       },
@@ -153,12 +154,10 @@ export class ClientNotesListComponent implements OnInit {
 
   onDelete(id: number): void {
     if (confirm('Are you sure you want to delete this note?')) {
-      this.noteService
-        .deleteResourceTypeResourceIdNotesNoteId('clients', this.clientId(), id)
-        .subscribe({
-          next: () => this.loadNotes(),
-          error: (err) => console.error('Failed to delete note', err),
-        });
+      this.notesApi.remove('clients', this.clientId(), id).subscribe({
+        next: () => this.loadNotes(),
+        error: (err) => console.error('Failed to delete note', err),
+      });
     }
   }
 }

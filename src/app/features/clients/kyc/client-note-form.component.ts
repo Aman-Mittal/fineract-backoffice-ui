@@ -31,7 +31,7 @@ import {
   IonTextarea,
   IonButton,
 } from '@ionic/angular/standalone';
-import { NotesService, NoteCreateRequest } from '../../../api';
+import { ENTITY_NOTES_API } from '../../../core/adapters';
 
 @Component({
   selector: 'app-client-note-form',
@@ -64,7 +64,8 @@ import { NotesService, NoteCreateRequest } from '../../../api';
               <ion-textarea
                 [attr.aria-label]="'COMMON.NOTE' | translate"
                 name="note"
-                [(ngModel)]="note().note"
+                [ngModel]="note()"
+                (ngModelChange)="note.set($event)"
                 required
                 rows="6"
                 id="client-note-textarea"
@@ -118,7 +119,7 @@ import { NotesService, NoteCreateRequest } from '../../../api';
   ],
 })
 export class ClientNoteFormComponent implements OnInit {
-  private readonly noteService = inject(NotesService);
+  private readonly notesApi = inject(ENTITY_NOTES_API);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -128,9 +129,13 @@ export class ClientNoteFormComponent implements OnInit {
   noteId?: number;
   isEditMode = false;
 
-  readonly note = signal<NoteCreateRequest>({
-    note: '',
-  });
+  /**
+   * The note's text.
+   *
+   * Was the generated request object, which the template wrote into directly. The shape of the
+   * request body is the adapter's business now, so this holds just the text.
+   */
+  readonly note = signal<string>('');
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -143,30 +148,22 @@ export class ClientNoteFormComponent implements OnInit {
   }
 
   loadNoteData(): void {
-    this.noteService
-      .getResourceTypeResourceIdNotesNoteId('clients', this.clientId, this.noteId!)
-      .subscribe((data) => {
-        this.note.set({
-          note: data.note ?? '',
-        });
-      });
+    this.notesApi
+      .get('clients', this.clientId, this.noteId!)
+      .subscribe((data) => this.note.set(data.note));
   }
 
   onSubmit(): void {
     if (this.isEditMode) {
-      this.noteService
-        .putResourceTypeResourceIdNotesNoteId('clients', this.clientId, this.noteId!, this.note())
-        .subscribe({
-          next: () => this.router.navigate([this.clientViewPath, this.clientId]),
-          error: (err) => console.error('Failed to update note', err),
-        });
+      this.notesApi.update('clients', this.clientId, this.noteId!, this.note()).subscribe({
+        next: () => this.router.navigate([this.clientViewPath, this.clientId]),
+        error: (err) => console.error('Failed to update note', err),
+      });
     } else {
-      this.noteService
-        .postResourceTypeResourceIdNotes('clients', this.clientId, this.note())
-        .subscribe({
-          next: () => this.router.navigate([this.clientViewPath, this.clientId]),
-          error: (err) => console.error('Failed to add note', err),
-        });
+      this.notesApi.create('clients', this.clientId, this.note()).subscribe({
+        next: () => this.router.navigate([this.clientViewPath, this.clientId]),
+        error: (err) => console.error('Failed to add note', err),
+      });
     }
   }
 
