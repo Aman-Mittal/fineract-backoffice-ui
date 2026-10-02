@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { CurrencyPipe } from '@angular/common';
 import { of } from 'rxjs';
@@ -31,7 +31,7 @@ import { ProductsService, GetProductsTypeResponse, GetProductsPageItems } from '
   selector: 'app-share-products-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonIcon,
     DataTableComponent,

@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Signal, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, from } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
@@ -157,7 +157,7 @@ export function toEditableDate(value: unknown): string {
   standalone: true,
   imports: [
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     FormsModule,
     StatusBadgeComponent,

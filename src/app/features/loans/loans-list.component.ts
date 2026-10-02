@@ -20,7 +20,7 @@
 import { Component, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
@@ -49,7 +49,7 @@ import {
   imports: [
     RouterModule,
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,

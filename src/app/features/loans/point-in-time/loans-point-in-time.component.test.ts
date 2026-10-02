@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import { createSpyObj } from '../../../testing/mocks';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { LoansPointInTimeService } from '../../../api';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { expectLookedUp } from '../../../testing/translated-text';
 import { LoansPointInTimeComponent } from './loans-point-in-time.component';
@@ -34,10 +34,8 @@ describe('LoansPointInTimeComponent', () => {
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        {
-          provide: LoansPointInTimeService,
-          useValue: createSpyObj<LoansPointInTimeService>(['postLoansAtDateSearch']),
-        },
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 

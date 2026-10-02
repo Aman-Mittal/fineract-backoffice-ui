@@ -19,7 +19,7 @@
 
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { PeriodicAccrualAccountingService, PostRunaccrualsRequest } from '../../../api';
 import {
   IonButton,
@@ -50,7 +50,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonCardContent,

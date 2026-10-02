@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import { createSpyObj } from '../../../testing/mocks';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
-import { DefaultService } from '../../../api';
+import { provideRouter } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
+import { createSpyObj } from '../../../testing/mocks';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { expectLookedUp } from '../../../testing/translated-text';
 import { SmsCampaignFormComponent } from './sms-campaign-form.component';
@@ -32,19 +32,14 @@ describe('SmsCampaignFormComponent', () => {
   let fixture: ComponentFixture<SmsCampaignFormComponent>;
 
   beforeEach(async () => {
-    const api = createSpyObj<DefaultService>(['getSmscampaignsTemplate']);
-    api.getSmscampaignsTemplate.mockReturnValue(
-      of({}) as unknown as ReturnType<DefaultService['getSmscampaignsTemplate']>,
-    );
-
     await TestBed.configureTestingModule({
       imports: [SmsCampaignFormComponent],
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        { provide: DefaultService, useValue: api },
-        { provide: Router, useValue: createSpyObj<Router>(['navigate']) },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({}) } } },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
         {
           provide: NotificationService,
           useValue: createSpyObj<NotificationService>(['success', 'error', 'show']),

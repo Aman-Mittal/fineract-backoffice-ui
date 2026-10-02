@@ -19,7 +19,7 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -51,7 +51,7 @@ import {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [TranslateModule, IonButton],
+  imports: [TranslatePipe, IonButton],
   template: `
     <h2 class="dialog-title">{{ data().title | translate }}</h2>
     <div class="dialog-content">
@@ -88,7 +88,7 @@ export class ConfirmDialogComponent {
   selector: 'app-holidays-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     StatusBadgeComponent,

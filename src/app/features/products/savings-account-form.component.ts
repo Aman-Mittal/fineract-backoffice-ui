@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
@@ -63,7 +63,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     ClientSearchComponent,
     IonIcon,
     IonButton,

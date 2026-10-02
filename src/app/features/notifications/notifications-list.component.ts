@@ -20,7 +20,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { NotificationService, GetNotificationsResponse, GetNotification } from '../../api';
 import { NotificationService as ToastService } from '../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -42,7 +42,7 @@ import {
     FormsModule,
     DatePipe,
     CdkTableModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonCardContent,

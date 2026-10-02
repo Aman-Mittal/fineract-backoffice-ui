@@ -21,7 +21,7 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -129,7 +129,7 @@ interface ReportParameterView {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     PaginatorComponent,
     HelpIconComponent,

@@ -18,12 +18,11 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
-import { AccountingClosureService, GetGlClosureResponse } from '../../api';
-import { TranslatePipe } from '../../core/adapters';
+import { ACCOUNTING_CLOSURE_API, TranslatePipe } from '../../core/adapters';
+import type { AccountingClosure } from '../../core/adapters';
 import { ButtonComponent } from '../../ui/button/button.component';
 
 /**
@@ -35,7 +34,6 @@ import { ButtonComponent } from '../../ui/button/button.component';
   selector: 'app-accounting-closures-list',
   standalone: true,
   imports: [
-    TranslateModule,
     DataTableComponent,
     CellTemplateDirective,
     TranslatePipe,
@@ -61,7 +59,7 @@ import { ButtonComponent } from '../../ui/button/button.component';
 
       <ng-template appCellTemplate="isClosed" let-closure>
         <span class="status-chip" [ngClass]="closure.isClosed ? 'closed' : 'open'">
-          {{ closure.isClosed ? 'Closed' : 'Open' }}
+          {{ (closure.isClosed ? 'COMMON.CLOSED' : 'COMMON.OPEN') | appTranslate }}
         </span>
       </ng-template>
 
@@ -97,7 +95,7 @@ import { ButtonComponent } from '../../ui/button/button.component';
   ],
 })
 export class AccountingClosuresListComponent implements OnInit {
-  private readonly closureService = inject(AccountingClosureService);
+  private readonly closureApi = inject(ACCOUNTING_CLOSURE_API);
   private readonly router = inject(Router);
 
   readonly columns: ColumnDef[] = [
@@ -108,14 +106,14 @@ export class AccountingClosuresListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  readonly closures = signal<GetGlClosureResponse[]>([]);
+  readonly closures = signal<AccountingClosure[]>([]);
 
   ngOnInit() {
     this.loadClosures();
   }
 
   private loadClosures() {
-    this.closureService.getGlclosures().subscribe({
+    this.closureApi.list().subscribe({
       next: (data) => this.closures.set(data),
       error: (err) => console.error('Failed to load closures', err),
     });
@@ -125,11 +123,9 @@ export class AccountingClosuresListComponent implements OnInit {
     this.router.navigate(['/accounting/closures/create']);
   }
 
-  onDeleteClosure(closure: GetGlClosureResponse) {
-    if (closure.id && confirm('Are you sure you want to re-open this period?')) {
-      this.closureService
-        .deleteGlclosuresGlClosureId(closure.id)
-        .subscribe(() => this.loadClosures());
+  onDeleteClosure(closure: AccountingClosure) {
+    if (confirm('Are you sure you want to re-open this period?')) {
+      this.closureApi.remove(closure.id).subscribe(() => this.loadClosures());
     }
   }
 }

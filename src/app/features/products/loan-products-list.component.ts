@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonBadge, IonIcon } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -32,14 +32,7 @@ import { readScheduleTypeCode, readScheduleTypeLabel } from './loan-schedule-typ
 @Component({
   selector: 'app-loan-products-list',
   standalone: true,
-  imports: [
-    TranslateModule,
-    IonButton,
-    IonBadge,
-    IonIcon,
-    DataTableComponent,
-    CellTemplateDirective,
-  ],
+  imports: [TranslatePipe, IonButton, IonBadge, IonIcon, DataTableComponent, CellTemplateDirective],
   template: `
     <app-data-table
       [hasError]="hasError()"

@@ -17,55 +17,49 @@
  * under the License.
  */
 
-import { createSpyObj } from '../../../testing/mocks';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
-import {
-  ExternalAssetOwnerLoanProductAttributesService,
-  ExternalAssetOwnersService,
-} from '../../../api';
+import { provideRouter } from '@angular/router';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { expectLookedUp } from '../../../testing/translated-text';
 import { AssetOwnerViewComponent } from './asset-owner-view.component';
 
 describe('AssetOwnerViewComponent', () => {
   let fixture: ComponentFixture<AssetOwnerViewComponent>;
+  let http: HttpTestingController;
+
+  /** Answers every outstanding request whose URL ends with `suffix`, however many views asked. */
+  function flushAll(suffix: string, body: object): void {
+    for (const request of http.match((r) => r.url.endsWith(suffix))) {
+      request.flush(body);
+    }
+  }
 
   beforeEach(async () => {
-    const owners = createSpyObj<ExternalAssetOwnersService>([
-      'getExternalAssetOwnersTransfers',
-      'getExternalAssetOwnersTransfersTransferIdJournalEntries',
-    ]);
-    owners.getExternalAssetOwnersTransfers.mockReturnValue(
-      of({
-        content: [{ transferId: 7, status: 'ACTIVE', owner: { externalId: 'OWNER-1' } }],
-      }) as unknown as ReturnType<ExternalAssetOwnersService['getExternalAssetOwnersTransfers']>,
-    );
-    owners.getExternalAssetOwnersTransfersTransferIdJournalEntries.mockReturnValue(
-      of({ journalEntryData: { content: [] } }) as unknown as ReturnType<
-        ExternalAssetOwnersService['getExternalAssetOwnersTransfersTransferIdJournalEntries']
-      >,
-    );
-
     await TestBed.configureTestingModule({
       imports: [AssetOwnerViewComponent],
       providers: [
         ...provideTranslateTesting(),
-        provideRouter([]),
         provideNoopAnimations(),
-        { provide: ExternalAssetOwnersService, useValue: owners },
-        {
-          provide: ExternalAssetOwnerLoanProductAttributesService,
-          useValue: createSpyObj<ExternalAssetOwnerLoanProductAttributesService>([
-            'getExternalAssetOwnersLoanProductLoanProductIdAttributes',
-          ]),
-        },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
       ],
     }).compileComponents();
 
+    http = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(AssetOwnerViewComponent);
+    fixture.detectChanges();
+
+    // The screen renders nothing until the transfer arrives, and asks for its journal entries
+    // only once it has.
+    flushAll('/external-asset-owners/transfers', {
+      content: [{ transferId: 7, status: 'ACTIVE', owner: { externalId: 'OWNER-1' } }],
+    });
+    fixture.detectChanges();
+    flushAll('/transfers/7/journal-entries', { journalEntryData: { content: [] } });
     fixture.detectChanges();
   });
 

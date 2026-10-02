@@ -186,6 +186,7 @@
     "CLIENT_ID": "Client ID",
     "CLOSE": "Close",
     "CLOSED": "Closed",
+    "OPEN": "Open",
     "COMMENT": "Comment",
     "CONFIRM": "Confirm",
     "CREATE": "Create",
@@ -1018,6 +1019,7 @@
     "CREATE_STAFF": "Create Staff Member",
     "EDIT_STAFF": "Edit Staff Member",
     "IS_LOAN_OFFICER": "Is Loan Officer",
+    "FORCE_STATUS": "Force Status",
     "LOAN_PORTFOLIO_SUMMARY": "Loan Portfolio Summary",
     "LOAN_STATUS": "Loan Status",
     "LOAN_STATUS_CLOSED": "Closed (Obligations Met)",
@@ -2375,7 +2377,8 @@
     "REJECT_TITLE": "Reject task",
     "CONFIRM_REJECT": "Are you sure you want to reject this task?",
     "REJECT_SUCCESS": "Task rejected successfully",
-    "REJECT_ERROR": "Failed to reject task"
+    "REJECT_ERROR": "Failed to reject task",
+    "COMMAND_PAYLOAD": "Command Payload"
   },
   "BUSINESS_DATES": {
     "TITLE": "Business Date Management",

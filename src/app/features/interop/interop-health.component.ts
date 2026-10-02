@@ -18,7 +18,7 @@
  */
 import { Component, signal, inject } from '@angular/core';
 import { JsonPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { InterOperationService } from '../../api';
 import {
   IonButton,
@@ -34,7 +34,7 @@ import {
   standalone: true,
   imports: [
     JsonPipe,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonCardContent,

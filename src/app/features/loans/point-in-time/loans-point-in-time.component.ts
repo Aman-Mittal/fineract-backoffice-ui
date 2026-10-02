@@ -20,7 +20,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CdkTableModule } from '@angular/cdk/table';
 import { formatDateToFineract, toIsoDate } from '../../../core/utils/date-formatter';
 import {
@@ -51,7 +51,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   imports: [
     FormsModule,
     DecimalPipe,
-    TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     IonButton,
     IonInput,

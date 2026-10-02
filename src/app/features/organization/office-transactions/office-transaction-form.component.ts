@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -52,7 +52,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   imports: [
     FormsModule,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonInput,
     IonItem,

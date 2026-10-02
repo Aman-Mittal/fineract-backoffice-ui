@@ -20,7 +20,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
   IonCard,
@@ -46,7 +46,7 @@ import {
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonInput,
     IonTextarea,

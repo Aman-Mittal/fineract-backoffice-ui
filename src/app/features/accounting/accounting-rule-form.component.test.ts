@@ -17,12 +17,11 @@
  * under the License.
  */
 
-import { createSpyObj } from '../../testing/mocks';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
-import { AccountingRulesService } from '../../api';
+import { provideRouter } from '@angular/router';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { expectLookedUp } from '../../testing/translated-text';
 import { AccountingRuleFormComponent } from './accounting-rule-form.component';
@@ -31,19 +30,14 @@ describe('AccountingRuleFormComponent', () => {
   let fixture: ComponentFixture<AccountingRuleFormComponent>;
 
   beforeEach(async () => {
-    const rulesService = createSpyObj<AccountingRulesService>(['getAccountingrulesTemplate']);
-    rulesService.getAccountingrulesTemplate.mockReturnValue(
-      of({}) as unknown as ReturnType<AccountingRulesService['getAccountingrulesTemplate']>,
-    );
-
     await TestBed.configureTestingModule({
       imports: [AccountingRuleFormComponent],
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        { provide: AccountingRulesService, useValue: rulesService },
-        { provide: Router, useValue: createSpyObj<Router>(['navigate']) },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({}) } } },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
       ],
     }).compileComponents();
 

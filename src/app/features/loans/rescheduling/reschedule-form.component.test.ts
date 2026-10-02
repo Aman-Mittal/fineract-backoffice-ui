@@ -17,60 +17,44 @@
  * under the License.
  */
 
-import { createSpyObj } from '../../../testing/mocks';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import {
-  CodeValuesService,
-  CodesService,
-  LoansService,
-  RescheduleLoansService,
-} from '../../../api';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { expectLookedUp } from '../../../testing/translated-text';
 import { RescheduleFormComponent } from './reschedule-form.component';
 
 describe('RescheduleFormComponent', () => {
   let fixture: ComponentFixture<RescheduleFormComponent>;
+  let http: HttpTestingController;
 
   beforeEach(async () => {
-    const rescheduleService = createSpyObj<RescheduleLoansService>(['getRescheduleloansTemplate']);
-    rescheduleService.getRescheduleloansTemplate.mockReturnValue(
-      of({}) as unknown as ReturnType<RescheduleLoansService['getRescheduleloansTemplate']>,
-    );
-    const loansService = createSpyObj<LoansService>(['getLoansLoanId']);
-    loansService.getLoansLoanId.mockReturnValue(
-      of({ repaymentSchedule: { periods: [] } }) as unknown as ReturnType<
-        LoansService['getLoansLoanId']
-      >,
-    );
-
     await TestBed.configureTestingModule({
       imports: [RescheduleFormComponent],
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        { provide: RescheduleLoansService, useValue: rescheduleService },
-        { provide: LoansService, useValue: loansService },
-        { provide: CodesService, useValue: createSpyObj<CodesService>(['getCodes']) },
-        {
-          provide: CodeValuesService,
-          useValue: createSpyObj<CodeValuesService>(['postCodesCodeIdCodevalues']),
-        },
-        { provide: Router, useValue: createSpyObj<Router>(['navigate']) },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ loanId: '1' })) } },
       ],
     }).compileComponents();
 
+    http = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(RescheduleFormComponent);
+    fixture.detectChanges();
+
+    // No reasons on offer, so the form falls back to the manual reason field.
+    http.expectOne((r) => r.url.endsWith('/rescheduleloans/template')).flush({});
+    http.expectOne((r) => r.url.endsWith('/loans/1')).flush({ repaymentSchedule: { periods: [] } });
     fixture.detectChanges();
   });
 
   it('renders its heading, labels and hint through the translation adapter', () => {
-    // With no reasons on offer the form falls back to the manual reason field, so that label is
-    // on screen too.
     expectLookedUp(fixture.nativeElement, [
       'LOANS.RESCHEDULE_FORM.TITLE',
       'LOANS.RESCHEDULE_FORM.FROM_DATE',

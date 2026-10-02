@@ -18,7 +18,7 @@
  */
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PasswordManagementService, ForgotPasswordRequest } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -38,7 +38,7 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonInput,

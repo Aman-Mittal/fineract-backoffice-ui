@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
 import { ChargesService, ChargeData } from '../../../api';
@@ -36,7 +36,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
   selector: 'app-charges-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    NgxTranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     TranslatePipe,

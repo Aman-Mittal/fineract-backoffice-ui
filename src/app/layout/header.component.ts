@@ -29,7 +29,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../core/services/auth.service';
 import { NgTemplateOutlet } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -85,7 +85,7 @@ type HeaderSearchResult =
   imports: [
     NgTemplateOutlet,
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     IonIcon,
     IonSearchbar,
     IonList,

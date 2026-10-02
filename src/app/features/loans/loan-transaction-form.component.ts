@@ -22,7 +22,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   LoanTransactionsService,
   LoansService,
@@ -152,7 +152,7 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   imports: [
     FormsModule,
     DecimalPipe,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonInput,

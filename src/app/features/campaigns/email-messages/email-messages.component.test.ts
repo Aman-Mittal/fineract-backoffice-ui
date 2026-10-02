@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import { createSpyObj } from '../../../testing/mocks';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
-import { DefaultService } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
+import { createSpyObj } from '../../../testing/mocks';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { expectLookedUp } from '../../../testing/translated-text';
 import { EMAIL_TAB, EmailMessagesComponent } from './email-messages.component';
@@ -31,24 +31,13 @@ describe('EmailMessagesComponent', () => {
   let fixture: ComponentFixture<EmailMessagesComponent>;
 
   beforeEach(async () => {
-    const api = createSpyObj<DefaultService>([
-      'getEmail',
-      'getEmailPendingEmail',
-      'getEmailSentEmail',
-      'getEmailFailedEmail',
-      'getEmailConfiguration',
-    ]);
-    api.getEmail.mockReturnValue(of('[]') as unknown as ReturnType<DefaultService['getEmail']>);
-    api.getEmailConfiguration.mockReturnValue(
-      of('{}') as unknown as ReturnType<DefaultService['getEmailConfiguration']>,
-    );
-
     await TestBed.configureTestingModule({
       imports: [EmailMessagesComponent],
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        { provide: DefaultService, useValue: api },
+        provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: NotificationService,
           useValue: createSpyObj<NotificationService>(['success', 'error', 'show']),

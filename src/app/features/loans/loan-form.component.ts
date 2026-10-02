@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   LoansService,
@@ -77,7 +77,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     ClientSearchComponent,
     IonIcon,
     IonButton,

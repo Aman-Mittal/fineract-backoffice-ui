@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '../../api';
 import { TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
@@ -45,7 +45,7 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    TranslateModule,
+    NgxTranslatePipe,
     TranslatePipe,
     IonButton,
     IonItem,

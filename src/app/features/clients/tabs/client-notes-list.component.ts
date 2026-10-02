@@ -19,7 +19,7 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import {
   DataTableComponent,
@@ -36,7 +36,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
   standalone: true,
   imports: [
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     HasPermissionDirective,
     CellTemplateDirective,

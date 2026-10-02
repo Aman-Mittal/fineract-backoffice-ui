@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NotificationService, GetNotification } from '../../../api';
 import {
   IonButton,
@@ -40,7 +40,7 @@ import {
   selector: 'app-notifications-config',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonCardContent,

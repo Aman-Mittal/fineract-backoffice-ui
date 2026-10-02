@@ -18,7 +18,7 @@
  */
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { SurveyService, PostSurveySurveyNameApptableIdRequest } from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -50,7 +50,7 @@ interface SurveyResponse {
   imports: [
     FormsModule,
     CdkTableModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonSpinner,
     IonInput,

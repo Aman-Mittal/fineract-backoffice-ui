@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
@@ -32,7 +32,7 @@ import { formatArrayDate } from '../../../core/utils/date-formatter';
 @Component({
   selector: 'app-tax-components-list',
   standalone: true,
-  imports: [TranslateModule, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
+  imports: [TranslatePipe, IonButton, IonIcon, DataTableComponent, CellTemplateDirective],
   template: `
     <app-data-table
       title="nav.taxComponents"

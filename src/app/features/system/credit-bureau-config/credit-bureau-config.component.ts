@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { HelpIconComponent } from '../../../shared';
 import { CreditBureauConfigurationService, CreditBureauIntegrationService } from '../../../api';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -63,7 +63,7 @@ interface LoanProductMappingRow {
   imports: [
     JsonPipe,
     FormsModule,
-    TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     HelpIconComponent,
     IonButton,

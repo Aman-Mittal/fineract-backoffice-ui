@@ -18,7 +18,7 @@
  */
 
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
@@ -67,7 +67,7 @@ export interface AuditFilters {
   selector: 'app-audit-logs-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    NgxTranslatePipe,
     TranslatePipe,
     FormsModule,
     DataTableComponent,

@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
@@ -35,7 +35,7 @@ import { DialogService } from '../../../core/services/dialog.service';
   selector: 'app-codes-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     StatusBadgeComponent,
     DataTableComponent,
     CellTemplateDirective,

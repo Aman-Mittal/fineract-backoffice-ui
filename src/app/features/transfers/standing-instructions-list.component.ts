@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { IonButton, IonIcon } from '@ionic/angular/standalone';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../shared';
@@ -30,7 +30,7 @@ import { StandingInstructionsService, GetPageItemsStandingInstructionSwagger } f
   standalone: true,
   imports: [
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     IonButton,
     IonIcon,
     DataTableComponent,

@@ -17,11 +17,12 @@
  * under the License.
  */
 
-import { createSpyObj } from '../../testing/mocks';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { InterOperationService } from '../../api';
 import { NotificationService } from '../../core/services/notification.service';
+import { createSpyObj } from '../../testing/mocks';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { expectLookedUp } from '../../testing/translated-text';
 import { InteropTransfersComponent } from './interop-transfers.component';
@@ -35,13 +36,8 @@ describe('InteropTransfersComponent', () => {
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        {
-          provide: InterOperationService,
-          useValue: createSpyObj<InterOperationService>([
-            'getInteroperationTransactionsTransactionCodeTransfersTransferCode',
-            'postInteroperationTransfers',
-          ]),
-        },
+        provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: NotificationService,
           useValue: createSpyObj<NotificationService>(['success', 'error', 'show']),

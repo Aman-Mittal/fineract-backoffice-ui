@@ -19,7 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ColumnDef, CellTemplateDirective } from '../../shared';
@@ -39,7 +39,7 @@ import { ButtonComponent } from '../../ui/button/button.component';
   selector: 'app-calendars-list',
   standalone: true,
   imports: [
-    TranslateModule,
+    TranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     ButtonComponent,

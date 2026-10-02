@@ -20,7 +20,7 @@
 import { Component, OnInit, computed, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
 import {
   ClientService,
@@ -145,7 +145,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
   standalone: true,
   imports: [
     RouterModule,
-    TranslateModule,
+    TranslatePipe,
     CdkTableModule,
     StatusBadgeComponent,
     LoadErrorComponent,
