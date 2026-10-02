@@ -33,8 +33,7 @@ import {
 } from '../../api';
 import { StatusBadgeComponent, LoadErrorComponent } from '../../shared';
 import { RequiresPermissionDirective } from '../../shared/directives/requires-permission.directive';
-import { AuthService } from '../../core/services/auth.service';
-import { ConfigService } from '../../core/services/config.service';
+import { createPermissionCheck } from '../../shared/utils/permission-check';
 import { skipErrorToast } from '../../core/http/http-context';
 import { resolveAccountActionType } from '../../core/utils/account-type-resolver';
 import { ClientActionDialogComponent } from './client-action-dialog.component';
@@ -1139,34 +1138,19 @@ export class ClientViewComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly shareAccountService = inject(ShareAccountService);
   private readonly i18n = inject(I18N);
-  private readonly auth = inject(AuthService);
-  private readonly config = inject(ConfigService);
 
   /**
    * Whether the account screens this client's tables link to can actually be opened.
    *
    * A client's accounts come back with READ_CLIENT alone, but each account screen is gated on its
-   * own code. Without this, a user holding only READ_CLIENT was shown the account numbers as
-   * links whose single destination was `/forbidden` — confirmed against a real Fineract instance,
-   * where the same click succeeds for a user who also holds READ_LOAN. The number is still
-   * rendered; only the link is withheld, because the account's existence is not the secret.
-   *
-   * Mirrors {@link HasPermissionDirective}, short-circuit included, rather than using it: the
-   * directive has no else-branch, and the plain-text fallback is the point. `currentUser()` is
-   * read so the computed re-evaluates on a session change — `hasPermission` reads it internally,
-   * but not through a signal this would otherwise track.
+   * own code, so a reader was shown account numbers as links whose only destination was
+   * `/forbidden`. The number still renders; only the link is withheld.
    */
-  private canRead(code: string): boolean {
-    if (!this.config.rbacEnabled()) return true;
-    this.auth.currentUser();
-    return this.auth.hasPermission(code);
-  }
-
-  protected readonly canViewLoan = computed(() => this.canRead('READ_LOAN'));
-  protected readonly canViewSavings = computed(() => this.canRead('READ_SAVINGSACCOUNT'));
-  protected readonly canViewFixedDeposit = computed(() => this.canRead('READ_FIXEDDEPOSITACCOUNT'));
-  protected readonly canViewRecurringDeposit = computed(() =>
-    this.canRead('READ_RECURRINGDEPOSITACCOUNT'),
+  protected readonly canViewLoan = createPermissionCheck('READ_LOAN');
+  protected readonly canViewSavings = createPermissionCheck('READ_SAVINGSACCOUNT');
+  protected readonly canViewFixedDeposit = createPermissionCheck('READ_FIXEDDEPOSITACCOUNT');
+  protected readonly canViewRecurringDeposit = createPermissionCheck(
+    'READ_RECURRINGDEPOSITACCOUNT',
   );
 
   readonly clientId = signal(0);

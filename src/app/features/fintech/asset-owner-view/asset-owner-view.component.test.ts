@@ -25,10 +25,14 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { expectLookedUp } from '../../../testing/translated-text';
 import { AssetOwnerViewComponent } from './asset-owner-view.component';
+import { AuthService } from '../../../core/services/auth.service';
+import { provideTestConfig } from '../../../testing/config';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 
 describe('AssetOwnerViewComponent', () => {
   let fixture: ComponentFixture<AssetOwnerViewComponent>;
   let http: HttpTestingController;
+  let authServiceSpy: SpyObj<AuthService>;
 
   /** Answers every outstanding request whose URL ends with `suffix`, however many views asked. */
   function flushAll(suffix: string, body: object): void {
@@ -37,7 +41,13 @@ describe('AssetOwnerViewComponent', () => {
     }
   }
 
-  beforeEach(async () => {
+  /** Renders the screen for a user who does, or does not, hold READ_LOAN. */
+  async function render(canReadLoan: boolean): Promise<void> {
+    authServiceSpy = Object.assign(createSpyObj<AuthService>(['hasPermission']), {
+      currentUser: () => ({ permissions: canReadLoan ? ['READ_LOAN'] : [] }),
+    });
+    authServiceSpy.hasPermission.mockReturnValue(canReadLoan);
+
     await TestBed.configureTestingModule({
       imports: [AssetOwnerViewComponent],
       providers: [
@@ -46,6 +56,8 @@ describe('AssetOwnerViewComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
+        { provide: AuthService, useValue: authServiceSpy },
+        provideTestConfig({ rbacEnabled: true }),
       ],
     }).compileComponents();
 
@@ -61,9 +73,23 @@ describe('AssetOwnerViewComponent', () => {
     fixture.detectChanges();
     flushAll('/transfers/7/journal-entries', { journalEntryData: { content: [] } });
     fixture.detectChanges();
+  }
+
+  it('renders the loan link and the journal entries tab through the translation adapter', async () => {
+    await render(true);
+
+    expectLookedUp(fixture.nativeElement, ['ASSET_OWNERS.VIEW_LOAN_ACCOUNT', 'nav.journalEntries']);
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="asset-owner-view-loan"]'),
+    ).not.toBeNull();
   });
 
-  it('renders the loan link and the journal entries tab through the translation adapter', () => {
-    expectLookedUp(fixture.nativeElement, ['ASSET_OWNERS.VIEW_LOAN_ACCOUNT', 'nav.journalEntries']);
+  it('withholds the loan link from a user without READ_LOAN', async () => {
+    await render(false);
+
+    // The loan screen is gated on READ_LOAN and this one is not, so the button could only have
+    // led to Access Denied. The rest of the screen is unaffected.
+    expect(fixture.nativeElement.querySelector('[data-testid="asset-owner-view-loan"]')).toBeNull();
+    expectLookedUp(fixture.nativeElement, ['nav.journalEntries']);
   });
 });
