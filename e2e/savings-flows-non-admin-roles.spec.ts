@@ -274,12 +274,21 @@ test.describe('a savings account taken through four separated duties, every acco
 
     await expect(page).toHaveURL(new RegExp(`/transactions/deposit$`), { timeout: 20_000 });
     await page.locator('input[name="transactionAmount"]').fill('500');
-    await page.getByRole('button', { name: 'Save' }).click();
+    // The platform refuses a deposit with no payment type, so the form requires one. Selecting
+    // it here is the flow, not a workaround — see the note on the control.
+    await selectOption(page, 'Payment Type', 'Money Transfer');
 
     // Driven to completion rather than stopping at the form: a gate that admits the right user
-    // but a form that cannot submit would pass a narrower assertion.
-    await page.goto(VIEW(savingsId));
-    await expect(page.getByText('500', { exact: false }).first()).toBeVisible({ timeout: 20_000 });
+    // but a form that cannot submit would pass a narrower assertion. The response is captured
+    // rather than inferred from the page, so a platform refusal fails here naming the reason
+    // instead of three lines later as a missing balance.
+    const posted = await captureJson<{ resourceId?: number }>(
+      page,
+      /\/savingsaccounts\/\d+\/transactions\?command=deposit$/,
+      'POST',
+      () => page.getByRole('button', { name: 'Save' }).click(),
+    );
+    expect(posted.resourceId, 'the deposit was refused by the platform').toBeDefined();
   });
 
   test('the cash-withdrawal control asks for the cash code, not the application one', async ({
