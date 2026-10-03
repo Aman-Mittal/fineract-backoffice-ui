@@ -157,6 +157,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
               @if (account()?.status?.submittedAndPendingApproval) {
                 <ion-button
                   color="secondary"
+                  data-testid="savings-approve-action"
                   appRequiresPermission="APPROVE_SAVINGSACCOUNT"
                   (click)="onSavingsAction('approve')"
                   [appTooltip]="'SAVINGS.APPROVE' | appTranslate"
@@ -190,6 +191,7 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
               @if (account()?.status?.approved) {
                 <ion-button
                   color="primary"
+                  data-testid="savings-activate-action"
                   appRequiresPermission="ACTIVATE_SAVINGSACCOUNT"
                   (click)="onSavingsAction('activate')"
                   [appTooltip]="'SAVINGS.ACTIVATE' | appTranslate"
