@@ -271,8 +271,15 @@ export function toEditableDate(value: unknown): string {
               }
 
               @if (isLoanApproved) {
+                <!--
+                  Carries a data-testid like its neighbours, because when the permission
+                  directive refuses this control it replaces the accessible name with the
+                  reason — so a role- or name-based locator stops finding exactly the button a
+                  permission test needs to assert on.
+                -->
                 <ion-button
                   color="secondary"
+                  data-testid="loan-disburse-action"
                   appRequiresPermission="DISBURSE_LOAN"
                   (click)="onDisburse()"
                   [appTooltip]="'LOANS.DISBURSE' | translate"

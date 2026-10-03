@@ -61,11 +61,11 @@
 import { request as playwrightRequest, type APIRequestContext } from '@playwright/test';
 import { randomInt } from 'node:crypto';
 
-import { test, expect, type Page } from './fixtures';
+import { test, expect, type Locator, type Page } from './fixtures';
 import { API_BASE, TENANT_ID, assertLocalBackend } from './utils/backend-env';
 import { captureJson } from './utils/capture-response';
 import { login, loginAsSeededUser, uniqueSuffix } from './utils/fineract-login';
-import { ionSelect } from './utils/ionic-locators';
+import { confirmDialog, ionSelect } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
 import { landsOn } from './utils/settled-route';
 
@@ -200,15 +200,19 @@ async function createRole(page: Page, permissions: string[], tag: string): Promi
   await expect(page).toHaveURL(/\/security\/roles\/edit\/\d+$/, { timeout: 20_000 });
 
   // The matrix renders the whole catalogue — 719 checkboxes on this version — inside a
-  // fixed-height scroller. The filter is therefore not a convenience: it is what brings the
-  // control into view. The checkbox is still addressed by its own `name`, so a code that is a
-  // prefix of a longer one cannot be ticked by accident.
+  // fixed-height scroller, so the filter is not a convenience: it is what brings the control
+  // into view.
   const filter = page.locator('input[name="permissionFilter"]');
   await expect(filter).toBeVisible({ timeout: 20_000 });
 
   for (const code of permissions) {
     await filter.fill(code);
-    const checkbox = page.locator(`ion-checkbox[name="perm_${code}"]`);
+    // By accessible name, with `exact`, and *not* by the `name` attribute: Ionic does not
+    // reflect an ion-checkbox's `name` onto the host element — it renders it into a hidden
+    // `input.aux-input` inside — so `ion-checkbox[name=…]` matches nothing. The accessible name
+    // is the label, which is the trimmed code, and `exact` is what stops READ_LOAN from also
+    // matching READ_LOANPRODUCT.
+    const checkbox = page.getByRole('checkbox', { name: code, exact: true });
     await expect(checkbox).toBeVisible({ timeout: 10_000 });
     await checkbox.click();
   }
@@ -219,6 +223,14 @@ async function createRole(page: Page, permissions: string[], tag: string): Promi
   await expect(page.getByTestId('perms-added')).toContainText(String(permissions.length));
 
   await page.getByRole('button', { name: 'Save' }).click();
+
+  // A permission change is confirmed before it is written — the dialog restates the delta and
+  // warns that everyone holding the role is affected at their next sign-in. Accepting it is
+  // part of the flow, not an interruption to work around.
+  const confirm = confirmDialog(page);
+  await expect(confirm).toBeVisible({ timeout: 20_000 });
+  await confirm.getByTestId('confirm-dialog-confirm').click();
+
   await expect(page).toHaveURL(/\/security\/roles$/, { timeout: 20_000 });
   return roleName;
 }
@@ -243,11 +255,38 @@ async function createUser(
   await selectOption(page, 'Office', 'Head Office');
   await page.locator('input[name="password"]').fill(password);
   await page.locator('input[name="repeatPassword"]').fill(password);
-  await selectOption(page, 'Roles', roleName);
+  await pickRole(page, roleName);
 
   await page.getByRole('button', { name: 'Save' }).click();
   await expect(page).toHaveURL(/\/security\/users$/, { timeout: 20_000 });
   return { username, password };
+}
+
+/**
+ * Ticks one role in the user form's Roles select.
+ *
+ * Not `selectOption()`: that helper looks for `role="radio"` in the overlay, which is what a
+ * single-value ion-select renders. This one is `multiple`, so Ionic renders `role="checkbox"`
+ * items instead and the shared helper finds nothing. The select also stays open after a tick —
+ * there is no implicit confirm on a multiple popover — so it has to be dismissed explicitly.
+ *
+ * This is the only multi-select in the suite, which is why no shared helper covers it yet.
+ */
+async function pickRole(page: Page, roleName: string): Promise<void> {
+  const select = ionSelect(page, 'Roles');
+  const overlay = page.locator('ion-popover, ion-alert');
+  await select.scrollIntoViewIfNeeded();
+  await select.click();
+
+  const option = overlay.getByRole('checkbox', { name: roleName, exact: true });
+  await expect(option).toBeVisible({ timeout: 15_000 });
+  await option.click();
+
+  await page.keyboard.press('Escape');
+  await expect(overlay).toHaveCount(0);
+  // The host folds the chosen value into its own text, so this confirms the tick reached the
+  // model rather than only the overlay.
+  await expect(select).toContainText(roleName, { timeout: 10_000 });
 }
 
 async function createRoleAndUser(page: Page, permissions: string[], tag: string): Promise<UiUser> {
@@ -332,6 +371,35 @@ async function bookLoanApplication(
   return created.loanId;
 }
 
+/**
+ * Asserts that a control is on screen and **refused**, which is what this application does with
+ * an action the session lacks the permission for.
+ *
+ * `appRequiresPermission` disables the control and names the missing code on it; the sibling
+ * `appHasPermission` removes the element. The directive's own documentation says why the two
+ * differ, and the reasoning is sound: a "Create" button that navigates elsewhere is removed,
+ * because the destination is simply not part of this user's application, while an action on the
+ * record already on screen is disabled with the reason, because "you cannot approve this loan"
+ * is a fact about the user's role that they need in order to act on it — hiding the button
+ * leaves them to conclude the feature is missing.
+ *
+ * So a spec asserting `toHaveCount(0)` for a refused loan action is asserting the wrong design.
+ * The class is checked rather than the accessible name because the directive **replaces** the
+ * name with the reason when it refuses, which is also why each of these controls needs a
+ * `data-testid`.
+ */
+async function expectRefused(control: Locator): Promise<void> {
+  await expect(control).toBeVisible({ timeout: 20_000 });
+  await expect(control).toHaveClass(/app-requires-permission/);
+  await expect(control).toHaveAttribute('aria-disabled', 'true');
+}
+
+/** The same control, offered: present, and not carrying the refusal marker. */
+async function expectOffered(control: Locator): Promise<void> {
+  await expect(control).toBeVisible({ timeout: 20_000 });
+  await expect(control).not.toHaveClass(/app-requires-permission/);
+}
+
 let officer: UiUser;
 let approver: UiUser;
 let disburser: UiUser;
@@ -379,9 +447,19 @@ test.describe('a loan taken through four separated duties, every account built i
       timeout: 20_000,
     });
 
-    // The whole point of separating the duty. Checked as an absent control rather than a
-    // refused route, because the button is what makes the promise.
-    await expect(page.getByTestId('loan-approve-action')).toHaveCount(0);
+    // The whole point of separating the duty — and checked as a *refused* control rather than
+    // an absent one, which is this application's deliberate choice for an action on the record
+    // on screen. See expectRefused.
+    await expectRefused(page.getByTestId('loan-approve-action'));
+
+    // The refusal says which permission is missing, which is the half that makes disabling
+    // better than hiding: an officer can read this and ask for the right thing.
+    //
+    // Read off `title`, not `aria-label`. The directive host-binds both, but `ion-button` is a
+    // custom element that hoists host `aria-*` into its own shadow root at render, so the
+    // accessible name is not on the element this locator resolves to while the tooltip text
+    // is. Same hazard as the one `ionSelect()` documents for ion-select's folded name.
+    await expect(page.getByTestId('loan-approve-action')).toHaveAttribute('title', /APPROVE_LOAN/);
 
     // And the platform agrees, so the hidden button is not merely the client being cautious.
     const probe = await platformAllows(officer, `/loans/${loanId}?command=approve`);
@@ -400,7 +478,7 @@ test.describe('a loan taken through four separated duties, every account built i
     await page.goto(`/loans/view/${loanId}`);
 
     const approve = page.getByTestId('loan-approve-action');
-    await expect(approve).toBeVisible({ timeout: 20_000 });
+    await expectOffered(approve);
     await approve.click();
 
     await expect(page).toHaveURL(/\/action\/approve$/, { timeout: 20_000 });
@@ -416,7 +494,7 @@ test.describe('a loan taken through four separated duties, every account built i
     await page.goto(`/loans/view/${loanId}`);
     await expect(page.getByText('Approved', { exact: true })).toBeVisible({ timeout: 20_000 });
 
-    await expect(page.getByRole('button', { name: 'Disburse', exact: true })).toHaveCount(0);
+    await expectRefused(page.getByTestId('loan-disburse-action'));
 
     const probe = await platformAllows(approver, `/loans/${loanId}?command=disburse`);
     expect(probe.allowed, `approver was authorised to disburse (status ${probe.status})`).toBe(
@@ -424,7 +502,7 @@ test.describe('a loan taken through four separated duties, every account built i
     );
   });
 
-  test('the disburser is offered the control, and the route refuses it — see #TBD', async ({
+  test('the disburser is offered the control, and the route refuses it — see #691', async ({
     page,
   }) => {
     // The platform's answer first, so what follows cannot be read as the platform refusing.
@@ -434,14 +512,15 @@ test.describe('a loan taken through four separated duties, every account built i
     await loginAsSeededUser(page, disburser);
     await page.goto(`/loans/view/${loanId}`);
 
-    // The action layer is right: the button is gated on DISBURSE_LOAN, which this account holds.
-    const disburse = page.getByRole('button', { name: 'Disburse', exact: true });
-    await expect(disburse).toBeVisible({ timeout: 20_000 });
+    // The action layer is right: the button is gated on DISBURSE_LOAN, which this account
+    // holds, so it is offered rather than refused.
+    const disburse = page.getByTestId('loan-disburse-action');
+    await expectOffered(disburse);
 
     // The route layer disagrees with it. `/loans/:loanId/transactions/:type` declares
     // `UPDATE_LOAN`, a code this account does not hold and — per the probe above — does not
     // need. So the only control the application offers this account leads to Access Denied.
-    await disburse.click();
+    // Issue #691.
     expect(
       await landsOn(page, `/loans/${loanId}/transactions/disburse`),
       'the disbursement form admitted a DISBURSE_LOAN holder; if this now passes the route gate was fixed',
@@ -461,11 +540,11 @@ test.describe('a loan taken through four separated duties, every account built i
 
     await loginAsSeededUser(page, editor);
 
-    // No button is offered, correctly — the action gate asks for DISBURSE_LOAN. But the URL is
-    // reachable, so the guard's promise that "a user is not led into a screen whose every
-    // request will 403" (DOCS/RBAC.md) does not hold for this one.
+    // The control is refused, correctly — the action gate asks for DISBURSE_LOAN, which this
+    // account does not hold. But the URL is reachable, so the guard's promise that "a user is
+    // not led into a screen whose every request will 403" (DOCS/RBAC.md) does not hold here.
     await page.goto(`/loans/view/${loanId}`);
-    await expect(page.getByRole('button', { name: 'Disburse', exact: true })).toHaveCount(0);
+    await expectRefused(page.getByTestId('loan-disburse-action'));
 
     expect(
       await landsOn(page, `/loans/${loanId}/transactions/disburse`),
@@ -484,7 +563,8 @@ test.describe('a loan taken through four separated duties, every account built i
 
     await loginAsSeededUser(page, payer);
     await page.goto(`/loans/view/${loanId}`);
-    await page.getByRole('button', { name: 'Disburse', exact: true }).click();
+    await expectOffered(page.getByTestId('loan-disburse-action'));
+    await page.getByTestId('loan-disburse-action').click();
     await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/disburse$`));
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/loans$/, { timeout: 20_000 });
@@ -515,7 +595,7 @@ test.describe('a loan taken through four separated duties, every account built i
 
     await loginAsSeededUser(page, teller);
     await page.goto(`/loans/view/${loanId}`);
-    await expect(page.getByTestId('loan-repayment-action')).toBeVisible({ timeout: 20_000 });
+    await expectOffered(page.getByTestId('loan-repayment-action'));
 
     expect(
       await landsOn(page, `/loans/${loanId}/transactions/repayment`),
