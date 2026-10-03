@@ -2658,64 +2658,31 @@
     }
   },
   "src/app/features/tellers/cashiers/cashier-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/tellers/cashiers/cashier-transaction-form.component.test.ts": {
-    "local/no-generated-api-import": {
       "count": 1
     }
   },
   "src/app/features/tellers/cashiers/cashier-transaction-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
   },
-  "src/app/features/tellers/cashiers/cashier-transactions.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/tellers/cashiers/cashier-transactions.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
   },
   "src/app/features/tellers/cashiers/cashiers-list.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
   },
-  "src/app/features/tellers/teller-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/tellers/teller-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
   },
   "src/app/features/tellers/tellers-list.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
