@@ -197,14 +197,7 @@ describe('NavigationConfigService', () => {
   }
 
   beforeEach(() => {
-    sessionStorage.clear();
-    localStorage.clear();
     configure();
-  });
-
-  afterEach(() => {
-    sessionStorage.clear();
-    localStorage.clear();
   });
 
   it('should be created', () => {

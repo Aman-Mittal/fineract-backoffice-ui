@@ -24,21 +24,6 @@
       "count": 1
     }
   },
-  "src/app/core/services/auth.service.test.ts": {
-    "no-restricted-globals": {
-      "count": 4
-    }
-  },
-  "src/app/core/services/institution-config.service.test.ts": {
-    "no-restricted-globals": {
-      "count": 5
-    }
-  },
-  "src/app/core/services/navigation-config.service.test.ts": {
-    "no-restricted-globals": {
-      "count": 4
-    }
-  },
   "src/app/features/accounting/accounting-closure-form.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
@@ -3064,11 +3049,6 @@
   "src/app/shared/components/stepper/stepper.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
-    }
-  },
-  "src/app/shared/directives/has-institution-feature.directive.test.ts": {
-    "no-restricted-globals": {
-      "count": 2
     }
   }
 }
