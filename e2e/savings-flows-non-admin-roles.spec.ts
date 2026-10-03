@@ -105,9 +105,12 @@ async function createSavingsProduct(page: Page): Promise<string> {
   await page.goto('/products/savings/create', { waitUntil: 'networkidle' });
   await page.locator('input[name="name"]').fill(productName);
   await page.locator('input[name="shortName"]').fill(`V${suffix.slice(-3).toUpperCase()}`);
-  await page.locator('input[name="description"]').fill('Built by the non-admin savings spec');
+  // A textarea, not an input — `input[name="description"]` matches nothing here.
+  await page.locator('textarea[name="description"]').fill('Built by the non-admin savings spec');
+  await page.locator('input[name="digitsAfterDecimal"]').fill('2');
   await page.locator('input[name="nominalAnnualInterestRate"]').fill('5');
-  await selectOption(page, 'Currency', 'US Dollar');
+  // The options are currency *codes*, not names: USD, EUR, INR are the literal labels.
+  await selectOption(page, 'Currency', 'USD');
 
   await page.getByRole('button', { name: 'Save' }).click();
   await expect(page).toHaveURL(/\/products\/savings$/, { timeout: 20_000 });
@@ -215,6 +218,12 @@ test.describe('a savings account taken through four separated duties, every acco
     await approve.click();
 
     await page.getByRole('button', { name: 'Save' }).click();
+
+    // The savings action form returns to the **list**, not to the account — unlike the loan
+    // approve form, which comes back to the loan. So the view has to be reopened before the new
+    // status can be read.
+    await expect(page).toHaveURL(/\/products\/savings-accounts$/, { timeout: 20_000 });
+    await page.goto(VIEW(savingsId));
     await expect(page.getByText('Approved', { exact: true })).toBeVisible({ timeout: 20_000 });
 
     // Approval and activation are separate duties at the platform, so the approver must not be
@@ -230,6 +239,8 @@ test.describe('a savings account taken through four separated duties, every acco
     await expectOffered(activate);
     await activate.click();
     await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page).toHaveURL(/\/products\/savings-accounts$/, { timeout: 20_000 });
+    await page.goto(VIEW(savingsId));
     await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 20_000 });
 
     await expectRefused(page.getByTestId('savings-deposit-action'));
