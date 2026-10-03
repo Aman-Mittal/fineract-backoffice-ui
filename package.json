@@ -39,7 +39,7 @@
     "check:internal-endpoints": "node scripts/check-internal-endpoints.mjs",
     "check:route-permissions": "node scripts/check-route-permissions.mjs",
     "check:permission-codes": "node scripts/check-permission-codes.mjs",
-    "permissions:snapshot": "node scripts/snapshot-permission-codes.mjs",
+    "permissions:snapshot": "bash scripts/fetch-permission-codes.sh | node scripts/snapshot-permission-codes.mjs",
     "check:nav-ids": "node scripts/check-nav-ids.mjs",
     "check:branding-path": "node scripts/check-branding-path.mjs",
     "check:reference-downstream": "node scripts/check-reference-downstream.mjs",
