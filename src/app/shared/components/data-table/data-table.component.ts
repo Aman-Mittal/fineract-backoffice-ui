@@ -191,12 +191,14 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                     @if (col.sortable) {
                       <button type="button" class="sort-button" (click)="onSortHeaderClick(col)">
                         {{ col.label | translate }}
-                        @if (sort().active === col.key && sort().direction) {
+                        @if (currentSort().active === col.key && currentSort().direction) {
                           <ion-icon
                             aria-hidden="true"
                             class="sort-indicator"
                             [name]="
-                              sort().direction === 'asc' ? 'arrow-up-outline' : 'arrow-down-outline'
+                              currentSort().direction === 'asc'
+                                ? 'arrow-up-outline'
+                                : 'arrow-down-outline'
                             "
                           ></ion-icon>
                         }
@@ -435,7 +437,9 @@ export class DataTableComponent<T> {
 
   /** Lets a server-backed table visibly reset sorting when its query mode changes. */
   readonly sortState = input<SortEvent>();
-  readonly sort = linkedSignal<SortEvent>(() => this.sortState() ?? { active: '', direction: '' });
+  readonly currentSort = linkedSignal<SortEvent>(
+    () => this.sortState() ?? { active: '', direction: '' },
+  );
 
   protected readonly columnTemplates = computed<Record<string, TemplateRef<unknown>>>(() => {
     const map: Record<string, TemplateRef<unknown>> = {};
@@ -491,7 +495,7 @@ export class DataTableComponent<T> {
     if (filter) {
       result = result.filter((row) => this.matchesFilter(row, filter));
     }
-    const { active, direction } = this.sort();
+    const { active, direction } = this.currentSort();
     if (active && direction) {
       result = this.sortRows(result, active, direction);
     }
@@ -535,15 +539,15 @@ export class DataTableComponent<T> {
   onSortHeaderClick(col: ColumnDef): void {
     if (!col.sortable) return;
 
-    const current = this.sort();
+    const current = this.currentSort();
     const direction =
       current.active === col.key ? NEXT_DIRECTION[current.direction] : ('asc' as SortDirection);
-    this.sort.set({ active: direction ? col.key : '', direction });
+    this.currentSort.set({ active: direction ? col.key : '', direction });
 
     // Re-sorting reorders the whole set, so the current page no longer means
     // anything; server-side parents reset to offset 0 for the same reason.
     this.localPageIndex.set(0);
-    this.sortChange.emit(this.sort());
+    this.sortChange.emit(this.currentSort());
   }
 
   onPage(event: PageEvent): void {
@@ -553,7 +557,7 @@ export class DataTableComponent<T> {
   }
 
   ariaSortFor(col: ColumnDef): string | null {
-    const { active, direction } = this.sort();
+    const { active, direction } = this.currentSort();
     if (!col.sortable || active !== col.key || !direction) return null;
     return direction === 'asc' ? 'ascending' : 'descending';
   }
@@ -590,7 +594,7 @@ export class DataTableComponent<T> {
   private sortRows(rows: T[], active: string, direction: SortDirection): T[] {
     const factor = direction === 'asc' ? 1 : -1;
 
-    return rows.sort((a, b) => {
+    return rows.toSorted((a, b) => {
       const left = this.getCellValue(a, active);
       const right = this.getCellValue(b, active);
 
