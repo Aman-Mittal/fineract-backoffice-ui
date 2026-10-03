@@ -238,10 +238,22 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
                   <ion-icon name="add-circle-outline"></ion-icon>
                   {{ 'SAVINGS.DEPOSIT' | appTranslate }}
                 </ion-button>
+                <!--
+                  WITHDRAWAL_SAVINGSACCOUNT, not WITHDRAW_SAVINGSACCOUNT. Both codes exist and
+                  they are not interchangeable — one letter apart, two different operations.
+                  Measured against a running Fineract with an empty body, which separates
+                  authorisation from validation:
+
+                    transactions?command=withdrawal  WITHDRAWAL_ 400   WITHDRAW_ 403
+                    ?command=withdrawnByApplicant    WITHDRAWAL_ 403   WITHDRAW_ 400
+
+                  WITHDRAW_SAVINGSACCOUNT is what the Withdrawn-by-applicant button above uses,
+                  correctly: it withdraws the *application*. This button withdraws *cash*.
+                -->
                 <ion-button
                   color="danger"
                   data-testid="savings-withdraw-action"
-                  appRequiresPermission="WITHDRAW_SAVINGSACCOUNT"
+                  appRequiresPermission="WITHDRAWAL_SAVINGSACCOUNT"
                   (click)="onTransaction('withdrawal')"
                   [appTooltip]="'SAVINGS.WITHDRAW_CASH' | appTranslate"
                 >

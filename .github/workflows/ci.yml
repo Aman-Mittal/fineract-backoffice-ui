@@ -169,6 +169,12 @@ jobs:
       # missing from the menu that the URL still opens. This compares them.
       - name: Verify route permissions agree with navigation
         run: npm run check:route-permissions
+      # A gate on a permission code Fineract does not define can never be satisfied by any
+      # role, so the control it protects is disabled forever and looks exactly like one the
+      # viewer is not entitled to. Two had shipped that way. Checked against a committed
+      # snapshot, so this needs no Fineract running.
+      - name: Verify every permission code exists in Fineract's catalogue
+        run: npm run check:permission-codes
       # Navigation ids are the handle a deployment's config names, in a file this repository
       # never sees. A renamed or removed id silently stops matching there, so the menu a
       # deployment meant to change comes back on upgrade with no error anywhere. The same check

@@ -237,7 +237,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                   'DELETE_CLIENT',
                   'REACTIVATE_CLIENT',
                   'UNDOREJECT_CLIENT',
-                  'UNDOWITHDRAW_CLIENT',
+                  'UNDOWITHDRAWAL_CLIENT',
                   'PROPOSETRANSFER_CLIENT',
                   'PROPOSEANDACCEPTTRANSFER_CLIENT',
                   'ACCEPTTRANSFER_CLIENT',
@@ -425,7 +425,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                       <ion-item
                         button
                         (click)="onClientAction('undoWithdraw')"
-                        appRequiresPermission="UNDOWITHDRAW_CLIENT"
+                        appRequiresPermission="UNDOWITHDRAWAL_CLIENT"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>{{ 'ACTIONS.UNDO_WITHDRAW_CLIENT' | appTranslate }}</ion-label>
