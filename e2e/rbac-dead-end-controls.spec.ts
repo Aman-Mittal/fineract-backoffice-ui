@@ -36,6 +36,13 @@
  *    it never got the `createPermission` gate every other list has, and offered Create to a
  *    reader.
  *
+ * The same list carried a third dead end — reachable with `READ_OFFICETRANSACTION`, which the
+ * platform does not check for it, so the screen loaded and the request did not. That is now
+ * refused at the route instead, which is what the third case here asserts. The refused-load
+ * state the component still carries for every other way the request can fail is held by
+ * `src/app/features/organization/office-transactions/office-transactions-list.component.test.ts`,
+ * because no user can produce it through permissions any more.
+ *
  * Each assertion is paired with a user who *does* hold the code, because "the control is absent"
  * passes just as well against a screen that renders nothing at all.
  */
@@ -129,11 +136,14 @@ test.describe('the office transactions list', () => {
     await expect(page.getByTestId('office-transaction-create')).toBeVisible({ timeout: 20_000 });
   });
 
-  test('says the list was refused instead of showing an empty table', async ({ page }) => {
+  test('refuses the list at the door for the code the platform does not check', async ({
+    page,
+  }) => {
     const api = await createApiContext();
-    // Exactly what the route declares, and not enough for the endpoint: Fineract also wants
-    // READ_OFFICE. The screen is reachable and the request fails, which is the case that used to
-    // leave a bare set of column headers behind once the toast faded.
+    // The code whose name says it opens this list, and which the platform ignores for it:
+    // `GET /officetransactions` is gated on READ_OFFICE. Holding this one alone used to admit
+    // the user to a screen whose only possible content was a refused request under a set of
+    // column headers, which read as "there are no office transactions".
     const reader = await seedRestrictedUser(api, ['READ_OFFICETRANSACTION']);
     await api.dispose();
 
@@ -141,11 +151,9 @@ test.describe('the office transactions list', () => {
 
     await loginAsSeededUser(page, reader);
     await page.goto('/organization/office-transactions');
-    const error = page.getByTestId('office-transactions-error');
-    await expect(error).toBeVisible({ timeout: 20_000 });
-    await expect(error).toContainText('Your role does not cover this list');
-    // The headers are what made the empty state read as "there is nothing here".
-    await expect(page.locator('table[cdk-table]')).toHaveCount(0);
+    // Named in the query string, so the user is told which code they are missing rather than
+    // being left to guess from the one they hold.
+    await expect(page).toHaveURL(/\/forbidden\?required=READ_OFFICE/, { timeout: 20_000 });
   });
 });
 
