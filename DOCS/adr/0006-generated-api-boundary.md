@@ -105,6 +105,22 @@ components that still hold generated types, so the change cascades into whatever
 migrated. Prefer the files that _inject_ a generated service: there the adapter replaces the
 dependency outright and the blast radius stops at the file.
 
+Roles and users (`ROLE_API`, `USER_API`) are the strongest evidence for the boundary so far,
+because migrating them found a screen that **could not save at all**. Fineract publishes five
+permission codes with a trailing space, and `READ_STANDINGINSTRUCTION` exists only in that form.
+`role-form.component.ts` trimmed each code on the way in — correctly, because every route's
+`data.permissions` uses the trimmed spelling — and then sent the trimmed keys back, so
+`PUT /roles/{id}/permissions` answered 404 for every role and every administrator regardless of
+which boxes were ticked. Three things kept it hidden: the component's spec mocked the call, the
+fixture contained no padded code, and every RBAC e2e spec grants permissions over HTTP through
+`seed-api.ts` rather than through the screen. `RolePermission` now carries both spellings and
+fixes which one is used where, so the decision is made once at the boundary instead of at each
+call site. The baseline stands at 429.
+
+That is the pattern worth generalising: a contract is most valuable where the application was
+already normalising a platform quirk, because normalising on the way in and on the way out are
+different jobs and a component that does both in one field will get one of them wrong.
+
 This is deliberately not the facade from ADR 0001. It renames nothing, it does not require a
 wrapper per service, and it adds no indirection on day one. It is a measurement that fails CI
 when it worsens, plus a sanctioned place to put a mapping when a mapping earns its keep.

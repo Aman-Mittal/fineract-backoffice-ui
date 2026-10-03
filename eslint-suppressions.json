@@ -1989,39 +1989,13 @@
       "count": 1
     }
   },
-  "src/app/features/security/roles/role-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/security/roles/role-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/security/roles/roles-list.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/security/roles/roles-list.component.ts": {
-    "local/no-generated-api-import": {
       "count": 1
     }
   },
   "src/app/features/security/users/user-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/security/users/users-list.component.ts": {
-    "local/no-generated-api-import": {
       "count": 1
     }
   },

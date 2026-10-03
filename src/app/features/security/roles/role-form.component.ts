@@ -37,25 +37,20 @@ import {
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
-import {
-  RolesService,
-  PostRolesRequest,
-  PostRolesResponse,
-  PutRolesRoleIdRequest,
-  PutRolesRoleIdPermissionsRequest,
-  GetRolesRoleIdPermissionsResponse,
-} from '../../../api';
-import { I18N, TranslatePipe } from '../../../core/adapters';
+import { I18N, ROLE_API, TranslatePipe } from '../../../core/adapters';
+import type { RolePermission } from '../../../core/adapters';
 import { ConfigService } from '../../../core/services/config.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NavigationConfigService } from '../../../core/services/navigation-config.service';
 
 /** A permission row as the roles endpoint reports it, narrowed to the fields this screen uses. */
-interface PermissionRow {
-  code: string;
-  grouping?: string;
-  entityName?: string;
-  actionName?: string;
+/**
+ * What the form holds while it is being filled. Its own shape rather than `RoleDraft`, which
+ * describes a valid submission; a form in progress has neither field yet.
+ */
+interface RoleFormModel {
+  name: string;
+  description: string;
 }
 
 /**
@@ -277,12 +272,17 @@ interface NavImpactEntry {
                       <div class="group-items">
                         @for (perm of group.items; track perm.code) {
                           <div class="permission-item">
+                            <!--
+                              Labelled and named by the trimmed label, while the model is keyed
+                              by the code in Fineract's own spelling. Five codes in the
+                              catalogue carry a trailing space; see RolePermission.
+                            -->
                             <ion-checkbox
-                              [name]="'perm_' + perm.code"
+                              [name]="'perm_' + perm.label"
                               [ngModel]="selected()[perm.code]"
                               (ngModelChange)="setPermission(perm.code, $event)"
                             >
-                              {{ perm.code }}
+                              {{ perm.label }}
                             </ion-checkbox>
                           </div>
                         }
@@ -428,7 +428,7 @@ interface NavImpactEntry {
   ],
 })
 export class RoleFormComponent implements OnInit {
-  private readonly rolesService = inject(RolesService);
+  private readonly roleApi = inject(ROLE_API);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly navigationConfig = inject(NavigationConfigService);
@@ -442,8 +442,8 @@ export class RoleFormComponent implements OnInit {
   readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
-  readonly role = signal<PostRolesRequest>({});
-  readonly permissions = signal<PermissionRow[]>([]);
+  readonly role = signal<RoleFormModel>({ name: '', description: '' });
+  readonly permissions = signal<RolePermission[]>([]);
 
   /** Whether this deployment gates navigation at all — see `AppConfig.rbacEnabled`. */
   readonly rbacEnabled = this.config.rbacEnabled;
@@ -463,7 +463,7 @@ export class RoleFormComponent implements OnInit {
   /** Free-text filter over permission codes. */
   readonly filter = signal('');
 
-  readonly groupedPermissions = signal<{ prefix: string; items: PermissionRow[] }[]>([]);
+  readonly groupedPermissions = signal<{ prefix: string; items: RolePermission[] }[]>([]);
 
   /** Groups narrowed by {@link filter}; groups left with no match drop out entirely. */
   readonly visibleGroups = computed(() => {
@@ -474,12 +474,17 @@ export class RoleFormComponent implements OnInit {
     return this.groupedPermissions()
       .map((group) => ({
         prefix: group.prefix,
-        items: group.items.filter((perm) => perm.code.toUpperCase().includes(needle)),
+        items: group.items.filter((perm) => perm.label.toUpperCase().includes(needle)),
       }))
       .filter((group) => group.items.length > 0);
   });
 
-  /** Codes selected right now, in the shape the nav preview and the PUT both want. */
+  /**
+   * Codes selected right now, in Fineract's own spelling — what the PUT must carry.
+   *
+   * Not what the navigation preview wants: that compares against the codes routes declare,
+   * which are trimmed. `destinationsFor` does that trim, and is the only place that does.
+   */
   private readonly selectedCodes = computed(() =>
     Object.entries(this.selected())
       .filter(([, isSelected]) => isSelected)
@@ -531,8 +536,18 @@ export class RoleFormComponent implements OnInit {
     });
   }
 
+  /**
+   * The sidebar's own answer for a set of permission codes.
+   *
+   * Trims on the way in, which is the **read** side of the trailing-space problem and the side
+   * where trimming is right: `AuthService.hasPermission()` and every route's `data.permissions`
+   * use the trimmed spelling, so a padded code compared against them would match nothing and
+   * the preview would under-report what the role gains. Writing a trimmed code back is the
+   * other side, and is what `RolePermission` exists to prevent.
+   */
   private destinationsFor(codes: string[]): NavImpactEntry[] {
-    return this.navigationConfig.navDestinationsForPermissions(codes).map((entry) => ({
+    const trimmed = codes.map((code) => code.trim());
+    return this.navigationConfig.navDestinationsForPermissions(trimmed).map((entry) => ({
       route: entry.route,
       label: this.i18n.translate(entry.labelKey),
       groupLabel: entry.groupLabelKey ? this.i18n.translate(entry.groupLabelKey) : undefined,
@@ -541,54 +556,34 @@ export class RoleFormComponent implements OnInit {
 
   private loadRoleData(): void {
     if (!this.roleId) return;
-    this.rolesService.getRolesRoleId(this.roleId).subscribe((data) => {
-      this.role.set({
-        name: data.name,
-        description: data.description,
-      });
+    this.roleApi.get(this.roleId).subscribe((role) => {
+      this.role.set({ name: role.name, description: role.description });
       this.loadPermissions();
     });
   }
 
   private loadPermissions(): void {
     if (!this.roleId) return;
-    this.rolesService
-      .getRolesRoleIdPermissions(this.roleId)
-      .subscribe((data: GetRolesRoleIdPermissionsResponse) => {
-        const rows = ((data.permissionUsageData ?? []) as unknown as Record<string, unknown>[])
-          .filter((row) => typeof row['code'] === 'string')
-          .map((row) => ({
-            code: (row['code'] as string).trim(),
-            grouping: row['grouping'] as string | undefined,
-            entityName: row['entityName'] as string | undefined,
-            actionName: row['actionName'] as string | undefined,
-            selected: row['selected'] === true,
-          }));
+    this.roleApi.permissions(this.roleId).subscribe((rows) => {
+      this.permissions.set(rows);
 
-        this.permissions.set(
-          rows.map((row) => ({
-            code: row.code,
-            grouping: row.grouping,
-            entityName: row.entityName,
-            actionName: row.actionName,
-          })),
-        );
+      const selected: Record<string, boolean> = {};
+      for (const row of rows) {
+        selected[row.code] = row.selected;
+      }
+      this.selected.set(selected);
+      this.baseline.set(new Set(rows.filter((row) => row.selected).map((row) => row.code)));
 
-        const selected: Record<string, boolean> = {};
-        for (const row of rows) {
-          selected[row.code] = row.selected;
-        }
-        this.selected.set(selected);
-        this.baseline.set(new Set(rows.filter((row) => row.selected).map((row) => row.code)));
-
-        this.groupPermissions();
-      });
+      this.groupPermissions();
+    });
   }
 
   private groupPermissions(): void {
-    const groups: Record<string, PermissionRow[]> = {};
+    const groups: Record<string, RolePermission[]> = {};
     this.permissions().forEach((perm) => {
-      const prefix = perm.code.split('_', 2)[1] || 'GENERAL';
+      // Grouped by the entity half of the trimmed label: READ_LOAN -> LOAN. The padded code
+      // would put a trailing space in the group heading.
+      const prefix = perm.label.split('_', 2)[1] || 'GENERAL';
       if (!groups[prefix]) groups[prefix] = [];
       groups[prefix].push(perm);
     });
@@ -602,7 +597,7 @@ export class RoleFormComponent implements OnInit {
     this.selected.update((current) => ({ ...current, [code]: isSelected }));
   }
 
-  toggleGroup(group: { items: PermissionRow[] }, value: boolean): void {
+  toggleGroup(group: { items: RolePermission[] }, value: boolean): void {
     this.selected.update((current) => {
       const next = { ...current };
       for (const perm of group.items) {
@@ -663,13 +658,21 @@ export class RoleFormComponent implements OnInit {
 
   private saveExistingRole(roleId: number): void {
     this.isSaving.set(true);
-    const roleUpdate: PutRolesRoleIdRequest = { description: this.role().description };
+    const selected = this.selected();
+    // Built from the rows the contract answered, so each key is Fineract's own spelling of the
+    // code rather than the label the matrix displays. Handing over the display spelling is what
+    // made this request answer 404 for every role; see RolePermission.
+    const selection = this.permissions().map((perm) => ({
+      code: perm.code,
+      selected: selected[perm.code] === true,
+    }));
 
-    this.rolesService.putRolesRoleId(roleId, roleUpdate).subscribe({
+    this.roleApi.update(roleId, { description: this.role().description }).subscribe({
       next: () => {
-        const permUpdate: PutRolesRoleIdPermissionsRequest = { permissions: this.selected() };
-        this.rolesService.putRolesRoleIdPermissions(roleId, permUpdate).subscribe({
-          next: () => this.router.navigate([this.LIST_PATH]),
+        this.roleApi.setPermissions(roleId, selection).subscribe({
+          next: () => {
+            void this.router.navigate([this.LIST_PATH]);
+          },
           error: () => this.isSaving.set(false),
         });
       },
@@ -687,10 +690,9 @@ export class RoleFormComponent implements OnInit {
    */
   private createRole(): void {
     this.isSaving.set(true);
-    this.rolesService.postRoles(this.role()).subscribe({
-      next: (response: PostRolesResponse) => {
-        const newId = response?.resourceId;
-        this.router.navigate(newId ? [this.LIST_PATH, 'edit', newId] : [this.LIST_PATH]);
+    this.roleApi.create(this.role()).subscribe({
+      next: (roleId) => {
+        void this.router.navigate([this.LIST_PATH, 'edit', roleId]);
       },
       error: () => this.isSaving.set(false),
     });

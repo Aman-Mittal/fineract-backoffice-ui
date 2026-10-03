@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
+import { TranslatePipe, USER_API } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -36,13 +36,28 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
-import {
-  UsersService,
-  PostUsersRequest,
-  PutUsersUserIdRequest,
-  GetUsersTemplateResponse,
-  RoleData,
-} from '../../../api';
+import type { NamedOption } from '../../../core/adapters';
+
+/**
+ * What the form holds while it is being filled.
+ *
+ * Its own shape rather than `UserDraft`: the draft is what a *valid* submission looks like, and
+ * a form in progress has an empty office and, on the edit path, no password at all. Keeping
+ * them separate is what lets `UserDraft` declare `officeId: number` instead of
+ * `number | null | undefined` and have that mean something.
+ */
+interface UserFormModel {
+  username: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  officeId: number | null;
+  roles: number[];
+  password: string;
+  repeatPassword: string;
+  passwordNeverExpires: boolean;
+  sendPasswordToEmail: boolean;
+}
 
 /**
  * Component for creating and editing system users.
@@ -133,10 +148,8 @@ import {
                   [(ngModel)]="user().officeId"
                   required
                 >
-                  @for (office of offices(); track office['id']) {
-                    <ion-select-option [value]="office['id']">{{
-                      office['name']
-                    }}</ion-select-option>
+                  @for (office of offices(); track office.id) {
+                    <ion-select-option [value]="office.id">{{ office.name }}</ion-select-option>
                   }
                 </ion-select>
               </ion-item>
@@ -236,7 +249,7 @@ import {
   ],
 })
 export class UserFormComponent implements OnInit {
-  private readonly usersService = inject(UsersService);
+  private readonly userApi = inject(USER_API);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -246,14 +259,21 @@ export class UserFormComponent implements OnInit {
   readonly isEditMode = signal(false);
   readonly isSaving = signal(false);
 
-  readonly user = signal<PostUsersRequest>({
+  readonly user = signal<UserFormModel>({
+    username: '',
+    firstname: '',
+    lastname: '',
+    email: '',
+    officeId: null,
+    roles: [],
+    password: '',
+    repeatPassword: '',
     passwordNeverExpires: false,
     sendPasswordToEmail: false,
-    roles: [],
   });
 
-  readonly offices = signal<Record<string, unknown>[]>([]);
-  readonly availableRoles = signal<RoleData[]>([]);
+  readonly offices = signal<NamedOption[]>([]);
+  readonly availableRoles = signal<NamedOption[]>([]);
 
   ngOnInit(): void {
     this.loadMetadata();
@@ -268,50 +288,74 @@ export class UserFormComponent implements OnInit {
   }
 
   private loadMetadata(): void {
-    this.usersService.getUsersTemplate().subscribe((template: GetUsersTemplateResponse) => {
-      this.offices.set((template.allowedOffices as unknown as Record<string, unknown>[]) || []);
-      this.availableRoles.set(template.availableRoles || []);
+    this.userApi.template().subscribe((template) => {
+      this.offices.set([...template.offices]);
+      this.availableRoles.set([...template.roles]);
     });
   }
 
   private loadUserData(): void {
     if (!this.userId) return;
-    this.usersService.getUsersUserId(this.userId).subscribe((data) => {
+    this.userApi.get(this.userId).subscribe((member) => {
       this.user.set({
-        username: data.username,
-        firstname: data.firstname,
-        lastname: data.lastname,
-        email: data.email,
-        officeId: data.officeId,
-        passwordNeverExpires: data.passwordNeverExpires,
+        username: member.username,
+        firstname: member.firstname,
+        lastname: member.lastname,
+        email: member.email,
+        officeId: member.officeId,
+        roles: [...member.roleIds],
+        // Never prefilled: the create path's two password fields are not rendered in edit mode,
+        // and Fineract changes a password through its own endpoint.
+        password: '',
+        repeatPassword: '',
+        passwordNeverExpires: member.passwordNeverExpires,
         sendPasswordToEmail: false,
-        roles: data.selectedRoles?.map((r) => r.id!) || [],
       });
     });
   }
 
   onSubmit(): void {
+    const form = this.user();
+    // The Office select is `required`, so the submit button is disabled until it is set and
+    // this cannot normally be reached. Checked anyway rather than coerced: `officeId: 0` is a
+    // valid-looking id that belongs to no office, and Fineract would answer a 404 naming a
+    // field the user did believe they had filled in.
+    if (form.officeId === null) return;
+
     this.isSaving.set(true);
+    const done = {
+      next: (): void => {
+        void this.router.navigate([this.LIST_PATH]);
+      },
+      error: (): void => this.isSaving.set(false),
+    };
 
     if (this.isEditMode() && this.userId) {
-      const putRequest: PutUsersUserIdRequest = {
-        firstname: this.user().firstname,
-        lastname: this.user().lastname,
-        email: this.user().email,
-        officeId: this.user().officeId,
-        roles: this.user().roles,
-        sendPasswordToEmail: this.user().sendPasswordToEmail,
-      };
-
-      this.usersService.putUsersUserId(this.userId, putRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving.set(false),
-      });
+      this.userApi
+        .update(this.userId, {
+          firstname: form.firstname,
+          lastname: form.lastname,
+          email: form.email,
+          officeId: form.officeId,
+          roleIds: form.roles,
+          sendPasswordToEmail: form.sendPasswordToEmail,
+        })
+        .subscribe(done);
     } else {
-      this.usersService.postUsers(this.user()).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
-        error: () => this.isSaving.set(false),
-      });
+      this.userApi
+        .create({
+          username: form.username,
+          firstname: form.firstname,
+          lastname: form.lastname,
+          email: form.email,
+          officeId: form.officeId,
+          roleIds: form.roles,
+          password: form.password,
+          repeatPassword: form.repeatPassword,
+          passwordNeverExpires: form.passwordNeverExpires,
+          sendPasswordToEmail: form.sendPasswordToEmail,
+        })
+        .subscribe(done);
     }
   }
 
