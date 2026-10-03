@@ -43,6 +43,7 @@ export * from './api/loan-transaction.api';
 export * from './api/staff.api';
 export * from './api/holiday-rescheduling-type';
 export * from './api/holiday.api';
+export * from './api/teller.api';
 
 // The default implementations each token resolves to. Exported so a deployment swapping one
 // can name what it is replacing, and so a TestBed can ask for the real thing explicitly.
@@ -58,3 +59,4 @@ export { FineractLoanApi } from './api/fineract-loan.api';
 export { FineractLoanTransactionApi } from './api/fineract-loan-transaction.api';
 export { FineractStaffApi } from './api/fineract-staff.api';
 export { FineractHolidayApi } from './api/fineract-holiday.api';
+export { FineractTellerApi } from './api/fineract-teller.api';
