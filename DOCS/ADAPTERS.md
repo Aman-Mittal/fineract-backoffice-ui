@@ -169,7 +169,7 @@ because `TranslateService` has thirty.
 
 `src/app/api` is regenerated from Fineract's OpenAPI spec. Importing it outside
 `src/app/core/adapters/api/` fails `npm run lint`
-(`local/no-generated-api-import`); the 444 files that already do are recorded in
+(`local/no-generated-api-import`); the 435 imports that already do are recorded in
 `eslint-suppressions.json` and that number may only fall. ADR 0006 has the reasoning.
 
 There is still **no facade over the 155 generated services**, and adding one is still rejected.
@@ -360,10 +360,34 @@ Two things these adapters took off their screens that are worth copying:
   created. A `void` there is invisible to the dialog's own spec, which mocks the contract — it
   took a mutation test on the adapter to catch it.
 
-`npm run api:surface` remains the complement: it records which generated _operations_ are
-called, so one disappearing upstream produces a single diagnostic rather than a compile error
-per call site. The two are orthogonal — every operation can still exist while every response
-shape changes.
+### A sixth example: reach, and a date the screen was turning into a dash
+
+`teller.api.ts` covers tellers and the cashiers allocated to them. Its generated type is not
+wrong about the teller's start date: `GET /tellers` sends `"startDate":"2026-10-02"`, which is
+what `GetTellersResponse` declares. The defect was on the screens, in two forms.
+
+- The teller and cashier lists ran that string through an array-only converter. It answers `'-'`
+  for anything that is not `[y, m, d]`, so every Start Date column showed a dash.
+- The edit form read the start date as an array. `new Date('2026-10-02'[0], '2026-10-02'[1] - 1,
+'2026-10-02'[2])` builds 1901-12-02, and the update saved that. Editing any teller moved its
+  start date back more than a century, and nothing on screen showed it, because the picker is not
+  bound to the field in edit mode.
+
+Both are the same lesson as the staff case above: the screen should not be choosing an encoding.
+`mapTeller` and `mapCashier` read either form through `toIsoFineractDate()`, and the edit form
+loads the ISO date into a local `Date` and sends back what it was given.
+
+Two things worth copying from it:
+
+- **The contract is wider than the first caller list suggested.** The issue that scoped this
+  listed `list`, `get`, `create`, `update`, `listCashiers` and `createCashier`. The cashier
+  transaction screens also called the generated client, so the contract carries the template,
+  summary, allocation and settlement operations too. A contract that leaves its own domain's
+  screens on the generated client is not a boundary.
+- **Each endpoint keeps its own date format, and the adapter writes it.** Teller and cashier
+  writes send `yyyy-MM-dd`; cash transactions send `dd MMMM yyyy`. Both are declared in
+  `fineract-teller.api.ts` beside the call that uses them, because Fineract parses strictly
+  against the format it is told.
 
 ## What is deliberately not adapted
 
