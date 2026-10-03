@@ -58,7 +58,7 @@
  *   npm run test:e2e:local -- e2e/loan-flows-non-admin-roles.spec.ts
  */
 
-import { request as playwrightRequest, type APIRequestContext } from '@playwright/test';
+import { request as playwrightRequest } from '@playwright/test';
 import { randomInt } from 'node:crypto';
 
 import { test, expect, type Locator, type Page } from './fixtures';
