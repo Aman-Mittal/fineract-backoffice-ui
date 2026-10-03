@@ -169,7 +169,7 @@ because `TranslateService` has thirty.
 
 `src/app/api` is regenerated from Fineract's OpenAPI spec. Importing it outside
 `src/app/core/adapters/api/` fails `npm run lint`
-(`local/no-generated-api-import`); the 435 imports that already do are recorded in
+(`local/no-generated-api-import`); the 429 imports that already do are recorded in
 `eslint-suppressions.json` and that number may only fall. ADR 0006 has the reasoning.
 
 There is still **no facade over the 155 generated services**, and adding one is still rejected.
