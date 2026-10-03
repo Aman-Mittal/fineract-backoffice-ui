@@ -129,6 +129,19 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                   ></ion-input>
                 </ion-item>
 
+                <!--
+                  Required, because the platform requires it. A deposit or withdrawal without a
+                  payment type is refused outright:
+
+                    POST /savingsaccounts/{id}/transactions?command=deposit     400
+                    POST /savingsaccounts/{id}/transactions?command=withdrawal  400
+                    validation.msg.savingsaccount.transaction.paymentTypeId.cannot.be.blank
+
+                  Without the attribute the form was valid without it, so Save was enabled and
+                  the only way to discover the field was mandatory was to submit and be
+                  rejected. Scoped with transactionAmount inside the postInterestAsOn guard, so
+                  it does not apply to the one command that posts no payment.
+                -->
                 <!-- Payment Type -->
                 <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
                   <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
@@ -137,6 +150,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                     interface="popover"
                     name="paymentTypeId"
                     [(ngModel)]="transaction.paymentTypeId"
+                    required
                   >
                     @for (type of paymentTypeOptions(); track type['id']) {
                       <ion-select-option [value]="type['id']">{{ type['name'] }}</ion-select-option>

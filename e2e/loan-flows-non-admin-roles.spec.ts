@@ -50,7 +50,7 @@
  *
  * Every claim about what an account may do is checked twice: once against what the
  * application offers that session, and once against what Fineract answers the same account.
- * `platformAllows()` below does the second half **without performing the operation**, by
+ * `platformAllows()` does the second half **without performing the operation**, by
  * sending an empty body: Fineract authorises before it validates, so a holder of the code
  * gets 400 and a non-holder gets 403. That distinction is the whole assertion, and it costs
  * no state.
@@ -58,16 +58,20 @@
  *   npm run test:e2e:local -- e2e/loan-flows-non-admin-roles.spec.ts
  */
 
-import { request as playwrightRequest } from '@playwright/test';
-import { randomInt } from 'node:crypto';
-
-import { test, expect, type Locator, type Page } from './fixtures';
-import { API_BASE, TENANT_ID, assertLocalBackend } from './utils/backend-env';
+import { test, expect, type Page } from './fixtures';
+import { assertLocalBackend } from './utils/backend-env';
 import { captureJson } from './utils/capture-response';
 import { login, loginAsSeededUser, uniqueSuffix } from './utils/fineract-login';
-import { confirmDialog, ionSelect } from './utils/ionic-locators';
+import { ionSelect } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
 import { landsOn } from './utils/settled-route';
+import {
+  createRoleAndUser,
+  expectOffered,
+  expectRefused,
+  platformAllows,
+  type UiUser,
+} from './utils/ui-rbac';
 
 // Four roles, four users, a client, a product and a loan — all through forms — then four
 // sign-ins. Serial because each test consumes the state the previous one left.
@@ -90,210 +94,12 @@ const APPROVER = ['READ_OFFICE', 'READ_CLIENT', 'READ_LOANPRODUCT', 'READ_LOAN',
 const DISBURSER = ['READ_OFFICE', 'READ_CLIENT', 'READ_LOANPRODUCT', 'READ_LOAN', 'DISBURSE_LOAN'];
 
 /**
- * The control for the second finding below: `UPDATE_LOAN` is what the transaction routes are
- * gated on, and it is **not** what the platform accepts a repayment or a disbursement under.
- * An account holding it and nothing else from `transaction_loan` is the one the guard admits
- * and the platform refuses.
+ * The control for the route-gate assertions: `UPDATE_LOAN` is what the transaction routes used
+ * to be gated on, and it is **not** what the platform accepts a repayment or a disbursement
+ * under. An account holding it and nothing else from `transaction_loan` is the one both layers
+ * must now refuse.
  */
 const EDITOR = ['READ_OFFICE', 'READ_CLIENT', 'READ_LOANPRODUCT', 'READ_LOAN', 'UPDATE_LOAN'];
-
-interface UiUser {
-  username: string;
-  password: string;
-  roleName: string;
-  permissions: string[];
-}
-
-const UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-const LOWER = 'abcdefghijkmnopqrstuvwxyz';
-const DIGIT = '23456789';
-// No underscore: the policy wants a character matching `[^\w\s]`, and `\w` includes `_`.
-const SPECIAL = '#$%&*+-=?@^';
-
-/**
- * A throwaway password satisfying Fineract's policy, generated rather than written down.
- *
- * The policy is `^(?!.*(.)\1)(?!.*\s)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\w\s]).{12,50}$`.
- * The clause that catches people out is the leading negative lookahead: **no character may
- * repeat consecutively**, and the validation error does not mention it until you read `args`.
- *
- * `seed-api.ts` has the same function. It is copied rather than imported on purpose — this
- * spec's point is that it reaches none of the seeding helpers, and a shared import would be an
- * invitation to reach for the rest of them.
- */
-function generatePassword(): string {
-  const pools = [UPPER, LOWER, DIGIT, SPECIAL];
-  const all = pools.join('');
-  const characters: string[] = [];
-  while (characters.length < 16) {
-    const pool = characters.length < pools.length ? pools[characters.length] : all;
-    const candidate = pool[randomInt(pool.length)];
-    if (candidate !== characters[characters.length - 1]) characters.push(candidate);
-  }
-  return characters.join('');
-}
-
-/**
- * Asks Fineract whether `user` may run `command` on `loanId`, without running it.
- *
- * The request carries an empty body, which no loan command accepts. Fineract's authorisation
- * filter runs ahead of command validation, so the status separates the two questions cleanly:
- *
- *   403 `error.msg.not.authorized`        — the account does not hold the code
- *   400 `validation.msg.validation...`    — it does, and only the body was wrong
- *
- * Returning the boolean rather than the status keeps the call sites reading as the claim they
- * are making. Nothing is written either way, so this can be asked about a loan the spec is
- * still using.
- */
-async function platformAllows(
-  user: UiUser,
-  path: string,
-): Promise<{ allowed: boolean; status: number }> {
-  const context = await playwrightRequest.newContext({
-    ignoreHTTPSErrors: true,
-    extraHTTPHeaders: {
-      'Fineract-Platform-TenantId': TENANT_ID,
-      'Content-Type': 'application/json',
-      Authorization: `Basic ${Buffer.from(`${user.username}:${user.password}`).toString('base64')}`,
-    },
-  });
-  try {
-    const response = await context.post(`${API_BASE}${path}`, { data: {} });
-    const status = response.status();
-    expect(
-      [400, 403],
-      `authorisation probe for ${user.roleName} on ${path} answered ${status}; ` +
-        `only 400 (authorised, bad body) and 403 (refused) are meaningful here`,
-    ).toContain(status);
-    return { allowed: status === 400, status };
-  } finally {
-    await context.dispose();
-  }
-}
-
-/**
- * Creates a role through `/security/roles/create`, then grants it `permissions` through the
- * permission matrix on `/security/roles/edit/:id`.
- *
- * Two screens because the application models it as two: the create form carries no matrix and
- * says so ("permissions can be assigned after the role is created"), which mirrors Fineract —
- * `POST /roles` takes a name and a description, and `PUT /roles/{id}/permissions` takes the
- * delta. The role id comes from the POST response rather than from the list, because the list
- * paginates and this stack keeps its data between runs.
- */
-async function createRole(page: Page, permissions: string[], tag: string): Promise<string> {
-  const roleName = `E2EUi${tag}${uniqueSuffix()}`;
-
-  await page.goto('/security/roles/create');
-  // Addressed through the native input Ionic renders rather than the `ion-input` host: the host
-  // carries the accessible name, but the inner input is what holds `name` and what the ngModel
-  // binding listens to. Filling the host leaves the model empty — see the same note in
-  // `center-servicing.spec.ts`.
-  await page.locator('input[name="name"]').fill(roleName);
-  await page.locator('textarea[name="description"]').fill(`UI-built ${tag} role`);
-  await page.getByRole('button', { name: 'Save' }).click();
-
-  // The create form lands on the new role's permission matrix, not back on the list — a
-  // deliberate choice in `role-form.component.ts`, since `POST /roles` cannot carry permissions
-  // and a role with none is not yet useful. So the id comes out of the URL.
-  await expect(page).toHaveURL(/\/security\/roles\/edit\/\d+$/, { timeout: 20_000 });
-
-  // The matrix renders the whole catalogue — 719 checkboxes on this version — inside a
-  // fixed-height scroller, so the filter is not a convenience: it is what brings the control
-  // into view.
-  const filter = page.locator('input[name="permissionFilter"]');
-  await expect(filter).toBeVisible({ timeout: 20_000 });
-
-  for (const code of permissions) {
-    await filter.fill(code);
-    // By accessible name, with `exact`, and *not* by the `name` attribute: Ionic does not
-    // reflect an ion-checkbox's `name` onto the host element — it renders it into a hidden
-    // `input.aux-input` inside — so `ion-checkbox[name=…]` matches nothing. The accessible name
-    // is the label, which is the trimmed code, and `exact` is what stops READ_LOAN from also
-    // matching READ_LOANPRODUCT.
-    const checkbox = page.getByRole('checkbox', { name: code, exact: true });
-    await expect(checkbox).toBeVisible({ timeout: 10_000 });
-    await checkbox.click();
-  }
-
-  // The impact panel counts the pending delta, and it is the only on-screen confirmation that
-  // the matrix registered every click before the save. Asserting it here means a silently
-  // dropped checkbox fails on this line rather than as a mystery 403 three tests later.
-  await expect(page.getByTestId('perms-added')).toContainText(String(permissions.length));
-
-  await page.getByRole('button', { name: 'Save' }).click();
-
-  // A permission change is confirmed before it is written — the dialog restates the delta and
-  // warns that everyone holding the role is affected at their next sign-in. Accepting it is
-  // part of the flow, not an interruption to work around.
-  const confirm = confirmDialog(page);
-  await expect(confirm).toBeVisible({ timeout: 20_000 });
-  await confirm.getByTestId('confirm-dialog-confirm').click();
-
-  await expect(page).toHaveURL(/\/security\/roles$/, { timeout: 20_000 });
-  return roleName;
-}
-
-/** Creates a user through `/security/users/create`, in Head Office, holding `roleName` alone. */
-async function createUser(
-  page: Page,
-  roleName: string,
-  tag: string,
-): Promise<{ username: string; password: string }> {
-  const username = `e2eui${tag}${uniqueSuffix()}`.toLowerCase();
-  const password = generatePassword();
-
-  // `networkidle` so the Office and Roles selects have their GET /users/template answer before
-  // either is opened — an ion-select opened early presents an empty overlay, and the failure
-  // reads as a missing option rather than as a race.
-  await page.goto('/security/users/create', { waitUntil: 'networkidle' });
-  await page.locator('input[name="username"]').fill(username);
-  await page.locator('input[name="firstname"]').fill('Ui');
-  await page.locator('input[name="lastname"]').fill(tag);
-  await page.locator('input[name="email"]').fill(`${username}@example.invalid`);
-  await selectOption(page, 'Office', 'Head Office');
-  await page.locator('input[name="password"]').fill(password);
-  await page.locator('input[name="repeatPassword"]').fill(password);
-  await pickRole(page, roleName);
-
-  await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page).toHaveURL(/\/security\/users$/, { timeout: 20_000 });
-  return { username, password };
-}
-
-/**
- * Ticks one role in the user form's Roles select.
- *
- * Not `selectOption()`: that helper looks for `role="radio"` in the overlay, which is what a
- * single-value ion-select renders. This one is `multiple`, so Ionic renders `role="checkbox"`
- * items instead and the shared helper finds nothing. The select also stays open after a tick —
- * there is no implicit confirm on a multiple popover — so it has to be dismissed explicitly.
- *
- * This is the only multi-select in the suite, which is why no shared helper covers it yet.
- */
-async function pickRole(page: Page, roleName: string): Promise<void> {
-  const select = ionSelect(page, 'Roles');
-  const overlay = page.locator('ion-popover, ion-alert');
-  await select.scrollIntoViewIfNeeded();
-  await select.click();
-
-  const option = overlay.getByRole('checkbox', { name: roleName, exact: true });
-  await expect(option).toBeVisible({ timeout: 15_000 });
-  await option.click();
-
-  await page.keyboard.press('Escape');
-  await expect(overlay).toHaveCount(0);
-  // The host folds the chosen value into its own text, so this confirms the tick reached the
-  // model rather than only the overlay.
-  await expect(select).toContainText(roleName, { timeout: 10_000 });
-}
-
-async function createRoleAndUser(page: Page, permissions: string[], tag: string): Promise<UiUser> {
-  const roleName = await createRole(page, permissions, tag);
-  const { username, password } = await createUser(page, roleName, tag);
-  return { username, password, roleName, permissions };
-}
 
 async function createClient(page: Page): Promise<string> {
   const suffix = uniqueSuffix();
@@ -369,35 +175,6 @@ async function bookLoanApplication(
   );
   await expect(page).toHaveURL(/\/loans$/, { timeout: 20_000 });
   return created.loanId;
-}
-
-/**
- * Asserts that a control is on screen and **refused**, which is what this application does with
- * an action the session lacks the permission for.
- *
- * `appRequiresPermission` disables the control and names the missing code on it; the sibling
- * `appHasPermission` removes the element. The directive's own documentation says why the two
- * differ, and the reasoning is sound: a "Create" button that navigates elsewhere is removed,
- * because the destination is simply not part of this user's application, while an action on the
- * record already on screen is disabled with the reason, because "you cannot approve this loan"
- * is a fact about the user's role that they need in order to act on it — hiding the button
- * leaves them to conclude the feature is missing.
- *
- * So a spec asserting `toHaveCount(0)` for a refused loan action is asserting the wrong design.
- * The class is checked rather than the accessible name because the directive **replaces** the
- * name with the reason when it refuses, which is also why each of these controls needs a
- * `data-testid`.
- */
-async function expectRefused(control: Locator): Promise<void> {
-  await expect(control).toBeVisible({ timeout: 20_000 });
-  await expect(control).toHaveClass(/app-requires-permission/);
-  await expect(control).toHaveAttribute('aria-disabled', 'true');
-}
-
-/** The same control, offered: present, and not carrying the refusal marker. */
-async function expectOffered(control: Locator): Promise<void> {
-  await expect(control).toBeVisible({ timeout: 20_000 });
-  await expect(control).not.toHaveClass(/app-requires-permission/);
 }
 
 let officer: UiUser;
@@ -502,36 +279,47 @@ test.describe('a loan taken through four separated duties, every account built i
     );
   });
 
-  test('the disburser is offered the control, and the route refuses it — see #691', async ({
+  test('the disburser, holding only DISBURSE_LOAN, completes the payout end to end', async ({
     page,
   }) => {
-    // The platform's answer first, so what follows cannot be read as the platform refusing.
+    // The case issue #691 was about, now asserting the fix rather than the defect.
+    //
+    // The route used to declare `UPDATE_LOAN` for all 29 of its commands, so this account —
+    // which the platform authorises, per the probe below — was offered an enabled Disburse
+    // button and then sent to Access Denied by the guard. Nothing else on the screen was
+    // available to it, so that one control was the whole of its application.
+    //
+    // `DISBURSE_LOAN` and nothing else from `transaction_loan`, and no `UPDATE_LOAN`: if the
+    // route ever goes back to a single declaration, this is the test that fails.
     const probe = await platformAllows(disburser, `/loans/${loanId}?command=disburse`);
     expect(probe.allowed, `disburser was refused disbursement (status ${probe.status})`).toBe(true);
+    expect(disburser.permissions).not.toContain('UPDATE_LOAN');
 
     await loginAsSeededUser(page, disburser);
     await page.goto(`/loans/view/${loanId}`);
 
-    // The action layer is right: the button is gated on DISBURSE_LOAN, which this account
-    // holds, so it is offered rather than refused.
     const disburse = page.getByTestId('loan-disburse-action');
     await expectOffered(disburse);
+    await disburse.click();
 
-    // The route layer disagrees with it. `/loans/:loanId/transactions/:type` declares
-    // `UPDATE_LOAN`, a code this account does not hold and — per the probe above — does not
-    // need. So the only control the application offers this account leads to Access Denied.
-    // Issue #691.
-    expect(
-      await landsOn(page, `/loans/${loanId}/transactions/disburse`),
-      'the disbursement form admitted a DISBURSE_LOAN holder; if this now passes the route gate was fixed',
-    ).toBe('/forbidden');
+    await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/disburse$`), {
+      timeout: 20_000,
+    });
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page).toHaveURL(/\/loans$/, { timeout: 20_000 });
+
+    // The point of driving it to completion rather than stopping at the form: a gate that
+    // admits the right user but a form that cannot submit would pass a narrower assertion.
+    await page.goto(`/loans/view/${loanId}`);
+    await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 20_000 });
   });
 
-  test('and the same route admits an UPDATE_LOAN holder the platform will refuse', async ({
+  test('and the same route now refuses an UPDATE_LOAN holder, as the platform does', async ({
     page,
   }) => {
-    // The mirror image, and the reason the gate cannot simply be widened to include UPDATE_LOAN:
-    // the code the route asks for is not one the platform accepts the operation under.
+    // The other half of #691, and the reason the gate could not simply be widened to include
+    // UPDATE_LOAN: the platform does not accept the operation under that code at all, so
+    // admitting it led a user into a form whose submit could only 403.
     const probe = await platformAllows(editor, `/loans/${loanId}?command=disburse`);
     expect(
       probe.allowed,
@@ -539,43 +327,45 @@ test.describe('a loan taken through four separated duties, every account built i
     ).toBe(false);
 
     await loginAsSeededUser(page, editor);
-
-    // The control is refused, correctly — the action gate asks for DISBURSE_LOAN, which this
-    // account does not hold. But the URL is reachable, so the guard's promise that "a user is
-    // not led into a screen whose every request will 403" (DOCS/RBAC.md) does not hold here.
     await page.goto(`/loans/view/${loanId}`);
-    await expectRefused(page.getByTestId('loan-disburse-action'));
 
+    // Asserted on Repayment rather than Disburse. By this point the previous test has made the
+    // loan **active**, and the Disburse button is gated on `@if (isLoanApproved)` — so it is
+    // absent for everyone, including a superuser. Asserting its absence here would pass for a
+    // reason that has nothing to do with permissions, which is the kind of assertion that keeps
+    // passing after the thing it was meant to check has broken.
+    //
+    // Repayment *is* offered on an active loan, and this account lacks REPAYMENT_LOAN, so it is
+    // the control that actually tests the gate at this point in the flow.
+    await expectRefused(page.getByTestId('loan-repayment-action'));
+
+    // The route is state-independent — the guard runs before the component loads — so the
+    // disbursement URL is still the right thing to check, and still the half of #691 that
+    // mattered: it used to admit this account to a form whose submit could only 403.
     expect(
       await landsOn(page, `/loans/${loanId}/transactions/disburse`),
-      'the route refused an UPDATE_LOAN holder; if this now passes the gate was narrowed',
-    ).toBe(`/loans/${loanId}/transactions/disburse`);
+      'the route admitted an UPDATE_LOAN holder the platform refuses — the gate has widened again',
+    ).toBe('/forbidden');
   });
 
-  test('a disburser holding UPDATE_LOAN as well completes the payout, and the loan goes active', async ({
+  test('a command with no mapped code is left to the platform rather than guessed at', async ({
     page,
   }) => {
-    // What the application can do today: the duty has to be granted the editing code too. This
-    // is the flow a deployment would actually configure, and it has to keep working whichever
-    // way the gate above is fixed.
-    await login(page);
-    const payer = await createRoleAndUser(page, [...DISBURSER, 'UPDATE_LOAN'], 'Payer');
-
-    await loginAsSeededUser(page, payer);
-    await page.goto(`/loans/view/${loanId}`);
-    await expectOffered(page.getByTestId('loan-disburse-action'));
-    await page.getByTestId('loan-disburse-action').click();
-    await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/disburse$`));
-    await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL(/\/loans$/, { timeout: 20_000 });
-
-    await page.goto(`/loans/view/${loanId}`);
-    await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 20_000 });
+    // Four commands are deliberately unmapped because the authorisation probe gave no clean
+    // answer; `core/guards/command-permissions.ts` lists them and what each answered. The
+    // guard admits those rather than inventing a code, because a wrong code refuses a user the
+    // platform would have allowed — the more damaging and less visible half of #691.
+    //
+    // Asserted so that the choice is visible: if someone later maps `reAmortize`, this fails
+    // and they have to decide deliberately rather than discover it from a support ticket.
+    await loginAsSeededUser(page, editor);
+    expect(
+      await landsOn(page, `/loans/${loanId}/transactions/reAmortize`),
+      'an unmapped command is now gated; command-permissions.ts needs updating to match',
+    ).toBe(`/loans/${loanId}/transactions/reAmortize`);
   });
 
-  test('a repayment duty is offered the control and refused the form in the same way', async ({
-    page,
-  }) => {
+  test('a repayment duty reaches its own form, and records a repayment', async ({ page }) => {
     await login(page);
     const teller = await createRoleAndUser(
       page,
@@ -595,11 +385,23 @@ test.describe('a loan taken through four separated duties, every account built i
 
     await loginAsSeededUser(page, teller);
     await page.goto(`/loans/view/${loanId}`);
-    await expectOffered(page.getByTestId('loan-repayment-action'));
 
-    expect(
-      await landsOn(page, `/loans/${loanId}/transactions/repayment`),
-      'the repayment form admitted a REPAYMENT_LOAN holder; if this now passes the route gate was fixed',
-    ).toBe('/forbidden');
+    // The fourth duty, on the loan the disburser made active. The same gate served Disburse
+    // and Repayment from one declaration, so both were broken by the same line and both are
+    // fixed by the same one — which is why this is asserted separately rather than assumed.
+    const repayment = page.getByTestId('loan-repayment-action');
+    await expectOffered(repayment);
+    await repayment.click();
+
+    await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/repayment$`), {
+      timeout: 20_000,
+    });
+    await page.locator('input[name="transactionAmount"]').fill('100');
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page).toHaveURL(/\/loans$/, { timeout: 20_000 });
+
+    // The transaction landed, which a route assertion alone would not show.
+    await page.goto(`/loans/view/${loanId}`);
+    await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 20_000 });
   });
 });

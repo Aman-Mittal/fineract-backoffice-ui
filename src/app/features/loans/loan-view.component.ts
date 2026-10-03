@@ -373,11 +373,26 @@ export function toEditableDate(value: unknown): string {
                         </ion-label>
                       </ion-item>
 
+                      <!--
+                        ALL_FUNCTIONS, meaning superuser only, because the platform grants no
+                        narrower code for this. It previously named
+                        UPDATE_LOAN_AVAILABLE_DISBURSEMENT_AMOUNT, which is not in Fineract's
+                        catalogue at all, so the control was permanently disabled for every
+                        account except a superuser's -- and DOCS/RBAC.md is explicit that a gate
+                        on a code that does not exist is worse than no gate, because no role can
+                        ever satisfy it.
+
+                        Measured by bisection: a role granted all 721 grantable codes is still
+                        refused PUT /loans/{id}/available-disbursement-amount with 403, while the
+                        superuser gets 400 on the same request. So there is no code to name here;
+                        ALL_FUNCTIONS is the true requirement and the hint now tells an
+                        administrator something they can act on.
+                      -->
                       <ion-item
                         button
                         data-testid="loan-revise-available-disbursement-amount-action"
                         (click)="onReviseAvailableDisbursementAmount()"
-                        appRequiresPermission="UPDATE_LOAN_AVAILABLE_DISBURSEMENT_AMOUNT"
+                        appRequiresPermission="ALL_FUNCTIONS"
                       >
                         <ion-icon slot="start" name="create-outline"></ion-icon>
                         <ion-label>

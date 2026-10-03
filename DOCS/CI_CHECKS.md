@@ -571,10 +571,33 @@ The downloaded summary is untrusted input, because the run that produced it can 
 | Unrecognised artifact names are ignored                                       | Artifact names are chosen by the untrusted run         |
 | `@mentions` and `#refs` are defused, and length capped                        | Otherwise the summary is a notification-spam primitive |
 
-`pr-comments.yml` publishes anything a run leaves in a `pr-comment-*` artifact, so it also
-carries the **change sequence diagram** that `ci.yml`'s `diagram` job renders with
+`pr-comments.yml` publishes the comment artifacts a run leaves behind, so it also carries the
+**change sequence diagram** that `ci.yml`'s `diagram` job renders with
 `scripts/pr-sequence-diagram.mjs` — a Mermaid diagram of which services and API clients the
 changed TypeScript talks to.
+
+Each artifact is downloaded **by name, into a directory named after it**, in a step of its own
+rather than by one `pattern: pr-comment-*`. The directory is what binds a body to the marker it
+is allowed to post under, and `download-artifact` resolves its destination as
+
+```
+isSingleArtifactDownload || mergeMultiple || artifacts.length === 1 ? path : path/<name>
+```
+
+A pattern matching exactly one artifact therefore extracts straight into `summaries/` with no
+directory at all — which is every CI run, because CI renders only the diagram. The file
+arrived, the directory did not, and a missing directory is indistinguishable from an artifact
+that was never uploaded, so the diagram comment was dropped silently on every pull request
+from the day it was added until #695. The E2E summaries were never affected, because that run
+uploads two. `scripts/pr-comment-actions.test.mjs` now asserts that the allow-list, the
+`upload-artifact` names and the download directories all name the same artifacts; that is the
+only pre-merge check available, since a `workflow_run` workflow always runs the copy on the
+default branch.
+
+The concurrency group includes `workflow_run.workflow_id` for a related reason: `github.workflow`
+is this workflow's own name, identical whichever run triggered it, so keying on the commit
+alone made CI's publisher and E2E's publisher share a group — and `cancel-in-progress` then
+drops whichever comment had not been posted when the other run finished.
 
 That script is deliberately not the widely-copied version of this idea, which reads
 constructor parameters for dependency injection and `this.http.get(...)` for backend calls.
