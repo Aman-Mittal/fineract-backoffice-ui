@@ -17,7 +17,15 @@
  * under the License.
  */
 
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  computed,
+  inject,
+  signal,
+  viewChildren,
+} from '@angular/core';
 
 import { createPermissionCheck } from '../../shared/utils/permission-check';
 import { HttpClient } from '@angular/common/http';
@@ -512,7 +520,8 @@ export type GroupTab = (typeof GROUP_TAB)[keyof typeof GROUP_TAB];
     `,
   ],
 })
-export class GroupViewComponent implements OnInit {
+export class GroupViewComponent implements OnInit, OnDestroy {
+  private readonly popovers = viewChildren(IonPopover);
   private readonly groupsService = inject(GroupsService);
   private readonly httpClient = inject(HttpClient);
   private readonly basePath = inject(BASE_PATH);
@@ -569,6 +578,12 @@ export class GroupViewComponent implements OnInit {
   ngOnInit(): void {
     this.groupId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadGroup();
+  }
+
+  ngOnDestroy(): void {
+    for (const popover of this.popovers()) {
+      void popover.dismiss().catch(() => false);
+    }
   }
 
   /**

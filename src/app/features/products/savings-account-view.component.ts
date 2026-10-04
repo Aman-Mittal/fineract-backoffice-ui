@@ -17,7 +17,15 @@
  * under the License.
  */
 
-import { computed, inject, signal, Component, OnInit } from '@angular/core';
+import {
+  computed,
+  inject,
+  signal,
+  Component,
+  OnInit,
+  OnDestroy,
+  viewChildren,
+} from '@angular/core';
 import { from } from 'rxjs';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { I18N, TranslatePipe } from '../../core/adapters';
@@ -834,10 +842,12 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
     `,
   ],
 })
-export class SavingsAccountViewComponent implements OnInit {
+export class SavingsAccountViewComponent implements OnInit, OnDestroy {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
   /** Exposed so the template names its tabs instead of numbering them. */
   protected readonly TAB = SAVINGS_TAB;
+
+  private readonly popovers = viewChildren(IonPopover);
 
   readonly activeTab = signal<SavingsTab>(SAVINGS_TAB.overview);
   private readonly savingsService = inject(SavingsAccountService);
@@ -887,6 +897,12 @@ export class SavingsAccountViewComponent implements OnInit {
         this.loadAccountData();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    for (const popover of this.popovers()) {
+      void popover.dismiss().catch(() => false);
+    }
   }
 
   loadAccountData() {

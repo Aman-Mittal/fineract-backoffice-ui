@@ -327,4 +327,26 @@ describe('SavingsAccountViewComponent', () => {
       expect(buttonFor('withdraw')).toBeNull();
     });
   });
+
+  describe('teardown', () => {
+    it('dismisses popovers when destroyed', () => {
+      component.account.set({ id: 789, status: { active: true } } as never);
+      fixture.detectChanges();
+
+      const withPopovers = component as unknown as {
+        popovers: () => readonly { dismiss: () => Promise<boolean> }[];
+      };
+      const popovers = withPopovers.popovers();
+      expect(popovers.length).toBeGreaterThan(0);
+      const dismissSpies = popovers.map((popover) =>
+        vi.spyOn(popover, 'dismiss').mockResolvedValue(true),
+      );
+
+      fixture.destroy();
+
+      for (const spy of dismissSpies) {
+        expect(spy).toHaveBeenCalled();
+      }
+    });
+  });
 });

@@ -17,7 +17,15 @@
  * under the License.
  */
 
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  computed,
+  inject,
+  signal,
+  viewChildren,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, from, map } from 'rxjs';
@@ -671,10 +679,12 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
     `,
   ],
 })
-export class DepositAccountViewComponent implements OnInit {
+export class DepositAccountViewComponent implements OnInit, OnDestroy {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
   /** Exposed so the template names its tabs instead of numbering them. */
   protected readonly TAB = DEPOSIT_TAB;
+
+  private readonly popovers = viewChildren(IonPopover);
 
   readonly activeTab = signal<DepositTab>(DEPOSIT_TAB.overview);
   private readonly fdService = inject(FixedDepositAccountService);
@@ -706,6 +716,12 @@ export class DepositAccountViewComponent implements OnInit {
     this.accountId = Number(this.route.snapshot.paramMap.get('id'));
     this.isRD = this.router.url.includes('recurring');
     this.loadData();
+  }
+
+  ngOnDestroy(): void {
+    for (const popover of this.popovers()) {
+      void popover.dismiss().catch(() => false);
+    }
   }
 
   /**
