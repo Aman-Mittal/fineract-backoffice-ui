@@ -339,9 +339,6 @@
   "src/app/features/calendars/calendars-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/campaigns/email-campaigns/email-campaign-form.component.ts": {
@@ -1188,9 +1185,6 @@
   },
   "src/app/features/meetings/meetings-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
