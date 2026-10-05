@@ -23,16 +23,17 @@
  * Do not edit the class manually.
  */
 
-import { PutClientsClientIdIdentifiersIdentifierIdChanges } from './putClientsClientIdIdentifiersIdentifierIdChanges';
 
 
 /**
- * PutClientsClientIdIdentifiersIdentifierIdResponse
+ * PutClientsClientIdIdentifiersIdentifierIdChanges
  */
-export interface PutClientsClientIdIdentifiersIdentifierIdResponse { 
-    changes?: PutClientsClientIdIdentifiersIdentifierIdChanges;
-    clientId?: number;
-    officeId?: number;
-    resourceId?: number;
+export interface PutClientsClientIdIdentifiersIdentifierIdChanges { 
+    description?: string;
+    documentKey?: string;
+    documentTypeId?: number;
+    expiryDate?: string;
+    issuanceDate?: string;
+    status?: string;
 }
 
