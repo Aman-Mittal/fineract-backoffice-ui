@@ -1206,9 +1206,6 @@
   "src/app/features/organization/account-number-formats/account-number-formats-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/organization/currencies/currencies.component.test.ts": {
@@ -1296,11 +1293,6 @@
       "count": 1
     }
   },
-  "src/app/features/organization/offices/offices-list.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/features/organization/payment-types/payment-type-form.component.test.ts": {
     "local/no-generated-api-import": {
       "count": 1
@@ -1321,9 +1313,6 @@
   },
   "src/app/features/organization/payment-types/payment-types-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
