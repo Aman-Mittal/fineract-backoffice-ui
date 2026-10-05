@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
 import {
   IonButton,
   IonDatetime,
@@ -33,7 +32,7 @@ import {
   IonSelectOption,
   ModalController,
 } from '@ionic/angular/standalone';
-import { OFFICE_API } from '../../../core/adapters';
+import { OFFICE_API, TranslatePipe } from '../../../core/adapters';
 import type { Office } from '../../../core/adapters';
 import { toIsoDate } from '../../../core/utils/date-formatter';
 
@@ -58,13 +57,13 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
   ],
   template: `
     <div class="dialog">
-      <h2 class="dialog-title">{{ 'OFFICES.CREATE_OFFICE' | translate }}</h2>
+      <h2 class="dialog-title">{{ 'OFFICES.CREATE_OFFICE' | appTranslate }}</h2>
 
       <form #officeForm="ngForm" class="office-form">
         <ion-item fill="outline">
-          <ion-label position="stacked">{{ 'OFFICES.NAME' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'OFFICES.NAME' | appTranslate }}</ion-label>
           <ion-input
-            [attr.aria-label]="'OFFICES.NAME' | translate"
+            [attr.aria-label]="'OFFICES.NAME' | appTranslate"
             id="office-name"
             data-testid="office-name"
             name="name"
@@ -74,9 +73,9 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
         </ion-item>
 
         <ion-item fill="outline">
-          <ion-label position="stacked">{{ 'OFFICES.PARENT' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'OFFICES.PARENT' | appTranslate }}</ion-label>
           <ion-select
-            [attr.aria-label]="'OFFICES.PARENT' | translate"
+            [attr.aria-label]="'OFFICES.PARENT' | appTranslate"
             interface="popover"
             id="office-parent"
             data-testid="office-parent"
@@ -91,7 +90,7 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
         </ion-item>
 
         <ion-item fill="outline">
-          <ion-label position="stacked">{{ 'OFFICES.OPENING_DATE' | translate }}</ion-label>
+          <ion-label position="stacked">{{ 'OFFICES.OPENING_DATE' | appTranslate }}</ion-label>
           <ion-datetime-button datetime="office-opening-date"></ion-datetime-button>
           <ion-modal [keepContentsMounted]="true">
             <ng-template>
@@ -109,7 +108,7 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
 
       <div class="dialog-actions">
         <ion-button data-testid="office-cancel" fill="clear" color="medium" (click)="onCancel()">
-          {{ 'COMMON.CANCEL' | translate }}
+          {{ 'COMMON.CANCEL' | appTranslate }}
         </ion-button>
         <ion-button
           data-testid="office-submit"
@@ -117,7 +116,7 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
           [disabled]="officeForm.invalid || isSaving()"
           (click)="onSubmit()"
         >
-          {{ isSaving() ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+          {{ isSaving() ? ('COMMON.SAVING' | appTranslate) : ('COMMON.SAVE' | appTranslate) }}
         </ion-button>
       </div>
     </div>
