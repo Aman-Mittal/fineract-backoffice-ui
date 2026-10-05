@@ -21,7 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import {
@@ -54,7 +53,6 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
   standalone: true,
   imports: [
     FormsModule,
-    NgxTranslatePipe,
     TranslatePipe,
     IonButton,
     IonSpinner,
@@ -80,9 +78,9 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
           <ion-card-title>
             {{
               command() === 'deposit'
-                ? ('SAVINGS.DEPOSIT' | translate)
+                ? ('SAVINGS.DEPOSIT' | appTranslate)
                 : command() === 'withdrawal'
-                  ? ('SAVINGS.WITHDRAWAL' | translate)
+                  ? ('SAVINGS.WITHDRAWAL' | appTranslate)
                   : ('SAVINGS.POST_INTEREST_AS_ON' | appTranslate)
             }}
           </ion-card-title>
@@ -92,9 +90,9 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
           <form #transactionForm="ngForm" (ngSubmit)="onSubmit()" class="transaction-form">
             <div class="form-grid">
               <!-- Transaction Date -->
-              <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_DATE_DESC' | translate">
+              <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_DATE_DESC' | appTranslate">
                 <ion-label position="stacked">{{
-                  'COMMON.TRANSACTION_DATE' | translate
+                  'COMMON.TRANSACTION_DATE' | appTranslate
                 }}</ion-label>
                 @if (pickersReady()) {
                   <ion-datetime-button datetime="transactionDate-picker"></ion-datetime-button>
@@ -116,12 +114,15 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
               @if (command() !== 'postInterestAsOn') {
                 <!-- Transaction Amount -->
-                <ion-item fill="outline" [appTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | translate">
+                <ion-item
+                  fill="outline"
+                  [appTooltip]="'HELP.TRANSACTION_AMOUNT_DESC' | appTranslate"
+                >
                   <ion-label position="stacked">{{
-                    'COMMON.TRANSACTION_AMOUNT' | translate
+                    'COMMON.TRANSACTION_AMOUNT' | appTranslate
                   }}</ion-label>
                   <ion-input
-                    [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
+                    [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | appTranslate"
                     type="number"
                     name="transactionAmount"
                     [(ngModel)]="transaction.transactionAmount"
@@ -143,10 +144,12 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                   it does not apply to the one command that posts no payment.
                 -->
                 <!-- Payment Type -->
-                <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | translate">
-                  <ion-label position="stacked">{{ 'COMMON.PAYMENT_TYPE' | translate }}</ion-label>
+                <ion-item fill="outline" [appTooltip]="'HELP.PAYMENT_TYPE_DESC' | appTranslate">
+                  <ion-label position="stacked">{{
+                    'COMMON.PAYMENT_TYPE' | appTranslate
+                  }}</ion-label>
                   <ion-select
-                    [attr.aria-label]="'COMMON.PAYMENT_TYPE' | translate"
+                    [attr.aria-label]="'COMMON.PAYMENT_TYPE' | appTranslate"
                     interface="popover"
                     name="paymentTypeId"
                     [(ngModel)]="transaction.paymentTypeId"
@@ -161,12 +164,12 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                 <!-- Note -->
                 <ion-item
                   fill="outline"
-                  [appTooltip]="'HELP.NOTE_DESC' | translate"
+                  [appTooltip]="'HELP.NOTE_DESC' | appTranslate"
                   class="full-width"
                 >
-                  <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                  <ion-label position="stacked">{{ 'COMMON.NOTE' | appTranslate }}</ion-label>
                   <ion-textarea
-                    [attr.aria-label]="'COMMON.NOTE' | translate"
+                    [attr.aria-label]="'COMMON.NOTE' | appTranslate"
                     name="note"
                     [(ngModel)]="note"
                     rows="3"
@@ -177,7 +180,7 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
 
             <div class="form-actions">
               <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
-                {{ 'COMMON.CANCEL' | translate }}
+                {{ 'COMMON.CANCEL' | appTranslate }}
               </ion-button>
               <ion-button
                 color="primary"
@@ -186,9 +189,9 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
               >
                 @if (isSaving()) {
                   <ion-spinner name="crescent"></ion-spinner>
-                  {{ 'COMMON.SAVING' | translate }}
+                  {{ 'COMMON.SAVING' | appTranslate }}
                 } @else {
-                  {{ 'COMMON.SAVE' | translate }}
+                  {{ 'COMMON.SAVE' | appTranslate }}
                 }
               </ion-button>
             </div>
