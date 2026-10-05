@@ -23,16 +23,12 @@
  * Do not edit the class manually.
  */
 
-import { PutClientsClientIdIdentifiersIdentifierIdChanges } from './putClientsClientIdIdentifiersIdentifierIdChanges';
 
 
-/**
- * PutClientsClientIdIdentifiersIdentifierIdResponse
- */
-export interface PutClientsClientIdIdentifiersIdentifierIdResponse { 
-    changes?: PutClientsClientIdIdentifiersIdentifierIdChanges;
-    clientId?: number;
-    officeId?: number;
-    resourceId?: number;
+export interface ClientAuditFieldsData { 
+    createdBy?: number;
+    createdDate?: string;
+    lastModifiedBy?: number;
+    lastModifiedDate?: string;
 }
 
