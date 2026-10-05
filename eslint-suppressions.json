@@ -2011,9 +2011,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/settings/working-days.component.test.ts": {
@@ -2026,9 +2023,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
