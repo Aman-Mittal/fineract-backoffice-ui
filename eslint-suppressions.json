@@ -63,9 +63,6 @@
   "src/app/features/accounting/charges/charges-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/accounting/chart-of-accounts.component.ts": {
@@ -180,9 +177,6 @@
   "src/app/features/accounting/provisioning-categories/provisioning-categories-list.component.ts": {
     "local/no-generated-api-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/accounting/provisioning-criteria/provisioning-criteria-form.component.test.ts": {
@@ -205,9 +199,6 @@
   },
   "src/app/features/accounting/provisioning-criteria/provisioning-criteria-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
