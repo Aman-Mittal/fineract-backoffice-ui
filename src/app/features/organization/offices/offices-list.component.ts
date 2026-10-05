@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { OFFICE_API, TranslatePipe } from '../../../core/adapters';
@@ -33,7 +32,6 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
   selector: 'app-offices-list',
   standalone: true,
   imports: [
-    NgxTranslatePipe,
     DataTableComponent,
     CellTemplateDirective,
     ButtonComponent,
@@ -79,8 +77,8 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
           intent="primary"
           data-testid="office-edit"
           icon="create-outline"
-          [appTooltip]="'COMMON.EDIT' | translate"
-          [label]="'COMMON.EDIT' | translate"
+          [appTooltip]="'COMMON.EDIT' | appTranslate"
+          [label]="'COMMON.EDIT' | appTranslate"
           (click)="onEditOffice(office)"
         />
       </ng-template>
