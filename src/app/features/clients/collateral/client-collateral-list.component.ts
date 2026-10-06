@@ -50,8 +50,10 @@ import { ButtonComponent } from '../../../ui/button/button.component';
       [columns]="columns"
       [data]="collaterals()"
       [totalRecords]="collaterals().length"
+      [hasError]="hasError()"
       [localLogic]="true"
       (create)="onCreate()"
+      (retry)="onRetry()"
     >
       <ng-template appCellTemplate="actions" let-row>
         <app-button
@@ -93,6 +95,7 @@ export class ClientCollateralListComponent implements OnInit {
 
   clientId!: number;
   readonly collaterals = signal<ClientCollateralManagementData[]>([]);
+  readonly hasError = signal(false);
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -103,11 +106,17 @@ export class ClientCollateralListComponent implements OnInit {
     this.collateralService.getClientsClientIdCollaterals(this.clientId).subscribe({
       next: (data: ClientCollateralManagementData[]) => {
         this.collaterals.set(data || []);
+        this.hasError.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load client collaterals', err);
+        this.hasError.set(true);
       },
     });
+  }
+
+  onRetry(): void {
+    this.load();
   }
 
   onCreate(): void {
