@@ -46,6 +46,15 @@ async function expectRow(page: Page, text: string | RegExp) {
 
 /** Shared login + API mock setup used across all feature tests */
 async function loginAndMockApi(page: Page) {
+  // A configured business date, which the header shows. An instance without one hides it.
+  await page.route(/\/api\/v1\/businessdate/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([{ type: 'BUSINESS_DATE', date: [2026, 10, 5] }]),
+    });
+  });
+
   await page.route('**/config.json*', async (route) => {
     await route.fulfill({
       status: 200,

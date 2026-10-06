@@ -138,6 +138,12 @@ async function loginAndGoToDashboard(page: Page) {
   await mockConfig(page);
   await mockAuth(page);
   await mockDashboardCounts(page);
+  // A configured business date, which the header shows. An instance without one hides it.
+  await page.route(/\/api\/v1\/businessdate/, async (route) => {
+    await route.fulfill(
+      okJsonResponse(JSON.stringify([{ type: 'BUSINESS_DATE', date: [2026, 10, 5] }])),
+    );
+  });
   await page.goto('/login');
 
   // API_BASE is a relative path, so it is not one of the preset <option> values —

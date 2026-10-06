@@ -37,8 +37,11 @@ describe('HeaderComponent', () => {
   let navigationConfigSpy: SpyObj<NavigationConfigService>;
   let routerSpy: SpyObj<Router>;
   let isMobile: WritableSignal<boolean>;
+  /** What the platform's business-date endpoint answers with. `[]` when the feature is not configured. */
+  let businessDates: unknown[];
 
   beforeEach(async () => {
+    businessDates = [];
     authServiceSpy = Object.assign(createSpyObj<AuthService>(['logout']), {
       username: signal('mifos'),
       officeName: signal('Head Office'),
@@ -64,7 +67,10 @@ describe('HeaderComponent', () => {
         ...provideTranslateTesting(),
         { provide: AuthService, useValue: authServiceSpy },
         { provide: NavigationConfigService, useValue: navigationConfigSpy },
-        { provide: BusinessDateManagementService, useValue: { getBusinessdate: () => of([]) } },
+        {
+          provide: BusinessDateManagementService,
+          useValue: { getBusinessdate: () => of(businessDates) },
+        },
         { provide: Router, useValue: routerSpy },
         { provide: ViewportService, useValue: { isMobile } },
       ],
@@ -95,6 +101,26 @@ describe('HeaderComponent', () => {
     expect(compiled.querySelector('.username')).toBeNull();
     expect(compiled.querySelector('#header-overflow')).not.toBeNull();
     expect(compiled.querySelector('.page-title')).not.toBeNull();
+  });
+
+  it('omits the business date when the instance has none, rather than showing a dash', () => {
+    // `[]` is what the platform answers when the feature is not configured. The chip used to
+    // stay on screen as "BUSINESS DATE: -" for the whole session; only render time is left.
+    const groups = fixture.nativeElement.querySelectorAll('.system-info .info-group');
+    expect(groups).toHaveLength(1);
+    expect(fixture.nativeElement.querySelector('.system-info .value')?.textContent).not.toContain(
+      '-',
+    );
+  });
+
+  it('shows the business date the platform reports', () => {
+    businessDates = [{ type: 'BUSINESS_DATE', date: [2026, 10, 2] }];
+    const second = TestBed.createComponent(HeaderComponent);
+    second.detectChanges();
+
+    const values = second.nativeElement.querySelectorAll('.system-info .value');
+    expect(values).toHaveLength(2);
+    expect(values[0].textContent.trim()).toBe(new Date(2026, 9, 2).toLocaleDateString());
   });
 
   it('should call logout and navigate', () => {
