@@ -514,12 +514,36 @@ export class LoginComponent {
           },
           error: (err) => {
             this.isLoading.set(false);
-            this.error.set(
-              err.error?.defaultUserMessage || 'Login failed. Check credentials/server.',
-            );
+            this.error.set(this.loginErrorMessage(err));
           },
         });
     }
+  }
+
+  /**
+   * A refused password, a server without the sign-in endpoint and a server that cannot be
+   * reached need different fixes, so they get different messages. The platform answers a wrong
+   * username or password with a 401 whose own text is "Unauthenticated. Please login.", which
+   * says nothing useful on the login page; other platform messages, such as the one for an
+   * unknown tenant, are specific and are shown as they are.
+   */
+  private loginErrorMessage(err: {
+    status?: number;
+    error?: { defaultUserMessage?: string; userMessageGlobalisationCode?: string } | null;
+  }): string {
+    if (
+      err.status === 401 &&
+      err.error?.userMessageGlobalisationCode === 'error.msg.not.authenticated'
+    ) {
+      return this.translate.instant('login.errors.invalidCredentials');
+    }
+    if (err.status === 404) {
+      return this.translate.instant('login.errors.endpointNotFound');
+    }
+    if (err.status === 0) {
+      return this.translate.instant('login.errors.serverUnreachable');
+    }
+    return err.error?.defaultUserMessage || this.translate.instant('login.errors.failed');
   }
 
   /** The second factor succeeded; the session is complete and the user can be let in. */
