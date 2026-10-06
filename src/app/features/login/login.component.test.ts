@@ -21,6 +21,7 @@ import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService, UserSession } from '../../core/services/auth.service';
@@ -148,6 +149,66 @@ describe('LoginComponent', () => {
     expect((component as unknown as { isLoading: WritableSignal<boolean> }).isLoading()).toBe(
       false,
     );
+  });
+
+  describe('failure messages', () => {
+    /** Submits the form with the given failure and returns the message the person would see. */
+    function failWith(error: HttpErrorResponse): string | null {
+      authServiceSpy.login.mockReturnValue(throwError(() => error));
+      component['loginForm'].setValue({
+        serverUrl: mockApiUrl,
+        customUrl: '',
+        tenantId: 'default',
+        username: 'mifos',
+        // A form-submission fixture, not a credential.
+        password: 'wrongpassword',
+      });
+      component.onSubmit();
+      return (component as unknown as { error: WritableSignal<string | null> }).error();
+    }
+
+    it("says the credentials were refused on a 401, not the platform's session text", () => {
+      const message = failWith(
+        new HttpErrorResponse({
+          status: 401,
+          error: { defaultUserMessage: 'Unauthenticated. Please login.' },
+        }),
+      );
+
+      expect(message).toBe('login.errors.rejected');
+    });
+
+    it('says the endpoint does not serve sign-in on a 404, and names that endpoint', () => {
+      const translate = (
+        component as unknown as { translate: { instant(key: string, params?: object): string } }
+      ).translate;
+      const instant = vi.spyOn(translate, 'instant');
+
+      const message = failWith(new HttpErrorResponse({ status: 404, statusText: 'Not Found' }));
+
+      expect(message).toBe('login.errors.notFound');
+      expect(instant).toHaveBeenCalledWith('login.errors.notFound', { endpoint: mockApiUrl });
+    });
+
+    it('says the endpoint could not be reached on a status of 0, which covers CORS too', () => {
+      const message = failWith(new HttpErrorResponse({ status: 0, statusText: 'Unknown Error' }));
+
+      expect(message).toBe('login.errors.unreachable');
+    });
+
+    it('keeps the platform message for other failures', () => {
+      const message = failWith(
+        new HttpErrorResponse({ status: 500, error: { defaultUserMessage: 'Database is down.' } }),
+      );
+
+      expect(message).toBe('Database is down.');
+    });
+
+    it('keeps the generic message when the failure carries nothing better', () => {
+      const message = failWith(new HttpErrorResponse({ status: 503 }));
+
+      expect(message).toBe('Login failed. Check credentials/server.');
+    });
   });
 
   describe('identity-provider button', () => {

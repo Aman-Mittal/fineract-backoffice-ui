@@ -1733,7 +1733,10 @@
     "proxyOption": "Local proxy (same origin)",
     "customOption": "Custom URL…",
     "errors": {
-      "endpointNotAllowed": "That API endpoint is not permitted by this deployment. Ask your administrator to add it to the allowed list."
+      "endpointNotAllowed": "That API endpoint is not permitted by this deployment. Ask your administrator to add it to the allowed list.",
+      "rejected": "Sign-in was refused. Check the username, password and tenant, then try again.",
+      "notFound": "The API endpoint {{endpoint}} does not serve sign-in (HTTP 404). The server or its proxy is not configured for this path. Choose the endpoint your server listens on, or check its configuration.",
+      "unreachable": "The API endpoint {{endpoint}} could not be reached. Check that the server is running and that the browser is allowed to call it (CORS)."
     },
     "twoFactor": {
       "title": "Two-step verification",
