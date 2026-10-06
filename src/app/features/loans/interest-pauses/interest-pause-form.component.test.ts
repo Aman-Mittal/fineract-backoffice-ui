@@ -117,6 +117,7 @@ describe('InterestPauseFormComponent', () => {
     expect(component.variationId).toBe(7);
     expect(component.startDate()).toBe('2026-04-01');
     expect(component.endDate()).toBe('2026-04-08');
+    expect(component.isLoading()).toBe(false);
   });
 
   it('should put the formatted dates and navigate to the list in edit mode', async () => {
