@@ -241,10 +241,14 @@ type HeaderSearchResult =
 
     <ng-template #headerActions>
       <div class="system-info">
-        <div class="info-group">
-          <span class="label">{{ 'COMMON.BUSINESS_DATE' | translate }}:</span>
-          <span class="value">{{ businessDate() }}</span>
-        </div>
+        <!-- GET /businessdate answers [] when the business date feature is not configured; a
+             permanent "-" would only take up header space, so the chip is left out. -->
+        @if (businessDate(); as date) {
+          <div class="info-group">
+            <span class="label">{{ 'COMMON.BUSINESS_DATE' | translate }}:</span>
+            <span class="value">{{ date }}</span>
+          </div>
+        }
         <div class="info-group">
           <span class="label">{{ 'COMMON.RENDER_TIME' | translate }}:</span>
           <span class="value">{{ renderTime() }}</span>
@@ -752,7 +756,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly showResults = signal(false);
   private searchSubject = new Subject<string>();
 
-  readonly businessDate = signal<string>('-');
+  readonly businessDate = signal<string | null>(null);
   readonly renderTime = signal<string>('-');
   private renderTimeInterval: ReturnType<typeof setInterval> | null = null;
 

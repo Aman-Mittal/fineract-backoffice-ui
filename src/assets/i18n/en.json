@@ -1733,7 +1733,11 @@
     "proxyOption": "Local proxy (same origin)",
     "customOption": "Custom URL…",
     "errors": {
-      "endpointNotAllowed": "That API endpoint is not permitted by this deployment. Ask your administrator to add it to the allowed list."
+      "endpointNotAllowed": "That API endpoint is not permitted by this deployment. Ask your administrator to add it to the allowed list.",
+      "invalidCredentials": "The username or password was not accepted.",
+      "endpointNotFound": "No sign-in endpoint was found at this address. Check the API endpoint selected above.",
+      "serverUnreachable": "The server could not be reached. Check the API endpoint selected above and your connection.",
+      "failed": "Sign-in failed. Check your credentials and the API endpoint selected above."
     },
     "twoFactor": {
       "title": "Two-step verification",
