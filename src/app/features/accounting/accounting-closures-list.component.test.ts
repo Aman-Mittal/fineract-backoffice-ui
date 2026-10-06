@@ -23,7 +23,7 @@ import { AccountingClosuresListComponent } from './accounting-closures-list.comp
 import { ACCOUNTING_CLOSURE_API } from '../../core/adapters';
 import type { AccountingClosure, AccountingClosureApi } from '../../core/adapters';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
@@ -122,5 +122,27 @@ describe('AccountingClosuresListComponent', () => {
     component.onDeleteClosure(CLOSURE);
 
     expect(closureApiSpy.remove).not.toHaveBeenCalled();
+  });
+
+  it('sets hasError to true when loading closures fails', () => {
+    closureApiSpy.list.mockReturnValue(throwError(() => new Error('Server down')));
+    const failedFixture = TestBed.createComponent(AccountingClosuresListComponent);
+    failedFixture.detectChanges();
+
+    expect(failedFixture.componentInstance.hasError()).toBe(true);
+  });
+
+  it('retries loading closures and resets hasError on retry', () => {
+    closureApiSpy.list.mockReturnValue(throwError(() => new Error('Server down')));
+    const failedFixture = TestBed.createComponent(AccountingClosuresListComponent);
+    failedFixture.detectChanges();
+
+    expect(failedFixture.componentInstance.hasError()).toBe(true);
+
+    closureApiSpy.list.mockReturnValue(of([CLOSURE]));
+    failedFixture.componentInstance.onRetry();
+
+    expect(failedFixture.componentInstance.hasError()).toBe(false);
+    expect(failedFixture.componentInstance.closures()).toEqual([CLOSURE]);
   });
 });
