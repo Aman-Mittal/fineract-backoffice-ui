@@ -20,7 +20,6 @@
 import { Component, computed, inject, signal, DestroyRef } from '@angular/core';
 
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
@@ -513,34 +512,38 @@ export class LoginComponent {
 
             this.enterApplication();
           },
-          error: (err: HttpErrorResponse) => {
+          error: (err) => {
             this.isLoading.set(false);
-            this.error.set(this.failureMessage(err));
+            this.error.set(this.loginErrorMessage(err));
           },
         });
     }
   }
 
   /**
-   * Says what most likely went wrong, so the person knows whether to fix their credentials or the
-   * endpoint. The status code is the only signal the browser gives. A status of 0 is an
-   * unreachable server or a CORS rejection, which the browser does not tell apart.
-   *
-   * The platform's own 401 text ("Unauthenticated. Please login.") is not shown: it reads as a
-   * session problem, not as a wrong password.
+   * A refused password, a server without the sign-in endpoint and a server that cannot be
+   * reached need different fixes, so they get different messages. The platform answers a wrong
+   * username or password with a 401 whose own text is "Unauthenticated. Please login.", which
+   * says nothing useful on the login page; other platform messages, such as the one for an
+   * unknown tenant, are specific and are shown as they are.
    */
-  private failureMessage(err: HttpErrorResponse): string {
-    const endpoint = this.configService.apiUrl;
-    switch (err.status) {
-      case 0:
-        return this.translate.instant('login.errors.unreachable', { endpoint });
-      case 401:
-        return this.translate.instant('login.errors.rejected');
-      case 404:
-        return this.translate.instant('login.errors.notFound', { endpoint });
-      default:
-        return err.error?.defaultUserMessage || 'Login failed. Check credentials/server.';
+  private loginErrorMessage(err: {
+    status?: number;
+    error?: { defaultUserMessage?: string; userMessageGlobalisationCode?: string } | null;
+  }): string {
+    if (
+      err.status === 401 &&
+      err.error?.userMessageGlobalisationCode === 'error.msg.not.authenticated'
+    ) {
+      return this.translate.instant('login.errors.invalidCredentials');
     }
+    if (err.status === 404) {
+      return this.translate.instant('login.errors.endpointNotFound');
+    }
+    if (err.status === 0) {
+      return this.translate.instant('login.errors.serverUnreachable');
+    }
+    return err.error?.defaultUserMessage || this.translate.instant('login.errors.failed');
   }
 
   /** The second factor succeeded; the session is complete and the user can be let in. */

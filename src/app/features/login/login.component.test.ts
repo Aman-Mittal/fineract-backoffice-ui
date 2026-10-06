@@ -21,7 +21,6 @@ import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService, UserSession } from '../../core/services/auth.service';
@@ -151,10 +150,9 @@ describe('LoginComponent', () => {
     );
   });
 
-  describe('failure messages', () => {
-    /** Submits the form with the given failure and returns the message the person would see. */
-    function failWith(error: HttpErrorResponse): string | null {
-      authServiceSpy.login.mockReturnValue(throwError(() => error));
+  describe('sign-in failure message', () => {
+    const submitWith = (failure: unknown): string | null => {
+      authServiceSpy.login.mockReturnValue(throwError(() => failure));
       component['loginForm'].setValue({
         serverUrl: mockApiUrl,
         customUrl: '',
@@ -165,49 +163,42 @@ describe('LoginComponent', () => {
       });
       component.onSubmit();
       return (component as unknown as { error: WritableSignal<string | null> }).error();
-    }
+    };
 
-    it("says the credentials were refused on a 401, not the platform's session text", () => {
-      const message = failWith(
-        new HttpErrorResponse({
+    it('names the credentials for a refused username or password', () => {
+      expect(
+        submitWith({
           status: 401,
-          error: { defaultUserMessage: 'Unauthenticated. Please login.' },
+          error: {
+            userMessageGlobalisationCode: 'error.msg.not.authenticated',
+            defaultUserMessage: 'Unauthenticated. Please login.',
+          },
         }),
-      );
-
-      expect(message).toBe('login.errors.rejected');
+      ).toBe('login.errors.invalidCredentials');
     });
 
-    it('says the endpoint does not serve sign-in on a 404, and names that endpoint', () => {
-      const translate = (
-        component as unknown as { translate: { instant(key: string, params?: object): string } }
-      ).translate;
-      const instant = vi.spyOn(translate, 'instant');
-
-      const message = failWith(new HttpErrorResponse({ status: 404, statusText: 'Not Found' }));
-
-      expect(message).toBe('login.errors.notFound');
-      expect(instant).toHaveBeenCalledWith('login.errors.notFound', { endpoint: mockApiUrl });
+    it("keeps the platform's own message for an unknown tenant", () => {
+      expect(
+        submitWith({
+          status: 401,
+          error: {
+            userMessageGlobalisationCode: 'error.msg.invalid.tenant.identifier',
+            defaultUserMessage: 'Invalid tenant identifier provided with request.',
+          },
+        }),
+      ).toBe('Invalid tenant identifier provided with request.');
     });
 
-    it('says the endpoint could not be reached on a status of 0, which covers CORS too', () => {
-      const message = failWith(new HttpErrorResponse({ status: 0, statusText: 'Unknown Error' }));
-
-      expect(message).toBe('login.errors.unreachable');
+    it('points at the server selection when the sign-in endpoint is not there', () => {
+      expect(submitWith({ status: 404, error: null })).toBe('login.errors.endpointNotFound');
     });
 
-    it('keeps the platform message for other failures', () => {
-      const message = failWith(
-        new HttpErrorResponse({ status: 500, error: { defaultUserMessage: 'Database is down.' } }),
-      );
-
-      expect(message).toBe('Database is down.');
+    it('says the server could not be reached for a network or CORS failure', () => {
+      expect(submitWith({ status: 0, error: null })).toBe('login.errors.serverUnreachable');
     });
 
-    it('keeps the generic message when the failure carries nothing better', () => {
-      const message = failWith(new HttpErrorResponse({ status: 503 }));
-
-      expect(message).toBe('Login failed. Check credentials/server.');
+    it('falls back to a generic message when there is nothing more specific', () => {
+      expect(submitWith({ status: 500, error: null })).toBe('login.errors.failed');
     });
   });
 

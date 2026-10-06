@@ -17,7 +17,15 @@
  * under the License.
  */
 
-import { Component, OnInit, computed, signal, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  computed,
+  signal,
+  inject,
+  viewChildren,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { I18N, TranslatePipe } from '../../core/adapters';
@@ -1134,10 +1142,12 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
     `,
   ],
 })
-export class ClientViewComponent implements OnInit {
+export class ClientViewComponent implements OnInit, OnDestroy {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
   /** Exposed so the template names its tabs instead of numbering them. */
   protected readonly TAB = CLIENT_TAB;
+
+  private readonly popovers = viewChildren(IonPopover);
 
   readonly activeTab = signal<ClientTab>(CLIENT_TAB.details);
   private readonly clientService = inject(ClientService);
@@ -1236,6 +1246,12 @@ export class ClientViewComponent implements OnInit {
         this.loadClientData();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    for (const popover of this.popovers()) {
+      void popover.dismiss().catch(() => false);
+    }
   }
 
   /**

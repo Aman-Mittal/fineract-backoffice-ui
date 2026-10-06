@@ -17,7 +17,15 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+  viewChildren,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '../../../core/adapters';
 import { DecimalPipe } from '@angular/common';
@@ -1018,10 +1026,12 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
     `,
   ],
 })
-export class WcLoanViewComponent implements OnInit {
+export class WcLoanViewComponent implements OnInit, OnDestroy {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
   /** Exposed so the template names its tabs instead of numbering them. */
   protected readonly TAB = WC_LOAN_TAB;
+
+  private readonly popovers = viewChildren(IonPopover);
 
   readonly activeTab = signal<WcLoanTab>(WC_LOAN_TAB.details);
   private readonly loansService = inject(WorkingCapitalLoansService);
@@ -1090,6 +1100,12 @@ export class WcLoanViewComponent implements OnInit {
     const tab = this.route.snapshot.queryParamMap.get('tab');
     if (tab && Object.values(WC_LOAN_TAB).includes(tab as WcLoanTab)) {
       this.activeTab.set(tab as WcLoanTab);
+    }
+  }
+
+  ngOnDestroy(): void {
+    for (const popover of this.popovers()) {
+      void popover.dismiss().catch(() => false);
     }
   }
 

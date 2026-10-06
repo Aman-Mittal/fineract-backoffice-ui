@@ -37,11 +37,9 @@ describe('HeaderComponent', () => {
   let navigationConfigSpy: SpyObj<NavigationConfigService>;
   let routerSpy: SpyObj<Router>;
   let isMobile: WritableSignal<boolean>;
-  /** What the platform's business-date endpoint answers with. `[]` when the feature is not configured. */
-  let businessDates: unknown[];
+  let businessDates: { type: string; date: number[] }[];
 
   beforeEach(async () => {
-    businessDates = [];
     authServiceSpy = Object.assign(createSpyObj<AuthService>(['logout']), {
       username: signal('mifos'),
       officeName: signal('Head Office'),
@@ -60,6 +58,7 @@ describe('HeaderComponent', () => {
     // either side of the breakpoint. Pinning the value keeps these assertions independent of
     // the test environment's viewport.
     isMobile = signal(false);
+    businessDates = [];
 
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
@@ -85,6 +84,23 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('leaves out the business date chip when the instance has no business date', () => {
+    // GET /businessdate answers [] when the feature is not configured.
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).not.toContain('COMMON.BUSINESS_DATE');
+    expect(compiled.textContent).toContain('COMMON.RENDER_TIME');
+  });
+
+  it('shows the business date when the instance has one', () => {
+    businessDates = [{ type: 'BUSINESS_DATE', date: [2026, 10, 2] }];
+    fixture = TestBed.createComponent(HeaderComponent);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('COMMON.BUSINESS_DATE');
+    expect(compiled.textContent).toContain(new Date(2026, 9, 2).toLocaleDateString());
+  });
+
   it('should display username and office', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.username')?.textContent).toContain('mifos');
@@ -101,26 +117,6 @@ describe('HeaderComponent', () => {
     expect(compiled.querySelector('.username')).toBeNull();
     expect(compiled.querySelector('#header-overflow')).not.toBeNull();
     expect(compiled.querySelector('.page-title')).not.toBeNull();
-  });
-
-  it('omits the business date when the instance has none, rather than showing a dash', () => {
-    // `[]` is what the platform answers when the feature is not configured. The chip used to
-    // stay on screen as "BUSINESS DATE: -" for the whole session; only render time is left.
-    const groups = fixture.nativeElement.querySelectorAll('.system-info .info-group');
-    expect(groups).toHaveLength(1);
-    expect(fixture.nativeElement.querySelector('.system-info .value')?.textContent).not.toContain(
-      '-',
-    );
-  });
-
-  it('shows the business date the platform reports', () => {
-    businessDates = [{ type: 'BUSINESS_DATE', date: [2026, 10, 2] }];
-    const second = TestBed.createComponent(HeaderComponent);
-    second.detectChanges();
-
-    const values = second.nativeElement.querySelectorAll('.system-info .value');
-    expect(values).toHaveLength(2);
-    expect(values[0].textContent.trim()).toBe(new Date(2026, 9, 2).toLocaleDateString());
   });
 
   it('should call logout and navigate', () => {

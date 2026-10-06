@@ -1734,9 +1734,10 @@
     "customOption": "Custom URL…",
     "errors": {
       "endpointNotAllowed": "That API endpoint is not permitted by this deployment. Ask your administrator to add it to the allowed list.",
-      "rejected": "Sign-in was refused. Check the username, password and tenant, then try again.",
-      "notFound": "The API endpoint {{endpoint}} does not serve sign-in (HTTP 404). The server or its proxy is not configured for this path. Choose the endpoint your server listens on, or check its configuration.",
-      "unreachable": "The API endpoint {{endpoint}} could not be reached. Check that the server is running and that the browser is allowed to call it (CORS)."
+      "invalidCredentials": "The username or password was not accepted.",
+      "endpointNotFound": "No sign-in endpoint was found at this address. Check the API endpoint selected above.",
+      "serverUnreachable": "The server could not be reached. Check the API endpoint selected above and your connection.",
+      "failed": "Sign-in failed. Check your credentials and the API endpoint selected above."
     },
     "twoFactor": {
       "title": "Two-step verification",

@@ -46,15 +46,6 @@ async function expectRow(page: Page, text: string | RegExp) {
 
 /** Shared login + API mock setup used across all feature tests */
 async function loginAndMockApi(page: Page) {
-  // A configured business date, which the header shows. An instance without one hides it.
-  await page.route(/\/api\/v1\/businessdate/, async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify([{ type: 'BUSINESS_DATE', date: [2026, 10, 5] }]),
-    });
-  });
-
   await page.route('**/config.json*', async (route) => {
     await route.fulfill({
       status: 200,
@@ -83,6 +74,11 @@ async function loginAndMockApi(page: Page) {
     });
   });
 
+  // The header leaves out the business date when the instance has none, and
+  // 'header shows logged-in user info' checks for it.
+  await page.route('**/api/v1/businessdate**', async (route) => {
+    await route.fulfill({ json: [{ type: 'BUSINESS_DATE', date: [2026, 10, 2] }] });
+  });
   await page.goto('/login');
   if (!page.url().includes('/dashboard')) {
     await page.locator('#tenantId').fill(TENANT_DEFAULT);

@@ -18,7 +18,15 @@
  */
 
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  computed,
+  inject,
+  signal,
+  viewChildren,
+} from '@angular/core';
 
 import { createPermissionCheck } from '../../shared/utils/permission-check';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -423,7 +431,8 @@ export type CenterTab = (typeof CENTER_TAB)[keyof typeof CENTER_TAB];
     `,
   ],
 })
-export class CenterViewComponent implements OnInit {
+export class CenterViewComponent implements OnInit, OnDestroy {
+  private readonly popovers = viewChildren(IonPopover);
   private readonly centersService = inject(CentersService);
   private readonly groupsService = inject(GroupsService);
   private readonly httpClient = inject(HttpClient);
@@ -480,6 +489,12 @@ export class CenterViewComponent implements OnInit {
   ngOnInit(): void {
     this.centerId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadCenter();
+  }
+
+  ngOnDestroy(): void {
+    for (const popover of this.popovers()) {
+      void popover.dismiss().catch(() => false);
+    }
   }
 
   /**

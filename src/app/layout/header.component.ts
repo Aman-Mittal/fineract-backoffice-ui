@@ -241,7 +241,8 @@ type HeaderSearchResult =
 
     <ng-template #headerActions>
       <div class="system-info">
-        <!-- Absent, not a dash, when the instance has no business date configured. -->
+        <!-- GET /businessdate answers [] when the business date feature is not configured; a
+             permanent "-" would only take up header space, so the chip is left out. -->
         @if (businessDate(); as date) {
           <div class="info-group">
             <span class="label">{{ 'COMMON.BUSINESS_DATE' | translate }}:</span>
@@ -755,7 +756,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly showResults = signal(false);
   private searchSubject = new Subject<string>();
 
-  /** Null until the platform reports a business date; `[]` means the feature is not configured. */
   readonly businessDate = signal<string | null>(null);
   readonly renderTime = signal<string>('-');
   private renderTimeInterval: ReturnType<typeof setInterval> | null = null;

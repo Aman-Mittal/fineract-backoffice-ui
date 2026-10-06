@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { WorkingDaysService, WorkingDaysData, WorkingDaysUpdateRequest } from '../../api';
 import { TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
@@ -45,7 +44,6 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    NgxTranslatePipe,
     TranslatePipe,
     IonButton,
     IonItem,
@@ -117,7 +115,7 @@ import {
 
             <div class="form-actions">
               <ion-button color="primary" type="submit" [disabled]="isSaving()">
-                {{ isSaving() ? ('COMMON.SAVING' | translate) : ('COMMON.SAVE' | translate) }}
+                {{ isSaving() ? ('COMMON.SAVING' | appTranslate) : ('COMMON.SAVE' | appTranslate) }}
               </ion-button>
             </div>
           </form>
