@@ -17,7 +17,17 @@
  * under the License.
  */
 
-import { Component, OnInit, Signal, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Signal,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChildren,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, from } from 'rxjs';
@@ -1726,10 +1736,12 @@ export function toEditableDate(value: unknown): string {
     `,
   ],
 })
-export class LoanViewComponent implements OnInit {
+export class LoanViewComponent implements OnInit, OnDestroy {
   /** Selected tab; mat-tab-group tracked this internally, ion-segment does not. */
   /** Exposed so the template names its tabs instead of numbering them. */
   protected readonly TAB = LOAN_TAB;
+
+  private readonly popovers = viewChildren(IonPopover);
 
   readonly activeTab = signal<LoanTab>(LOAN_TAB.overview);
   private readonly loansService = inject(LoansService);
@@ -2049,6 +2061,12 @@ export class LoanViewComponent implements OnInit {
         this.loadLoanData();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    for (const popover of this.popovers()) {
+      void popover.dismiss().catch(() => false);
+    }
   }
 
   loadLoanData() {
