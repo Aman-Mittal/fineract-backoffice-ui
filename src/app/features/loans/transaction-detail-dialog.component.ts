@@ -19,9 +19,8 @@
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
-import { LOAN_TRANSACTION_API } from '../../core/adapters';
+import { I18N, LOAN_TRANSACTION_API, TranslatePipe } from '../../core/adapters';
 import type { LoanTransaction } from '../../core/adapters';
 import { DialogService } from '../../core/services/dialog.service';
 import {
@@ -66,58 +65,58 @@ export interface TransactionDetailDialogData {
     IonModal,
   ],
   template: `
-    <h2 class="dialog-title">{{ 'LOANS.TRANSACTION_DETAILS' | translate }}</h2>
+    <h2 class="dialog-title">{{ 'LOANS.TRANSACTION_DETAILS' | appTranslate }}</h2>
     <div class="dialog-content">
       @if (detail(); as tx) {
         <table class="detail-table">
           <tr>
-            <td class="label">{{ 'COMMON.TYPE' | translate }}</td>
+            <td class="label">{{ 'COMMON.TYPE' | appTranslate }}</td>
             <td class="value">{{ tx.type.displayName }}</td>
           </tr>
           <tr>
-            <td class="label">{{ 'COMMON.TRANSACTION_DATE' | translate }}</td>
+            <td class="label">{{ 'COMMON.TRANSACTION_DATE' | appTranslate }}</td>
             <td class="value">{{ displayDate(tx.date) }}</td>
           </tr>
           <tr>
-            <td class="label">{{ 'COMMON.AMOUNT' | translate }}</td>
+            <td class="label">{{ 'COMMON.AMOUNT' | appTranslate }}</td>
             <td class="value">{{ data().currencySymbol }}{{ tx.amount | number: '1.2-2' }}</td>
           </tr>
           <tr>
             <td class="label">
-              {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | translate }}
+              {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | appTranslate }}
             </td>
             <td class="value">
               {{ data().currencySymbol }}{{ tx.principalPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
-            <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | translate }}</td>
+            <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | appTranslate }}</td>
             <td class="value">
               {{ data().currencySymbol }}{{ tx.interestPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
-            <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | translate }}</td>
+            <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | appTranslate }}</td>
             <td class="value">
               {{ data().currencySymbol }}{{ tx.feeChargesPortion | number: '1.2-2' }}
             </td>
           </tr>
           <tr>
-            <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | translate }}</td>
+            <td class="label">{{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | appTranslate }}</td>
             <td class="value">
               {{ data().currencySymbol }}{{ tx.penaltyChargesPortion | number: '1.2-2' }}
             </td>
           </tr>
           @if (tx.receiptNumber) {
             <tr>
-              <td class="label">{{ 'LOANS.RECEIPT_NUMBER' | translate }}</td>
+              <td class="label">{{ 'LOANS.RECEIPT_NUMBER' | appTranslate }}</td>
               <td class="value">{{ tx.receiptNumber }}</td>
             </tr>
           }
           @if (tx.manuallyReversed) {
             <tr>
-              <td class="label">{{ 'LOANS.REVERSED' | translate }}</td>
-              <td class="value">{{ 'COMMON.YES' | translate }}</td>
+              <td class="label">{{ 'LOANS.REVERSED' | appTranslate }}</td>
+              <td class="value">{{ 'COMMON.YES' | appTranslate }}</td>
             </tr>
           }
         </table>
@@ -131,14 +130,14 @@ export interface TransactionDetailDialogData {
               (click)="showAdjustForm.set(true)"
             >
               <ion-icon name="create-outline"></ion-icon>
-              {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | translate }}
+              {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | appTranslate }}
             </ion-button>
           } @else {
             <div class="adjust-form">
-              <p class="adjust-warning">{{ 'LOANS.CONFIRM_ADJUST_TRANSACTION' | translate }}</p>
+              <p class="adjust-warning">{{ 'LOANS.CONFIRM_ADJUST_TRANSACTION' | appTranslate }}</p>
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
-                  'COMMON.TRANSACTION_DATE' | translate
+                  'COMMON.TRANSACTION_DATE' | appTranslate
                 }}</ion-label>
                 <ion-datetime-button datetime="adjustDate-picker"></ion-datetime-button>
                 <ion-modal [keepContentsMounted]="true">
@@ -156,10 +155,10 @@ export interface TransactionDetailDialogData {
               </ion-item>
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
-                  'COMMON.TRANSACTION_AMOUNT' | translate
+                  'COMMON.TRANSACTION_AMOUNT' | appTranslate
                 }}</ion-label>
                 <ion-input
-                  [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | translate"
+                  [attr.aria-label]="'COMMON.TRANSACTION_AMOUNT' | appTranslate"
                   type="number"
                   [ngModel]="adjustAmount()"
                   (ngModelChange)="adjustAmount.set($event)"
@@ -167,9 +166,9 @@ export interface TransactionDetailDialogData {
                 ></ion-input>
               </ion-item>
               <ion-item fill="outline" class="full-width">
-                <ion-label position="stacked">{{ 'COMMON.NOTE' | translate }}</ion-label>
+                <ion-label position="stacked">{{ 'COMMON.NOTE' | appTranslate }}</ion-label>
                 <ion-textarea
-                  [attr.aria-label]="'COMMON.NOTE' | translate"
+                  [attr.aria-label]="'COMMON.NOTE' | appTranslate"
                   rows="2"
                   [(ngModel)]="adjustNote"
                   name="adjustNote"
@@ -179,16 +178,16 @@ export interface TransactionDetailDialogData {
           }
         }
       } @else {
-        <p>{{ 'COMMON.LOADING' | translate }}</p>
+        <p>{{ 'COMMON.LOADING' | appTranslate }}</p>
       }
     </div>
     <div class="dialog-actions">
       <ion-button fill="clear" (click)="modalController.dismiss(false)">{{
-        'COMMON.CLOSE' | translate
+        'COMMON.CLOSE' | appTranslate
       }}</ion-button>
       @if (showAdjustForm()) {
         <ion-button color="danger" [disabled]="isSaving()" (click)="onConfirmAdjust()">
-          {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | translate }}
+          {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | appTranslate }}
         </ion-button>
       }
     </div>
@@ -235,7 +234,7 @@ export class TransactionDetailDialogComponent implements OnInit {
   readonly modalController = inject(ModalController);
   private readonly transactionApi = inject(LOAN_TRANSACTION_API);
   private readonly dialogService = inject(DialogService);
-  private readonly translate = inject(TranslateService);
+  private readonly i18n = inject(I18N);
 
   readonly detail = signal<LoanTransaction | null>(null);
   readonly showAdjustForm = signal(false);
@@ -275,8 +274,8 @@ export class TransactionDetailDialogComponent implements OnInit {
   onConfirmAdjust(): void {
     this.dialogService
       .confirm({
-        title: this.translate.instant('LOANS.ACTIONS.ADJUST_TRANSACTION'),
-        message: this.translate.instant('LOANS.CONFIRM_ADJUST_TRANSACTION'),
+        title: this.i18n.translate('LOANS.ACTIONS.ADJUST_TRANSACTION'),
+        message: this.i18n.translate('LOANS.CONFIRM_ADJUST_TRANSACTION'),
         destructive: true,
       })
       .then((confirmed) => {
