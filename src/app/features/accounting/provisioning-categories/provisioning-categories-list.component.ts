@@ -50,8 +50,10 @@ import { I18N, TranslatePipe } from '../../../core/adapters';
       [columns]="columns"
       [data]="categories()"
       [totalRecords]="categories().length"
+      [hasError]="hasError()"
       [localLogic]="true"
       (create)="onCreate()"
+      (retry)="onRetry()"
     >
       <ng-template appCellTemplate="actions" let-row>
         <app-button
@@ -89,6 +91,7 @@ export class ProvisioningCategoriesListComponent implements OnInit {
   ];
 
   readonly categories = signal<ProvisioningCategoryData[]>([]);
+  readonly hasError = signal(false);
 
   ngOnInit(): void {
     this.load();
@@ -98,11 +101,17 @@ export class ProvisioningCategoriesListComponent implements OnInit {
     this.categoryService.getProvisioningcategory().subscribe({
       next: (data: ProvisioningCategoryData[]) => {
         this.categories.set(data || []);
+        this.hasError.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load provisioning categories', err);
+        this.hasError.set(true);
       },
     });
+  }
+
+  onRetry(): void {
+    this.load();
   }
 
   onCreate(): void {

@@ -51,8 +51,10 @@ import { ButtonComponent } from '../../../ui/button/button.component';
       [columns]="columns"
       [data]="charges()"
       [totalRecords]="charges().length"
+      [hasError]="hasError()"
       [localLogic]="true"
       (create)="onCreate()"
+      (retry)="onRetry()"
     >
       <ng-template appCellTemplate="dueDate" let-row>
         {{ formatDate(row.dueDate) }}
@@ -95,6 +97,7 @@ export class ClientChargesListComponent implements OnInit {
 
   clientId!: number;
   readonly charges = signal<GetClientsChargesPageItems[]>([]);
+  readonly hasError = signal(false);
 
   ngOnInit(): void {
     this.clientId = Number(this.route.snapshot.paramMap.get('clientId'));
@@ -105,11 +108,17 @@ export class ClientChargesListComponent implements OnInit {
     this.clientChargesService.getClientsClientIdCharges(this.clientId).subscribe({
       next: (data) => {
         this.charges.set(data?.pageItems ? Array.from(data.pageItems) : []);
+        this.hasError.set(false);
       },
       error: (err: unknown) => {
         console.error('Failed to load client charges', err);
+        this.hasError.set(true);
       },
     });
+  }
+
+  onRetry(): void {
+    this.load();
   }
 
   formatDate(value: unknown): string {

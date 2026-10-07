@@ -49,9 +49,11 @@ import { ButtonComponent } from '../../ui/button/button.component';
       createPermission="CREATE_GLCLOSURE"
       [columns]="columns"
       [data]="closures()"
+      [hasError]="hasError()"
       [localLogic]="true"
       [showSearch]="false"
       (create)="onCreateClosure()"
+      (retry)="onRetry()"
     >
       <ng-template appCellTemplate="closingDate" let-closure>
         {{ closure.closingDate | date: 'mediumDate' }}
@@ -107,6 +109,7 @@ export class AccountingClosuresListComponent implements OnInit {
   ];
 
   readonly closures = signal<AccountingClosure[]>([]);
+  readonly hasError = signal(false);
 
   ngOnInit() {
     this.loadClosures();
@@ -114,9 +117,19 @@ export class AccountingClosuresListComponent implements OnInit {
 
   private loadClosures() {
     this.closureApi.list().subscribe({
-      next: (data) => this.closures.set(data),
-      error: (err) => console.error('Failed to load closures', err),
+      next: (data) => {
+        this.closures.set(data);
+        this.hasError.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load closures', err);
+        this.hasError.set(true);
+      },
     });
+  }
+
+  onRetry() {
+    this.loadClosures();
   }
 
   onCreateClosure() {
