@@ -21,6 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { TranslatePipe } from '../../../core/adapters';
 import { InlineJobService, InlineJobRequest, InlineJobResponse } from '../../../api';
+export { InlineJobService };
 import {
   IonButton,
   IonCard,
