@@ -17,11 +17,22 @@
  * under the License.
  */
 
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  signal,
+  inject,
+  viewChild,
+  DestroyRef,
+} from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../core/adapters';
 import { SearchAPIService, GetSearchResponse } from '../../api';
+
+export { SearchAPIService, GetSearchResponse };
 import {
   NavigationConfigService,
   NavSearchResult,
@@ -73,9 +84,11 @@ import {
           <ion-item fill="outline">
             <ion-label position="stacked">{{ 'SEARCH.QUERY' | appTranslate }}</ion-label>
             <ion-input
+              #searchInput
               [attr.aria-label]="'SEARCH.QUERY' | appTranslate"
               [(ngModel)]="query"
               name="query"
+              [autofocus]="true"
               required
               (keyup.enter)="onSearch()"
             ></ion-input>
@@ -229,10 +242,14 @@ import {
     `,
   ],
 })
-export class GlobalSearchComponent implements OnInit {
+export class GlobalSearchComponent implements OnInit, AfterViewInit {
   private searchApiService = inject(SearchAPIService);
   private navigationConfig = inject(NavigationConfigService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
+
+  readonly searchInput = viewChild<IonInput>('searchInput');
 
   query = '';
   selectedResource = '';
@@ -252,12 +269,32 @@ export class GlobalSearchComponent implements OnInit {
   navDisplayedColumns = ['pageType', 'pageName', 'pageSection'];
 
   ngOnInit(): void {
-    this.searchApiService.getSearchTemplate().subscribe({
-      next: (template) => {
-        this.allowedSearchTypes.set(
-          ((template as Record<string, unknown>)?.[`allowedSearchTypes`] as string[]) ?? [],
-        );
-      },
+    this.searchApiService
+      .getSearchTemplate()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (template) => {
+          this.allowedSearchTypes.set(
+            ((template as Record<string, unknown>)?.[`allowedSearchTypes`] as string[]) ?? [],
+          );
+        },
+      });
+
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const q = params.get('q');
+      if (q && q !== this.query) {
+        this.query = q;
+        this.onSearch();
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const input = this.searchInput();
+      if (input && typeof input.setFocus === 'function') {
+        input.setFocus();
+      }
     });
   }
 
