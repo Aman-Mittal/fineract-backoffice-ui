@@ -29,7 +29,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { I18N, TranslatePipe } from '../../core/adapters';
 import { Observable, from } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, JsonPipe, NgClass } from '@angular/common';
@@ -226,9 +226,9 @@ export function toEditableDate(value: unknown): string {
                         color="warning"
                         highlighted
                         data-testid="loan-charged-off-chip"
-                        [appTooltip]="'HELP.CHARGE_OFF_DESC' | translate"
+                        [appTooltip]="'HELP.CHARGE_OFF_DESC' | appTranslate"
                       >
-                        {{ 'LOANS.ACTIONS.CHARGED_OFF' | translate }}
+                        {{ 'LOANS.ACTIONS.CHARGED_OFF' | appTranslate }}
                       </ion-chip>
                     </div>
                   }
@@ -237,9 +237,9 @@ export function toEditableDate(value: unknown): string {
                       <ion-chip
                         [color]="isProgressiveLoan() ? 'secondary' : 'primary'"
                         highlighted
-                        [appTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | translate"
+                        [appTooltip]="'HELP.LOAN_SCHEDULE_TYPE_DESC' | appTranslate"
                       >
-                        {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | translate }}:
+                        {{ 'PRODUCTS.LOAN_SCHEDULE_TYPE' | appTranslate }}:
                         {{ loan()?.loanScheduleType?.value }}
                       </ion-chip>
                     </div>
@@ -260,10 +260,10 @@ export function toEditableDate(value: unknown): string {
                   data-testid="loan-repayment-action"
                   appRequiresPermission="REPAYMENT_LOAN"
                   (click)="onRepayment()"
-                  [appTooltip]="'LOANS.REPAYMENT' | translate"
+                  [appTooltip]="'LOANS.REPAYMENT' | appTranslate"
                 >
                   <ion-icon name="card-outline"></ion-icon>
-                  {{ 'LOANS.REPAYMENT' | translate }}
+                  {{ 'LOANS.REPAYMENT' | appTranslate }}
                 </ion-button>
               }
 
@@ -273,10 +273,10 @@ export function toEditableDate(value: unknown): string {
                   data-testid="loan-approve-action"
                   appRequiresPermission="APPROVE_LOAN"
                   (click)="onLoanAction('approve')"
-                  [appTooltip]="'LOANS.APPROVE' | translate"
+                  [appTooltip]="'LOANS.APPROVE' | appTranslate"
                 >
                   <ion-icon name="checkmark-circle-outline"></ion-icon>
-                  {{ 'LOANS.APPROVE' | translate }}
+                  {{ 'LOANS.APPROVE' | appTranslate }}
                 </ion-button>
               }
 
@@ -292,17 +292,17 @@ export function toEditableDate(value: unknown): string {
                   data-testid="loan-disburse-action"
                   appRequiresPermission="DISBURSE_LOAN"
                   (click)="onDisburse()"
-                  [appTooltip]="'LOANS.DISBURSE' | translate"
+                  [appTooltip]="'LOANS.DISBURSE' | appTranslate"
                 >
                   <ion-icon name="open-outline"></ion-icon>
-                  {{ 'LOANS.DISBURSE' | translate }}
+                  {{ 'LOANS.DISBURSE' | appTranslate }}
                 </ion-button>
               }
 
               <!-- Actions Dropdown Menu -->
               <ion-button color="primary" id="loanMenu-trigger">
                 <ion-icon name="caret-down-outline"></ion-icon>
-                {{ 'COMMON.ACTIONS' | translate }}
+                {{ 'COMMON.ACTIONS' | appTranslate }}
               </ion-button>
               <ion-popover trigger="loanMenu-trigger" [dismissOnSelect]="true">
                 <ng-template>
@@ -313,13 +313,15 @@ export function toEditableDate(value: unknown): string {
                       (click)="onAddCharge()"
                     >
                       <ion-icon slot="start" name="add-outline"></ion-icon>
-                      <ion-label>{{ 'LOANS.ACTIONS.ADD_CHARGE' | translate }}</ion-label>
+                      <ion-label>{{ 'LOANS.ACTIONS.ADD_CHARGE' | appTranslate }}</ion-label>
                     </ion-item>
 
                     @if (isLoanPendingApproval) {
                       <ion-item button appRequiresPermission="UPDATE_LOAN" (click)="onModifyLoan()">
                         <ion-icon slot="start" name="create-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.MODIFY_APPLICATION' | translate }}</ion-label>
+                        <ion-label>{{
+                          'LOANS.ACTIONS.MODIFY_APPLICATION' | appTranslate
+                        }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -328,7 +330,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanAction('reject')"
                       >
                         <ion-icon slot="start" name="close-circle-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.REJECT' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.REJECT' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -337,12 +339,14 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanAction('withdrawnByClient')"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | translate }}</ion-label>
+                        <ion-label>{{
+                          'LOANS.ACTIONS.WITHDRAWN_BY_CLIENT' | appTranslate
+                        }}</ion-label>
                       </ion-item>
 
                       <ion-item button appRequiresPermission="DELETE_LOAN" (click)="onDeleteLoan()">
                         <ion-icon slot="start" name="trash-outline"></ion-icon>
-                        <ion-label>{{ 'COMMON.DELETE' | translate }}</ion-label>
+                        <ion-label>{{ 'COMMON.DELETE' | appTranslate }}</ion-label>
                       </ion-item>
                     }
 
@@ -355,7 +359,7 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="wallet-outline"></ion-icon>
                         <ion-label>
-                          {{ 'LOANS.ACTIONS.DISBURSE_TO_SAVINGS' | translate }}
+                          {{ 'LOANS.ACTIONS.DISBURSE_TO_SAVINGS' | appTranslate }}
                         </ion-label>
                       </ion-item>
 
@@ -366,7 +370,7 @@ export function toEditableDate(value: unknown): string {
                         appRequiresPermission="APPROVALUNDO_LOAN"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_APPROVAL' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_APPROVAL' | appTranslate }}</ion-label>
                       </ion-item>
                     }
 
@@ -379,7 +383,7 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="create-outline"></ion-icon>
                         <ion-label>
-                          {{ 'LOANS.ACTIONS.REVISE_APPROVED_AMOUNT' | translate }}
+                          {{ 'LOANS.ACTIONS.REVISE_APPROVED_AMOUNT' | appTranslate }}
                         </ion-label>
                       </ion-item>
 
@@ -406,7 +410,7 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="create-outline"></ion-icon>
                         <ion-label>
-                          {{ 'LOANS.ACTIONS.REVISE_AVAILABLE_DISBURSEMENT_AMOUNT' | translate }}
+                          {{ 'LOANS.ACTIONS.REVISE_AVAILABLE_DISBURSEMENT_AMOUNT' | appTranslate }}
                         </ion-label>
                       </ion-item>
                     }
@@ -417,7 +421,7 @@ export function toEditableDate(value: unknown): string {
                       (click)="onAddCollateral()"
                     >
                       <ion-icon slot="start" name="shield-outline"></ion-icon>
-                      <ion-label>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | translate }}</ion-label>
+                      <ion-label>{{ 'LOANS.ACTIONS.ADD_COLLATERAL' | appTranslate }}</ion-label>
                     </ion-item>
 
                     <ion-item
@@ -426,7 +430,9 @@ export function toEditableDate(value: unknown): string {
                       (click)="onAssignLoanOfficer()"
                     >
                       <ion-icon slot="start" name="person-add-outline"></ion-icon>
-                      <ion-label>{{ 'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | translate }}</ion-label>
+                      <ion-label>{{
+                        'LOANS.ACTIONS.ASSIGN_LOAN_OFFICER' | appTranslate
+                      }}</ion-label>
                     </ion-item>
 
                     @if (hasLoanOfficer()) {
@@ -438,7 +444,7 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="person-remove-outline"></ion-icon>
                         <ion-label>
-                          {{ 'LOANS.ACTIONS.UNASSIGN_LOAN_OFFICER' | translate }}
+                          {{ 'LOANS.ACTIONS.UNASSIGN_LOAN_OFFICER' | appTranslate }}
                         </ion-label>
                       </ion-item>
                     }
@@ -452,7 +458,7 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                         <ion-label>
-                          {{ 'LOANS.ACTIONS.UNDO_LAST_DISBURSAL' | translate }}
+                          {{ 'LOANS.ACTIONS.UNDO_LAST_DISBURSAL' | appTranslate }}
                         </ion-label>
                       </ion-item>
                     }
@@ -464,7 +470,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onUndoDisbursal()"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_DISBURSAL' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -473,7 +479,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('waiveinterest')"
                       >
                         <ion-icon slot="start" name="cash-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.WAIVE_INTEREST' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -482,7 +488,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('prepayLoan')"
                       >
                         <ion-icon slot="start" name="play-forward-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.PREPAY_LOAN' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -491,7 +497,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('foreclosure')"
                       >
                         <ion-icon slot="start" name="flag-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.FORECLOSURE' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.FORECLOSURE' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -500,7 +506,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('close')"
                       >
                         <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.CLOSE' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.CLOSE' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -511,7 +517,7 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="calendar-outline"></ion-icon>
                         <ion-label>
-                          {{ 'LOANS.ACTIONS.CLOSE_AS_RESCHEDULED' | translate }}
+                          {{ 'LOANS.ACTIONS.CLOSE_AS_RESCHEDULED' | appTranslate }}
                         </ion-label>
                       </ion-item>
 
@@ -524,7 +530,7 @@ export function toEditableDate(value: unknown): string {
                         >
                           <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
                           <ion-label>{{
-                            'LOANS.ACTIONS.CONTRACT_TERMINATION' | translate
+                            'LOANS.ACTIONS.CONTRACT_TERMINATION' | appTranslate
                           }}</ion-label>
                         </ion-item>
                       }
@@ -538,7 +544,7 @@ export function toEditableDate(value: unknown): string {
                         >
                           <ion-icon slot="start" name="lock-open-outline"></ion-icon>
                           <ion-label>{{
-                            'LOANS.ACTIONS.UNDO_CONTRACT_TERMINATION' | translate
+                            'LOANS.ACTIONS.UNDO_CONTRACT_TERMINATION' | appTranslate
                           }}</ion-label>
                         </ion-item>
                       }
@@ -550,7 +556,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('writeoff')"
                       >
                         <ion-icon slot="start" color="danger" name="trash-bin-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.WRITE_OFF' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.WRITE_OFF' | appTranslate }}</ion-label>
                       </ion-item>
 
                       @if (!chargedOff()) {
@@ -563,7 +569,7 @@ export function toEditableDate(value: unknown): string {
                         >
                           <ion-icon slot="start" color="warning" name="alert-circle-outline">
                           </ion-icon>
-                          <ion-label>{{ 'LOANS.ACTIONS.CHARGE_OFF' | translate }}</ion-label>
+                          <ion-label>{{ 'LOANS.ACTIONS.CHARGE_OFF' | appTranslate }}</ion-label>
                         </ion-item>
                       }
 
@@ -576,7 +582,7 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="storefront-outline"></ion-icon>
                         <ion-label>{{
-                          'LOANS.ACTIONS.MERCHANT_ISSUED_REFUND' | translate
+                          'LOANS.ACTIONS.MERCHANT_ISSUED_REFUND' | appTranslate
                         }}</ion-label>
                       </ion-item>
 
@@ -587,7 +593,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('payoutRefund')"
                       >
                         <ion-icon slot="start" name="return-down-back-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.PAYOUT_REFUND' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.PAYOUT_REFUND' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <!-- Only a loan paid ahead of schedule has an advance balance to hand back. -->
@@ -599,7 +605,7 @@ export function toEditableDate(value: unknown): string {
                           (click)="onLoanTransactionAction('refundByCash')"
                         >
                           <ion-icon slot="start" name="cash-outline"></ion-icon>
-                          <ion-label>{{ 'LOANS.ACTIONS.REFUND_BY_CASH' | translate }}</ion-label>
+                          <ion-label>{{ 'LOANS.ACTIONS.REFUND_BY_CASH' | appTranslate }}</ion-label>
                         </ion-item>
                       }
 
@@ -610,7 +616,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('goodwillCredit')"
                       >
                         <ion-icon slot="start" name="gift-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.GOODWILL_CREDIT' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.GOODWILL_CREDIT' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <!-- Progressive-engine servicing. Fineract rejects these outright on a
@@ -623,7 +629,7 @@ export function toEditableDate(value: unknown): string {
                           (click)="onLoanTransactionAction('downPayment')"
                         >
                           <ion-icon slot="start" name="wallet-outline"></ion-icon>
-                          <ion-label>{{ 'LOANS.ACTIONS.DOWN_PAYMENT' | translate }}</ion-label>
+                          <ion-label>{{ 'LOANS.ACTIONS.DOWN_PAYMENT' | appTranslate }}</ion-label>
                         </ion-item>
                       }
 
@@ -636,7 +642,7 @@ export function toEditableDate(value: unknown): string {
                         >
                           <ion-icon slot="start" name="remove-circle-outline"></ion-icon>
                           <ion-label>{{
-                            'LOANS.ACTIONS.INTEREST_PAYMENT_WAIVER' | translate
+                            'LOANS.ACTIONS.INTEREST_PAYMENT_WAIVER' | appTranslate
                           }}</ion-label>
                         </ion-item>
 
@@ -647,7 +653,7 @@ export function toEditableDate(value: unknown): string {
                           (click)="onLoanTransactionAction('reAge')"
                         >
                           <ion-icon slot="start" name="calendar-number-outline"></ion-icon>
-                          <ion-label>{{ 'LOANS.ACTIONS.RE_AGE' | translate }}</ion-label>
+                          <ion-label>{{ 'LOANS.ACTIONS.RE_AGE' | appTranslate }}</ion-label>
                         </ion-item>
 
                         <ion-item
@@ -657,7 +663,7 @@ export function toEditableDate(value: unknown): string {
                           (click)="onLoanTransactionAction('reAmortize')"
                         >
                           <ion-icon slot="start" name="repeat-outline"></ion-icon>
-                          <ion-label>{{ 'LOANS.ACTIONS.RE_AMORTIZE' | translate }}</ion-label>
+                          <ion-label>{{ 'LOANS.ACTIONS.RE_AMORTIZE' | appTranslate }}</ion-label>
                         </ion-item>
                       }
                     }
@@ -672,7 +678,7 @@ export function toEditableDate(value: unknown): string {
                       >
                         <ion-icon slot="start" name="cash-outline"></ion-icon>
                         <ion-label>{{
-                          'LOANS.ACTIONS.CREDIT_BALANCE_REFUND' | translate
+                          'LOANS.ACTIONS.CREDIT_BALANCE_REFUND' | appTranslate
                         }}</ion-label>
                       </ion-item>
                     }
@@ -685,7 +691,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('chargeRefund')"
                       >
                         <ion-icon slot="start" name="receipt-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.CHARGE_REFUND' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.CHARGE_REFUND' | appTranslate }}</ion-label>
                       </ion-item>
                     }
 
@@ -698,7 +704,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('recoverypayment')"
                       >
                         <ion-icon slot="start" name="trending-up-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.RECOVERY_PAYMENT' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.RECOVERY_PAYMENT' | appTranslate }}</ion-label>
                       </ion-item>
 
                       <ion-item
@@ -708,7 +714,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onLoanTransactionAction('undowriteoff')"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_WRITE_OFF' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_WRITE_OFF' | appTranslate }}</ion-label>
                       </ion-item>
                     }
 
@@ -720,7 +726,7 @@ export function toEditableDate(value: unknown): string {
                         (click)="onUndoChargeOff()"
                       >
                         <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
-                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_CHARGE_OFF' | translate }}</ion-label>
+                        <ion-label>{{ 'LOANS.ACTIONS.UNDO_CHARGE_OFF' | appTranslate }}</ion-label>
                       </ion-item>
                     }
                   </ion-list>
@@ -729,7 +735,7 @@ export function toEditableDate(value: unknown): string {
 
               <ion-button fill="clear" (click)="onBack()">
                 <ion-icon name="arrow-back-outline"></ion-icon>
-                {{ 'COMMON.BACK' | translate }}
+                {{ 'COMMON.BACK' | appTranslate }}
               </ion-button>
             </div>
           </ion-card-content>
@@ -738,68 +744,68 @@ export function toEditableDate(value: unknown): string {
         <!-- Tabs Section -->
         <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event).detail.value)">
           <ion-segment-button [value]="TAB.overview">
-            <ion-label>{{ 'LOANS.OVERVIEW' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.OVERVIEW' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.repaymentSchedule">
-            <ion-label>{{ 'LOANS.REPAYMENT_SCHEDULE' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.REPAYMENT_SCHEDULE' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.transactions">
-            <ion-label>{{ 'LOANS.TRANSACTIONS' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.TRANSACTIONS' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.charges">
-            <ion-label>{{ 'LOANS.CHARGES' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.CHARGES' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.customFields">
-            <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | translate }}</ion-label>
+            <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.notes">
-            <ion-label>{{ 'LOANS.NOTES' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.NOTES' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.documents">
-            <ion-label>{{ 'LOANS.DOCUMENTS' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.DOCUMENTS' | appTranslate }}</ion-label>
           </ion-segment-button>
           @if (showBuyDownFees()) {
             <ion-segment-button [value]="TAB.buyDownFees">
-              <ion-label>{{ 'LOANS.BUY_DOWN_FEES' | translate }}</ion-label>
+              <ion-label>{{ 'LOANS.BUY_DOWN_FEES' | appTranslate }}</ion-label>
             </ion-segment-button>
           }
           @if (showCapitalizedIncome()) {
             <ion-segment-button [value]="TAB.capitalizedIncome">
-              <ion-label>{{ 'LOANS.CAPITALIZED_INCOME' | translate }}</ion-label>
+              <ion-label>{{ 'LOANS.CAPITALIZED_INCOME' | appTranslate }}</ion-label>
             </ion-segment-button>
           }
           <ion-segment-button [value]="TAB.disbursementDetails">
-            <ion-label>{{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.DISBURSEMENT_DETAILS' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.collateral">
-            <ion-label>{{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.COLLATERAL_MANAGEMENT' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.delinquency" data-testid="loan-tab-delinquency">
-            <ion-label>{{ 'LOANS.DELINQUENCY' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.DELINQUENCY' | appTranslate }}</ion-label>
           </ion-segment-button>
           @if (hasTermVariations()) {
             <ion-segment-button [value]="TAB.termVariations" data-testid="loan-tab-term-variations">
-              <ion-label>{{ 'LOANS.TERM_VARIATIONS' | translate }}</ion-label>
+              <ion-label>{{ 'LOANS.TERM_VARIATIONS' | appTranslate }}</ion-label>
             </ion-segment-button>
           }
           @if (hasOverdueCharges()) {
             <ion-segment-button [value]="TAB.overdueCharges" data-testid="loan-tab-overdue-charges">
-              <ion-label>{{ 'LOANS.OVERDUE_CHARGES' | translate }}</ion-label>
+              <ion-label>{{ 'LOANS.OVERDUE_CHARGES' | appTranslate }}</ion-label>
             </ion-segment-button>
           }
           @if (hasOriginators()) {
             <ion-segment-button [value]="TAB.originators" data-testid="loan-tab-originators">
-              <ion-label>{{ 'LOANS.ORIGINATORS' | translate }}</ion-label>
+              <ion-label>{{ 'LOANS.ORIGINATORS' | appTranslate }}</ion-label>
             </ion-segment-button>
           }
           <ion-segment-button
             [value]="TAB.standingInstructions"
             data-testid="loan-tab-standing-instructions"
           >
-            <ion-label>{{ 'LOANS.STANDING_INSTRUCTIONS' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.STANDING_INSTRUCTIONS' | appTranslate }}</ion-label>
           </ion-segment-button>
           <ion-segment-button [value]="TAB.assetTransfers" data-testid="loan-tab-asset-transfers">
-            <ion-label>{{ 'LOANS.ASSET_TRANSFERS' | translate }}</ion-label>
+            <ion-label>{{ 'LOANS.ASSET_TRANSFERS' | appTranslate }}</ion-label>
           </ion-segment-button>
         </ion-segment>
 
@@ -810,31 +816,31 @@ export function toEditableDate(value: unknown): string {
                 <ion-card-header>
                   <ion-card-title>
                     <ion-icon name="information-circle-outline"></ion-icon>
-                    {{ 'LOANS.LOAN_TERMS' | translate }}
+                    {{ 'LOANS.LOAN_TERMS' | appTranslate }}
                   </ion-card-title>
                 </ion-card-header>
                 <ion-card-content class="details-list">
                   <div class="detail-item">
-                    <span class="label">{{ 'LOANS.PRINCIPAL_AMOUNT' | translate }}</span>
+                    <span class="label">{{ 'LOANS.PRINCIPAL_AMOUNT' | appTranslate }}</span>
                     <span class="value">
                       {{ loan()?.currency?.displaySymbol }}
                       {{ loan()?.principal | number: '1.2-2' }}
                     </span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">{{ 'LOANS.ANNUAL_INTEREST_RATE' | translate }}</span>
+                    <span class="label">{{ 'LOANS.ANNUAL_INTEREST_RATE' | appTranslate }}</span>
                     <span class="value">{{ loan()?.annualInterestRate }}%</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">{{ 'LOANS.REPAYMENTS' | translate }}</span>
+                    <span class="label">{{ 'LOANS.REPAYMENTS' | appTranslate }}</span>
                     <span class="value">
-                      {{ loan()?.numberOfRepayments }} {{ 'COMMON.EVERY' | translate }}
+                      {{ loan()?.numberOfRepayments }} {{ 'COMMON.EVERY' | appTranslate }}
                       {{ loan()?.repaymentEvery }}
                       {{ repaymentFrequencyValue }}
                     </span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">{{ 'LOANS.LOAN_OFFICER' | translate }}</span>
+                    <span class="label">{{ 'LOANS.LOAN_OFFICER' | appTranslate }}</span>
                     <span class="value">{{ loan()?.loanOfficerName || '-' }}</span>
                   </div>
                 </ion-card-content>
@@ -844,27 +850,27 @@ export function toEditableDate(value: unknown): string {
                 <ion-card-header>
                   <ion-card-title>
                     <ion-icon name="pulse-outline"></ion-icon>
-                    {{ 'LOANS.TIMELINE_STATUS' | translate }}
+                    {{ 'LOANS.TIMELINE_STATUS' | appTranslate }}
                   </ion-card-title>
                 </ion-card-header>
                 <ion-card-content class="details-list">
                   <div class="detail-item">
-                    <span class="label">{{ 'LOANS.SUBMITTED_DATE' | translate }}</span>
+                    <span class="label">{{ 'LOANS.SUBMITTED_DATE' | appTranslate }}</span>
                     <span class="value">{{ formattedSubmittedDate }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">{{ 'LOANS.EXPECTED_DISBURSEMENT' | translate }}</span>
+                    <span class="label">{{ 'LOANS.EXPECTED_DISBURSEMENT' | appTranslate }}</span>
                     <span class="value">{{ formattedExpectedDisbursementDate }}</span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">{{ 'LOANS.TOTAL_DISBURSED' | translate }}</span>
+                    <span class="label">{{ 'LOANS.TOTAL_DISBURSED' | appTranslate }}</span>
                     <span class="value">
                       {{ loan()?.currency?.displaySymbol }}
                       {{ loan()?.summary?.principalDisbursed || 0 | number: '1.2-2' }}
                     </span>
                   </div>
                   <div class="detail-item">
-                    <span class="label">{{ 'LOANS.TOTAL_OUTSTANDING' | translate }}</span>
+                    <span class="label">{{ 'LOANS.TOTAL_OUTSTANDING' | appTranslate }}</span>
                     <span class="value">
                       {{ loan()?.currency?.displaySymbol }}
                       {{ loan()?.summary?.totalOutstanding || 0 | number: '1.2-2' }}
@@ -893,7 +899,7 @@ export function toEditableDate(value: unknown): string {
                         [attr.colspan]="2"
                         style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
                       >
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE' | appTranslate }}
                       </th>
                     </ng-container>
 
@@ -904,7 +910,7 @@ export function toEditableDate(value: unknown): string {
                         [attr.colspan]="3"
                         style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
                       >
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.COST' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.COST' | appTranslate }}
                       </th>
                     </ng-container>
 
@@ -915,34 +921,34 @@ export function toEditableDate(value: unknown): string {
                         [attr.colspan]="5"
                         style="text-align: center; font-weight: 600; border-bottom: 2px solid #e0e0e0;"
                       >
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.TOTALS' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.TOTALS' | appTranslate }}
                       </th>
                     </ng-container>
 
                     <!-- Column Containers -->
                     <ng-container cdkColumnDef="period">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.HASH' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.HASH' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let p">{{ p.period || '' }}</td>
                       <td cdk-footer-cell *cdkFooterCellDef>
-                        <strong>{{ 'COMMON.TOTAL' | translate }}</strong>
+                        <strong>{{ 'COMMON.TOTAL' | appTranslate }}</strong>
                       </td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="days">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DAYS' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DAYS' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let p">{{ p.daysInPeriod || '' }}</td>
                       <td cdk-footer-cell *cdkFooterCellDef></td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="dueDate">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.DATE' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let p">{{ formatPeriodDate(p.dueDate) }}</td>
                       <td cdk-footer-cell *cdkFooterCellDef></td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="paidDate">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID_DATE' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID_DATE' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{ formatPeriodDate(p.obligationsMetOnDate) }}
@@ -962,7 +968,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="balance">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE_OF_LOAN' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.BALANCE_OF_LOAN' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -977,7 +983,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="principal">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PRINCIPAL_DUE' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -996,7 +1002,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="interest">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.INTEREST' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -1015,7 +1021,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="fees">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.FEES' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -1034,7 +1040,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="penalties">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PENALTIES' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -1055,7 +1061,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="due">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -1074,7 +1080,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="paid">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.PAID' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -1093,7 +1099,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="inAdvance">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.IN_ADVANCE' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.IN_ADVANCE' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -1114,7 +1120,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="late">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.LATE' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.LATE' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -1135,7 +1141,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="outstanding">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let p">
                         {{
@@ -1162,7 +1168,7 @@ export function toEditableDate(value: unknown): string {
                 } @else {
                   <div class="empty-state">
                     <ion-icon name="calendar-outline"></ion-icon>
-                    <p>{{ 'LOANS.NO_REPAYMENT_SCHEDULE' | translate }}</p>
+                    <p>{{ 'LOANS.NO_REPAYMENT_SCHEDULE' | appTranslate }}</p>
                   </div>
                 }
               </ion-card-content>
@@ -1176,24 +1182,26 @@ export function toEditableDate(value: unknown): string {
                 @if (transactions().length > 0) {
                   <table cdk-table [dataSource]="transactions()" class="full-width-table">
                     <ng-container cdkColumnDef="id">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ID' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let tx">{{ tx.id }}</td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="date">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'COMMON.TRANSACTION_DATE' | translate }}
+                        {{ 'COMMON.TRANSACTION_DATE' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let tx">{{ formatPeriodDate(tx.date) }}</td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="type">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let tx">{{ tx.type?.value }}</td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="amount">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'COMMON.AMOUNT' | appTranslate }}
+                      </th>
                       <td cdk-cell *cdkCellDef="let tx">
                         <span
                           [ngClass]="{
@@ -1214,8 +1222,8 @@ export function toEditableDate(value: unknown): string {
                         <ion-button
                           fill="clear"
                           (click)="onViewTransaction(tx)"
-                          [attr.aria-label]="'COMMON.VIEW' | translate"
-                          [appTooltip]="'COMMON.VIEW' | translate"
+                          [attr.aria-label]="'COMMON.VIEW' | appTranslate"
+                          [appTooltip]="'COMMON.VIEW' | appTranslate"
                         >
                           <ion-icon name="eye-outline"></ion-icon>
                         </ion-button>
@@ -1226,8 +1234,8 @@ export function toEditableDate(value: unknown): string {
                             appRequiresPermission="CHARGEBACK_LOAN"
                             [attr.data-testid]="'loan-chargeback-' + tx.id"
                             (click)="onChargeback(tx)"
-                            [attr.aria-label]="'LOANS.ACTIONS.CHARGEBACK' | translate"
-                            [appTooltip]="'LOANS.ACTIONS.CHARGEBACK' | translate"
+                            [attr.aria-label]="'LOANS.ACTIONS.CHARGEBACK' | appTranslate"
+                            [appTooltip]="'LOANS.ACTIONS.CHARGEBACK' | appTranslate"
                           >
                             <ion-icon name="arrow-undo-outline"></ion-icon>
                           </ion-button>
@@ -1241,7 +1249,7 @@ export function toEditableDate(value: unknown): string {
                 } @else {
                   <div class="empty-state">
                     <ion-icon name="receipt-outline"></ion-icon>
-                    <p>{{ 'LOANS.NO_TRANSACTIONS' | translate }}</p>
+                    <p>{{ 'LOANS.NO_TRANSACTIONS' | appTranslate }}</p>
                   </div>
                 }
               </ion-card-content>
@@ -1255,12 +1263,14 @@ export function toEditableDate(value: unknown): string {
                 @if (charges().length > 0) {
                   <table cdk-table [dataSource]="charges()" class="full-width-table">
                     <ng-container cdkColumnDef="name">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.NAME' | appTranslate }}</th>
                       <td cdk-cell *cdkCellDef="let c">{{ c.name }}</td>
                     </ng-container>
 
                     <ng-container cdkColumnDef="amount">
-                      <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                      <th cdk-header-cell *cdkHeaderCellDef>
+                        {{ 'COMMON.AMOUNT' | appTranslate }}
+                      </th>
                       <td cdk-cell *cdkCellDef="let c">
                         {{ loan()?.currency?.displaySymbol }} {{ c.amount | number: '1.2-2' }}
                       </td>
@@ -1268,7 +1278,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="due">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.DUE' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let c">
                         {{ loan()?.currency?.displaySymbol }} {{ c.amountDue | number: '1.2-2' }}
@@ -1277,7 +1287,7 @@ export function toEditableDate(value: unknown): string {
 
                     <ng-container cdkColumnDef="outstanding">
                       <th cdk-header-cell *cdkHeaderCellDef>
-                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | translate }}
+                        {{ 'LOANS.REPAYMENT_SCHEDULE_HEADERS.OUTSTANDING' | appTranslate }}
                       </th>
                       <td cdk-cell *cdkCellDef="let c">
                         {{ loan()?.currency?.displaySymbol }}
@@ -1291,7 +1301,7 @@ export function toEditableDate(value: unknown): string {
                 } @else {
                   <div class="empty-state">
                     <ion-icon name="cash-outline"></ion-icon>
-                    <p>{{ 'LOANS.CHARGES' | translate }}</p>
+                    <p>{{ 'LOANS.CHARGES' | appTranslate }}</p>
                   </div>
                 }
               </ion-card-content>
@@ -1319,30 +1329,30 @@ export function toEditableDate(value: unknown): string {
         @if (activeTab() === TAB.buyDownFees && showBuyDownFees()) {
           <div class="tab-content">
             @if (buyDownFees().length === 0) {
-              <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+              <p class="empty-state">{{ 'COMMON.NO_DATA' | appTranslate }}</p>
             } @else {
               <table cdk-table [dataSource]="buyDownFees()" class="full-width-table">
                 <ng-container cdkColumnDef="transactionId">
                   <th cdk-header-cell *cdkHeaderCellDef>
-                    {{ 'LOANS.TRANSACTION_ID' | translate }}
+                    {{ 'LOANS.TRANSACTION_ID' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.transactionId }}</td>
                 </ng-container>
                 <ng-container cdkColumnDef="buyDownFeeAmount">
                   <th cdk-header-cell *cdkHeaderCellDef>
-                    {{ 'LOANS.BUY_DOWN_FEE_AMOUNT' | translate }}
+                    {{ 'LOANS.BUY_DOWN_FEE_AMOUNT' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.buyDownFeeAmount | number }}</td>
                 </ng-container>
                 <ng-container cdkColumnDef="amortizedAmount">
                   <th cdk-header-cell *cdkHeaderCellDef>
-                    {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
+                    {{ 'LOANS.AMORTIZED_AMOUNT' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.amortizedAmount | number }}</td>
                 </ng-container>
                 <ng-container cdkColumnDef="notYetAmortizedAmount">
                   <th cdk-header-cell *cdkHeaderCellDef>
-                    {{ 'LOANS.NOT_YET_AMORTIZED_AMOUNT' | translate }}
+                    {{ 'LOANS.NOT_YET_AMORTIZED_AMOUNT' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.notYetAmortizedAmount | number }}</td>
                 </ng-container>
@@ -1355,34 +1365,34 @@ export function toEditableDate(value: unknown): string {
         @if (activeTab() === TAB.capitalizedIncome && showCapitalizedIncome()) {
           <div class="tab-content">
             @if (capitalizedIncomes().length === 0) {
-              <p class="empty-state">{{ 'COMMON.NO_DATA' | translate }}</p>
+              <p class="empty-state">{{ 'COMMON.NO_DATA' | appTranslate }}</p>
             } @else {
               <table cdk-table [dataSource]="capitalizedIncomes()" class="full-width-table">
                 <ng-container cdkColumnDef="amount">
-                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | translate }}</th>
+                  <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | appTranslate }}</th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.amount | number }}</td>
                 </ng-container>
                 <ng-container cdkColumnDef="amortizedAmount">
                   <th cdk-header-cell *cdkHeaderCellDef>
-                    {{ 'LOANS.AMORTIZED_AMOUNT' | translate }}
+                    {{ 'LOANS.AMORTIZED_AMOUNT' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.amortizedAmount | number }}</td>
                 </ng-container>
                 <ng-container cdkColumnDef="unrecognizedAmount">
                   <th cdk-header-cell *cdkHeaderCellDef>
-                    {{ 'LOANS.UNRECOGNIZED_AMOUNT' | translate }}
+                    {{ 'LOANS.UNRECOGNIZED_AMOUNT' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.unrecognizedAmount | number }}</td>
                 </ng-container>
                 <ng-container cdkColumnDef="amountAdjustment">
                   <th cdk-header-cell *cdkHeaderCellDef>
-                    {{ 'LOANS.AMOUNT_ADJUSTMENT' | translate }}
+                    {{ 'LOANS.AMOUNT_ADJUSTMENT' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.amountAdjustment | number }}</td>
                 </ng-container>
                 <ng-container cdkColumnDef="chargedOffAmount">
                   <th cdk-header-cell *cdkHeaderCellDef>
-                    {{ 'LOANS.CHARGED_OFF_AMOUNT' | translate }}
+                    {{ 'LOANS.CHARGED_OFF_AMOUNT' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.chargedOffAmount | number }}</td>
                 </ng-container>
@@ -1398,7 +1408,7 @@ export function toEditableDate(value: unknown): string {
               <ion-card-header>
                 <ion-card-title>
                   <ion-icon name="open-outline"></ion-icon>
-                  {{ 'LOANS.DISBURSEMENT_DETAILS' | translate }}
+                  {{ 'LOANS.DISBURSEMENT_DETAILS' | appTranslate }}
                 </ion-card-title>
               </ion-card-header>
               <ion-card-content>
@@ -1408,17 +1418,17 @@ export function toEditableDate(value: unknown): string {
                 >
                   <ion-item fill="outline" style="flex: 1;">
                     <ion-label position="stacked">{{
-                      'LOANS.DISBURSEMENT_ID' | translate
+                      'LOANS.DISBURSEMENT_ID' | appTranslate
                     }}</ion-label>
                     <ion-input
-                      [attr.aria-label]="'LOANS.DISBURSEMENT_ID' | translate"
+                      [attr.aria-label]="'LOANS.DISBURSEMENT_ID' | appTranslate"
                       type="number"
                       [(ngModel)]="editDisbId"
                     ></ion-input>
                   </ion-item>
                   <ion-button color="primary" (click)="loadDisbursementDetail()">
                     <ion-icon name="search-outline"></ion-icon>
-                    {{ 'LOANS.LOAD_DISBURSEMENT' | translate }}
+                    {{ 'LOANS.LOAD_DISBURSEMENT' | appTranslate }}
                   </ion-button>
                 </div>
 
@@ -1431,7 +1441,7 @@ export function toEditableDate(value: unknown): string {
                   >
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{
-                        'LOANS.EXPECTED_DISBURSEMENT' | translate
+                        'LOANS.EXPECTED_DISBURSEMENT' | appTranslate
                       }}</ion-label>
                       <!--
                         A plain text box here rendered the raw year/month/day array the platform
@@ -1439,7 +1449,7 @@ export function toEditableDate(value: unknown): string {
                         command then parses strictly.
                       -->
                       <ion-input
-                        [attr.aria-label]="'LOANS.EXPECTED_DISBURSEMENT' | translate"
+                        [attr.aria-label]="'LOANS.EXPECTED_DISBURSEMENT' | appTranslate"
                         type="date"
                         data-testid="disbursement-expected-date"
                         [(ngModel)]="disbursementEditForm.expectedDisbursementDate"
@@ -1447,10 +1457,10 @@ export function toEditableDate(value: unknown): string {
                     </ion-item>
                     <ion-item fill="outline">
                       <ion-label position="stacked">{{
-                        'LOANS.PRINCIPAL_AMOUNT' | translate
+                        'LOANS.PRINCIPAL_AMOUNT' | appTranslate
                       }}</ion-label>
                       <ion-input
-                        [attr.aria-label]="'LOANS.PRINCIPAL_AMOUNT' | translate"
+                        [attr.aria-label]="'LOANS.PRINCIPAL_AMOUNT' | appTranslate"
                         type="number"
                         data-testid="disbursement-principal"
                         [(ngModel)]="disbursementEditForm.principal"
@@ -1459,7 +1469,7 @@ export function toEditableDate(value: unknown): string {
                     <div>
                       <ion-button color="secondary" (click)="saveDisbursementDetail()">
                         <ion-icon name="save-outline"></ion-icon>
-                        {{ 'COMMON.SAVE' | translate }}
+                        {{ 'COMMON.SAVE' | appTranslate }}
                       </ion-button>
                     </div>
                   </div>
@@ -1474,7 +1484,7 @@ export function toEditableDate(value: unknown): string {
               <ion-card-header>
                 <ion-card-title>
                   <ion-icon name="shield-outline"></ion-icon>
-                  {{ 'LOANS.COLLATERAL_MANAGEMENT' | translate }}
+                  {{ 'LOANS.COLLATERAL_MANAGEMENT' | appTranslate }}
                 </ion-card-title>
               </ion-card-header>
               <ion-card-content>
@@ -1485,17 +1495,17 @@ export function toEditableDate(value: unknown): string {
                 >
                   <ion-item fill="outline" style="flex: 1;">
                     <ion-label position="stacked">{{
-                      'LOANS.COLLATERAL_ID' | translate
+                      'LOANS.COLLATERAL_ID' | appTranslate
                     }}</ion-label>
                     <ion-input
-                      [attr.aria-label]="'LOANS.COLLATERAL_ID' | translate"
+                      [attr.aria-label]="'LOANS.COLLATERAL_ID' | appTranslate"
                       type="number"
                       [(ngModel)]="collateralDetailId"
                     ></ion-input>
                   </ion-item>
                   <ion-button color="primary" (click)="loadCollateralDetail()">
                     <ion-icon name="search-outline"></ion-icon>
-                    {{ 'LOANS.LOAD_COLLATERAL' | translate }}
+                    {{ 'LOANS.LOAD_COLLATERAL' | appTranslate }}
                   </ion-button>
                 </div>
 
@@ -1510,10 +1520,10 @@ export function toEditableDate(value: unknown): string {
                 >
                   <ion-item fill="outline" style="flex: 1;">
                     <ion-label position="stacked">{{
-                      'LOANS.COLLATERAL_ID' | translate
+                      'LOANS.COLLATERAL_ID' | appTranslate
                     }}</ion-label>
                     <ion-input
-                      [attr.aria-label]="'LOANS.COLLATERAL_ID' | translate"
+                      [attr.aria-label]="'LOANS.COLLATERAL_ID' | appTranslate"
                       type="number"
                       [ngModel]="deleteCollateralId()"
                       (ngModelChange)="deleteCollateralId.set($event)"
@@ -1521,7 +1531,7 @@ export function toEditableDate(value: unknown): string {
                   </ion-item>
                   <ion-button color="danger" (click)="deleteCollateral()">
                     <ion-icon name="trash-outline"></ion-icon>
-                    {{ 'LOANS.DELETE_COLLATERAL' | translate }}
+                    {{ 'LOANS.DELETE_COLLATERAL' | appTranslate }}
                   </ion-button>
                 </div>
               </ion-card-content>
@@ -1754,7 +1764,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
-  private readonly translate = inject(TranslateService);
+  private readonly i18n = inject(I18N);
 
   readonly loanId = signal(0);
   readonly loan = signal<GetLoansLoanIdResponse | null>(null);
@@ -2145,7 +2155,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
 
     const updatedDate = formatDateToFineract(this.disbursementEditForm.expectedDisbursementDate);
     if (!updatedDate) {
-      this.notifications.error(this.translate.instant('LOANS.EXPECTED_DISBURSEMENT_REQUIRED'));
+      this.notifications.error(this.i18n.translate('LOANS.EXPECTED_DISBURSEMENT_REQUIRED'));
       return;
     }
 
@@ -2160,7 +2170,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
       })
       .subscribe({
         next: () => {
-          this.notifications.success(this.translate.instant('LOANS.DISBURSEMENT_SAVED'));
+          this.notifications.success(this.i18n.translate('LOANS.DISBURSEMENT_SAVED'));
           this.loadDisbursementDetail();
         },
         // The global errorInterceptor already raises the platform's own message.
@@ -2250,7 +2260,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
 
     this.loansService.postLoansLoanId(this.loanId(), result, 'undoapproval').subscribe({
       next: () => {
-        this.notifications.success(this.translate.instant('LOANS.APPROVAL_UNDONE'));
+        this.notifications.success(this.i18n.translate('LOANS.APPROVAL_UNDONE'));
         this.loadLoanData();
       },
       // No toast here: errorInterceptor already raises one with the platform's own message.
@@ -2279,7 +2289,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
       })
       .subscribe({
         next: () => {
-          this.notifications.success(this.translate.instant('LOANS.APPROVED_AMOUNT_REVISED'));
+          this.notifications.success(this.i18n.translate('LOANS.APPROVED_AMOUNT_REVISED'));
           this.loadLoanData();
         },
         // No toast here: errorInterceptor already raises one with the platform's own message.
@@ -2307,7 +2317,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.notifications.success(
-            this.translate.instant('LOANS.AVAILABLE_DISBURSEMENT_AMOUNT_REVISED'),
+            this.i18n.translate('LOANS.AVAILABLE_DISBURSEMENT_AMOUNT_REVISED'),
           );
           this.loadLoanData();
         },
@@ -2374,7 +2384,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
   private runLoanCommand(command: string, body: Record<string, unknown>): void {
     this.loansService.postLoansLoanId(this.loanId(), body, command).subscribe({
       next: () => {
-        this.notifications.success(this.translate.instant('LOANS.COMMAND_APPLIED'));
+        this.notifications.success(this.i18n.translate('LOANS.COMMAND_APPLIED'));
         this.loadLoanData();
       },
       // No toast: errorInterceptor already raises one with the platform's own message.
@@ -2404,11 +2414,10 @@ export class LoanViewComponent implements OnInit, OnDestroy {
           .postLoansLoanIdTransactions(this.loanId(), {}, 'undo-charge-off')
           .subscribe({
             next: () => {
-              this.notifications.success(this.translate.instant('LOANS.CHARGE_OFF_UNDONE'));
+              this.notifications.success(this.i18n.translate('LOANS.CHARGE_OFF_UNDONE'));
               this.loadLoanData();
             },
-            error: () =>
-              this.notifications.error(this.translate.instant('COMMON.ERRORS.UNEXPECTED')),
+            error: () => this.notifications.error(this.i18n.translate('COMMON.ERRORS.UNEXPECTED')),
           });
       },
     );
@@ -2464,7 +2473,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.notifications.success(this.translate.instant('LOANS.CHARGEBACK_RECORDED'));
+          this.notifications.success(this.i18n.translate('LOANS.CHARGEBACK_RECORDED'));
           this.loadLoanData();
         },
         // No toast here: errorInterceptor already raises one with the platform's own message.
@@ -2475,8 +2484,8 @@ export class LoanViewComponent implements OnInit, OnDestroy {
   private confirm(titleKey: string, messageKey: string, destructive = false): Observable<boolean> {
     return from(
       this.dialogService.confirm({
-        title: this.translate.instant(titleKey),
-        message: this.translate.instant(messageKey),
+        title: this.i18n.translate(titleKey),
+        message: this.i18n.translate(messageKey),
         destructive,
       }),
     );

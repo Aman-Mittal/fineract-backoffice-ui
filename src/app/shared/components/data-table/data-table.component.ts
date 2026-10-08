@@ -29,7 +29,7 @@ import {
 } from '@angular/core';
 import { CdkTableModule } from '@angular/cdk/table';
 import { NgTemplateOutlet } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -109,7 +109,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
       }
       <ion-card-header>
         <ion-card-title>
-          {{ title() | translate }}
+          {{ title() | appTranslate }}
           @if (helpTextKey()) {
             <app-help-icon [helpTextKey]="helpTextKey()"></app-help-icon>
           }
@@ -123,7 +123,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
               (click)="onCreate()"
             >
               <ion-icon name="add-outline" slot="start"></ion-icon>
-              {{ createButtonLabel() | translate }}
+              {{ createButtonLabel() | appTranslate }}
             </ion-button>
           }
           <ng-content select="[headerActions]"></ng-content>
@@ -135,8 +135,8 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
           @if (showSearch()) {
             <div class="search-container">
               <app-search-filter
-                [label]="searchLabel() | translate"
-                [placeholder]="searchPlaceholder() | translate"
+                [label]="searchLabel() | appTranslate"
+                [placeholder]="searchPlaceholder() | appTranslate"
                 (searchChange)="onSearch($event)"
               >
               </app-search-filter>
@@ -158,7 +158,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
             <p class="error-text">
               {{
                 (isForbidden() ? 'COMMON.ERRORS.LOAD_FORBIDDEN' : 'COMMON.ERRORS.LOAD_FAILED')
-                  | translate
+                  | appTranslate
               }}
             </p>
             <!-- No retry for a refusal: the same request made again is refused again, so the
@@ -171,7 +171,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                 (click)="onRetry()"
               >
                 <ion-icon name="refresh-outline" slot="start"></ion-icon>
-                {{ 'COMMON.RETRY' | translate }}
+                {{ 'COMMON.RETRY' | appTranslate }}
               </ion-button>
             }
           </div>
@@ -190,7 +190,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                   >
                     @if (col.sortable) {
                       <button type="button" class="sort-button" (click)="onSortHeaderClick(col)">
-                        {{ col.label | translate }}
+                        {{ col.label | appTranslate }}
                         @if (currentSort().active === col.key && currentSort().direction) {
                           <ion-icon
                             aria-hidden="true"
@@ -204,7 +204,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                         }
                       </button>
                     } @else {
-                      {{ col.label | translate }}
+                      {{ col.label | appTranslate }}
                     }
                   </th>
                   <!--
@@ -213,7 +213,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
                     renders its own label from this attribute. One source of truth for the
                     columns, so a column added to columns() appears in both layouts.
                   -->
-                  <td cdk-cell *cdkCellDef="let row" [attr.data-label]="col.label | translate">
+                  <td cdk-cell *cdkCellDef="let row" [attr.data-label]="col.label | appTranslate">
                     @if (columnTemplates()[col.key]) {
                       <ng-container
                         *ngTemplateOutlet="columnTemplates()[col.key]; context: { $implicit: row }"
@@ -232,7 +232,7 @@ const NEXT_DIRECTION: Record<SortDirection, SortDirection> = {
 
               <tr class="no-data-row" *cdkNoDataRow>
                 <td [attr.colspan]="displayedColumns().length">
-                  {{ 'COMMON.NO_DATA' | translate }}
+                  {{ 'COMMON.NO_DATA' | appTranslate }}
                 </td>
               </tr>
             </table>

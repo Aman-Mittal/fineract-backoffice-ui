@@ -1,9 +1,4 @@
 {
-  "src/app/app.component.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "src/app/app.config.test.ts": {
     "local/no-generated-api-import": {
       "count": 1
@@ -12,16 +7,6 @@
   "src/app/core/dashboard/dashboard.service.ts": {
     "local/no-generated-api-import": {
       "count": 7
-    }
-  },
-  "src/app/core/errors/global-error-handler.test.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
-  "src/app/core/errors/global-error-handler.ts": {
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/accounting/accounting-closure-form.component.ts": {
@@ -252,9 +237,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/admin/external-events/external-events.component.ts": {
@@ -262,9 +244,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -282,9 +261,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/admin/wc-cob-tools/wc-cob-tools.component.ts": {
@@ -293,9 +269,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/auth/forgot-password/forgot-password.component.ts": {
@@ -303,9 +276,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -346,9 +316,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/campaigns/email-messages/email-messages.component.ts": {
@@ -365,9 +332,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/campaigns/sms-campaigns/sms-campaigns-list.component.ts": {
@@ -375,9 +339,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -496,9 +457,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -877,9 +835,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/loans/collateral/collateral-form.component.test.ts": {
@@ -957,9 +912,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/loans/loan-charge-refund.ts": {
@@ -1001,9 +953,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/loans/loan-transaction-form.component.test.ts": {
@@ -1016,9 +965,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1042,9 +988,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1094,9 +1037,6 @@
   },
   "src/app/features/loans/rescheduling/reschedule-requests-list.component.ts": {
     "local/no-generated-api-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1148,11 +1088,6 @@
       "count": 1
     },
     "no-restricted-imports": {
-      "count": 2
-    }
-  },
-  "src/app/features/login/login.component.ts": {
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1184,9 +1119,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1928,9 +1860,6 @@
   "src/app/features/reporting/run-report.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/features/search/global-search.component.ts": {
@@ -1951,9 +1880,6 @@
       "count": 1
     },
     "local/no-vendor-ui-import": {
-      "count": 1
-    },
-    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -2844,9 +2770,6 @@
     },
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/layout/inactivity-dialog.component.test.ts": {
@@ -2895,7 +2818,7 @@
       "count": 1
     },
     "no-restricted-imports": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/shared/components/create-office-dialog/create-office-dialog.component.test.ts": {
@@ -2914,9 +2837,6 @@
   "src/app/shared/components/data-table/data-table.component.ts": {
     "local/no-vendor-ui-import": {
       "count": 1
-    },
-    "no-restricted-imports": {
-      "count": 1
     }
   },
   "src/app/shared/components/datatable-entry-dialog/datatable-entry-dialog.component.ts": {
@@ -2927,7 +2847,7 @@
       "count": 1
     },
     "no-restricted-imports": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/shared/components/entity-datatables/entity-datatables.component.test.ts": {

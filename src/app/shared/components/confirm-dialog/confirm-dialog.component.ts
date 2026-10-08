@@ -18,7 +18,7 @@
  */
 
 import { inject, input, Component } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '../../../core/adapters';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular/standalone';
 
 export interface ConfirmDialogData {
@@ -68,14 +68,14 @@ export interface ConfirmDialogData {
           color="medium"
           (click)="dismiss(false)"
         >
-          {{ data().cancelText || ('COMMON.CANCEL' | translate) }}
+          {{ data().cancelText || ('COMMON.CANCEL' | appTranslate) }}
         </ion-button>
         <ion-button
           data-testid="confirm-dialog-confirm"
           [color]="data().destructive ? 'danger' : 'primary'"
           (click)="dismiss(true)"
         >
-          {{ data().confirmText || ('COMMON.CONFIRM' | translate) }}
+          {{ data().confirmText || ('COMMON.CONFIRM' | appTranslate) }}
         </ion-button>
       </div>
     </div>

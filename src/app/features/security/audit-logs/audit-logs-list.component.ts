@@ -18,7 +18,6 @@
  */
 
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { TranslatePipe as NgxTranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
@@ -67,7 +66,6 @@ export interface AuditFilters {
   selector: 'app-audit-logs-list',
   standalone: true,
   imports: [
-    NgxTranslatePipe,
     TranslatePipe,
     FormsModule,
     DataTableComponent,
@@ -94,7 +92,7 @@ export interface AuditFilters {
         <ion-accordion value="filters">
           <ion-item slot="header">
             <ion-icon slot="start" name="filter-outline"></ion-icon>
-            <ion-label>{{ 'COMMON.FILTERS' | translate }}</ion-label>
+            <ion-label>{{ 'COMMON.FILTERS' | appTranslate }}</ion-label>
           </ion-item>
           <div slot="content">
             <div class="filter-grid">
@@ -204,10 +202,10 @@ export interface AuditFilters {
 
             <div class="filter-actions">
               <ion-button fill="clear" color="danger" (click)="onResetFilters()">
-                {{ 'COMMON.RESET' | translate }}
+                {{ 'COMMON.RESET' | appTranslate }}
               </ion-button>
               <ion-button color="primary" (click)="onApplyFilters()">
-                {{ 'COMMON.APPLY' | translate }}
+                {{ 'COMMON.APPLY' | appTranslate }}
               </ion-button>
             </div>
           </div>
@@ -255,8 +253,8 @@ export interface AuditFilters {
             fill="clear"
             color="primary"
             (click)="onViewDetails(row)"
-            [attr.aria-label]="'COMMON.VIEW_DETAILS' | translate"
-            [appTooltip]="'COMMON.VIEW_DETAILS' | translate"
+            [attr.aria-label]="'COMMON.VIEW_DETAILS' | appTranslate"
+            [appTooltip]="'COMMON.VIEW_DETAILS' | appTranslate"
           >
             <ion-icon name="eye-outline"></ion-icon>
           </ion-button>

@@ -126,9 +126,8 @@ describe('HeaderComponent', () => {
   });
 
   it('should switch language', () => {
-    const translate = (component as unknown as { translate: { use(language: string): unknown } })
-      .translate;
-    const useSpy = vi.spyOn(translate, 'use');
+    const i18n = (component as unknown as { i18n: { use(language: string): unknown } }).i18n;
+    const useSpy = vi.spyOn(i18n, 'use');
     component.switchLanguage('hi');
     expect(useSpy).toHaveBeenCalledWith('hi');
   });
