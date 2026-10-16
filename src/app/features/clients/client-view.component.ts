@@ -765,7 +765,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                         </th>
                         <td cdk-cell *cdkCellDef="let account">
                           {{ account.currency?.displaySymbol }}
-                          {{ account.originalPrincipal || 0 | number: '1.2-2' }}
+                          {{ account.originalLoan || 0 | number: '1.2-2' }}
                         </td>
                       </ng-container>
 

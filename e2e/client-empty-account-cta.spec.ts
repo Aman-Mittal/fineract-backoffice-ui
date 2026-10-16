@@ -88,6 +88,33 @@ async function mockClientWithoutAccounts(page: Page): Promise<void> {
   });
 }
 
+test('loan account rows show the principal returned by the accounts endpoint', async ({ page }) => {
+  await signIn(page);
+  await mockClientWithoutAccounts(page);
+  await page.route('**/api/v1/clients/2001/accounts**', (route) =>
+    route.fulfill({
+      json: {
+        loanAccounts: [
+          {
+            id: 10,
+            accountNo: '000000010',
+            productName: 'Synthetic Loan',
+            originalLoan: 88_888,
+            currency: { code: 'USD', displaySymbol: '$' },
+            status: { id: 300, value: 'Active' },
+          },
+        ],
+        savingsAccounts: [],
+      },
+    }),
+  );
+  await page.goto(CLIENT_URL);
+  await page.getByRole('tab', { name: 'Loan Accounts', exact: true }).click({ force: true });
+
+  const loanRow = page.getByRole('row').filter({ hasText: '000000010' });
+  await expect(loanRow.getByRole('cell', { name: '$ 88,888.00', exact: true })).toBeVisible();
+});
+
 test('empty account tabs offer the matching creation action', async ({ page }, testInfo) => {
   await signIn(page);
   await mockClientWithoutAccounts(page);

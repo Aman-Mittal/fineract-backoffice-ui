@@ -218,6 +218,28 @@ describe('ClientViewComponent', () => {
     });
   });
 
+  it('renders loan principals from the client accounts response, including zero', () => {
+    clientServiceSpy.getClientsClientIdAccounts.mockReturnValue(
+      of({
+        loanAccounts: [
+          { id: 1, accountNo: 'L001', originalLoan: 88_888, currency: { displaySymbol: '$' } },
+          { id: 2, accountNo: 'L002', originalLoan: 0, currency: { displaySymbol: '$' } },
+        ],
+        savingsAccounts: [],
+      }) as any,
+    );
+
+    component.loadClientAccounts();
+    component.onTabChange(CLIENT_TAB.loans);
+    fixture.detectChanges();
+
+    const cells = Array.from(
+      fixture.nativeElement.querySelectorAll('td.cdk-column-principal'),
+      (cell: Element) => cell.textContent?.trim(),
+    );
+    expect(cells).toEqual(['$ 88,888.00', '$ 0.00']);
+  });
+
   describe('empty account tabs', () => {
     for (const { tab, testId, permission } of [
       {
