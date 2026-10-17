@@ -87,6 +87,10 @@ const TRANSACTION_TITLE_KEYS: Record<string, string> = {
   undowriteoff: 'LOANS.ACTIONS.UNDO_WRITE_OFF',
   reAge: 'LOANS.ACTIONS.RE_AGE',
   reAmortize: 'LOANS.ACTIONS.RE_AMORTIZE',
+  undoReAge: 'LOANS.ACTIONS.UNDO_RE_AGE',
+  undoReAmortize: 'LOANS.ACTIONS.UNDO_RE_AMORTIZE',
+  buyDownFee: 'LOANS.ACTIONS.BUY_DOWN_FEE',
+  capitalizedIncome: 'LOANS.ACTIONS.CAPITALIZED_INCOME',
   'close-rescheduled': 'LOANS.ACTIONS.CLOSE_AS_RESCHEDULED',
 };
 
@@ -99,10 +103,18 @@ const NO_TEMPLATE_TYPES = new Set([
   'contractTermination',
   'undoContractTermination',
   'chargeRefund',
+  // Both answer `error.msg.query.parameter.value.unsupported` on `command` at the template
+  // endpoint while the POST itself is accepted — the #268 discriminator, measured for #778.
+  'undoReAge',
+  'undoReAmortize',
 ]);
 
 const DESTRUCTIVE_TYPES = new Set([
   'writeoff',
+  // An undo discards the schedule the re-age or re-amortization produced, which is not
+  // recoverable from the UI. #778 asks for a confirmation in front of each.
+  'undoReAge',
+  'undoReAmortize',
   'foreclosure',
   'close',
   'undoDisbursal',
@@ -130,6 +142,10 @@ const AMOUNT_VISIBLE_TYPES = new Set([
   'interestPaymentWaiver',
   'creditBalanceRefund',
   'recoverypayment',
+  // Both post an amount against the loan: the fee bought down, and the income to recognise
+  // over the term. Fineract generates the matching *_AMORTIZATION entries from it.
+  'buyDownFee',
+  'capitalizedIncome',
 ]);
 
 const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
@@ -141,6 +157,8 @@ const CONFIRM_MESSAGE_KEYS: Record<string, string> = {
   undowriteoff: 'LOANS.CONFIRM_UNDO_WRITE_OFF',
   reAge: 'LOANS.CONFIRM_RE_AGE',
   reAmortize: 'LOANS.CONFIRM_RE_AMORTIZE',
+  undoReAge: 'LOANS.CONFIRM_UNDO_RE_AGE',
+  undoReAmortize: 'LOANS.CONFIRM_UNDO_RE_AMORTIZE',
   'close-rescheduled': 'LOANS.CONFIRM_CLOSE_AS_RESCHEDULED',
   contractTermination: 'LOANS.CONFIRM_CONTRACT_TERMINATION',
   undoContractTermination: 'LOANS.CONFIRM_UNDO_CONTRACT_TERMINATION',

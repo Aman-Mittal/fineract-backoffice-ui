@@ -23,6 +23,8 @@ import { DecimalPipe } from '@angular/common';
 import { I18N, LOAN_TRANSACTION_API, TranslatePipe } from '../../core/adapters';
 import type { LoanTransaction } from '../../core/adapters';
 import { DialogService } from '../../core/services/dialog.service';
+import { LOAN_TRANSACTION_COMMAND_PERMISSIONS } from '../../core/guards/command-permissions';
+import { RequiresPermissionDirective } from '../../shared/directives/requires-permission.directive';
 import {
   IonButton,
   IonDatetime,
@@ -45,6 +47,33 @@ export interface TransactionDetailDialogData {
    *  business call made by the caller (e.g. repayment/goodwill credit yes,
    *  disbursement/approval no). */
   adjustable: boolean;
+  /**
+   * Which adjustment this is, where it is not the generic one.
+   *
+   * A buy-down fee and a capitalized income are adjusted by naming the command, and each is
+   * authorised by its own code — so the command and the gate travel together, decided by the
+   * caller from the transaction's own type. Omitted, this is the generic adjustment on
+   * `ADJUST_LOAN`.
+   */
+  adjustment?: TransactionAdjustmentVariant;
+  /**
+   * Whether the transaction's waived charge can be put back.
+   *
+   * Set by the caller for a waive-charge transaction that has not already been reversed. It is
+   * a different operation from an adjustment — a `PUT`, with an empty body, on
+   * `UNDO_WAIVECHARGE` — so it is a separate flag rather than another variant.
+   */
+  undoableWaiveCharge?: boolean;
+}
+
+/** An adjustment that is not the generic one: its command, its code and its label. */
+export interface TransactionAdjustmentVariant {
+  /** Fineract's `command` query parameter. */
+  readonly command: string;
+  /** The permission code that authorises this command and no other. */
+  readonly permission: string;
+  readonly labelKey: string;
+  readonly confirmKey: string;
 }
 
 @Component({
@@ -63,6 +92,7 @@ export interface TransactionDetailDialogData {
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    RequiresPermissionDirective,
   ],
   template: `
     <h2 class="dialog-title">{{ 'LOANS.TRANSACTION_DETAILS' | appTranslate }}</h2>
@@ -121,20 +151,37 @@ export interface TransactionDetailDialogData {
           }
         </table>
 
+        @if (data().undoableWaiveCharge && !tx.manuallyReversed) {
+          <ion-button
+            fill="outline"
+            color="danger"
+            class="adjust-toggle"
+            data-testid="transaction-undo-waive-charge"
+            [appRequiresPermission]="undoWaivePermission"
+            [disabled]="isSaving()"
+            (click)="onUndoWaiveCharge()"
+          >
+            <ion-icon name="arrow-undo-outline"></ion-icon>
+            {{ 'LOANS.ACTIONS.UNDO_WAIVE_CHARGE' | appTranslate }}
+          </ion-button>
+        }
+
         @if (data().adjustable && !tx.manuallyReversed) {
           @if (!showAdjustForm()) {
             <ion-button
               fill="outline"
               color="danger"
               class="adjust-toggle"
+              data-testid="transaction-adjust-toggle"
+              [appRequiresPermission]="adjustPermission"
               (click)="showAdjustForm.set(true)"
             >
               <ion-icon name="create-outline"></ion-icon>
-              {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | appTranslate }}
+              {{ adjustLabelKey | appTranslate }}
             </ion-button>
           } @else {
             <div class="adjust-form">
-              <p class="adjust-warning">{{ 'LOANS.CONFIRM_ADJUST_TRANSACTION' | appTranslate }}</p>
+              <p class="adjust-warning">{{ adjustConfirmKey | appTranslate }}</p>
               <ion-item fill="outline">
                 <ion-label position="stacked">{{
                   'COMMON.TRANSACTION_DATE' | appTranslate
@@ -186,8 +233,13 @@ export interface TransactionDetailDialogData {
         'COMMON.CLOSE' | appTranslate
       }}</ion-button>
       @if (showAdjustForm()) {
-        <ion-button color="danger" [disabled]="isSaving()" (click)="onConfirmAdjust()">
-          {{ 'LOANS.ACTIONS.ADJUST_TRANSACTION' | appTranslate }}
+        <ion-button
+          color="danger"
+          data-testid="transaction-adjust-submit"
+          [disabled]="isSaving()"
+          (click)="onConfirmAdjust()"
+        >
+          {{ adjustLabelKey | appTranslate }}
         </ion-button>
       }
     </div>
@@ -246,6 +298,28 @@ export class TransactionDetailDialogComponent implements OnInit {
 
   readonly data = input.required<TransactionDetailDialogData>();
 
+  /**
+   * The label, confirmation and permission for whichever adjustment this is.
+   *
+   * Plain getters rather than computed signals: each reads one field off `data`, which an input
+   * signal already tracks, so a computed would add a cache for a property access.
+   */
+  get adjustLabelKey(): string {
+    return this.data().adjustment?.labelKey ?? 'LOANS.ACTIONS.ADJUST_TRANSACTION';
+  }
+
+  get adjustConfirmKey(): string {
+    return this.data().adjustment?.confirmKey ?? 'LOANS.CONFIRM_ADJUST_TRANSACTION';
+  }
+
+  get adjustPermission(): string {
+    return this.data().adjustment?.permission ?? LOAN_TRANSACTION_COMMAND_PERMISSIONS.adjust;
+  }
+
+  get undoWaivePermission(): string {
+    return LOAN_TRANSACTION_COMMAND_PERMISSIONS.undoWaiveCharge;
+  }
+
   ngOnInit(): void {
     this.transactionApi.get(this.data().loanId, this.data().transactionId).subscribe({
       next: (transaction) => {
@@ -274,19 +348,24 @@ export class TransactionDetailDialogComponent implements OnInit {
   onConfirmAdjust(): void {
     this.dialogService
       .confirm({
-        title: this.i18n.translate('LOANS.ACTIONS.ADJUST_TRANSACTION'),
-        message: this.i18n.translate('LOANS.CONFIRM_ADJUST_TRANSACTION'),
+        title: this.i18n.translate(this.adjustLabelKey),
+        message: this.i18n.translate(this.adjustConfirmKey),
         destructive: true,
       })
       .then((confirmed) => {
         if (!confirmed) return;
         this.isSaving.set(true);
         this.transactionApi
-          .adjust(this.data().loanId, this.data().transactionId, {
-            date: toIsoDate(this.adjustDate()),
-            amount: this.adjustAmount(),
-            note: this.adjustNote,
-          })
+          .adjust(
+            this.data().loanId,
+            this.data().transactionId,
+            {
+              date: toIsoDate(this.adjustDate()),
+              amount: this.adjustAmount(),
+              note: this.adjustNote,
+            },
+            this.data().adjustment?.command,
+          )
           .subscribe({
             next: () => {
               this.isSaving.set(false);
@@ -298,5 +377,32 @@ export class TransactionDetailDialogComponent implements OnInit {
             },
           });
       });
+  }
+
+  /**
+   * Puts a waived charge back, after confirming.
+   *
+   * Destructive in the same sense an undo is elsewhere on this screen: the waiver is reversed
+   * and the charge becomes outstanding again, which is not something the dialog can take back.
+   */
+  async onUndoWaiveCharge(): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('LOANS.ACTIONS.UNDO_WAIVE_CHARGE'),
+      message: this.i18n.translate('LOANS.CONFIRM_UNDO_WAIVE_CHARGE'),
+      destructive: true,
+    });
+    if (!confirmed) return;
+
+    this.isSaving.set(true);
+    this.transactionApi.undoWaiveCharge(this.data().loanId, this.data().transactionId).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.modalController.dismiss(true);
+      },
+      error: (err) => {
+        console.error('Failed to undo the waived charge', err);
+        this.isSaving.set(false);
+      },
+    });
   }
 }

@@ -165,15 +165,30 @@ export class FineractLoanTransactionApi implements LoanTransactionApi {
     loanId: number,
     transactionId: number,
     adjustment: LoanTransactionAdjustment,
+    command?: string,
   ): Observable<void> {
     return this.transactions
-      .postLoansLoanIdTransactionsTransactionId(loanId, transactionId, {
-        transactionDate: adjustment.date,
-        transactionAmount: adjustment.amount,
-        note: adjustment.note,
-        dateFormat: DATE_FORMAT,
-        locale: LOCALE,
-      })
+      .postLoansLoanIdTransactionsTransactionId(
+        loanId,
+        transactionId,
+        {
+          transactionDate: adjustment.date,
+          transactionAmount: adjustment.amount,
+          note: adjustment.note,
+          dateFormat: DATE_FORMAT,
+          locale: LOCALE,
+        },
+        command,
+      )
+      .pipe(map(() => undefined));
+  }
+
+  undoWaiveCharge(loanId: number, transactionId: number): Observable<void> {
+    // Empty body. The generated request type declares only optional fields, and the platform
+    // takes the transaction id out of the path — sending a date or an amount here would be
+    // describing a change this operation does not make.
+    return this.transactions
+      .putLoansLoanIdTransactionsTransactionId(loanId, transactionId, {})
       .pipe(map(() => undefined));
   }
 }

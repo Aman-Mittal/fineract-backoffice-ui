@@ -155,8 +155,9 @@ const PER_COMMAND = new Map([
       url: '/loans/:loanId/transactions/:type',
       map: 'LOAN_COMMAND_PERMISSIONS',
       reason:
-        'One path, 29 loan commands. It declared UPDATE_LOAN, which Fineract accepts for none ' +
-        'of them (issue #691); the code comes from :type instead.',
+        'One path, 29 mapped loan commands plus 3 the probe could not settle. It declared ' +
+        'UPDATE_LOAN, which Fineract accepts for none of them (issue #691); the code comes ' +
+        'from :type instead.',
     },
   ],
   [

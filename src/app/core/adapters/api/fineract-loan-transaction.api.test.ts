@@ -164,6 +164,7 @@ describe('FineractLoanTransactionApi', () => {
     getLoansLoanIdTransactionsTransactionId: ReturnType<typeof vi.fn>;
     getLoansLoanIdTransactionsTemplate: ReturnType<typeof vi.fn>;
     postLoansLoanIdTransactionsTransactionId: ReturnType<typeof vi.fn>;
+    putLoansLoanIdTransactionsTransactionId: ReturnType<typeof vi.fn>;
   };
   let api: FineractLoanTransactionApi;
 
@@ -174,6 +175,7 @@ describe('FineractLoanTransactionApi', () => {
         .fn()
         .mockReturnValue(of({ paymentTypeOptions: [MONEY_TRANSFER, CHARGEBACK_TYPE] })),
       postLoansLoanIdTransactionsTransactionId: vi.fn().mockReturnValue(of({})),
+      putLoansLoanIdTransactionsTransactionId: vi.fn().mockReturnValue(of({})),
     };
     TestBed.configureTestingModule({
       providers: [{ provide: LoanTransactionsService, useValue: generated }],
@@ -225,12 +227,41 @@ describe('FineractLoanTransactionApi', () => {
     // point of the method: no caller has to remember.
     api.adjust(5, 1, { date: '2026-10-02', amount: 250.5, note: 'typo' }).subscribe();
 
-    expect(generated.postLoansLoanIdTransactionsTransactionId).toHaveBeenCalledWith(5, 1, {
-      transactionDate: '2026-10-02',
-      transactionAmount: 250.5,
-      note: 'typo',
-      dateFormat: 'yyyy-MM-dd',
-      locale: 'en',
-    });
+    expect(generated.postLoansLoanIdTransactionsTransactionId).toHaveBeenCalledWith(
+      5,
+      1,
+      {
+        transactionDate: '2026-10-02',
+        transactionAmount: 250.5,
+        note: 'typo',
+        dateFormat: 'yyyy-MM-dd',
+        locale: 'en',
+      },
+      // No command: the generic adjustment, which is what `ADJUST_LOAN` authorises.
+      undefined,
+    );
+  });
+
+  it('passes an adjustment variant through as the command', () => {
+    // Measured for #779: the deferred-income adjustments are not commands on
+    // `POST /loans/{id}/transactions`, where the platform answers "unsupported value". They are
+    // recognised on this per-transaction URL, and naming one switches the permission required
+    // as well as the operation.
+    api.adjust(5, 1, { date: '2026-10-02', amount: 50 }, 'buyDownFeeAdjustment').subscribe();
+
+    expect(generated.postLoansLoanIdTransactionsTransactionId).toHaveBeenCalledWith(
+      5,
+      1,
+      expect.objectContaining({ transactionAmount: 50 }),
+      'buyDownFeeAdjustment',
+    );
+  });
+
+  it('reverses a waived charge with an empty body', () => {
+    // The transaction id in the path is the whole request. Sending a date or an amount would
+    // describe a change this operation does not make, and the platform ignores neither.
+    api.undoWaiveCharge(5, 1).subscribe();
+
+    expect(generated.putLoansLoanIdTransactionsTransactionId).toHaveBeenCalledWith(5, 1, {});
   });
 });

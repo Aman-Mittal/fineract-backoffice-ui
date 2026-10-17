@@ -87,6 +87,8 @@ const BACKEND_SPECS = [
   'working-capital-servicing-backend.spec.ts',
   'working-capital-product-accounting-backend.spec.ts',
   'working-capital-rbac-backend.spec.ts',
+  'loan-servicing-rbac-backend.spec.ts',
+  'charge-servicing-backend.spec.ts',
   'client-transfer.spec.ts',
   'client-legal-form-search.spec.ts',
   'deposit-account-servicing.spec.ts',

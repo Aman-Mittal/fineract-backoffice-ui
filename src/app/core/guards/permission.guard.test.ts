@@ -214,10 +214,11 @@ describe('permissionGuard', () => {
 
     it('admits an unmapped command rather than guessing a code for it', () => {
       // A guessed code refuses a user the platform would have allowed, which is the more
-      // damaging and less visible failure. Four commands are deliberately unmapped; see
-      // command-permissions.ts.
+      // damaging and less visible failure. Three commands are deliberately unmapped; see
+      // command-permissions.ts. `reAmortize` was a fourth until #778 re-probed it, which is
+      // why the example here is one whose probe is still inconclusive.
       expect(
-        run(['READ_LOAN'], { permissions: loanCommandPermission }, { type: 'reAmortize' }),
+        run(['READ_LOAN'], { permissions: loanCommandPermission }, { type: 'undowriteoff' }),
       ).toBe(true);
     });
 

@@ -513,6 +513,260 @@ describe('LoanViewComponent', () => {
     });
   });
 
+  /**
+   * #778. A re-age or re-amortization can be undone, and until this landed the only remedy for
+   * one applied to the wrong loan was a direct API call.
+   *
+   * The visibility rule is the interesting half. Fineract reverses the *most recent* re-age, and
+   * an undone one keeps its row with `manuallyReversed` set — so "the loan has a reAge
+   * transaction" would keep offering an Undo that can only answer 403, which is the dead-end
+   * control #691 was about approached from the other side.
+   */
+  describe('undoing a re-age or re-amortization', () => {
+    const PROGRESSIVE = {
+      loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+    };
+
+    /** A transaction as the loan response carries one: the type is a flag bag. */
+    function tx(id: number, flag: string, manuallyReversed = false): Record<string, unknown> {
+      return {
+        id,
+        amount: 100,
+        date: [2026, 10, 2],
+        manuallyReversed,
+        type: { id: 31, code: `loanTransactionType.${flag}`, value: flag, [flag]: true },
+      };
+    }
+
+    it('offers neither undo on a loan that was never re-aged', async () => {
+      await setup(PROGRESSIVE);
+
+      expect(component.canUndoReAge()).toBe(false);
+      expect(component.canUndoReAmortize()).toBe(false);
+    });
+
+    it('offers the undo once a re-age stands', async () => {
+      await setup({ ...PROGRESSIVE, transactions: [tx(7, 'reAge')] });
+
+      expect(component.canUndoReAge()).toBe(true);
+      // The two are independent: re-aging a loan says nothing about re-amortizing it.
+      expect(component.canUndoReAmortize()).toBe(false);
+    });
+
+    it('withdraws the undo once that re-age has itself been reversed', async () => {
+      await setup({ ...PROGRESSIVE, transactions: [tx(7, 'reAge', true)] });
+
+      expect(component.canUndoReAge()).toBe(false);
+    });
+
+    it('asks about the latest re-age, not about any of them', async () => {
+      // Re-aged, undone, re-aged again: the standing one is the second, so the undo is on offer
+      // even though an earlier row is flagged reversed.
+      await setup({
+        ...PROGRESSIVE,
+        transactions: [tx(7, 'reAge', true), tx(9, 'reAge')],
+      });
+
+      expect(component.canUndoReAge()).toBe(true);
+    });
+
+    it('reads the latest by id rather than by position in the payload', async () => {
+      // Nothing in the payload promises an order, and the date is the value date — which a
+      // back-dated correction can place before an earlier entry. Highest id wins.
+      await setup({
+        ...PROGRESSIVE,
+        transactions: [tx(9, 'reAge', true), tx(7, 'reAge')],
+      });
+
+      expect(component.canUndoReAge()).toBe(false);
+    });
+
+    it('tracks re-amortization separately', async () => {
+      await setup({ ...PROGRESSIVE, transactions: [tx(11, 'reAmortize')] });
+
+      expect(component.canUndoReAmortize()).toBe(true);
+      expect(component.canUndoReAge()).toBe(false);
+    });
+
+    it('sends each undo to the form under the command spelling the platform accepts', async () => {
+      await setup({
+        ...PROGRESSIVE,
+        transactions: [tx(7, 'reAge'), tx(11, 'reAmortize')],
+      });
+
+      component.onLoanTransactionAction('undoReAge');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/undoReAge`,
+      ]);
+
+      component.onLoanTransactionAction('undoReAmortize');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/undoReAmortize`,
+      ]);
+    });
+
+    it('gates each undo on its own code, not on the code that made the change', async () => {
+      // These items are inside the Actions popover, whose content Angular instantiates only
+      // once the popover is presented — so there is no element here to read the attribute off.
+      // Instead the template binds `commandPermissions`, which is the same map the route guard
+      // reads, and this asserts the values it will bind. The two layers cannot drift, which is
+      // what #691 managed to get wrong in both directions at once.
+      await setup(PROGRESSIVE);
+
+      expect(component.commandPermissions.undoReAge).toBe('UNDO_REAGE_LOAN');
+      expect(component.commandPermissions.undoReAmortize).toBe('UNDO_REAMORTIZE_LOAN');
+      expect(component.commandPermissions.undoReAge).not.toBe(component.commandPermissions.reAge);
+      expect(component.commandPermissions.undoReAmortize).not.toBe(
+        component.commandPermissions.reAmortize,
+      );
+    });
+  });
+
+  /**
+   * #779. A product can enable buy-down fees or capitalized income and the loan screen showed
+   * the amortization tabs, but neither transaction could be posted or adjusted — so the tabs
+   * were always empty unless something else had used the API.
+   *
+   * The adjustments are the part the issue got wrong. It expected
+   * `POST /loans/{id}/transactions?command=buyDownFeeAdjustment`, where the platform answers
+   * `error.msg.query.parameter.value.unsupported` on `command`. They are commands on the
+   * per-transaction URL, each with its own permission.
+   */
+  describe('deferred income', () => {
+    const BUY_DOWN = {
+      loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+      enableBuyDownFee: true,
+    };
+    const CAPITALIZED = {
+      loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+      enableIncomeCapitalization: true,
+    };
+
+    /** A transaction as the loan response carries one. */
+    function tx(flag: string, overrides: Record<string, unknown> = {}): Record<string, unknown> {
+      return {
+        id: 12,
+        amount: 300,
+        date: [2026, 10, 2],
+        manuallyReversed: false,
+        type: { id: 40, code: `loanTransactionType.${flag}`, value: flag, [flag]: true },
+        ...overrides,
+      };
+    }
+
+    /** What `onViewTransaction` handed the dialog. */
+    async function dialogDataFor(
+      transaction: Record<string, unknown>,
+      loanOverrides: Record<string, unknown> = BUY_DOWN,
+    ): Promise<Record<string, unknown>> {
+      await setup(loanOverrides);
+      const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(undefined);
+
+      component.onViewTransaction(transaction as never);
+
+      return (open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
+    }
+
+    it('gates each posting on its own code, from the map the route guard reads', async () => {
+      await setup(BUY_DOWN);
+
+      expect(component.commandPermissions.buyDownFee).toBe('BUYDOWNFEE_LOAN');
+      expect(component.commandPermissions.capitalizedIncome).toBe('CAPITALIZEDINCOME_LOAN');
+      // And the adjustment is a different authority again: #779 asks for that explicitly.
+      expect(component.buyDownFeeAdjustPermission).toBe('BUYDOWNFEEADJUSTMENT_LOAN');
+      expect(component.buyDownFeeAdjustPermission).not.toBe(
+        component.commandPermissions.buyDownFee,
+      );
+    });
+
+    it('posts each transaction under the command spelling the platform accepts', async () => {
+      await setup(BUY_DOWN);
+
+      component.onLoanTransactionAction('buyDownFee');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/buyDownFee`,
+      ]);
+
+      component.onLoanTransactionAction('capitalizedIncome');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/capitalizedIncome`,
+      ]);
+    });
+
+    it('adjusts a buy-down fee by naming its command, not the generic adjust', async () => {
+      const data = await dialogDataFor(tx('buyDownFee'));
+
+      expect(data['adjustment']).toMatchObject({
+        command: 'buyDownFeeAdjustment',
+        permission: 'BUYDOWNFEEADJUSTMENT_LOAN',
+      });
+    });
+
+    it('adjusts a capitalized income by naming its own command', async () => {
+      const data = await dialogDataFor(tx('capitalizedIncome'), CAPITALIZED);
+
+      expect(data['adjustment']).toMatchObject({
+        command: 'capitalizedIncomeAdjustment',
+        permission: 'CAPITALIZEDINCOMEADJUSTMENT_LOAN',
+      });
+    });
+
+    it('leaves an ordinary repayment on the generic adjustment', async () => {
+      const data = await dialogDataFor(tx('repayment'));
+
+      expect(data['adjustment']).toBeUndefined();
+      expect(data['adjustable']).toBe(true);
+    });
+
+    it('treats a deferred-income transaction as adjustable though it is not a credit', async () => {
+      // The money moved at disbursement; the adjustment moves what is left to recognise. Gating
+      // adjustability on `isCreditTransaction` alone would offer no Adjust on either.
+      const data = await dialogDataFor(tx('buyDownFee'));
+
+      expect(component.isCreditTransaction(tx('buyDownFee') as never)).toBe(false);
+      expect(data['adjustable']).toBe(true);
+    });
+
+    it('offers no adjustment on a transaction already reversed', async () => {
+      const data = await dialogDataFor(tx('buyDownFee', { manuallyReversed: true }));
+
+      expect(data['adjustable']).toBe(false);
+    });
+
+    it('adjusts a buy-down fee from the amortization tab by its transaction id', async () => {
+      // The row is a view over the transaction: the platform's URL takes the transaction id, and
+      // the amortization entry has no resource of its own.
+      await setup(BUY_DOWN);
+      const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(undefined);
+
+      component.onAdjustBuyDownFee({ id: 3, transactionId: 12, buyDownFeeAmount: 300 });
+
+      const data = (open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
+      expect(data['transactionId']).toBe(12);
+      expect(data['adjustment']).toMatchObject({ command: 'buyDownFeeAdjustment' });
+    });
+
+    it('does not open an adjustment for an amortization row with no transaction id', async () => {
+      await setup(BUY_DOWN);
+      const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(undefined);
+
+      component.onAdjustBuyDownFee({ id: 3, buyDownFeeAmount: 300 });
+
+      expect(open).not.toHaveBeenCalled();
+    });
+
+    it('reloads the loan once something was changed, and not otherwise', async () => {
+      await setup(BUY_DOWN);
+      vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(true);
+      loansServiceSpy.getLoansLoanId.mockClear();
+
+      await component.onAdjustBuyDownFee({ id: 3, transactionId: 12 });
+      await Promise.resolve();
+
+      expect(loansServiceSpy.getLoansLoanId).toHaveBeenCalled();
+    });
+  });
+
   describe('refund by cash', () => {
     const ADVANCE = { paidInAdvance: { paidInAdvance: 250 } };
 

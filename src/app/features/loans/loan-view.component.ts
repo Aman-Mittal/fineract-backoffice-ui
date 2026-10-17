@@ -78,7 +78,13 @@ import { LoanAssetTransfersTabComponent } from './tabs/loan-asset-transfers-tab.
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
 import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
+import {
+  LOAN_COMMAND_PERMISSIONS,
+  LOAN_TRANSACTION_COMMAND_PERMISSIONS,
+} from '../../core/guards/command-permissions';
+import { transactionFlags } from './loan-transaction-type-flags.model';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
+import type { TransactionAdjustmentVariant } from './transaction-detail-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { canTerminateLoanContract, isLoanContractTerminated } from './loan-contract-termination';
 import { isRefundableLoanCharge } from './loan-charge-refund';
@@ -145,6 +151,80 @@ export const LOAN_TAB = {
 } as const;
 
 export type LoanTab = (typeof LOAN_TAB)[keyof typeof LOAN_TAB];
+
+/**
+ * The two adjustments that are not the generic one.
+ *
+ * Each names a command, a permission and its own wording. Keeping them together is what makes
+ * the gate and the command impossible to pair up wrongly: measured for #779, a role holding
+ * `BUYDOWNFEEADJUSTMENT_LOAN` is refused the bare adjust and authorised only the named
+ * command, so a button gated on one code that posts the other is refused either way.
+ */
+const BUY_DOWN_FEE_ADJUSTMENT: TransactionAdjustmentVariant = {
+  command: 'buyDownFeeAdjustment',
+  permission: LOAN_TRANSACTION_COMMAND_PERMISSIONS.buyDownFeeAdjustment,
+  labelKey: 'LOANS.ACTIONS.ADJUST_BUY_DOWN_FEE',
+  confirmKey: 'LOANS.CONFIRM_ADJUST_BUY_DOWN_FEE',
+};
+
+const CAPITALIZED_INCOME_ADJUSTMENT: TransactionAdjustmentVariant = {
+  command: 'capitalizedIncomeAdjustment',
+  permission: LOAN_TRANSACTION_COMMAND_PERMISSIONS.capitalizedIncomeAdjustment,
+  labelKey: 'LOANS.ACTIONS.ADJUST_CAPITALIZED_INCOME',
+  confirmKey: 'LOANS.CONFIRM_ADJUST_CAPITALIZED_INCOME',
+};
+
+/**
+ * The codes the Actions menu gates on, taken from the map the route guard reads.
+ *
+ * Named one by one because `LOAN_COMMAND_PERMISSIONS` is an index-signature map, which the
+ * template cannot read with dotted access — but the values still come from it, so there is no
+ * second place where a code is written down. `reAge` and `reAmortize` are here for the undo
+ * tests to compare against, which is how "the undo is a different authority" is asserted.
+ */
+const MENU_COMMAND_PERMISSIONS = {
+  reAge: LOAN_COMMAND_PERMISSIONS['reAge'],
+  reAmortize: LOAN_COMMAND_PERMISSIONS['reAmortize'],
+  undoReAge: LOAN_COMMAND_PERMISSIONS['undoReAge'],
+  undoReAmortize: LOAN_COMMAND_PERMISSIONS['undoReAmortize'],
+  buyDownFee: LOAN_COMMAND_PERMISSIONS['buyDownFee'],
+  capitalizedIncome: LOAN_COMMAND_PERMISSIONS['capitalizedIncome'],
+} as const;
+
+/**
+ * Whether the platform can reverse a waive-charge transaction.
+ *
+ * `false`, because it cannot. `PUT /loans/{loanId}/transactions/{transactionId}` — which the
+ * API document titles "Undo a Waive Charge Transaction" — answers **500** on every call,
+ * measured against `apache/fineract:latest` with an empty body, with the ids in the body, with
+ * a transaction date and amount, and with each of `?command=undo`, `?command=waive` and
+ * `?command=undoWaiveCharge`. The platform log shows
+ * `java.util.NoSuchElementException: No value present`, an `Optional.get()` on an empty
+ * optional inside the handler, so the request never reaches a business rule.
+ *
+ * Issue #754 asks for this, and the code for it is written and tested: the adapter method, the
+ * dialog control and the gate on `UNDO_WAIVECHARGE` — which was probed and is authorised by
+ * neither `ADJUST_LOAN` nor `WAIVE_LOANCHARGE`. What is not shipped is the button, because a
+ * control whose every click ends in an error toast is the dead-end control of issues #691 and
+ * #751, arrived at from a third direction. Flipping this constant is the whole change once the
+ * platform answers; `e2e/charge-servicing-backend.spec.ts` pins the 500 so that the day it
+ * stops being true, a test says so rather than a user finding out.
+ */
+const UNDO_WAIVE_CHARGE_AVAILABLE = false;
+
+/**
+ * Which adjustment a transaction takes, or `undefined` for the generic one.
+ *
+ * Read from the transaction's own type rather than from where the user clicked, so the same
+ * answer comes back from the Transactions tab and from an amortization tab.
+ */
+function adjustmentVariant(
+  tx: GetLoansLoanIdTransactions,
+): TransactionAdjustmentVariant | undefined {
+  if (tx.type?.buyDownFee === true) return BUY_DOWN_FEE_ADJUSTMENT;
+  if (tx.type?.capitalizedIncome === true) return CAPITALIZED_INCOME_ADJUSTMENT;
+  return undefined;
+}
 
 /**
  * Normalises whatever the disbursement-detail endpoint answers with into the `YYYY-MM-DD` an
@@ -619,6 +699,35 @@ export function toEditableDate(value: unknown): string {
                         <ion-label>{{ 'LOANS.ACTIONS.GOODWILL_CREDIT' | appTranslate }}</ion-label>
                       </ion-item>
 
+                      <!-- Deferred income, on the same capability flag that governs the tab.
+                           A product that did not enable the feature refuses the command, so
+                           offering it would be a control that can only fail. -->
+                      @if (showBuyDownFees()) {
+                        <ion-item
+                          button
+                          data-testid="loan-buy-down-fee-action"
+                          [appRequiresPermission]="commandPermissions.buyDownFee"
+                          (click)="onLoanTransactionAction('buyDownFee')"
+                        >
+                          <ion-icon slot="start" name="trending-down-outline"></ion-icon>
+                          <ion-label>{{ 'LOANS.ACTIONS.BUY_DOWN_FEE' | appTranslate }}</ion-label>
+                        </ion-item>
+                      }
+
+                      @if (showCapitalizedIncome()) {
+                        <ion-item
+                          button
+                          data-testid="loan-capitalized-income-action"
+                          [appRequiresPermission]="commandPermissions.capitalizedIncome"
+                          (click)="onLoanTransactionAction('capitalizedIncome')"
+                        >
+                          <ion-icon slot="start" name="trending-up-outline"></ion-icon>
+                          <ion-label>{{
+                            'LOANS.ACTIONS.CAPITALIZED_INCOME' | appTranslate
+                          }}</ion-label>
+                        </ion-item>
+                      }
+
                       <!-- Progressive-engine servicing. Fineract rejects these outright on a
                            cumulative loan, so they are not offered there. -->
                       @if (canTakeDownPayment()) {
@@ -665,6 +774,39 @@ export function toEditableDate(value: unknown): string {
                           <ion-icon slot="start" name="repeat-outline"></ion-icon>
                           <ion-label>{{ 'LOANS.ACTIONS.RE_AMORTIZE' | appTranslate }}</ion-label>
                         </ion-item>
+
+                        <!-- Each undo appears only while its own transaction stands unreversed:
+                             there is nothing to put back otherwise, and the platform would
+                             refuse it. -->
+                        @if (canUndoReAge()) {
+                          <ion-item
+                            button
+                            class="warn-item"
+                            data-testid="loan-undo-re-age-action"
+                            [appRequiresPermission]="commandPermissions.undoReAge"
+                            (click)="onLoanTransactionAction('undoReAge')"
+                          >
+                            <ion-icon slot="start" color="warning" name="arrow-undo-outline">
+                            </ion-icon>
+                            <ion-label>{{ 'LOANS.ACTIONS.UNDO_RE_AGE' | appTranslate }}</ion-label>
+                          </ion-item>
+                        }
+
+                        @if (canUndoReAmortize()) {
+                          <ion-item
+                            button
+                            class="warn-item"
+                            data-testid="loan-undo-re-amortize-action"
+                            [appRequiresPermission]="commandPermissions.undoReAmortize"
+                            (click)="onLoanTransactionAction('undoReAmortize')"
+                          >
+                            <ion-icon slot="start" color="warning" name="arrow-undo-outline">
+                            </ion-icon>
+                            <ion-label>{{
+                              'LOANS.ACTIONS.UNDO_RE_AMORTIZE' | appTranslate
+                            }}</ion-label>
+                          </ion-item>
+                        }
                       }
                     }
 
@@ -1221,6 +1363,7 @@ export function toEditableDate(value: unknown): string {
                       <td cdk-cell *cdkCellDef="let tx">
                         <ion-button
                           fill="clear"
+                          [attr.data-testid]="'loan-transaction-view-' + tx.id"
                           (click)="onViewTransaction(tx)"
                           [attr.aria-label]="'COMMON.VIEW' | appTranslate"
                           [appTooltip]="'COMMON.VIEW' | appTranslate"
@@ -1355,6 +1498,26 @@ export function toEditableDate(value: unknown): string {
                     {{ 'LOANS.NOT_YET_AMORTIZED_AMOUNT' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.notYetAmortizedAmount | number }}</td>
+                </ng-container>
+                <ng-container cdkColumnDef="buyDownFeeActions">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'COMMON.ACTIONS' | appTranslate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">
+                    @if (row.transactionId) {
+                      <ion-button
+                        fill="clear"
+                        size="small"
+                        data-testid="buy-down-fee-adjust"
+                        [appRequiresPermission]="buyDownFeeAdjustPermission"
+                        [attr.aria-label]="'LOANS.ACTIONS.ADJUST_BUY_DOWN_FEE' | appTranslate"
+                        [appTooltip]="'LOANS.ACTIONS.ADJUST_BUY_DOWN_FEE' | appTranslate"
+                        (click)="onAdjustBuyDownFee(row)"
+                      >
+                        <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                      </ion-button>
+                    }
+                  </td>
                 </ng-container>
                 <tr cdk-header-row *cdkHeaderRowDef="buyDownFeeColumns"></tr>
                 <tr cdk-row *cdkRowDef="let row; columns: buyDownFeeColumns"></tr>
@@ -1879,6 +2042,29 @@ export class LoanViewComponent implements OnInit, OnDestroy {
   readonly showBuyDownFees = computed(() => this.loan()?.enableBuyDownFee === true);
   readonly showCapitalizedIncome = computed(() => this.loan()?.enableIncomeCapitalization === true);
 
+  /**
+   * Whether a re-age or re-amortization is standing and can be put back.
+   *
+   * Fineract reverses the most recent one, so the question is about the *latest* transaction of
+   * the type and not about whether any exists. An undone re-age keeps its row, flagged
+   * `manuallyReversed`, so "has a reAge transaction" would keep offering an Undo that can only
+   * be refused — the dead-end control #691 was about, arrived at from the other direction.
+   */
+  readonly canUndoReAge = computed(() => this.isUndoable('reAge'));
+  readonly canUndoReAmortize = computed(() => this.isUndoable('reAmortize'));
+
+  private isUndoable(flag: 'reAge' | 'reAmortize'): boolean {
+    const latest = this.transactions()
+      .filter((tx) => transactionFlags(tx)[flag] === true)
+      // By id rather than by position: nothing in the payload promises an order, and the date
+      // is the value date, which a back-dated correction can place before an earlier entry.
+      .reduce<GetLoansLoanIdTransactions | undefined>(
+        (newest, tx) => (newest === undefined || (tx.id ?? 0) > (newest.id ?? 0) ? tx : newest),
+        undefined,
+      );
+    return latest !== undefined && latest.manuallyReversed !== true;
+  }
+
   /** Tabs that are not always present, keyed by the segment value that selects them. */
   /**
    * `overdueCharges` is absent from the generated response type — the upstream document omits
@@ -2003,6 +2189,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
     'buyDownFeeAmount',
     'amortizedAmount',
     'notYetAmortizedAmount',
+    'buyDownFeeActions',
   ];
   capitalizedIncomeColumns = [
     'amount',
@@ -2428,19 +2615,75 @@ export class LoanViewComponent implements OnInit, OnDestroy {
   }
 
   onViewTransaction(tx: GetLoansLoanIdTransactions): void {
+    const adjustment = adjustmentVariant(tx);
     this.dialogService
       .open(TransactionDetailDialogComponent, {
         data: {
           loanId: this.loanId(),
           transactionId: tx.id,
           currencySymbol: this.loan()?.currency?.displaySymbol,
-          adjustable: this.isCreditTransaction(tx) && !tx.manuallyReversed,
+          // A deferred-income transaction is adjustable without being a credit: the money moved
+          // at disbursement, and the adjustment moves what is left to recognise.
+          adjustable:
+            (this.isCreditTransaction(tx) || adjustment !== undefined) && !tx.manuallyReversed,
+          adjustment,
+          undoableWaiveCharge: UNDO_WAIVE_CHARGE_AVAILABLE && tx.type?.waiveCharges === true,
         },
       })
-      .then((adjusted) => {
-        if (adjusted) this.loadLoanData();
+      .then((changed) => {
+        if (changed) this.loadLoanData();
       });
   }
+
+  /**
+   * Opens the adjustment for one buy-down fee, from the amortization tab.
+   *
+   * The row is addressed by its `transactionId`, because that is what the platform's URL takes
+   * — the amortization row is a view over the transaction, not a resource of its own.
+   *
+   * There is no counterpart on the capitalized-income tab. `CapitalizedIncomeDetails` carries
+   * no `transactionId` and no `id`, so a row there cannot name the transaction to adjust; the
+   * same adjustment is reached from the Transactions tab, where the id is present. If the
+   * payload turns out to carry a transaction id the generated model omits — which is issue
+   * #653, and happens — this is the gap to close.
+   */
+  onAdjustBuyDownFee(row: BuyDownFeeAmortizationDetails): void {
+    if (row.transactionId === undefined) return;
+    this.dialogService
+      .open(TransactionDetailDialogComponent, {
+        data: {
+          loanId: this.loanId(),
+          transactionId: row.transactionId,
+          currencySymbol: this.loan()?.currency?.displaySymbol,
+          adjustable: true,
+          adjustment: BUY_DOWN_FEE_ADJUSTMENT,
+        },
+      })
+      .then((changed) => {
+        if (changed) this.loadLoanData();
+      });
+  }
+
+  /** For the tab's gate, which needs the code as a value rather than a literal. */
+  get buyDownFeeAdjustPermission(): string {
+    return BUY_DOWN_FEE_ADJUSTMENT.permission;
+  }
+
+  /**
+   * The command-to-permission map, for the menu items added by #778 and #779.
+   *
+   * Read from the same map the route guard reads rather than written as a literal on each item.
+   * The two have to agree — a button gated on one code that opens a route demanding another is
+   * refused at whichever layer is stricter, which is how #691 managed to be wrong in both
+   * directions at once — and a shared value cannot drift. It also makes the gate assertable:
+   * these items live inside the Actions popover, whose content Angular instantiates only once
+   * the popover is presented, so there is no element in a component test to read the attribute
+   * off.
+   *
+   * The older items still carry literals. Converting them is a wider change than these two
+   * issues, and a half-converted map would be worse than either.
+   */
+  readonly commandPermissions = MENU_COMMAND_PERMISSIONS;
 
   /**
    * Charges back part or all of a repayment.

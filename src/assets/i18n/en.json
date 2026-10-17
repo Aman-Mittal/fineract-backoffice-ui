@@ -519,7 +519,17 @@
     "EDIT": "Edit Charge",
     "APPLIES_TO": "Applies To",
     "TIME_TYPE": "Charge Time Type",
-    "CALCULATION_TYPE": "Calculation Type"
+    "CALCULATION_TYPE": "Calculation Type",
+    "PAY": "Pay",
+    "WAIVE": "Waive",
+    "ADJUST": "Adjust",
+    "INACTIVATE": "Inactivate",
+    "SAVED": "Charge updated.",
+    "FAILED": "The charge could not be updated. Please try again.",
+    "CONFIRM_PAY": "Pay {{amount}} against {{name}}?",
+    "CONFIRM_WAIVE": "Waive {{amount}} of {{name}}? The charge is written off and will no longer be collected.",
+    "CONFIRM_ADJUST": "Adjust {{name}} to a different amount?",
+    "CONFIRM_INACTIVATE": "Inactivate {{name}}? The charge stops being applied to this account."
   },
   "LOANS": {
     "ACCOUNT_NO": "Account No",
@@ -655,7 +665,14 @@
       "UNASSIGN_LOAN_OFFICER": "Unassign Loan Officer",
       "UNDO_LAST_DISBURSAL": "Undo Last Disbursal",
       "REVISE_APPROVED_AMOUNT": "Revise Approved Amount",
-      "REVISE_AVAILABLE_DISBURSEMENT_AMOUNT": "Revise Available Disbursement Amount"
+      "REVISE_AVAILABLE_DISBURSEMENT_AMOUNT": "Revise Available Disbursement Amount",
+      "UNDO_RE_AGE": "Undo Re-age",
+      "UNDO_RE_AMORTIZE": "Undo Re-amortize",
+      "BUY_DOWN_FEE": "Buy-down Fee",
+      "CAPITALIZED_INCOME": "Capitalized Income",
+      "ADJUST_BUY_DOWN_FEE": "Adjust Buy-down Fee",
+      "ADJUST_CAPITALIZED_INCOME": "Adjust Capitalized Income",
+      "UNDO_WAIVE_CHARGE": "Undo Waiver"
     },
     "CREATE_LOAN_ACCOUNT": "Create Loan Account",
     "EDIT_LOAN_APPLICATION": "Edit Loan Application",
@@ -776,7 +793,12 @@
       "GRACE_ON_INTEREST": "Grace on Interest",
       "EXTRA_TERMS": "Extra Terms",
       "NEW_INTEREST_RATE": "New Interest Rate"
-    }
+    },
+    "CONFIRM_UNDO_RE_AGE": "Undo the re-age on this loan? The repayment schedule reverts to what it was before the loan was re-aged.",
+    "CONFIRM_UNDO_RE_AMORTIZE": "Undo the re-amortization on this loan? The repayment schedule reverts to what it was before the loan was re-amortized.",
+    "CONFIRM_ADJUST_BUY_DOWN_FEE": "Adjust this buy-down fee? The amount not yet amortized changes, and the accounting entries already posted for it are reversed and reposted.",
+    "CONFIRM_ADJUST_CAPITALIZED_INCOME": "Adjust this capitalized income? The amount still to be recognised changes, and the accounting entries already posted for it are reversed and reposted.",
+    "CONFIRM_UNDO_WAIVE_CHARGE": "Undo this waiver? The charge becomes outstanding again and the waiver is reversed."
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",
