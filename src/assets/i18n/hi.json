@@ -497,7 +497,19 @@
     "DEPOSITS": {
       "ON_CLOSURE": "बंद होने पर",
       "PREMATURE_AMOUNT": "आज देय राशि"
-    }
+    },
+    "INTEREST_RATE_CHART": "ब्याज दर चार्ट",
+    "CHART_HINT": "प्रत्येक जमा अवधि के लिए देय दर। इस उत्पाद के अंतर्गत खोले गए खाते यही दर अपनाते हैं।",
+    "CHART_EMPTY": "अभी कोई दर स्लैब नहीं है। सहेजने से पहले कम से कम एक जोड़ें।",
+    "PERIOD_TYPE": "अवधि प्रकार",
+    "FROM_PERIOD": "अवधि से",
+    "TO_PERIOD": "अवधि तक",
+    "ANNUAL_INTEREST_RATE": "वार्षिक ब्याज दर %",
+    "ADD_SLAB": "दर स्लैब जोड़ें",
+    "INTEREST_COMPOUNDING_PERIOD": "ब्याज चक्रवृद्धि अवधि",
+    "INTEREST_POSTING_PERIOD": "ब्याज पोस्टिंग अवधि",
+    "INTEREST_CALCULATED_USING": "ब्याज गणना आधार",
+    "INTEREST_CALC_DAYS_IN_YEAR": "वर्ष में दिन"
   },
   "CHARGES": {
     "CREATE": "शुल्क बनाएं",

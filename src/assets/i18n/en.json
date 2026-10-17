@@ -512,7 +512,19 @@
     "DEPOSITS": {
       "ON_CLOSURE": "On closure",
       "PREMATURE_AMOUNT": "Amount payable today"
-    }
+    },
+    "INTEREST_RATE_CHART": "Interest Rate Chart",
+    "CHART_HINT": "The rate paid for each deposit term. Accounts opened under this product inherit it.",
+    "CHART_EMPTY": "No rate slabs yet. Add at least one before saving.",
+    "PERIOD_TYPE": "Period Type",
+    "FROM_PERIOD": "From Period",
+    "TO_PERIOD": "To Period",
+    "ANNUAL_INTEREST_RATE": "Annual Interest Rate %",
+    "ADD_SLAB": "Add Rate Slab",
+    "INTEREST_COMPOUNDING_PERIOD": "Interest Compounding Period",
+    "INTEREST_POSTING_PERIOD": "Interest Posting Period",
+    "INTEREST_CALCULATED_USING": "Interest Calculated Using",
+    "INTEREST_CALC_DAYS_IN_YEAR": "Days in Year"
   },
   "CHARGES": {
     "CREATE": "Create Charge",

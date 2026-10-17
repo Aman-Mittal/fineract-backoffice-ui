@@ -93,26 +93,66 @@ export function chartFromResponse(activeChart: unknown): DepositChart | null {
 }
 
 /**
- * The chart a brand new product starts with.
+ * An empty slab for the editor to start from.
  *
- * Still a placeholder — these forms have no rate-chart editor yet — but only ever used on create,
- * where inventing one is the difference between a product and a validation error. On update the
- * product's own chart is sent instead.
+ * Deliberately has no rate. This replaces `defaultChart()`, which handed every new product a
+ * single slab at **5% for 1–60 months** that the form never showed — so an administrator
+ * configuring a 7% two-year product got a 5% five-year one, and nothing on screen said so. That
+ * is issue #765, and the fix is not a better default: it is that the rate is the product, so the
+ * user has to enter it. An empty rate keeps the form invalid until they do.
  */
-export function defaultChart(): DepositChart {
+export function emptySlab(): DepositChartSlab {
   return {
-    fromDate: formatDateToFineract(new Date()),
+    periodType: PERIOD_TYPE_MONTHS,
+    fromPeriod: 1,
+    locale: FINERACT_LOCALE,
+  };
+}
+
+/** The slabs of a product's active chart, ready to edit. Empty for a product without one. */
+export function slabsFromResponse(activeChart: unknown): DepositChartSlab[] {
+  return chartFromResponse(activeChart)?.chartSlabs ?? [];
+}
+
+/**
+ * Wraps edited slabs in the chart envelope a create or update sends.
+ *
+ * `existingChart` carries the chart's own id on an update. Without it the platform reads the
+ * chart as a brand new one and answers 500 rather than a validation message, which is the defect
+ * `chartFromResponse` was written for; the slab ids ride along on the slabs themselves.
+ *
+ * A slab with no rate is dropped rather than sent as zero. Zero is a rate an institution might
+ * mean, so it cannot double as "not filled in" — the form refuses to submit an empty one
+ * instead.
+ */
+export function chartForRequest(
+  slabs: readonly DepositChartSlab[],
+  existingChart: DepositChart | null = null,
+): DepositChart {
+  return {
+    id: existingChart?.id,
+    fromDate: existingChart?.fromDate ?? formatDateToFineract(new Date()),
     dateFormat: FINERACT_DATE_FORMAT,
     locale: FINERACT_LOCALE,
-    chartSlabs: [
-      {
-        periodType: PERIOD_TYPE_MONTHS,
-        fromPeriod: 1,
-        toPeriod: 60,
-        annualInterestRate: 5,
-        description: 'Interest rate',
+    chartSlabs: slabs
+      .filter((slab) => slab.annualInterestRate !== undefined && slab.annualInterestRate !== null)
+      .map((slab) => ({
+        ...slab,
+        // The platform rejects a slab with no description on the way in.
+        description: slab.description || 'Interest rate',
         locale: FINERACT_LOCALE,
-      },
-    ],
+      })),
   };
+}
+
+/** Whether these slabs can be sent: at least one, each with a period range and a rate. */
+export function slabsAreComplete(slabs: readonly DepositChartSlab[]): boolean {
+  if (slabs.length === 0) return false;
+  return slabs.every(
+    (slab) =>
+      slab.annualInterestRate !== undefined &&
+      slab.annualInterestRate !== null &&
+      slab.fromPeriod !== undefined &&
+      slab.fromPeriod !== null,
+  );
 }
