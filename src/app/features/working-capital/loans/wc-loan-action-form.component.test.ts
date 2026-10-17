@@ -23,11 +23,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WcLoanActionFormComponent } from './wc-loan-action-form.component';
 
-import { WorkingCapitalLoansService, WorkingCapitalLoanTransactionsService } from '../../../api';
+import {
+  WorkingCapitalLoanProductsService,
+  WorkingCapitalLoansService,
+  WorkingCapitalLoanTransactionsService,
+} from '../../../api';
 
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
@@ -42,6 +46,8 @@ describe('WcLoanActionFormComponent', () => {
 
   let txSpy: SpyObj<WorkingCapitalLoanTransactionsService>;
 
+  let productsSpy: SpyObj<WorkingCapitalLoanProductsService>;
+
   let routerSpy: SpyObj<Router>;
 
   function createComponent(command: string) {
@@ -52,7 +58,12 @@ describe('WcLoanActionFormComponent', () => {
       'putWorkingCapitalLoansLoanIdPaymentRate',
     ]);
 
-    txSpy = createSpyObj(['postWorkingCapitalLoansLoanIdTransactions']);
+    txSpy = createSpyObj([
+      'postWorkingCapitalLoansLoanIdTransactions',
+      'getWorkingCapitalLoansLoanIdTransactionsTemplate',
+    ]);
+
+    productsSpy = createSpyObj(['getWorkingCapitalLoanProductsTemplate']);
 
     routerSpy = createSpyObj(['navigate']);
 
@@ -78,6 +89,25 @@ describe('WcLoanActionFormComponent', () => {
       >,
     );
 
+    txSpy.getWorkingCapitalLoansLoanIdTransactionsTemplate.mockReturnValue(
+      of({
+        expectedAmount: 7500,
+        transactionDate: '20 January 2026',
+        chargeOffDate: '20 January 2026',
+        chargeOffReasonOptions: [{ id: 11, name: 'Insolvency' }],
+      }) as unknown as ReturnType<
+        WorkingCapitalLoanTransactionsService['getWorkingCapitalLoansLoanIdTransactionsTemplate']
+      >,
+    );
+
+    productsSpy.getWorkingCapitalLoanProductsTemplate.mockReturnValue(
+      of({
+        writeOffReasonOptions: [{ id: 21, name: 'Uncollectible' }],
+      }) as unknown as ReturnType<
+        WorkingCapitalLoanProductsService['getWorkingCapitalLoanProductsTemplate']
+      >,
+    );
+
     TestBed.configureTestingModule({
       imports: [WcLoanActionFormComponent],
 
@@ -88,6 +118,11 @@ describe('WcLoanActionFormComponent', () => {
         {
           provide: WorkingCapitalLoanTransactionsService,
           useValue: txSpy,
+        },
+
+        {
+          provide: WorkingCapitalLoanProductsService,
+          useValue: productsSpy,
         },
 
         { provide: Router, useValue: routerSpy },
@@ -216,6 +251,147 @@ describe('WcLoanActionFormComponent', () => {
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/view/42'], {
       queryParams: { tab: 'rateChanges' },
+    });
+  });
+
+  /**
+   * Issues #771 and #772: repayment was the only transaction the UI could post. The rest of what
+   * Fineract accepts on a Working Capital loan — the credits, the two loss actions and their
+   * undos, and the recovery — was unreachable.
+   *
+   * What these pin is the part a reviewer cannot check by reading: the command string each form
+   * posts, and that each body carries only the fields its command takes. Fineract rejects a
+   * request with a parameter the command does not support, so a stray amount on an undo is a 400
+   * rather than a cosmetic slip.
+   */
+  describe('transaction commands', () => {
+    function post() {
+      return txSpy.postWorkingCapitalLoansLoanIdTransactions.mock.lastCall!;
+    }
+
+    it.each([
+      ['goodwillCredit', 'goodwillCredit'],
+      ['payoutRefund', 'payoutRefund'],
+      ['creditBalanceRefund', 'creditBalanceRefund'],
+      ['recoveryPayment', 'recoveryPayment'],
+      ['chargeOff', 'chargeOff'],
+      ['undoChargeOff', 'undoChargeOff'],
+      ['writeOff', 'writeOff'],
+      ['undoWriteOff', 'undoWriteOff'],
+    ])('posts %s under its own command name', (command, posted) => {
+      createComponent(command);
+
+      component.onSubmit();
+
+      expect(post()[0]).toBe(42);
+      expect(post()[1]).toBe(posted);
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/view/42']);
+    });
+
+    it('posts a prepayment as a repayment, which is the only command Fineract has for it', () => {
+      createComponent('prepay');
+
+      component.onSubmit();
+
+      expect(post()[1]).toBe('repayment');
+    });
+
+    it('offers the payoff figure from the prepay template rather than asking for it', () => {
+      createComponent('prepay');
+
+      expect(txSpy.getWorkingCapitalLoansLoanIdTransactionsTemplate).toHaveBeenCalledWith(
+        42,
+        'prepayLoan',
+      );
+      expect(component.transaction.transactionAmount).toBe(7500);
+    });
+
+    it('prefills the recovery amount with what is still recoverable', () => {
+      // The template caps it at totalWrittenOff - totalRecovered, so the figure it offers is one
+      // the API will accept; the gross written-off amount would be rejected.
+      createComponent('recoveryPayment');
+
+      expect(component.transaction.transactionAmount).toBe(7500);
+    });
+
+    it('loads charge-off reasons from the transaction template', () => {
+      createComponent('chargeOff');
+
+      expect(component.chargeOffReasonOptions()).toEqual([{ id: 11, name: 'Insolvency' }]);
+    });
+
+    it('loads write-off reasons from the product template, which is where they live', () => {
+      // Fineract assembles writeOffReasonOptions in the loan product read service; the
+      // transaction template carries only the charge-off ones.
+      createComponent('writeOff');
+
+      expect(productsSpy.getWorkingCapitalLoanProductsTemplate).toHaveBeenCalled();
+      expect(component.writeOffReasonOptions()).toEqual([{ id: 21, name: 'Uncollectible' }]);
+    });
+
+    it('sends the amount and date on a dated, amount-bearing command', () => {
+      createComponent('goodwillCredit');
+      component.transaction.transactionAmount = 250;
+      component.transactionDate = '2026-01-15T12:00:00';
+
+      component.onSubmit();
+
+      expect(post()[2]).toMatchObject({
+        transactionAmount: 250,
+        transactionDate: '15 January 2026',
+        locale: 'en',
+      });
+    });
+
+    it('sends neither amount nor date on an undo', () => {
+      createComponent('undoWriteOff');
+      // Left over from another branch of the same form; it must not reach the request.
+      component.transaction.transactionAmount = 999;
+      component.transactionDate = '2026-01-15T12:00:00';
+      component.transaction.reversalExternalId = 'WC-WO-REV-1';
+
+      component.onSubmit();
+
+      const body = post()[2];
+      expect(body.transactionAmount).toBeUndefined();
+      expect(body.transactionDate).toBeUndefined();
+      expect(body.reversalExternalId).toBe('WC-WO-REV-1');
+    });
+
+    it('sends the charge-off reason only for charge-off', () => {
+      createComponent('writeOff');
+      component.transaction.chargeOffReasonId = 11;
+      component.transaction.writeoffReasonId = 21;
+      component.transactionDate = '2026-01-15T12:00:00';
+
+      component.onSubmit();
+
+      const body = post()[2];
+      expect(body.writeoffReasonId).toBe(21);
+      expect(body.chargeOffReasonId).toBeUndefined();
+    });
+
+    it('omits the note on undoChargeOff, which documents no note parameter', () => {
+      createComponent('undoChargeOff');
+      component.transaction.note = 'applied in error';
+
+      component.onSubmit();
+
+      expect(post()[2].note).toBeUndefined();
+    });
+
+    it('keeps the loan on screen when the post fails', () => {
+      createComponent('chargeOff');
+      txSpy.postWorkingCapitalLoansLoanIdTransactions.mockReturnValue(
+        throwError(() => new Error('refused')) as ReturnType<
+          WorkingCapitalLoanTransactionsService['postWorkingCapitalLoansLoanIdTransactions']
+        >,
+      );
+
+      component.onSubmit();
+
+      expect(component.isSaving()).toBe(false);
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
   });
 });

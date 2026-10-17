@@ -34,7 +34,17 @@ const USER = 'mifos';
 const PASSWORD = 'password';
 const LOAN_ID = 1;
 
-async function mockLoanView(page: Page) {
+/**
+ * Mocks the loan screen.
+ *
+ * `loan` overrides the loan resource — the loss and refund actions are offered per status, so a
+ * test that wants Undo write-off has to be looking at a written-off loan — and `permissions`
+ * overrides what the signed-in user holds, which is what the action gates read.
+ */
+async function mockLoanView(
+  page: Page,
+  { loan = {}, permissions = ['ALL_FUNCTIONS'] }: { loan?: object; permissions?: string[] } = {},
+) {
   await page.route(/\/api\/v1\//, async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
   });
@@ -57,7 +67,7 @@ async function mockLoanView(page: Page) {
         officeId: 1,
         officeName: 'Head Office',
         roles: [{ id: 1, name: 'Role', description: 'Role' }],
-        permissions: ['ALL_FUNCTIONS'],
+        permissions,
       }),
     });
   });
@@ -66,6 +76,28 @@ async function mockLoanView(page: Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify([{ type: 'BUSINESS_DATE', date: [2026, 8, 16] }]),
+    });
+  });
+
+  // The application form reads two more collections. Without these the catch-all above answers
+  // `{}`, and `@for` over an object throws — which took the whole edit screen down.
+  await page.route('**/api/v1/working-capital/near-breach*', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+  });
+
+  // The application form's required Product select needs options to hold a selection; without
+  // them the form can never become valid, so the edit test could not submit.
+  await page.route('**/api/v1/working-capital-loans/template*', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        productOptions: [{ id: 1, name: 'WC Revolver' }],
+        breachOptions: [],
+        periodFrequencyTypeOptions: [{ id: '0', code: 'DAYS', value: 'Days' }],
+        delinquencyBucketOptions: [],
+        fundOptions: [],
+      }),
     });
   });
 
@@ -81,6 +113,7 @@ async function mockLoanView(page: Page) {
         currency: { displaySymbol: '$' },
         proposedPrincipal: 10_000,
         status: { value: 'Active', active: true },
+        ...loan,
       }),
     });
   });
@@ -506,5 +539,194 @@ test.describe('Working Capital loan delinquency, breach and near-breach actions,
     const rateReq = await rateRequest;
     expect(rateReq.postDataJSON()).toMatchObject({ periodPaymentRate: 8 });
     await expect(page).toHaveURL(`/working-capital/loans/view/${LOAN_ID}?tab=rateChanges`);
+  });
+});
+
+/**
+ * The commands that had no UI at all: the credits, the two loss actions with their undos, the
+ * recovery, and the modification of a submitted application. Mocked for the same reason as the
+ * rest of this file — these endpoints exist only on recent Fineract builds.
+ *
+ * Issues #770, #771, #772; the gating is #777.
+ */
+test.describe('Working Capital loan transactions, loss actions and modification', () => {
+  /** Opens the actions menu and picks an item by its visible label. */
+  async function chooseAction(page: Page, label: string) {
+    await page.locator('#loanMenu-trigger').click();
+    await page.locator('ion-popover:visible').getByText(label, { exact: true }).click();
+  }
+
+  /** Waits for the POST that carries a given `command` query parameter. */
+  function awaitTransaction(page: Page, command: string) {
+    return page.waitForRequest(
+      (req) =>
+        req.url().includes(`/working-capital-loans/${LOAN_ID}/transactions`) &&
+        req.url().includes(`command=${command}`) &&
+        req.method() === 'POST',
+    );
+  }
+
+  async function openLoan(page: Page, options: Parameters<typeof mockLoanView>[1] = {}) {
+    await mockLoanView(page, options);
+    await login(page);
+    await page.goto(`/working-capital/loans/view/${LOAN_ID}`);
+    await expect(page.locator('h2')).toContainText('000001');
+  }
+
+  test('credits the borrower through a goodwill credit', async ({ page }) => {
+    await openLoan(page);
+
+    await chooseAction(page, 'Goodwill Credit');
+    await expect(page).toHaveURL(`/working-capital/loans/${LOAN_ID}/action/goodwillCredit`);
+    const goodwill = awaitTransaction(page, 'goodwillCredit');
+    await page.locator('input[name="transactionAmount"]').fill('250');
+    await page.getByRole('button', { name: 'Submit' }).click();
+    expect((await goodwill).postDataJSON()).toMatchObject({ transactionAmount: 250 });
+    await expect(page).toHaveURL(`/working-capital/loans/view/${LOAN_ID}`);
+  });
+
+  test('refunds a merchant payout', async ({ page }) => {
+    await openLoan(page);
+
+    await chooseAction(page, 'Payout Refund');
+    const payout = awaitTransaction(page, 'payoutRefund');
+    await page.locator('input[name="transactionAmount"]').fill('75');
+    await page.getByRole('button', { name: 'Submit' }).click();
+    expect((await payout).postDataJSON()).toMatchObject({ transactionAmount: 75 });
+  });
+
+  test('refunds a credit balance only on an overpaid loan', async ({ page }) => {
+    await openLoan(page, {
+      loan: {
+        status: { value: 'Overpaid', overpaid: true },
+        balance: { overpaymentAmount: 120 },
+      },
+    });
+
+    await chooseAction(page, 'Refund Credit Balance');
+    const refund = awaitTransaction(page, 'creditBalanceRefund');
+    await page.locator('input[name="transactionAmount"]').fill('120');
+    await page.getByRole('button', { name: 'Submit' }).click();
+    expect((await refund).postDataJSON()).toMatchObject({ transactionAmount: 120 });
+  });
+
+  test('charges off an active loan', async ({ page }) => {
+    await openLoan(page);
+
+    await chooseAction(page, 'Charge Off');
+    const chargeOff = awaitTransaction(page, 'chargeOff');
+    await page.getByRole('button', { name: 'Submit' }).click();
+    expect((await chargeOff).postDataJSON()).toMatchObject({ locale: 'en' });
+  });
+
+  test('swaps charge-off for its undo once the loan is charged off', async ({ page }) => {
+    // A charged-off loan stays ACTIVE — the tag is non-monetary — so the status alone does not
+    // tell the screen which of the two to offer.
+    await openLoan(page, { loan: { chargedOff: true } });
+
+    await page.locator('#loanMenu-trigger').click();
+    const menu = page.locator('ion-popover:visible');
+    await expect(menu.getByText('Undo Charge Off', { exact: true })).toBeVisible();
+    await expect(menu.getByText('Charge Off', { exact: true })).toHaveCount(0);
+  });
+
+  test('writes off an active loan', async ({ page }) => {
+    await openLoan(page);
+
+    await chooseAction(page, 'Write Off');
+    const writeOff = awaitTransaction(page, 'writeOff');
+    await page.getByRole('button', { name: 'Submit' }).click();
+    expect((await writeOff).postDataJSON()).toMatchObject({ locale: 'en' });
+  });
+
+  test('offers recovery and undo on a written-off loan, but not a second write-off', async ({
+    page,
+  }) => {
+    await openLoan(page, {
+      loan: {
+        status: { value: 'Closed (written off)', closedWrittenOff: true },
+        balance: { totalWrittenOff: 100, totalRecovered: 0, writtenOffOutstanding: 100 },
+      },
+    });
+
+    await page.locator('#loanMenu-trigger').click();
+    const menu = page.locator('ion-popover:visible');
+    await expect(menu.getByText('Record Recovery Payment', { exact: true })).toBeVisible();
+    await expect(menu.getByText('Undo Write-off', { exact: true })).toBeVisible();
+    // Written off is a lock: no repayment, and no second write-off.
+    await expect(menu.getByText('Write Off', { exact: true })).toHaveCount(0);
+  });
+
+  test('withholds undo write-off once a recovery has been collected', async ({ page }) => {
+    await openLoan(page, {
+      loan: {
+        status: { value: 'Closed (written off)', closedWrittenOff: true },
+        balance: { totalWrittenOff: 100, totalRecovered: 30, writtenOffOutstanding: 70 },
+      },
+    });
+
+    await page.locator('#loanMenu-trigger').click();
+    const menu = page.locator('ion-popover:visible');
+    await expect(menu.getByText('Record Recovery Payment', { exact: true })).toBeVisible();
+    // Fineract refuses the undo while recovered money stands against a restored balance.
+    await expect(menu.getByText('Undo Write-off', { exact: true })).toHaveCount(0);
+  });
+
+  test('modifies a submitted application through the edit route', async ({ page }) => {
+    await openLoan(page, {
+      loan: {
+        // The form's required fields come from the loan resource, so the mock has to carry what
+        // a real submitted application carries.
+        status: { value: 'Submitted and pending approval', pendingApproval: true },
+        clientId: 7,
+        loanProductId: 1,
+        principal: 10_000,
+        totalPaymentVolume: 60_000,
+        paymentRate: 5,
+        repaymentEvery: 1,
+        repaymentFrequencyType: { id: '0', code: 'DAYS', value: 'Days' },
+        timeline: { submittedOnDate: '15 January 2026' },
+      },
+    });
+
+    await chooseAction(page, 'Modify Application');
+    // The button used to navigate to a route that did not exist, and fell through to the
+    // wildcard. Issue #770.
+    await expect(page).toHaveURL(`/working-capital/loans/edit/${LOAN_ID}`);
+
+    // The product is re-picked rather than relied on: what this test is about is that the route
+    // exists and that saving modifies the loan instead of creating a second application. Which
+    // fields the form prefills, and how the response's names map onto the request's, is pinned in
+    // `wc-loan-form.component.test.ts`.
+    //
+    // Not the shared selectOption() helper, for the reason given in the originator test above:
+    // it waits for no ion-popover to be on screen, and the Actions menu this test navigated
+    // through is still mounted.
+    await page
+      .locator('ion-item')
+      .filter({ has: page.getByText('Product', { exact: true }) })
+      .locator('ion-select')
+      .click();
+    await page
+      .locator('ion-popover:visible')
+      .getByRole('radio', { name: 'WC Revolver', exact: true })
+      .click();
+    await page.locator('input[name="principalAmount"]').fill('12000');
+
+    const update = page.waitForRequest(
+      (req) => req.url().endsWith(`/working-capital-loans/${LOAN_ID}`) && req.method() === 'PUT',
+    );
+    await page.getByRole('button', { name: 'Save' }).click();
+    expect((await update).postDataJSON()).toMatchObject({ principalAmount: 12000 });
+    await expect(page).toHaveURL(`/working-capital/loans/view/${LOAN_ID}`);
+  });
+
+  test('disables the actions a read-only role may not perform', async ({ page }) => {
+    await openLoan(page, { permissions: ['READ_WORKINGCAPITALLOAN'] });
+
+    // Offered but refused, with the missing permission named: the user is looking at the loan,
+    // and that they cannot act on it is a fact about their role. Issue #777.
+    const repayment = page.locator('[appRequiresPermission="REPAYMENT_WORKINGCAPITALLOAN"]');
+    await expect(repayment).toHaveAttribute('aria-disabled', 'true');
   });
 });

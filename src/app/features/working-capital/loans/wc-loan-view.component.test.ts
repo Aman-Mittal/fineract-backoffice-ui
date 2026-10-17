@@ -44,6 +44,10 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
 
+import { AuthService } from '../../../core/services/auth.service';
+
+import { signal } from '@angular/core';
+
 describe('WcLoanViewComponent', () => {
   let component: WcLoanViewComponent;
   let fixture: ComponentFixture<WcLoanViewComponent>;
@@ -59,6 +63,8 @@ describe('WcLoanViewComponent', () => {
   let wcOriginatorsSpy: SpyObj<WorkingCapitalLoanOriginatorsService>;
   let originatorsSpy: SpyObj<LoanOriginatorsService>;
   let routerSpy: SpyObj<Router>;
+
+  let authSpy: SpyObj<AuthService>;
 
   beforeEach(async () => {
     loansSpy = createSpyObj<WorkingCapitalLoansService>([
@@ -105,6 +111,21 @@ describe('WcLoanViewComponent', () => {
     originatorsSpy = createSpyObj<LoanOriginatorsService>(['getLoanOriginators']);
 
     routerSpy = createSpyObj<Router>(['navigate']);
+
+    // An administrator by default, so the existing expectations describe an unrestricted user;
+    // the gating suite below narrows it per test.
+    authSpy = Object.assign(createSpyObj<AuthService>(['hasPermission']), {
+      currentUser: signal({
+        username: 'mifos',
+        base64EncodedAuthenticationKey: 'key',
+        authenticated: true,
+        officeId: 1,
+        officeName: 'Head Office',
+        userId: 1,
+        permissions: ['ALL_FUNCTIONS'],
+      }),
+    });
+    authSpy.hasPermission.mockReturnValue(true);
 
     loansSpy.getWorkingCapitalLoansLoanId.mockReturnValue(
       of({
@@ -282,6 +303,10 @@ describe('WcLoanViewComponent', () => {
         {
           provide: WorkingCapitalLoansService,
           useValue: loansSpy,
+        },
+        {
+          provide: AuthService,
+          useValue: authSpy,
         },
         {
           provide: WorkingCapitalLoanChargesService,
@@ -546,6 +571,151 @@ describe('WcLoanViewComponent', () => {
       for (const spy of dismissSpies) {
         expect(spy).toHaveBeenCalled();
       }
+    });
+  });
+
+  /**
+   * Issue #777: every action on this screen was rendered unconditionally and every action route
+   * was gated on `UPDATE_WORKINGCAPITALLOAN`, a code Fineract accepts for none of them. So the
+   * screen both refused an approver who held `APPROVE_WORKINGCAPITALLOAN` and offered Approve to
+   * someone who could only ever get a 403 for it.
+   */
+  describe('permission gating', () => {
+    /** Renders the loan in a status, so the status-gated controls exist to be asserted on. */
+    function showLoanWith(status: Record<string, boolean>) {
+      component.loan.set({ id: 1, status } as never);
+      fixture.detectChanges();
+    }
+
+    function control(permission: string): HTMLElement | null {
+      return fixture.nativeElement.querySelector(
+        `[appRequiresPermission="${CSS.escape(permission)}"]`,
+      );
+    }
+
+    it('gates Approve on APPROVE_WORKINGCAPITALLOAN, not on UPDATE', () => {
+      showLoanWith({ pendingApproval: true });
+
+      expect(control('APPROVE_WORKINGCAPITALLOAN')).not.toBeNull();
+      expect(control('UPDATE_WORKINGCAPITALLOAN')).toBeNull();
+      expect(authSpy.hasPermission).toHaveBeenCalledWith('APPROVE_WORKINGCAPITALLOAN', false);
+    });
+
+    it('lets an approver who lacks UPDATE use it', () => {
+      authSpy.hasPermission.mockImplementation(
+        (permission: string | string[]) => permission === 'APPROVE_WORKINGCAPITALLOAN',
+      );
+      showLoanWith({ pendingApproval: true });
+
+      const approve = control('APPROVE_WORKINGCAPITALLOAN');
+      expect(approve!.getAttribute('aria-disabled')).toBeNull();
+    });
+
+    it('disables the control, and says which permission is missing', () => {
+      authSpy.hasPermission.mockReturnValue(false);
+      showLoanWith({ pendingApproval: true });
+
+      const approve = control('APPROVE_WORKINGCAPITALLOAN');
+      expect(approve!.getAttribute('aria-disabled')).toBe('true');
+      // A refused control carries a hint naming the permission, so the user can ask an
+      // administrator for exactly that one. The text itself is the directive's own test's
+      // business; here the i18n stub answers with the key.
+      expect(approve!.getAttribute('title')).toBeTruthy();
+      expect(approve!.getAttribute('aria-label')).toBeTruthy();
+    });
+
+    it('leaves a read-only user no enabled write control on an active loan', () => {
+      authSpy.hasPermission.mockReturnValue(false);
+      showLoanWith({ active: true });
+
+      const gated = fixture.nativeElement.querySelectorAll('[appRequiresPermission]');
+      expect(gated.length).toBeGreaterThan(0);
+      for (const element of gated) {
+        expect(
+          element.getAttribute('aria-disabled'),
+          `${element.getAttribute('appRequiresPermission')} is still enabled`,
+        ).toBe('true');
+      }
+    });
+
+    it('gates Disburse and Repayment on their own codes', () => {
+      showLoanWith({ waitingForDisbursal: true });
+      expect(control('DISBURSE_WORKINGCAPITALLOAN')).not.toBeNull();
+
+      showLoanWith({ active: true });
+      expect(control('REPAYMENT_WORKINGCAPITALLOAN')).not.toBeNull();
+    });
+  });
+
+  /**
+   * Issues #771 and #772: which loss and credit actions the screen offers, and when.
+   *
+   * Asserted on the predicates rather than the menu markup because the actions live inside an
+   * `ion-popover`, whose template Ionic only renders once the popover is presented. The statuses
+   * come from the Working Capital module's own documentation — a loan written off is locked to
+   * everything but a recovery, and undoing the write-off is refused while a recovery stands.
+   */
+  describe('action availability by loan state', () => {
+    function withLoan(loan: Record<string, unknown>) {
+      component.loan.set(loan as never);
+    }
+
+    it('accepts credits while active, closed-obligations-met or overpaid', () => {
+      withLoan({ status: { active: true } });
+      expect(component.acceptsCredits).toBe(true);
+
+      withLoan({ status: { closedObligationsMet: true } });
+      expect(component.acceptsCredits).toBe(true);
+
+      withLoan({ status: { overpaid: true } });
+      expect(component.acceptsCredits).toBe(true);
+
+      withLoan({ status: { closedWrittenOff: true } });
+      expect(component.acceptsCredits).toBe(false);
+    });
+
+    it('offers a credit balance refund only when there is an overpayment to refund', () => {
+      withLoan({ status: { overpaid: true }, balance: { overpaymentAmount: 250 } });
+      expect(component.hasCreditBalance).toBe(true);
+
+      withLoan({ status: { overpaid: true }, balance: { overpaymentAmount: 0 } });
+      expect(component.hasCreditBalance).toBe(false);
+
+      withLoan({ status: { active: true }, balance: { overpaymentAmount: 250 } });
+      expect(component.hasCreditBalance).toBe(false);
+    });
+
+    it('separates charged off from written off', () => {
+      withLoan({ status: { active: true }, chargedOff: true });
+      expect(component.isLoanChargedOff).toBe(true);
+      // Charge-off is a non-monetary tag: the loan stays active and still takes repayments.
+      expect(component.isLoanActive).toBe(true);
+      expect(component.isLoanWrittenOff).toBe(false);
+
+      withLoan({ status: { closedWrittenOff: true } });
+      expect(component.isLoanWrittenOff).toBe(true);
+      expect(component.isLoanActive).toBe(false);
+    });
+
+    it('offers a recovery payment only while something is still recoverable', () => {
+      withLoan({ status: { closedWrittenOff: true }, balance: { writtenOffOutstanding: 70 } });
+      expect(component.canRecordRecovery).toBe(true);
+
+      withLoan({ status: { closedWrittenOff: true }, balance: { writtenOffOutstanding: 0 } });
+      expect(component.canRecordRecovery).toBe(false);
+
+      withLoan({ status: { active: true }, balance: { writtenOffOutstanding: 70 } });
+      expect(component.canRecordRecovery).toBe(false);
+    });
+
+    it('withholds undo write-off while a recovery stands', () => {
+      // Restoring the balance would replay money already booked as recovery income against it,
+      // so Fineract refuses until the recoveries are reversed.
+      withLoan({ status: { closedWrittenOff: true }, balance: { totalRecovered: 0 } });
+      expect(component.canUndoWriteOff).toBe(true);
+
+      withLoan({ status: { closedWrittenOff: true }, balance: { totalRecovered: 30 } });
+      expect(component.canUndoWriteOff).toBe(false);
     });
   });
 });

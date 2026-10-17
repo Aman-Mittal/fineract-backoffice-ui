@@ -169,6 +169,16 @@ const PER_COMMAND = new Map([
         'withdrawal, which live in Fineract transaction_savings grouping.',
     },
   ],
+  [
+    'wcLoanCommandPermission',
+    {
+      url: '/working-capital/loans/:id/action/:command',
+      map: 'WC_LOAN_COMMAND_PERMISSIONS',
+      reason:
+        'One path, 18 Working Capital loan commands. It declared UPDATE_WORKINGCAPITALLOAN, ' +
+        'which authorises none of them (issue #777); the code comes from :command instead.',
+    },
+  ],
 ]);
 
 /** Where the maps live, read textually for the same reason the route tables are. */

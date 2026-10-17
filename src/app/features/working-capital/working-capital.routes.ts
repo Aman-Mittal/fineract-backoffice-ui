@@ -19,6 +19,7 @@
 
 import { authGuard } from '../../core/guards/auth.guard';
 import { permissionGuard } from '../../core/guards/permission.guard';
+import { wcLoanCommandPermission } from '../../core/guards/command-permissions';
 import { Routes } from '@angular/router';
 import { developerToolsGuard } from '../../core/guards/developer-tools.guard';
 
@@ -120,39 +121,53 @@ export const WORKING_CAPITAL_ROUTES: Routes = [
       import('./loans/wc-loan-view.component').then((m) => m.WcLoanViewComponent),
   },
   {
-    path: 'loans/:id/action/:command',
+    // Only a submitted application can be modified; the loan screen offers Edit in that state
+    // alone, and Fineract refuses PUT in any other.
+    path: 'loans/edit/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    loadComponent: () =>
+      import('./loans/wc-loan-form.component').then((m) => m.WcLoanFormComponent),
+  },
+  {
+    // Dispatch route: the code depends on :command, so no single declaration can be right.
+    // See command-permissions.ts and issue #777.
+    path: 'loans/:id/action/:command',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: wcLoanCommandPermission },
     loadComponent: () =>
       import('./loans/wc-loan-action-form.component').then((m) => m.WcLoanActionFormComponent),
   },
   {
     path: 'loans/:id/charge',
     canActivate: [authGuard, permissionGuard],
-    data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    data: { permissions: 'CREATE_WORKINGCAPITALLOANCHARGE' },
     loadComponent: () =>
       import('./loans/wc-loan-charge-form.component').then((m) => m.WcLoanChargeFormComponent),
   },
   {
+    // The reset and disable variants carry their own codes, resolved per action type inside the
+    // form; this is the code the form's default action needs to open it at all.
     path: 'loans/:id/breach-action',
     canActivate: [authGuard, permissionGuard],
-    data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    data: { permissions: 'CREATE_WC_BREACH_ACTION' },
     loadComponent: () =>
       import('./loans/wc-breach-action-form.component').then((m) => m.WcBreachActionFormComponent),
   },
   {
     path: 'loans/:id/near-breach-action',
     canActivate: [authGuard, permissionGuard],
-    data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    data: { permissions: 'CREATE_WC_NEAR_BREACH_ACTION' },
     loadComponent: () =>
       import('./loans/wc-near-breach-action-form.component').then(
         (m) => m.WcNearBreachActionFormComponent,
       ),
   },
   {
+    // As with breach: reset and disable resolve to their own codes inside the form.
     path: 'loans/:id/delinquency-action',
     canActivate: [authGuard, permissionGuard],
-    data: { permissions: 'UPDATE_WORKINGCAPITALLOAN' },
+    data: { permissions: 'CREATE_WC_DELINQUENCY_ACTION' },
     loadComponent: () =>
       import('./loans/wc-delinquency-action-form.component').then(
         (m) => m.WcDelinquencyActionFormComponent,
