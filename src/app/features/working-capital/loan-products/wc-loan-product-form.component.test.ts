@@ -46,6 +46,40 @@ describe('WcLoanProductFormComponent', () => {
         currencyOptions: [{ code: 'USD', name: 'US Dollar' }],
         amortizationTypeOptions: [{ id: '1', code: 'FLAT', value: 'Flat' }],
         periodFrequencyTypeOptions: [{ id: '2', code: 'MONTHS', value: 'Months' }],
+        // The two values the platform accepts, as it returns them: the name in `id` and the
+        // dotted spelling in `code`. Binding `code` is what made the form unsaveable.
+        accountingRuleOptions: [
+          { id: 'NONE', code: 'wcAccountingRuleType.none', value: 'No accounting' },
+          {
+            id: 'ACC_DEF_REV_AM',
+            code: 'wcAccountingRuleType.accrual.def.rev.am',
+            value: 'Accrual with deferred revenue amortization',
+          },
+        ],
+        accountingMappingOptions: {
+          assetAccountOptions: [{ id: 1, name: 'Fund source', glCode: 'A-1' }],
+          liabilityAccountOptions: [{ id: 7, name: 'Deferred income', glCode: 'L-1' }],
+          incomeAccountOptions: [{ id: 13, name: 'Fee income', glCode: 'I-1' }],
+          expenseAccountOptions: [{ id: 19, name: 'Losses', glCode: 'E-1' }],
+        },
+        chargeOffReasonOptions: [{ id: 23, name: 'Insolvency' }],
+        writeOffReasonOptions: [{ id: 24, name: 'Uncollectible' }],
+        paymentTypeOptions: [{ id: 1, name: 'Money Transfer' }],
+        chargeOptions: [{ id: 5, name: 'Processing Fee', penalty: false }],
+        penaltyOptions: [{ id: 6, name: 'Late Fee', penalty: true }],
+        advancedPaymentAllocationTransactionTypes: [{ id: 1, code: 'DEFAULT', value: 'Default' }],
+        advancedPaymentAllocationTypes: [
+          { id: 'DUE_PENALTY', code: 'DUE_PENALTY', value: 'Due penalty' },
+          { id: 'DUE_FEE', code: 'DUE_FEE', value: 'Due fee' },
+          { id: 'DUE_PRINCIPAL', code: 'DUE_PRINCIPAL', value: 'Due principal' },
+          { id: 'IN_ADVANCE_PENALTY', code: 'IN_ADVANCE_PENALTY', value: 'In advance penalty' },
+          { id: 'IN_ADVANCE_FEE', code: 'IN_ADVANCE_FEE', value: 'In advance fee' },
+          {
+            id: 'IN_ADVANCE_PRINCIPAL',
+            code: 'IN_ADVANCE_PRINCIPAL',
+            value: 'In advance principal',
+          },
+        ],
       }) as unknown as ReturnType<
         WorkingCapitalLoanProductsService['getWorkingCapitalLoanProductsTemplate']
       >,
@@ -118,5 +152,182 @@ describe('WcLoanProductFormComponent', () => {
     component.onSubmit();
     expect(serviceSpy.postWorkingCapitalLoanProducts).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loan-products']);
+  });
+
+  describe('accounting', () => {
+    /**
+     * The rule is a **named** enum for this family, and the template returns the name in `id`
+     * with the dotted `wcAccountingRuleType.*` spelling in `code`. The form used to bind `code`,
+     * so every saved product answered
+     * `validation.msg.workingcapitalloanproduct.accountingRule.is.not.one.of.expected.enumerations`
+     * — the product could not be created at all once a rule had been chosen.
+     */
+    it('records the rule as the name the request carries, not the dotted code', () => {
+      component.onAccountingRuleChange('ACC_DEF_REV_AM');
+
+      expect(component.product().accountingRule).toBe('ACC_DEF_REV_AM');
+    });
+
+    it('sends no mapping key at all under NONE', () => {
+      serviceSpy.postWorkingCapitalLoanProducts.mockReturnValue(
+        of({}) as unknown as ReturnType<
+          WorkingCapitalLoanProductsService['postWorkingCapitalLoanProducts']
+        >,
+      );
+      component.product.set({ name: 'P', shortName: 'P', accountingRule: 'NONE' as never });
+      // Left over from a rule the user tried and moved away from.
+      component.accountingMappings.set({ fundSourceAccountId: 1 });
+      component.advancedMappings.set({
+        paymentChannelToFundSourceMappings: [{ paymentTypeId: 1, fundSourceAccountId: 1 }],
+        feeToIncomeAccountMappings: [],
+        penaltyToIncomeAccountMappings: [],
+      });
+      component.reasonMappings.set({
+        chargeOffReasonToExpenseAccountMappings: [{ reasonCodeValueId: 23, expenseAccountId: 19 }],
+        writeOffReasonsToExpenseMappings: [],
+      });
+
+      component.onSubmit();
+
+      const payload = serviceSpy.postWorkingCapitalLoanProducts.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
+      expect(payload['fundSourceAccountId']).toBeUndefined();
+      expect(payload['paymentChannelToFundSourceMappings']).toBeUndefined();
+      expect(payload['chargeOffReasonToExpenseAccountMappings']).toBeUndefined();
+    });
+
+    it('sends every slot the posting rule has, and the reason tables with it', () => {
+      serviceSpy.postWorkingCapitalLoanProducts.mockReturnValue(
+        of({}) as unknown as ReturnType<
+          WorkingCapitalLoanProductsService['postWorkingCapitalLoanProducts']
+        >,
+      );
+      component.product.set({
+        name: 'P',
+        shortName: 'P',
+        accountingRule: 'ACC_DEF_REV_AM' as never,
+      });
+      component.accountingMappings.set({
+        fundSourceAccountId: 1,
+        loanPortfolioAccountId: 2,
+        deferredIncomeLiabilityAccountId: 7,
+        incomeFromDiscountFeeAccountId: 16,
+        writeOffAccountId: 19,
+        // A slot no rule of this family has: it must not ride along.
+        interestOnLoanAccountId: 99,
+      });
+      component.reasonMappings.set({
+        chargeOffReasonToExpenseAccountMappings: [{ reasonCodeValueId: 23, expenseAccountId: 20 }],
+        writeOffReasonsToExpenseMappings: [{ reasonCodeValueId: 24, expenseAccountId: 19 }],
+      });
+
+      component.onSubmit();
+
+      const payload = serviceSpy.postWorkingCapitalLoanProducts.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
+      expect(payload['fundSourceAccountId']).toBe(1);
+      expect(payload['deferredIncomeLiabilityAccountId']).toBe(7);
+      expect(payload['incomeFromDiscountFeeAccountId']).toBe(16);
+      expect(payload['interestOnLoanAccountId']).toBeUndefined();
+      // The two reason tables disagree about the key naming the reason, and nothing in the
+      // field names says so.
+      expect(payload['chargeOffReasonToExpenseAccountMappings']).toEqual([
+        { chargeOffReasonCodeValueId: 23, expenseAccountId: 20 },
+      ]);
+      expect(payload['writeOffReasonsToExpenseMappings']).toEqual([
+        { writeOffReasonCodeValueId: 24, expenseAccountId: 19 },
+      ]);
+    });
+
+    it('prefills every mapping when a configured product is opened', () => {
+      serviceSpy.getWorkingCapitalLoanProductsProductId.mockReturnValue(
+        of({
+          name: 'Configured',
+          accountingRule: { id: 'ACC_DEF_REV_AM', code: 'wcAccountingRuleType.accrual.def.rev.am' },
+          accountingMappings: {
+            fundSourceAccount: { id: 1, name: 'Fund source' },
+            deferredIncomeLiabilityAccount: { id: 7, name: 'Deferred income' },
+            incomeFromDiscountFeeAccount: { id: 16, name: 'Discount fee income' },
+          },
+          paymentChannelToFundSourceMappings: [
+            { paymentType: { id: 1 }, fundSourceAccount: { id: 1 } },
+          ],
+          chargeOffReasonToExpenseAccountMappings: [
+            { reasonCodeValue: { id: 23 }, expenseAccount: { id: 20 } },
+          ],
+          writeOffReasonsToExpenseMappings: [
+            { reasonCodeValue: { id: 24 }, expenseAccount: { id: 19 } },
+          ],
+          paymentAllocation: [
+            {
+              transactionType: 'DEFAULT',
+              paymentAllocationOrder: [{ order: 1, paymentAllocationRule: 'DUE_PENALTY' }],
+            },
+          ],
+        }) as unknown as ReturnType<
+          WorkingCapitalLoanProductsService['getWorkingCapitalLoanProductsProductId']
+        >,
+      );
+      component.productId = 42;
+
+      component.load();
+
+      expect(component.product().accountingRule).toBe('ACC_DEF_REV_AM');
+      expect(component.accountingMappings()).toEqual({
+        fundSourceAccountId: 1,
+        deferredIncomeLiabilityAccountId: 7,
+        incomeFromDiscountFeeAccountId: 16,
+      });
+      // Request and response disagree about every key in these three tables.
+      expect(component.advancedMappings().paymentChannelToFundSourceMappings).toEqual([
+        { paymentTypeId: 1, fundSourceAccountId: 1 },
+      ]);
+      expect(component.reasonMappings().chargeOffReasonToExpenseAccountMappings).toEqual([
+        { reasonCodeValueId: 23, expenseAccountId: 20 },
+      ]);
+      expect(component.reasonMappings().writeOffReasonsToExpenseMappings).toEqual([
+        { reasonCodeValueId: 24, expenseAccountId: 19 },
+      ]);
+      expect(component.paymentAllocation()).toHaveLength(1);
+    });
+  });
+
+  describe('payment allocation', () => {
+    /** A product the platform accepts allocates all six rules, so a new one starts complete. */
+    it('starts a new product with the default allocation over every rule', () => {
+      expect(component.paymentAllocation()).toHaveLength(1);
+      expect(component.paymentAllocation()[0].transactionType).toBe('DEFAULT');
+      expect(component.paymentAllocation()[0].paymentAllocationOrder).toHaveLength(6);
+    });
+
+    /**
+     * The Working Capital product has no future-installment rule and refuses the parameter, so
+     * the editor is told not to offer it and the default list carries no such key.
+     */
+    it('carries no future-installment rule, which this family does not have', () => {
+      const [rule] = component.paymentAllocation();
+
+      expect(rule.futureInstallmentAllocationRule).toBeUndefined();
+    });
+
+    it('keeps the allocation the user reorders', () => {
+      component.onPaymentAllocationChange([
+        {
+          transactionType: 'DEFAULT',
+          paymentAllocationOrder: [{ order: 1, paymentAllocationRule: 'DUE_FEE' }],
+        },
+      ]);
+
+      expect(component.product().paymentAllocation).toEqual([
+        {
+          transactionType: 'DEFAULT',
+          paymentAllocationOrder: [{ order: 1, paymentAllocationRule: 'DUE_FEE' }],
+        },
+      ]);
+    });
   });
 });

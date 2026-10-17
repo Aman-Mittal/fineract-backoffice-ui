@@ -35,14 +35,23 @@ import {
   ACCOUNTING_RULE,
   AccountingMappingField,
   AccountingMappings,
+  AccountingRuleKey,
   GlAccountOption,
   GlAccountOptions,
   GlAccountType,
   fieldsForRule,
 } from './product-accounting.model';
 
+/**
+ * One entry of the template's `accountingRuleOptions`.
+ *
+ * `id` is numeric for the five families whose rule is an `accountingRuleType` id, and a string
+ * for the Working Capital product, whose rule is a named enum. `code` is the dotted spelling,
+ * which no product accepts as a value — see {@link ProductAccountingSectionComponent.ruleValue}.
+ */
 interface AccountingRuleOption {
-  id?: number;
+  id?: number | string;
+  code?: string;
   value?: string;
 }
 
@@ -108,7 +117,7 @@ const GROUP_ORDER: readonly GlAccountType[] = ['asset', 'liability', 'equity', '
           (ngModelChange)="onRuleChange($event)"
         >
           @for (option of ruleOptions(); track option.id) {
-            <ion-select-option [value]="option.id">{{ option.value }}</ion-select-option>
+            <ion-select-option [value]="ruleValue(option)">{{ option.value }}</ion-select-option>
           }
         </ion-select>
       </ion-item>
@@ -140,7 +149,7 @@ const GROUP_ORDER: readonly GlAccountType[] = ['asset', 'liability', 'equity', '
                     [name]="field.key"
                     [testId]="'accounting-' + field.key"
                     [options]="optionsFor(field.accountType)"
-                    [required]="true"
+                    [required]="field.required !== false"
                     [accountId]="mappings()[field.key]"
                     (accountIdChange)="setMapping(field.key, $event)"
                   ></app-gl-account-select>
@@ -191,8 +200,16 @@ export class ProductAccountingSectionComponent {
   /** `accountingRuleOptions` from the same response, so the labels are the platform's. */
   readonly ruleOptions = input<AccountingRuleOption[]>([]);
 
-  readonly accountingRule = model<number>(ACCOUNTING_RULE.NONE);
+  readonly accountingRule = model<AccountingRuleKey>(ACCOUNTING_RULE.NONE);
   readonly mappings = model<AccountingMappings>({});
+
+  /**
+   * The rule that means "post nothing", so switching to it can clear the selections.
+   *
+   * An input rather than the numeric constant, because the Working Capital product spells its
+   * own `NONE` as a string and would otherwise never match.
+   */
+  readonly noneRule = input<AccountingRuleKey>(ACCOUNTING_RULE.NONE);
 
   readonly groups = computed<MappingGroup[]>(() => {
     const required = fieldsForRule(this.fields(), this.accountingRule());
@@ -204,6 +221,18 @@ export class ProductAccountingSectionComponent {
       hasOptions: this.optionsFor(accountType).length > 0,
     })).filter((group) => group.fields.length > 0);
   });
+
+  /**
+   * The value to bind for a rule option: its `id`, which is what the request carries.
+   *
+   * Stated as a method rather than inlined because the dotted `code` is the tempting choice and
+   * the wrong one — a Working Capital product posted with `wcAccountingRuleType.none` answers
+   * 400 `validation.msg.workingcapitalloanproduct.accountingRule.is.not.one.of.expected.enumerations`,
+   * which is exactly the defect this form had before #775.
+   */
+  ruleValue(option: AccountingRuleOption): number | string | undefined {
+    return option.id;
+  }
 
   optionsFor(accountType: GlAccountType): GlAccountOption[] {
     const options = this.accountOptions();
@@ -243,9 +272,9 @@ export class ProductAccountingSectionComponent {
    * cash → accrual → cash to compare them does not make the user fill the shared nine slots
    * again. `mappingsForRule` is what stops the accrual-only ids being sent under cash.
    */
-  onRuleChange(rule: number): void {
+  onRuleChange(rule: AccountingRuleKey): void {
     this.accountingRule.set(rule);
-    if (rule === ACCOUNTING_RULE.NONE) {
+    if (rule === this.noneRule()) {
       this.mappings.set({});
     }
   }

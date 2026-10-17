@@ -476,7 +476,22 @@
       "SHARE_REFERENCE": "शेयर संदर्भ",
       "SHARE_SUSPENSE": "शेयर सस्पेंस नियंत्रण",
       "TITLE": "लेखा",
-      "TRANSFERS_IN_SUSPENSE": "सस्पेंस में अंतरण"
+      "TRANSFERS_IN_SUSPENSE": "सस्पेंस में अंतरण",
+      "DEFERRED_INCOME_LIABILITY": "आस्थगित आय देयता",
+      "INCOME_FROM_DISCOUNT_FEE": "छूट शुल्क से आय",
+      "INCOME_FROM_CHARGE_OFF_FEES": "बट्टे खाते डाले गए शुल्कों से आय",
+      "INCOME_FROM_CHARGE_OFF_PENALTY": "बट्टे खाते डाले गए दंडों से आय",
+      "INCOME_FROM_GOODWILL_CREDIT_FEES": "सद्भावना क्रेडिट शुल्कों से आय",
+      "INCOME_FROM_GOODWILL_CREDIT_PENALTY": "सद्भावना क्रेडिट दंडों से आय",
+      "CHARGE_OFF_EXPENSE": "चार्ज-ऑफ व्यय",
+      "CHARGE_OFF_FRAUD_EXPENSE": "चार्ज-ऑफ व्यय (धोखाधड़ी)",
+      "GOODWILL_CREDIT": "सद्भावना क्रेडिट",
+      "EXPENSE_ACCOUNT": "व्यय खाता",
+      "CHARGE_OFF_REASON_TITLE": "चार्ज-ऑफ कारण से व्यय खाता",
+      "CHARGE_OFF_REASON": "चार्ज-ऑफ कारण",
+      "WRITE_OFF_REASON_TITLE": "बट्टे खाते का कारण से व्यय खाता",
+      "WRITE_OFF_REASON": "बट्टे खाते का कारण",
+      "NO_REASONS_CONFIGURED": "इस टेनेंट के लिए कोई कारण कॉन्फ़िगर नहीं है। मैप करने से पहले सिस्टम → कोड प्रबंधित करें में उन्हें जोड़ें।"
     },
     "DEPOSITS": {
       "ON_CLOSURE": "बंद होने पर",
