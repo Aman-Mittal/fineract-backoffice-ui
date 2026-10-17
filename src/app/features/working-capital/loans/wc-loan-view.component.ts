@@ -47,7 +47,6 @@ import { FormsModule } from '@angular/forms';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { RequiresPermissionDirective } from '../../../shared/directives/requires-permission.directive';
-import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalLoanChargesService,
@@ -125,11 +124,6 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
     IonItem,
     TooltipDirective,
     RequiresPermissionDirective,
-    // Used for the two icon-only row actions. `appRequiresPermission` disables the control and
-    // explains why, which is the right shape for an action on the record on screen — but it owns
-    // `attr.aria-label` to carry that explanation, so on a control whose only accessible name is
-    // its own aria-label it erases the name as soon as it grants. Those two are removed instead.
-    HasPermissionDirective,
   ],
   template: `
     <div class="view-container">
@@ -495,7 +489,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
                           color="danger"
                           [attr.aria-label]="'WC_LOANS.CHARGE.WAIVE' | appTranslate"
                           [appTooltip]="'WC_LOANS.CHARGE.WAIVE' | appTranslate"
-                          *appHasPermission="'WAIVE_WORKINGCAPITALLOANCHARGE'"
+                          appRequiresPermission="WAIVE_WORKINGCAPITALLOANCHARGE"
                           (click)="onWaiveCharge(c)"
                         >
                           {{ 'WC_LOANS.CHARGE.WAIVE' | appTranslate }}
@@ -875,7 +869,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
                         color="danger"
                         [attr.aria-label]="'WC_LOANS.ORIGINATORS.DETACH' | appTranslate"
                         [appTooltip]="'WC_LOANS.ORIGINATORS.DETACH' | appTranslate"
-                        *appHasPermission="'DETACH_WORKING_CAPITAL_LOAN_ORIGINATOR'"
+                        appRequiresPermission="DETACH_WORKING_CAPITAL_LOAN_ORIGINATOR"
                         (click)="onDetachOriginator(o)"
                       >
                         <ion-icon name="unlink-outline"></ion-icon>
