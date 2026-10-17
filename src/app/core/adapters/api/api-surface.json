@@ -766,7 +766,9 @@
   "WorkingCapitalLoanTransactionsService": [
     "getWorkingCapitalLoansLoanIdTransactions",
     "getWorkingCapitalLoansLoanIdTransactionsTemplate",
-    "postWorkingCapitalLoansLoanIdTransactions"
+    "getWorkingCapitalLoansLoanIdTransactionsTransactionId",
+    "postWorkingCapitalLoansLoanIdTransactions",
+    "postWorkingCapitalLoansLoanIdTransactionsTransactionId"
   ],
   "WorkingCapitalLoansService": [
     "deleteWorkingCapitalLoansLoanId",

@@ -1744,6 +1744,20 @@
       "DELINQUENT_DAYS": "चूक के दिन",
       "DELINQUENT_AMOUNT": "चूक राशि",
       "ADDED_ON_DATE": "जोड़ी गई तिथि"
+    },
+    "TRANSACTION": {
+      "TITLE": "लेन-देन",
+      "REVERSED": "निरस्त",
+      "REVERSED_ON": "निरस्त किया गया",
+      "PRINCIPAL_PORTION": "मूलधन",
+      "FEE_PORTION": "शुल्क",
+      "PENALTY_PORTION": "दंड",
+      "OVERPAYMENT_PORTION": "अधिक भुगतान",
+      "UNDO": "लेन-देन निरस्त करें",
+      "CONFIRM_UNDO": "इस लेन-देन को निरस्त करने से ऋण शेष बदल जाएगा। इसे यहाँ से पूर्ववत नहीं किया जा सकता।",
+      "ADJUST": "लेन-देन समायोजित करें",
+      "ADJUST_DISCOUNT_FEE": "छूट शुल्क समायोजित करें",
+      "QUEUED": "अनुमोदन के लिए भेजा गया। ऋण में बदलाव से पहले चेकर को इसे स्वीकृत करना होगा।"
     }
   },
   "WC_LOAN_PRODUCTS": {

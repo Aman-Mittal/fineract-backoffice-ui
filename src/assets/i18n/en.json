@@ -1969,6 +1969,20 @@
       "DELINQUENT_DAYS": "Delinquent Days",
       "DELINQUENT_AMOUNT": "Delinquent Amount",
       "ADDED_ON_DATE": "Added On Date"
+    },
+    "TRANSACTION": {
+      "TITLE": "Transaction",
+      "REVERSED": "Reversed",
+      "REVERSED_ON": "Reversed on",
+      "PRINCIPAL_PORTION": "Principal",
+      "FEE_PORTION": "Fees",
+      "PENALTY_PORTION": "Penalties",
+      "OVERPAYMENT_PORTION": "Overpayment",
+      "UNDO": "Undo transaction",
+      "CONFIRM_UNDO": "Reversing this transaction changes the loan balance. This cannot be undone from here.",
+      "ADJUST": "Adjust transaction",
+      "ADJUST_DISCOUNT_FEE": "Adjust discount fee",
+      "QUEUED": "Sent for approval. A checker has to approve it before the loan changes."
     }
   },
   "LOANS_POINT_IN_TIME": {

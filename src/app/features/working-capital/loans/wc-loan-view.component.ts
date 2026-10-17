@@ -27,26 +27,39 @@ import {
   viewChildren,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslatePipe } from '../../../core/adapters';
+import { I18N, TranslatePipe } from '../../../core/adapters';
 import { DecimalPipe } from '@angular/common';
 import {
   IonButton,
   IonCard,
   IonCardContent,
+  IonDatetime,
   IonIcon,
+  IonInput,
   IonItem,
   IonLabel,
   IonList,
+  IonModal,
   IonPopover,
   IonSegment,
   IonSegmentButton,
   IonSelect,
   IonSelectOption,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { RequiresPermissionDirective } from '../../../shared/directives/requires-permission.directive';
+import { DeferredDatetimeButtonComponent } from '../../../ui/deferred-datetime-button/deferred-datetime-button.component';
+import { DialogService } from '../../../core/services/dialog.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import {
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+  formatDateToFineract,
+  toIsoDate,
+} from '../../../core/utils/date-formatter';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalLoanChargesService,
@@ -70,6 +83,7 @@ import {
   WorkingCapitalLoanPeriodPaymentRateChangeData,
   ProjectedAmortizationScheduleData,
   GetWorkingCapitalLoanDelinquencyRangeScheduleTagHistoryResponse,
+  LoanTransactionEnumData,
 } from '../../../api';
 
 /**
@@ -102,6 +116,52 @@ export const WC_LOAN_TAB = {
 
 export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
 
+/**
+ * The transaction types Fineract will undo, by the flag its type enum carries.
+ *
+ * `WorkingCapitalLoanWritePlatformServiceImpl` switches on the type and accepts `WAIVE_CHARGES`,
+ * `REPAYMENT`, `GOODWILL_CREDIT`, `CHARGE_ADJUSTMENT` and `PAYOUT_REFUND`; anything else answers
+ * `validation.msg.wc.loan.transaction.undo.not.supported`. Measured as well as read: on a live
+ * loan, undo of the disbursement answers "Undo is not supported for transaction type
+ * DISBURSEMENT", and of a repayment and of a charge adjustment it succeeds.
+ *
+ * Offering an action the platform refuses is the failure this prevents. A reversal is not
+ * something to try twice, and the user cannot tell a refusal of principle from a transient fault.
+ */
+const UNDOABLE_TYPE_FLAGS = [
+  'repayment',
+  'goodwillCredit',
+  'chargeAdjustment',
+  'payoutRefund',
+  'waiveCharges',
+] as const satisfies readonly (keyof LoanTransactionEnumData)[];
+
+/**
+ * The types it will adjust: the same list without the waiver.
+ *
+ * A waiver has no amount of its own to re-state — it is undone, not corrected — and the
+ * platform's `adjust` switch leaves it out for that reason.
+ */
+const ADJUSTABLE_TYPE_FLAGS = [
+  'repayment',
+  'goodwillCredit',
+  'chargeAdjustment',
+  'payoutRefund',
+] as const satisfies readonly (keyof LoanTransactionEnumData)[];
+
+/**
+ * A discount fee, which `discountFeeAdjustment` corrects rather than `adjust`.
+ *
+ * The type carries no boolean flag of its own — `LoanTransactionEnumData` has one per type and
+ * none for this one — so the code is the only thing to recognise it by. Measured: posting
+ * `command=discountFee` yields `{"id": 44, "code": "loanTransactionType.discountFee"}`, `adjust`
+ * on it is refused, and `discountFeeAdjustment` succeeds.
+ */
+const DISCOUNT_FEE_TYPE_CODE = 'loanTransactionType.discountFee';
+
+/** Which correction form is open on the transaction panel, and so which command it will send. */
+export type WcTransactionCorrection = 'adjust' | 'discountFeeAdjustment';
+
 @Component({
   selector: 'app-wc-loan-view',
   standalone: true,
@@ -118,6 +178,11 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
     IonSegmentButton,
     IonSelect,
     IonSelectOption,
+    IonInput,
+    IonSpinner,
+    IonDatetime,
+    IonModal,
+    DeferredDatetimeButtonComponent,
     IonLabel,
     IonPopover,
     IonList,
@@ -512,6 +577,172 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
       }
       @if (activeTab() === TAB.transactions) {
         <div class="tab-content">
+          @if (selectedTransaction(); as tx) {
+            <ion-card class="detail-card" data-testid="wc-transaction-detail">
+              <ion-card-content>
+                <div class="detail-header">
+                  <h3>
+                    {{ 'WC_LOANS.TRANSACTION.TITLE' | appTranslate }} #{{ tx.id }}
+                    <span class="detail-type">{{ tx.type?.value }}</span>
+                  </h3>
+                  <ion-button
+                    fill="clear"
+                    [attr.aria-label]="'COMMON.CLOSE' | appTranslate"
+                    (click)="onCloseTransaction()"
+                  >
+                    <ion-icon name="close-outline"></ion-icon>
+                  </ion-button>
+                </div>
+
+                @if (tx.reversed) {
+                  <p class="reversed-banner" data-testid="wc-transaction-reversed-on">
+                    <ion-icon name="alert-circle-outline"></ion-icon>
+                    {{ 'WC_LOANS.TRANSACTION.REVERSED_ON' | appTranslate }}
+                    {{ formatDate(tx.reversedOnDate) }}
+                  </p>
+                }
+
+                <div class="details-list">
+                  <div class="detail-item">
+                    <span class="label">{{ 'COMMON.DATE' | appTranslate }}</span>
+                    <span class="value">{{ formatDate(tx.transactionDate) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'WC_LOANS.SUBMITTED_ON_DATE' | appTranslate }}</span>
+                    <span class="value">{{ formatDate(tx.submittedOnDate) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'COMMON.AMOUNT' | appTranslate }}</span>
+                    <span class="value">{{ tx.transactionAmount | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{
+                      'WC_LOANS.TRANSACTION.PRINCIPAL_PORTION' | appTranslate
+                    }}</span>
+                    <span class="value">{{ tx.principalPortion | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{
+                      'WC_LOANS.TRANSACTION.FEE_PORTION' | appTranslate
+                    }}</span>
+                    <span class="value">{{ tx.feeChargesPortion | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{
+                      'WC_LOANS.TRANSACTION.PENALTY_PORTION' | appTranslate
+                    }}</span>
+                    <span class="value">{{ tx.penaltyChargesPortion | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{
+                      'WC_LOANS.TRANSACTION.OVERPAYMENT_PORTION' | appTranslate
+                    }}</span>
+                    <span class="value">{{ tx.overpaymentPortion | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'WC_LOANS.EXTERNAL_ID' | appTranslate }}</span>
+                    <span class="value">{{ tx.externalId || '-' }}</span>
+                  </div>
+                </div>
+
+                @if (correction()) {
+                  <form class="correction-form" (ngSubmit)="onSaveCorrection()">
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | appTranslate
+                      }}</ion-label>
+                      <ion-input
+                        [attr.aria-label]="'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | appTranslate"
+                        data-testid="wc-transaction-correction-amount"
+                        type="number"
+                        name="correctionAmount"
+                        [ngModel]="correctionAmount()"
+                        (ngModelChange)="correctionAmount.set($event)"
+                        required
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'WC_LOANS.ACTIONS.TRANSACTION_DATE' | appTranslate
+                      }}</ion-label>
+                      <app-deferred-datetime-button datetimeId="wc-correction-date-picker" />
+                      <ion-modal [keepContentsMounted]="true">
+                        <ng-template>
+                          <ion-datetime
+                            id="wc-correction-date-picker"
+                            data-testid="wc-correction-date-picker"
+                            presentation="date"
+                            name="correctionDate"
+                            [(ngModel)]="correctionDate"
+                          ></ion-datetime>
+                        </ng-template>
+                      </ion-modal>
+                    </ion-item>
+                    <div class="correction-actions">
+                      <ion-button
+                        fill="clear"
+                        color="medium"
+                        type="button"
+                        (click)="correction.set(null)"
+                        [disabled]="isCorrecting()"
+                      >
+                        {{ 'COMMON.CANCEL' | appTranslate }}
+                      </ion-button>
+                      <ion-button
+                        type="submit"
+                        data-testid="wc-transaction-correction-submit"
+                        [disabled]="isCorrecting() || !correctionAmount()"
+                      >
+                        @if (isCorrecting()) {
+                          <ion-spinner name="crescent"></ion-spinner>
+                          {{ 'COMMON.SAVING' | appTranslate }}
+                        } @else {
+                          {{ 'COMMON.SUBMIT' | appTranslate }}
+                        }
+                      </ion-button>
+                    </div>
+                  </form>
+                } @else {
+                  <div class="detail-actions">
+                    @if (canUndoTransaction()) {
+                      <ion-button
+                        color="danger"
+                        data-testid="wc-transaction-undo"
+                        appRequiresPermission="UNDO_WORKINGCAPITALLOANTRANSACTION"
+                        [disabled]="isCorrecting()"
+                        (click)="onUndoTransaction()"
+                      >
+                        <ion-icon name="arrow-undo-outline"></ion-icon>
+                        {{ 'WC_LOANS.TRANSACTION.UNDO' | appTranslate }}
+                      </ion-button>
+                    }
+                    @if (canAdjustTransaction()) {
+                      <ion-button
+                        fill="outline"
+                        data-testid="wc-transaction-adjust"
+                        appRequiresPermission="ADJUST_WORKINGCAPITALLOANTRANSACTION"
+                        (click)="onOpenCorrection('adjust')"
+                      >
+                        <ion-icon name="create-outline"></ion-icon>
+                        {{ 'WC_LOANS.TRANSACTION.ADJUST' | appTranslate }}
+                      </ion-button>
+                    }
+                    @if (canAdjustDiscountFee()) {
+                      <ion-button
+                        fill="outline"
+                        data-testid="wc-transaction-adjust-discount-fee"
+                        appRequiresPermission="DISCOUNTFEEADJUSTMENT_WORKINGCAPITALLOAN"
+                        (click)="onOpenCorrection('discountFeeAdjustment')"
+                      >
+                        <ion-icon name="pricetag-outline"></ion-icon>
+                        {{ 'WC_LOANS.TRANSACTION.ADJUST_DISCOUNT_FEE' | appTranslate }}
+                      </ion-button>
+                    }
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          }
           <ion-card class="table-card">
             <ion-card-content>
               @if (transactions().length > 0) {
@@ -531,7 +762,33 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
                   <ng-container cdkColumnDef="amount">
                     <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | appTranslate }}</th>
                     <td cdk-cell *cdkCellDef="let tx">
-                      {{ tx.transactionAmount | number: '1.2-2' }}
+                      <span [class.reversed-amount]="tx.reversed">
+                        {{ tx.transactionAmount | number: '1.2-2' }}
+                      </span>
+                      <!--
+                        Strike-through is the convention on the loan screen, and on its own it is
+                        invisible to a screen reader: the amount simply reads as the amount it no
+                        longer is. The marker says so in words.
+                      -->
+                      @if (tx.reversed) {
+                        <span class="sr-only">{{
+                          'WC_LOANS.TRANSACTION.REVERSED' | appTranslate
+                        }}</span>
+                      }
+                    </td>
+                  </ng-container>
+                  <ng-container cdkColumnDef="txActions">
+                    <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | appTranslate }}</th>
+                    <td cdk-cell *cdkCellDef="let tx">
+                      <ion-button
+                        fill="clear"
+                        data-testid="wc-transaction-view"
+                        [attr.aria-label]="'COMMON.VIEW' | appTranslate"
+                        [appTooltip]="'COMMON.VIEW' | appTranslate"
+                        (click)="onViewTransaction(tx)"
+                      >
+                        <ion-icon name="eye-outline"></ion-icon>
+                      </ion-button>
                     </td>
                   </ng-container>
                   <tr cdk-header-row *cdkHeaderRowDef="transactionColumns"></tr>
@@ -1156,6 +1413,54 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
       .full-width-table {
         width: 100%;
       }
+      .reversed-amount {
+        text-decoration: line-through;
+        color: var(--text-muted, #6b7280);
+      }
+      .detail-card {
+        margin-bottom: 12px;
+      }
+      .detail-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .detail-header h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+      .detail-type {
+        margin-left: 8px;
+        color: var(--text-muted, #6b7280);
+        font-weight: 500;
+      }
+      .reversed-banner {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 0 8px;
+        color: var(--ion-color-danger, #c0392b);
+        font-size: 14px;
+      }
+      .detail-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .correction-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 12px;
+        max-width: 420px;
+      }
+      .correction-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
       .empty-state {
         display: flex;
         flex-direction: column;
@@ -1198,6 +1503,9 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
   private readonly originatorsService = inject(LoanOriginatorsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly notifications = inject(NotificationService);
+  private readonly i18n = inject(I18N);
 
   loanId = 0;
   readonly loan = signal<GetWorkingCapitalLoansLoanIdResponse | null>(null);
@@ -1222,8 +1530,32 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
     GetWorkingCapitalLoanDelinquencyRangeScheduleTagHistoryResponse[]
   >([]);
 
+  /**
+   * The transaction opened from the table, re-read on its own.
+   *
+   * The list endpoint carries the allocation too, but a correction has to be followed by a fresh
+   * read of *that* transaction — after an adjust the original is reversed and a replacement
+   * exists — and reading one by id is also what the detail would need if this panel ever becomes
+   * a route of its own.
+   */
+  readonly selectedTransaction = signal<GetWorkingCapitalLoanTransactionIdResponse | null>(null);
+  /** Null while the panel offers its actions; a command once its form is open. */
+  readonly correction = signal<WcTransactionCorrection | null>(null);
+  readonly correctionAmount = signal<number | undefined>(undefined);
+  /** Plain field, not a signal: this is an `[(ngModel)]` target on the date picker. */
+  correctionDate: string | null = null;
+  readonly isCorrecting = signal(false);
+
+  readonly canUndoTransaction = computed(() => this.transactionIsOneOf(UNDOABLE_TYPE_FLAGS));
+  readonly canAdjustTransaction = computed(() => this.transactionIsOneOf(ADJUSTABLE_TYPE_FLAGS));
+
+  readonly canAdjustDiscountFee = computed(() => {
+    const transaction = this.selectedTransaction();
+    return transaction?.reversed !== true && transaction?.type?.code === DISCOUNT_FEE_TYPE_CODE;
+  });
+
   chargeColumns = ['name', 'amount', 'paid', 'outstanding', 'actions'];
-  transactionColumns = ['id', 'date', 'type', 'amount'];
+  transactionColumns = ['id', 'date', 'type', 'amount', 'txActions'];
   delinquencyActionColumns = ['action', 'startDate', 'endDate', 'frequency'];
   delinquencyRangeColumns = ['periodNumber', 'fromDate', 'toDate', 'outstanding'];
   breachScheduleColumns = ['periodNumber', 'fromDate', 'toDate', 'breach'];
@@ -1260,17 +1592,9 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
   }
 
   loadData(): void {
-    this.loansService.getWorkingCapitalLoansLoanId(this.loanId).subscribe({
-      next: (data) => this.loan.set(data),
-      error: (err: unknown) => console.error('Failed to load working-capital loan', err),
-    });
-
+    this.loadLoan();
     this.loadCharges();
-
-    this.transactionsService.getWorkingCapitalLoansLoanIdTransactions(this.loanId).subscribe({
-      next: (data) => this.transactions.set(data.content ?? []),
-      error: (err: unknown) => console.error('Failed to load loan transactions', err),
-    });
+    this.loadTransactions();
 
     this.delinquencyActionsService
       .getWorkingCapitalLoansLoanIdDelinquencyActions(this.loanId)
@@ -1323,6 +1647,20 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
     this.loansService.getWorkingCapitalLoansLoanIdDelinquencyrangetags(this.loanId).subscribe({
       next: (data) => this.delinquencyRangeTags.set(data ?? []),
       error: (err: unknown) => console.error('Failed to load delinquency range tags', err),
+    });
+  }
+
+  loadLoan(): void {
+    this.loansService.getWorkingCapitalLoansLoanId(this.loanId).subscribe({
+      next: (data) => this.loan.set(data),
+      error: (err: unknown) => console.error('Failed to load working-capital loan', err),
+    });
+  }
+
+  loadTransactions(): void {
+    this.transactionsService.getWorkingCapitalLoansLoanIdTransactions(this.loanId).subscribe({
+      next: (data) => this.transactions.set(data.content ?? []),
+      error: (err: unknown) => console.error('Failed to load loan transactions', err),
     });
   }
 
@@ -1418,6 +1756,119 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
     this.router.navigate([`/working-capital/loans/${this.loanId}/charge`]);
   }
 
+  onViewTransaction(transaction: GetWorkingCapitalLoanTransactionIdResponse): void {
+    if (!transaction.id) return;
+    this.correction.set(null);
+    this.loadTransaction(transaction.id);
+  }
+
+  private loadTransaction(transactionId: number): void {
+    this.transactionsService
+      .getWorkingCapitalLoansLoanIdTransactionsTransactionId(this.loanId, transactionId)
+      .subscribe({
+        next: (data) => this.selectedTransaction.set(data),
+        error: (err: unknown) => console.error('Failed to load the loan transaction', err),
+      });
+  }
+
+  onCloseTransaction(): void {
+    this.selectedTransaction.set(null);
+    this.correction.set(null);
+  }
+
+  /** True when the open transaction is live and its type carries one of `flags`. */
+  private transactionIsOneOf(flags: readonly (keyof LoanTransactionEnumData)[]): boolean {
+    const transaction = this.selectedTransaction();
+    if (!transaction || transaction.reversed === true) return false;
+    const type = transaction.type;
+    return type !== undefined && flags.some((flag) => type[flag] === true);
+  }
+
+  onOpenCorrection(command: WcTransactionCorrection): void {
+    const transaction = this.selectedTransaction();
+    this.correctionAmount.set(transaction?.transactionAmount);
+    // Already `YYYY-MM-DD`, which is what the picker binds to.
+    this.correctionDate = transaction?.transactionDate ?? toIsoDate(new Date());
+    this.correction.set(command);
+  }
+
+  /**
+   * Returns the promise rather than firing and forgetting, so a caller — a spec, or a future
+   * caller that needs to sequence something after it — can wait for the confirmation to settle.
+   */
+  onUndoTransaction(): Promise<void> {
+    return this.dialogService
+      .confirm({
+        title: this.i18n.translate('WC_LOANS.TRANSACTION.UNDO'),
+        message: this.i18n.translate('WC_LOANS.TRANSACTION.CONFIRM_UNDO'),
+        destructive: true,
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        // Undo takes no parameters of its own beyond `reversalExternalId`, which this screen
+        // does not set: sending an amount or a date would be refused as unsupported.
+        this.sendTransactionCommand('undo', {
+          locale: FINERACT_LOCALE,
+          dateFormat: FINERACT_DATE_FORMAT,
+        });
+      });
+  }
+
+  onSaveCorrection(): void {
+    const command = this.correction();
+    if (!command || !this.correctionAmount()) return;
+    this.sendTransactionCommand(command, {
+      locale: FINERACT_LOCALE,
+      dateFormat: FINERACT_DATE_FORMAT,
+      transactionAmount: this.correctionAmount(),
+      transactionDate: this.correctionDate ? formatDateToFineract(this.correctionDate) : undefined,
+    });
+  }
+
+  /**
+   * Posts a command against the open transaction and reports what the platform did with it.
+   *
+   * With maker-checker on for the command, Fineract answers 200 with a `commandId` and no
+   * `resourceId`: the reversal is queued for a second approver and nothing has happened to the
+   * loan yet. Re-reading and saying nothing would show the transaction unchanged with no
+   * explanation, which is the one outcome worth distinguishing here.
+   */
+  private sendTransactionCommand(command: string, body: Record<string, unknown>): void {
+    const transactionId = this.selectedTransaction()?.id;
+    if (!transactionId) return;
+    this.isCorrecting.set(true);
+    this.transactionsService
+      .postWorkingCapitalLoansLoanIdTransactionsTransactionId(
+        this.loanId,
+        transactionId,
+        command,
+        body,
+      )
+      .subscribe({
+        next: (response) => {
+          this.isCorrecting.set(false);
+          this.correction.set(null);
+          if (isQueuedForChecker(response)) {
+            void this.notifications.show(this.i18n.translate('WC_LOANS.TRANSACTION.QUEUED'));
+            return;
+          }
+          // The balance moved, so the loan header and the list are both stale.
+          this.loadTransaction(transactionId);
+          this.loadTransactions();
+          this.loadLoan();
+        },
+        error: (err: unknown) => {
+          this.isCorrecting.set(false);
+          console.error(`Failed to ${command} the loan transaction`, err);
+        },
+      });
+  }
+
+  /** `02 October 2026` rather than the raw `2026-10-02` the payload carries. */
+  formatDate(date: string | undefined): string {
+    return date ? formatDateToFineract(date) : '-';
+  }
+
   onWaiveCharge(charge: WorkingCapitalLoanChargeData): void {
     if (!charge.id || !confirm(`Waive the charge "${charge.name}"?`)) return;
     this.chargesService
@@ -1471,4 +1922,16 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
   onBack(): void {
     this.router.navigate(['/working-capital/loans']);
   }
+}
+
+/**
+ * True for the maker-checker answer: a command id and no resource.
+ *
+ * `commandId` is absent from the generated response types because the OpenAPI document does not
+ * describe this branch — the platform returns `CommandProcessingResult` either way, and only the
+ * populated fields differ.
+ */
+function isQueuedForChecker(response: object | undefined): boolean {
+  const result = (response ?? {}) as { commandId?: number; resourceId?: number };
+  return result.commandId !== undefined && result.resourceId === undefined;
 }
