@@ -611,6 +611,139 @@ describe('LoanViewComponent', () => {
     // `e2e/loan-servicing.spec.ts` opens the menu and checks both.
   });
 
+  /**
+   * #779. A product can enable buy-down fees or capitalized income and the loan screen showed
+   * the amortization tabs, but neither transaction could be posted or adjusted — so the tabs
+   * were always empty unless something else had used the API.
+   *
+   * The adjustments are the part the issue got wrong. It expected
+   * `POST /loans/{id}/transactions?command=buyDownFeeAdjustment`, where the platform answers
+   * `error.msg.query.parameter.value.unsupported` on `command`. They are commands on the
+   * per-transaction URL, each with its own permission.
+   */
+  describe('deferred income', () => {
+    const BUY_DOWN = {
+      loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+      enableBuyDownFee: true,
+    };
+    const CAPITALIZED = {
+      loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+      enableIncomeCapitalization: true,
+    };
+
+    /** A transaction as the loan response carries one. */
+    function tx(flag: string, overrides: Record<string, unknown> = {}): Record<string, unknown> {
+      return {
+        id: 12,
+        amount: 300,
+        date: [2026, 10, 2],
+        manuallyReversed: false,
+        type: { id: 40, code: `loanTransactionType.${flag}`, value: flag, [flag]: true },
+        ...overrides,
+      };
+    }
+
+    /** What `onViewTransaction` handed the dialog. */
+    async function dialogDataFor(
+      transaction: Record<string, unknown>,
+      loanOverrides: Record<string, unknown> = BUY_DOWN,
+    ): Promise<Record<string, unknown>> {
+      await setup(loanOverrides);
+      const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(undefined);
+
+      component.onViewTransaction(transaction as never);
+
+      return (open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
+    }
+
+    it('posts each transaction under the command spelling the platform accepts', async () => {
+      await setup(BUY_DOWN);
+
+      component.onLoanTransactionAction('buyDownFee');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/buyDownFee`,
+      ]);
+
+      component.onLoanTransactionAction('capitalizedIncome');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/capitalizedIncome`,
+      ]);
+    });
+
+    it('adjusts a buy-down fee by naming its command, not the generic adjust', async () => {
+      const data = await dialogDataFor(tx('buyDownFee'));
+
+      expect(data['adjustment']).toMatchObject({
+        command: 'buyDownFeeAdjustment',
+        permission: 'BUYDOWNFEEADJUSTMENT_LOAN',
+      });
+    });
+
+    it('adjusts a capitalized income by naming its own command', async () => {
+      const data = await dialogDataFor(tx('capitalizedIncome'), CAPITALIZED);
+
+      expect(data['adjustment']).toMatchObject({
+        command: 'capitalizedIncomeAdjustment',
+        permission: 'CAPITALIZEDINCOMEADJUSTMENT_LOAN',
+      });
+    });
+
+    it('leaves an ordinary repayment on the generic adjustment', async () => {
+      const data = await dialogDataFor(tx('repayment'));
+
+      expect(data['adjustment']).toBeUndefined();
+      expect(data['adjustable']).toBe(true);
+    });
+
+    it('treats a deferred-income transaction as adjustable though it is not a credit', async () => {
+      // The money moved at disbursement; the adjustment moves what is left to recognise. Gating
+      // adjustability on `isCreditTransaction` alone would offer no Adjust on either.
+      const data = await dialogDataFor(tx('buyDownFee'));
+
+      expect(component.isCreditTransaction(tx('buyDownFee') as never)).toBe(false);
+      expect(data['adjustable']).toBe(true);
+    });
+
+    it('offers no adjustment on a transaction already reversed', async () => {
+      const data = await dialogDataFor(tx('buyDownFee', { manuallyReversed: true }));
+
+      expect(data['adjustable']).toBe(false);
+    });
+
+    it('adjusts a buy-down fee from the amortization tab by its transaction id', async () => {
+      // The row is a view over the transaction: the platform's URL takes the transaction id, and
+      // the amortization entry has no resource of its own.
+      await setup(BUY_DOWN);
+      const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(undefined);
+
+      component.onAdjustBuyDownFee({ id: 3, transactionId: 12, buyDownFeeAmount: 300 });
+
+      const data = (open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
+      expect(data['transactionId']).toBe(12);
+      expect(data['adjustment']).toMatchObject({ command: 'buyDownFeeAdjustment' });
+    });
+
+    it('does not open an adjustment for an amortization row with no transaction id', async () => {
+      await setup(BUY_DOWN);
+      const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(undefined);
+
+      component.onAdjustBuyDownFee({ id: 3, buyDownFeeAmount: 300 });
+
+      expect(open).not.toHaveBeenCalled();
+    });
+
+    it('reloads the loan once something was changed, and not otherwise', async () => {
+      await setup(BUY_DOWN);
+      vi.spyOn(TestBed.inject(DialogService), 'open').mockResolvedValue(true);
+      loansServiceSpy.getLoansLoanId.mockClear();
+
+      await component.onAdjustBuyDownFee({ id: 3, transactionId: 12 });
+      await Promise.resolve();
+
+      expect(loansServiceSpy.getLoansLoanId).toHaveBeenCalled();
+    });
+  });
+
   describe('refund by cash', () => {
     const ADVANCE = { paidInAdvance: { paidInAdvance: 250 } };
 

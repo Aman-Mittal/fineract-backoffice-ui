@@ -18,28 +18,29 @@
  */
 
 /**
- * The loan transaction type flags the loan screen branches on, for the ones the generated
- * response type leaves out.
+ * The loan transaction type flags the loan screen branches on that the generated response type
+ * leaves out.
  *
  * Fineract sends one JSON shape for a transaction's type and the generated client has two types
- * for it, which disagree. `GetLoansLoanIdLoanTransactionEnumData` — the shape on the loan
- * response, and so the one the transactions table actually holds — declares `buyDownFee` and
- * `capitalizedIncome` but not `reAge`, `reAmortize` or `waiveCharges`.
- * `LoanTransactionEnumData` declares all five. The payload carries whichever flags apply:
+ * for it. `GetLoansLoanIdLoanTransactionEnumData` — the shape on the loan response, and so the
+ * one the transactions table actually holds — is a strict subset of `LoanTransactionEnumData`,
+ * missing ten flags: `accrualActivity`, `accrualAdjustment`, `chargeRefund`, `chargeback`,
+ * `downPayment`, `interestPaymentWaiver`, `interestRefund`, `reAge`, `reAmortize` and
+ * `repaymentType`. The payload carries whichever of them apply:
  *
  * ```json
  * {"id":31,"code":"loanTransactionType.reAge","value":"Re-age","reAge":true}
  * ```
  *
- * So the loan-response type is the one that is wrong, which is issue #653. Declaring the
- * missing flags here keeps the correction in one place: a branch reads
- * `transactionFlags(tx).reAge` rather than casting at each use, and when the generated type is
- * fixed this file is what gets deleted.
+ * So the loan-response type is the one that is wrong, which is issue #653. Only the two this
+ * screen branches on are declared here, rather than all ten — a flag nothing reads would be an
+ * unused claim about the wire, and the subset is already written down above. Declaring them
+ * keeps the correction in one place: a branch reads `transactionFlags(tx).reAge` rather than
+ * casting at each use, and when the generated type is fixed this file is what gets deleted.
  */
 export interface LoanTransactionTypeFlags {
   readonly reAge?: boolean;
   readonly reAmortize?: boolean;
-  readonly waiveCharges?: boolean;
 }
 
 /**

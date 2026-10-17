@@ -125,8 +125,8 @@ export interface LoanTransactionAdjustment {
 /**
  * Loan transactions, stated as application operations.
  *
- * Three operations, all with callers: the detail dialog reads one and adjusts it, and the
- * chargeback dialog reads a command template for its payment types.
+ * Four operations, all with callers: the detail dialog reads one, adjusts it and reverses a
+ * waived charge, and the chargeback dialog reads a command template for its payment types.
  */
 export interface LoanTransactionApi {
   /** One transaction by id. */
@@ -141,12 +141,31 @@ export interface LoanTransactionApi {
    */
   template(loanId: number, command: string): Observable<LoanTransactionTemplate>;
 
-  /** Corrects a transaction's date and amount. */
+  /**
+   * Corrects a transaction's date and amount.
+   *
+   * @param command - the adjustment variant. Omitted, this is the generic adjustment, which
+   *   takes `ADJUST_LOAN`. Naming `buyDownFeeAdjustment` or `capitalizedIncomeAdjustment`
+   *   switches both the operation and the permission it requires: measured for issue #779, a
+   *   role holding `BUYDOWNFEEADJUSTMENT_LOAN` is refused the bare POST and authorised the
+   *   named one. The caller decides which from the transaction's own type, so the command and
+   *   the gate on the control that issues it stay in step.
+   */
   adjust(
     loanId: number,
     transactionId: number,
     adjustment: LoanTransactionAdjustment,
+    command?: string,
   ): Observable<void>;
+
+  /**
+   * Reverses a waive-charge transaction, putting the waived charge back as outstanding.
+   *
+   * A `PUT` rather than a command, which is the platform's own shape for it — and it is gated
+   * on `UNDO_WAIVECHARGE`, which neither `ADJUST_LOAN` nor `WAIVE_LOANCHARGE` authorises. The
+   * body is empty: the transaction being reversed is the whole request.
+   */
+  undoWaiveCharge(loanId: number, transactionId: number): Observable<void>;
 }
 
 /**

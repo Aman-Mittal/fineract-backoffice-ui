@@ -78,8 +78,10 @@ import { LoanAssetTransfersTabComponent } from './tabs/loan-asset-transfers-tab.
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
 import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
+import { LOAN_TRANSACTION_COMMAND_PERMISSIONS } from '../../core/guards/command-permissions';
 import { transactionFlags } from './loan-transaction-type-flags.model';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
+import type { TransactionAdjustmentVariant } from './transaction-detail-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { canTerminateLoanContract, isLoanContractTerminated } from './loan-contract-termination';
 import { isRefundableLoanCharge } from './loan-charge-refund';
@@ -146,6 +148,42 @@ export const LOAN_TAB = {
 } as const;
 
 export type LoanTab = (typeof LOAN_TAB)[keyof typeof LOAN_TAB];
+
+/**
+ * The two adjustments that are not the generic one.
+ *
+ * Each names a command, a permission and its own wording. Keeping them together is what makes
+ * the gate and the command impossible to pair up wrongly: measured for #779, a role holding
+ * `BUYDOWNFEEADJUSTMENT_LOAN` is refused the bare adjust and authorised only the named
+ * command, so a button gated on one code that posts the other is refused either way.
+ */
+const BUY_DOWN_FEE_ADJUSTMENT: TransactionAdjustmentVariant = {
+  command: 'buyDownFeeAdjustment',
+  permission: LOAN_TRANSACTION_COMMAND_PERMISSIONS.buyDownFeeAdjustment,
+  labelKey: 'LOANS.ACTIONS.ADJUST_BUY_DOWN_FEE',
+  confirmKey: 'LOANS.CONFIRM_ADJUST_BUY_DOWN_FEE',
+};
+
+const CAPITALIZED_INCOME_ADJUSTMENT: TransactionAdjustmentVariant = {
+  command: 'capitalizedIncomeAdjustment',
+  permission: LOAN_TRANSACTION_COMMAND_PERMISSIONS.capitalizedIncomeAdjustment,
+  labelKey: 'LOANS.ACTIONS.ADJUST_CAPITALIZED_INCOME',
+  confirmKey: 'LOANS.CONFIRM_ADJUST_CAPITALIZED_INCOME',
+};
+
+/**
+ * Which adjustment a transaction takes, or `undefined` for the generic one.
+ *
+ * Read from the transaction's own type rather than from where the user clicked, so the same
+ * answer comes back from the Transactions tab and from an amortization tab.
+ */
+function adjustmentVariant(
+  tx: GetLoansLoanIdTransactions,
+): TransactionAdjustmentVariant | undefined {
+  if (tx.type?.buyDownFee === true) return BUY_DOWN_FEE_ADJUSTMENT;
+  if (tx.type?.capitalizedIncome === true) return CAPITALIZED_INCOME_ADJUSTMENT;
+  return undefined;
+}
 
 /**
  * Normalises whatever the disbursement-detail endpoint answers with into the `YYYY-MM-DD` an
@@ -619,6 +657,35 @@ export function toEditableDate(value: unknown): string {
                         <ion-icon slot="start" name="gift-outline"></ion-icon>
                         <ion-label>{{ 'LOANS.ACTIONS.GOODWILL_CREDIT' | appTranslate }}</ion-label>
                       </ion-item>
+
+                      <!-- Deferred income, on the same capability flag that governs the tab.
+                           A product that did not enable the feature refuses the command, so
+                           offering it would be a control that can only fail. -->
+                      @if (showBuyDownFees()) {
+                        <ion-item
+                          button
+                          data-testid="loan-buy-down-fee-action"
+                          appRequiresPermission="BUYDOWNFEE_LOAN"
+                          (click)="onLoanTransactionAction('buyDownFee')"
+                        >
+                          <ion-icon slot="start" name="trending-down-outline"></ion-icon>
+                          <ion-label>{{ 'LOANS.ACTIONS.BUY_DOWN_FEE' | appTranslate }}</ion-label>
+                        </ion-item>
+                      }
+
+                      @if (showCapitalizedIncome()) {
+                        <ion-item
+                          button
+                          data-testid="loan-capitalized-income-action"
+                          appRequiresPermission="CAPITALIZEDINCOME_LOAN"
+                          (click)="onLoanTransactionAction('capitalizedIncome')"
+                        >
+                          <ion-icon slot="start" name="trending-up-outline"></ion-icon>
+                          <ion-label>{{
+                            'LOANS.ACTIONS.CAPITALIZED_INCOME' | appTranslate
+                          }}</ion-label>
+                        </ion-item>
+                      }
 
                       <!-- Progressive-engine servicing. Fineract rejects these outright on a
                            cumulative loan, so they are not offered there. -->
@@ -1390,6 +1457,26 @@ export function toEditableDate(value: unknown): string {
                   </th>
                   <td cdk-cell *cdkCellDef="let row">{{ row.notYetAmortizedAmount | number }}</td>
                 </ng-container>
+                <ng-container cdkColumnDef="buyDownFeeActions">
+                  <th cdk-header-cell *cdkHeaderCellDef>
+                    {{ 'COMMON.ACTIONS' | appTranslate }}
+                  </th>
+                  <td cdk-cell *cdkCellDef="let row">
+                    @if (row.transactionId) {
+                      <ion-button
+                        fill="clear"
+                        size="small"
+                        data-testid="buy-down-fee-adjust"
+                        [appRequiresPermission]="buyDownFeeAdjustPermission"
+                        [attr.aria-label]="'LOANS.ACTIONS.ADJUST_BUY_DOWN_FEE' | appTranslate"
+                        [appTooltip]="'LOANS.ACTIONS.ADJUST_BUY_DOWN_FEE' | appTranslate"
+                        (click)="onAdjustBuyDownFee(row)"
+                      >
+                        <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                      </ion-button>
+                    }
+                  </td>
+                </ng-container>
                 <tr cdk-header-row *cdkHeaderRowDef="buyDownFeeColumns"></tr>
                 <tr cdk-row *cdkRowDef="let row; columns: buyDownFeeColumns"></tr>
               </table>
@@ -2060,6 +2147,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
     'buyDownFeeAmount',
     'amortizedAmount',
     'notYetAmortizedAmount',
+    'buyDownFeeActions',
   ];
   capitalizedIncomeColumns = [
     'amount',
@@ -2485,18 +2573,58 @@ export class LoanViewComponent implements OnInit, OnDestroy {
   }
 
   onViewTransaction(tx: GetLoansLoanIdTransactions): void {
+    const adjustment = adjustmentVariant(tx);
     this.dialogService
       .open(TransactionDetailDialogComponent, {
         data: {
           loanId: this.loanId(),
           transactionId: tx.id,
           currencySymbol: this.loan()?.currency?.displaySymbol,
-          adjustable: this.isCreditTransaction(tx) && !tx.manuallyReversed,
+          // A deferred-income transaction is adjustable without being a credit: the money moved
+          // at disbursement, and the adjustment moves what is left to recognise.
+          adjustable:
+            (this.isCreditTransaction(tx) || adjustment !== undefined) && !tx.manuallyReversed,
+          adjustment,
+          undoableWaiveCharge: tx.type?.waiveCharges === true,
         },
       })
-      .then((adjusted) => {
-        if (adjusted) this.loadLoanData();
+      .then((changed) => {
+        if (changed) this.loadLoanData();
       });
+  }
+
+  /**
+   * Opens the adjustment for one buy-down fee, from the amortization tab.
+   *
+   * The row is addressed by its `transactionId`, because that is what the platform's URL takes
+   * — the amortization row is a view over the transaction, not a resource of its own.
+   *
+   * There is no counterpart on the capitalized-income tab. `CapitalizedIncomeDetails` carries
+   * no `transactionId` and no `id`, so a row there cannot name the transaction to adjust; the
+   * same adjustment is reached from the Transactions tab, where the id is present. If the
+   * payload turns out to carry a transaction id the generated model omits — which is issue
+   * #653, and happens — this is the gap to close.
+   */
+  onAdjustBuyDownFee(row: BuyDownFeeAmortizationDetails): void {
+    if (row.transactionId === undefined) return;
+    this.dialogService
+      .open(TransactionDetailDialogComponent, {
+        data: {
+          loanId: this.loanId(),
+          transactionId: row.transactionId,
+          currencySymbol: this.loan()?.currency?.displaySymbol,
+          adjustable: true,
+          adjustment: BUY_DOWN_FEE_ADJUSTMENT,
+        },
+      })
+      .then((changed) => {
+        if (changed) this.loadLoanData();
+      });
+  }
+
+  /** For the tab's gate, which needs the code as a value rather than a literal. */
+  get buyDownFeeAdjustPermission(): string {
+    return BUY_DOWN_FEE_ADJUSTMENT.permission;
   }
 
   /**
