@@ -20,7 +20,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
+import { I18N, TranslatePipe } from '../../../core/adapters';
+import { MutationOutcomeService } from '../../../core/services/mutation-outcome.service';
 import {
   IonButton,
   IonCard,
@@ -221,6 +222,8 @@ export class FixedDepositTransactionFormComponent implements OnInit {
   private readonly transactionsService = inject(FixedDepositAccountTransactionsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   accountId!: number;
   readonly isSaving = signal(false);
@@ -269,16 +272,20 @@ export class FixedDepositTransactionFormComponent implements OnInit {
         JSON.stringify(request),
       )
       .subscribe({
-        next: () => this.navigateBack(),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('SAVINGS.TRANSACTION_SUCCESS'),
+            recordRoute: (id) => ['/products/fixed-deposits/view', id],
+            recordId: this.accountId,
+          });
+        },
         error: () => this.isSaving.set(false),
       });
   }
 
   onCancel(): void {
-    this.navigateBack();
-  }
-
-  private navigateBack(): void {
-    this.router.navigate(['/products/fixed-deposits/view', this.accountId]);
+    void this.router.navigate(['/products/fixed-deposits/view', this.accountId]);
   }
 }

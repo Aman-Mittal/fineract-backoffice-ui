@@ -21,7 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../core/adapters';
+import { I18N, TranslatePipe } from '../../core/adapters';
+import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
 import {
   IonButton,
   IonCard,
@@ -242,6 +243,8 @@ export class CenterFormComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
   private readonly LIST_PATH = '/centers';
@@ -320,7 +323,16 @@ export class CenterFormComponent implements OnInit {
         name: this.center().name,
       };
       this.centersService.putCentersCenterId(this.centerId, payload).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('CENTERS.UPDATE_SUCCESS'),
+            recordRoute: (id) => ['/centers/view', id],
+            recordId: this.centerId ?? undefined,
+            fallbackRoute: [this.LIST_PATH],
+          });
+        },
         error: () => this.isSaving.set(false),
       });
     } else {
@@ -335,7 +347,15 @@ export class CenterFormComponent implements OnInit {
       };
 
       this.centersService.postCenters(payload as PostCentersRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('CENTERS.CREATE_SUCCESS'),
+            recordRoute: (id) => ['/centers/view', id],
+            fallbackRoute: [this.LIST_PATH],
+          });
+        },
         error: () => this.isSaving.set(false),
       });
     }

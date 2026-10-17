@@ -35,6 +35,7 @@ import {
 } from '../../api';
 import { LoanSummary } from './loan-summary.model';
 import { DialogService } from '../../core/services/dialog.service';
+import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -440,6 +441,7 @@ export class LoanTransactionFormComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly dialogService = inject(DialogService);
   private readonly i18n = inject(I18N);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
 
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
 
@@ -593,6 +595,17 @@ export class LoanTransactionFormComponent implements OnInit {
     }
   }
 
+  private onMutationSuccess(response: unknown): void {
+    this.isSaving.set(false);
+    this.mutationOutcome.complete({
+      response,
+      successMessage: this.i18n.translate('LOANS.TRANSACTION_SUCCESS'),
+      recordRoute: (id) => ['/loans/view', id],
+      recordId: this.loanId,
+      fallbackRoute: ['/loans'],
+    });
+  }
+
   private performSubmit(): void {
     if (this.transactionType() === 'chargeRefund' && !this.transaction.loanChargeId) return;
     this.isSaving.set(true);
@@ -607,7 +620,7 @@ export class LoanTransactionFormComponent implements OnInit {
         note: this.transaction.note,
       };
       this.loansService.postLoansLoanId(this.loanId, payload, 'approve').subscribe({
-        next: () => this.router.navigate(['/loans']),
+        next: (response) => this.onMutationSuccess(response),
         error: () => this.isSaving.set(false),
       });
     } else if (this.transactionType() === 'disburse') {
@@ -623,7 +636,7 @@ export class LoanTransactionFormComponent implements OnInit {
         note: this.transaction.note,
       };
       this.loansService.postLoansLoanId(this.loanId, payload, 'disburse').subscribe({
-        next: () => this.router.navigate(['/loans']),
+        next: (response) => this.onMutationSuccess(response),
         error: () => this.isSaving.set(false),
       });
     } else if (this.transactionType() === 'undoDisbursal') {
@@ -632,7 +645,7 @@ export class LoanTransactionFormComponent implements OnInit {
       // optional note.
       const payload = { note: this.transaction.note };
       this.loansService.postLoansLoanId(this.loanId, payload, 'undoDisbursal').subscribe({
-        next: () => this.router.navigate(['/loans']),
+        next: (response) => this.onMutationSuccess(response),
         error: () => this.isSaving.set(false),
       });
     } else if (
@@ -645,7 +658,7 @@ export class LoanTransactionFormComponent implements OnInit {
           this.transactionType(),
         )
         .subscribe({
-          next: () => this.router.navigate(['/loans']),
+          next: (response) => this.onMutationSuccess(response),
           error: () => this.isSaving.set(false),
         });
     } else {
@@ -669,13 +682,13 @@ export class LoanTransactionFormComponent implements OnInit {
       this.transactionService
         .postLoansLoanIdTransactions(this.loanId, this.transaction, this.transactionType())
         .subscribe({
-          next: () => this.router.navigate(['/loans']),
+          next: (response) => this.onMutationSuccess(response),
           error: () => this.isSaving.set(false),
         });
     }
   }
 
   onCancel(): void {
-    this.router.navigate(['/loans']);
+    void this.router.navigate(['/loans/view', this.loanId]);
   }
 }

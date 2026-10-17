@@ -25,6 +25,8 @@ import { HelpIconComponent, StepperComponent } from '../../shared';
 import { TranslatePipe } from '../../core/adapters';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import { DialogService } from '../../core/services/dialog.service';
+import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
+import { I18N } from '../../core/adapters';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
@@ -602,6 +604,8 @@ export class ClientFormComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   private readonly LIST_PATH = '/clients';
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
@@ -768,7 +772,16 @@ export class ClientFormComponent implements OnInit {
       this.clientService
         .putClientsClientId(this.clientId, payload as PutClientsClientIdRequest)
         .subscribe({
-          next: () => this.router.navigate([this.LIST_PATH]),
+          next: (response) => {
+            this.isSaving.set(false);
+            this.mutationOutcome.complete({
+              response,
+              successMessage: this.i18n.translate('CLIENTS.UPDATE_SUCCESS'),
+              recordRoute: (id) => ['/clients/view', id],
+              recordId: this.clientId ?? undefined,
+              fallbackRoute: [this.LIST_PATH],
+            });
+          },
           error: () => this.isSaving.set(false),
         });
     } else {
@@ -795,7 +808,15 @@ export class ClientFormComponent implements OnInit {
       }
 
       this.clientService.postClients(this.client()).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('CLIENTS.CREATE_SUCCESS'),
+            recordRoute: (id) => ['/clients/view', id],
+            fallbackRoute: [this.LIST_PATH],
+          });
+        },
         error: () => this.isSaving.set(false),
       });
     }

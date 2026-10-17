@@ -27,6 +27,7 @@ import { of, Observable } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
+import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
 
 describe('ClientFormComponent', () => {
   const HEAD_OFFICE = 'Head Office';
@@ -37,8 +38,11 @@ describe('ClientFormComponent', () => {
   let officesServiceSpy: SpyObj<OfficesService>;
   let routerSpy: SpyObj<Router>;
   let dialogSpy: SpyObj<DialogService>;
+  let overlay: FakeOverlayAdapter;
 
   beforeEach(async () => {
+    const fakes = provideFakeAdapters();
+    overlay = fakes.overlay;
     clientServiceSpy = createSpyObj(['getClientsClientId', 'postClients', 'putClientsClientId']);
     officesServiceSpy = createSpyObj(['getOffices']);
     routerSpy = createSpyObj(['navigate']);
@@ -65,6 +69,7 @@ describe('ClientFormComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ClientFormComponent],
       providers: [
+        ...fakes.providers,
         ...provideTranslateTesting(),
         provideIonicTesting(),
         { provide: ClientService, useValue: clientServiceSpy },
@@ -139,7 +144,8 @@ describe('ClientFormComponent', () => {
       component.onSubmit();
 
       expect(clientServiceSpy.postClients).toHaveBeenCalled();
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients']);
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients/view', 10]);
+      expect(overlay.lastToast?.message).toBe('CLIENTS.CREATE_SUCCESS');
     });
 
     it('should handle cancel', () => {
@@ -201,9 +207,13 @@ describe('ClientFormComponent', () => {
     it('should load client details and update successfully', async () => {
       TestBed.resetTestingModule();
 
+      const fakes = provideFakeAdapters();
+      overlay = fakes.overlay;
+
       await TestBed.configureTestingModule({
         imports: [ClientFormComponent],
         providers: [
+          ...fakes.providers,
           ...provideTranslateTesting(),
           { provide: ClientService, useValue: clientServiceSpy },
           { provide: OfficesService, useValue: officesServiceSpy },
@@ -241,7 +251,8 @@ describe('ClientFormComponent', () => {
       component.onSubmit();
 
       expect(clientServiceSpy.putClientsClientId).toHaveBeenCalled();
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients']);
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/clients/view', 10]);
+      expect(overlay.lastToast?.message).toBe('CLIENTS.UPDATE_SUCCESS');
     });
 
     it('shows every step flat, with no stepper, when editing an existing client', async () => {

@@ -20,7 +20,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
+import { I18N, TranslatePipe } from '../../../core/adapters';
+import { MutationOutcomeService } from '../../../core/services/mutation-outcome.service';
 import {
   IonButton,
   IonCard,
@@ -184,6 +185,8 @@ export class RecurringDepositTransactionFormComponent implements OnInit {
   private readonly transactionsService = inject(RecurringDepositAccountTransactionsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   accountId!: number;
   readonly command = signal<'deposit' | 'withdrawal'>('deposit');
@@ -222,13 +225,20 @@ export class RecurringDepositTransactionFormComponent implements OnInit {
         this.command(),
       )
       .subscribe({
-        next: () =>
-          this.router.navigate(['/products/recurring-deposits', this.accountId, 'transactions']),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('SAVINGS.TRANSACTION_SUCCESS'),
+            recordRoute: (id) => ['/products/recurring-deposits/view', id],
+            recordId: this.accountId,
+          });
+        },
         error: () => this.isSaving.set(false),
       });
   }
 
   onCancel(): void {
-    this.router.navigate(['/products/recurring-deposits', this.accountId, 'transactions']);
+    void this.router.navigate(['/products/recurring-deposits/view', this.accountId]);
   }
 }

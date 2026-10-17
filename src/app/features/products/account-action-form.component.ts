@@ -55,6 +55,8 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../core/utils/date-formatter';
+import { I18N } from '../../core/adapters';
+import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
 
 @Component({
   selector: 'app-account-action-form',
@@ -352,6 +354,8 @@ export class AccountActionFormComponent implements OnInit {
   private readonly chargesService = inject(ChargesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   accountId = 0;
   readonly accountType = signal(''); // 'savings', 'fixed', 'recurring', 'loan'
@@ -508,23 +512,41 @@ export class AccountActionFormComponent implements OnInit {
     const formattedDate = formatDateToFineract(this.actionDate);
 
     let obs$: Observable<unknown> | null = null;
-    let redirectPath = '';
 
     if (this.accountType() === 'loan') {
-      const res = this.handleLoanAction(formattedDate);
-      obs$ = res.obs$;
-      redirectPath = res.redirectPath;
+      obs$ = this.handleLoanAction(formattedDate).obs$;
     } else {
-      const res = this.handleDepositAction(formattedDate);
-      obs$ = res.obs$;
-      redirectPath = res.redirectPath;
+      obs$ = this.handleDepositAction(formattedDate).obs$;
     }
 
     if (obs$) {
       obs$.subscribe({
-        next: () => this.router.navigate([redirectPath]),
+        next: (response) => {
+          this.isSaving.set(false);
+          const messageKey =
+            this.accountType() === 'loan' ? 'LOANS.ACTION_SUCCESS' : 'SAVINGS.ACTION_SUCCESS';
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate(messageKey),
+            recordRoute: (id) => this.recordViewRoute(id),
+            recordId: this.accountId,
+          });
+        },
         error: () => this.isSaving.set(false),
       });
+    }
+  }
+
+  private recordViewRoute(id: number): unknown[] {
+    switch (this.accountType()) {
+      case 'savings':
+        return ['/products/savings-accounts/view', id];
+      case 'fixed':
+        return ['/products/fixed-deposits/view', id];
+      case 'recurring':
+        return ['/products/recurring-deposits/view', id];
+      default:
+        return ['/loans/view', id];
     }
   }
 
@@ -565,9 +587,7 @@ export class AccountActionFormComponent implements OnInit {
 
   private handleLoanAction(formattedDate: string): {
     obs$: Observable<unknown> | null;
-    redirectPath: string;
   } {
-    const redirectPath = `/loans/view/${this.accountId}`;
     let obs$: Observable<unknown> | null = null;
 
     if (this.command() === 'applycharges') {
@@ -606,15 +626,13 @@ export class AccountActionFormComponent implements OnInit {
       );
     }
 
-    return { obs$, redirectPath };
+    return { obs$ };
   }
 
   private handleDepositAction(formattedDate: string): {
     obs$: Observable<unknown> | null;
-    redirectPath: string;
   } {
     let obs$: Observable<unknown> | null = null;
-    let redirectPath = '';
 
     const payload: Record<string, unknown> = {
       dateFormat: FINERACT_DATE_FORMAT,
@@ -633,33 +651,29 @@ export class AccountActionFormComponent implements OnInit {
         payload,
         this.command(),
       );
-      redirectPath = '/products/savings-accounts';
     } else if (this.accountType() === 'fixed') {
       obs$ = this.fixedDepositService.postFixeddepositaccountsAccountId(
         this.accountId,
         payload,
         this.command(),
       );
-      redirectPath = '/products/fixed-deposits';
     } else if (this.accountType() === 'recurring') {
       obs$ = this.recurringDepositService.postRecurringdepositaccountsAccountId(
         this.accountId,
         payload,
         this.command(),
       );
-      redirectPath = '/products/recurring-deposits';
     }
 
-    return { obs$, redirectPath };
+    return { obs$ };
   }
 
   onCancel(): void {
-    const paths: Record<string, string> = {
-      savings: '/products/savings-accounts',
-      fixed: '/products/fixed-deposits',
-      recurring: '/products/recurring-deposits',
-      loan: `/loans/view/${this.accountId}`,
-    };
-    this.router.navigate([paths[this.accountType()] || '/dashboard']);
+    const type = this.accountType();
+    if (!['savings', 'fixed', 'recurring', 'loan'].includes(type)) {
+      void this.router.navigate(['/dashboard']);
+      return;
+    }
+    void this.router.navigate(this.recordViewRoute(this.accountId));
   }
 }
