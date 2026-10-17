@@ -18,21 +18,38 @@
  */
 
 import { computed, inject, input, signal, Component, OnInit } from '@angular/core';
-import { TranslatePipe } from '../../../core/adapters';
+import { I18N, TranslatePipe } from '../../../core/adapters';
 import { TabsComponent, UiTab } from '../../../ui/tabs/tabs.component';
 import { ButtonComponent } from '../../../ui/button/button.component';
 import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { DataTableComponent, ColumnDef } from '../data-table/data-table.component';
+import { CellTemplateDirective } from '../data-table/cell-template.directive';
+import { RequiresPermissionDirective } from '../../directives/requires-permission.directive';
 import { DatatableEntryDialogComponent } from '../datatable-entry-dialog/datatable-entry-dialog.component';
 
 const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
 
+/** The column a multi-row datatable keys its rows by, and a single-row one does not have. */
+const ROW_ID_COLUMN = 'id';
+
+/** The actions column, present only where the user can write to the table. */
+const ACTIONS_COLUMN = '__actions';
+
 @Component({
   selector: 'app-entity-datatables',
   standalone: true,
-  imports: [TranslatePipe, TabsComponent, ButtonComponent, SpinnerComponent, DataTableComponent],
+  imports: [
+    TranslatePipe,
+    TabsComponent,
+    ButtonComponent,
+    SpinnerComponent,
+    DataTableComponent,
+    CellTemplateDirective,
+    RequiresPermissionDirective,
+  ],
   template: `
     <div class="entity-datatables-container">
       @if (isLoading()) {
@@ -71,10 +88,43 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
                 data-testid="entity-datatables-add"
                 type="button"
                 icon="add-outline"
+                [disabled]="!canWrite(dt, 'CREATE')"
+                [appRequiresPermission]="permissionCode(dt, 'CREATE')"
                 (click)="onAddEntry(dt)"
               >
                 {{ 'SYSTEM.ADD_ENTRY' | appTranslate }}
               </app-button>
+
+              <!--
+                Edit and delete are offered per row, and each carries its own generated code:
+                registering a datatable creates READ_, CREATE_, UPDATE_ and DELETE_ for it, and
+                Fineract checks the exact one: ALL_FUNCTIONS_READ passes the read and no write.
+              -->
+              <ng-template [appCellTemplate]="ACTIONS_COLUMN" let-row>
+                <div class="row-actions">
+                  <app-button
+                    type="button"
+                    emphasis="quiet"
+                    icon="create-outline"
+                    data-testid="entity-datatables-edit"
+                    [disabled]="!canWrite(dt, 'UPDATE')"
+                    [appRequiresPermission]="permissionCode(dt, 'UPDATE')"
+                    [label]="'COMMON.EDIT' | appTranslate"
+                    (click)="onEditEntry(dt, row)"
+                  />
+                  <app-button
+                    type="button"
+                    emphasis="quiet"
+                    intent="danger"
+                    icon="trash-outline"
+                    data-testid="entity-datatables-delete"
+                    [disabled]="!canWrite(dt, 'DELETE')"
+                    [appRequiresPermission]="permissionCode(dt, 'DELETE')"
+                    [label]="'COMMON.DELETE' | appTranslate"
+                    (click)="onDeleteEntry(dt, row)"
+                  />
+                </div>
+              </ng-template>
             </app-data-table>
           </div>
         }
@@ -102,6 +152,10 @@ const AUDIT_COLUMN_NAMES = new Set(['id', 'created_at', 'updated_at']);
         text-align: center;
         color: var(--text-muted, rgba(0, 0, 0, 0.6));
       }
+      .row-actions {
+        display: flex;
+        gap: 4px;
+      }
     `,
   ],
 })
@@ -111,12 +165,31 @@ export class EntityDatatablesComponent implements OnInit {
 
   private readonly datatablesService = inject(DataTablesService);
   private readonly dialogService = inject(DialogService);
+  private readonly authService = inject(AuthService);
+  private readonly i18n = inject(I18N);
+
+  /** Exposed so the actions template can name the column it fills. */
+  protected readonly ACTIONS_COLUMN = ACTIONS_COLUMN;
 
   readonly datatables = signal<GetDataTablesResponse[]>([]);
+
+  /**
+   * The tables this user may read.
+   *
+   * Removed rather than disabled, which is the one place in this component where that is right:
+   * a table the user cannot read has no rows to show, so a tab for it would be an empty panel
+   * with nothing to explain. The write actions inside a readable table are disabled instead, and
+   * say which code is missing.
+   */
+  readonly readableTables = computed(() =>
+    this.datatables().filter((table) => !!table.registeredTableName && this.canRead(table)),
+  );
+
   readonly tableTabs = computed<UiTab[]>(() =>
-    this.datatables()
-      .filter((table) => !!table.registeredTableName)
-      .map((table) => ({ value: table.registeredTableName!, label: table.registeredTableName! })),
+    this.readableTables().map((table) => ({
+      value: table.registeredTableName!,
+      label: table.registeredTableName!,
+    })),
   );
   readonly isLoading = signal<boolean>(false);
 
@@ -134,8 +207,10 @@ export class EntityDatatablesComponent implements OnInit {
       next: (data) => {
         this.datatables.set(data);
         this.isLoading.set(false);
-        // Only named tables get a tab, so select the first one that can be selected.
-        const first = data.find((table) => !!table.registeredTableName);
+        // Only named tables the user can read get a tab, so select the first of those. Fetching
+        // rows for a table they cannot read would answer 403 and log a failure for a tab that
+        // is not on screen.
+        const first = this.readableTables()[0];
         if (first) {
           this.activeTable.set(first);
           this.loadTableData(first.registeredTableName!);
@@ -199,17 +274,80 @@ export class EntityDatatablesComponent implements OnInit {
     return this.activeTable()?.registeredTableName !== tableName;
   }
 
+  /**
+   * The code generated for one action on one table.
+   *
+   * Registering a datatable creates `READ_`, `CREATE_`, `UPDATE_` and `DELETE_` prefixed with
+   * the registered table name **verbatim** — `READ_wc_kyc`, not an upper-cased form — which is
+   * what `AppUser.hasNotPermissionForDatatable` checks. Confirmed against a live platform after
+   * registering one.
+   */
+  permissionCode(
+    dt: GetDataTablesResponse,
+    action: 'READ' | 'CREATE' | 'UPDATE' | 'DELETE',
+  ): string {
+    return `${action}_${dt.registeredTableName}`;
+  }
+
+  /**
+   * Whether the user may read this table.
+   *
+   * `hasPermission` already implements both of the platform's shortcuts: `ALL_FUNCTIONS` passes
+   * everything, and `ALL_FUNCTIONS_READ` passes a request made only of `READ_*` codes. A
+   * read-only auditor therefore sees every tab and no enabled write control, with no special
+   * case here.
+   */
+  canRead(dt: GetDataTablesResponse): boolean {
+    return this.authService.hasPermission(this.permissionCode(dt, 'READ'));
+  }
+
+  canWrite(dt: GetDataTablesResponse, action: 'CREATE' | 'UPDATE' | 'DELETE'): boolean {
+    return this.authService.hasPermission(this.permissionCode(dt, action));
+  }
+
+  /**
+   * True for a table that holds many rows per entity.
+   *
+   * The listing carries no `multiRow` flag, so the shape is the discriminator: a multi-row
+   * table's primary key is its own `id` and the entity key rides alongside as an ordinary
+   * column, while a single-row table's primary key *is* the entity key (`wc_loan_id`). Measured
+   * by registering one of each.
+   *
+   * It decides the URL: a row of a multi-row table is updated and deleted at
+   * `…/{datatable}/{entityId}/{rowId}`, and a single-row table's one row at
+   * `…/{datatable}/{entityId}`.
+   */
+  isMultiRow(dt: GetDataTablesResponse): boolean {
+    return (dt.columnHeaderData ?? []).some(
+      (col) => col.isColumnPrimaryKey && col.columnName === ROW_ID_COLUMN,
+    );
+  }
+
+  private rowId(dt: GetDataTablesResponse, row: Record<string, unknown>): number | undefined {
+    if (!this.isMultiRow(dt)) return undefined;
+    const id = row[ROW_ID_COLUMN];
+    return typeof id === 'number' ? id : undefined;
+  }
+
   getColumnDefs(dt: GetDataTablesResponse): ColumnDef[] {
     // The primary key column is the entity's own FK (e.g. "loan_id"), not
     // "<apptableName>_id" (apptableName is "m_loan", not "loan") — filtering
     // by isColumnPrimaryKey works regardless of the entity's naming.
-    return (dt.columnHeaderData || [])
+    const columns: ColumnDef[] = (dt.columnHeaderData || [])
       .filter((col) => !col.isColumnPrimaryKey && !AUDIT_COLUMN_NAMES.has(col.columnName ?? ''))
       .map((col) => ({
         key: col.columnName!,
         label: col.columnName!, // Ideally we'd have a way to translate these
         sortable: true,
       }));
+
+    // The actions column is offered to anyone who holds either write code. It is *rendered* for
+    // a user who holds neither only in order to say so, which is not worth a column of its own,
+    // so it is dropped instead.
+    if (this.canWrite(dt, 'UPDATE') || this.canWrite(dt, 'DELETE')) {
+      columns.push({ key: ACTIONS_COLUMN, label: '', width: '112px' });
+    }
+    return columns;
   }
 
   onTabChange(tableName: string): void {
@@ -220,12 +358,22 @@ export class EntityDatatablesComponent implements OnInit {
   }
 
   onAddEntry(dt: GetDataTablesResponse): Promise<void> {
+    return this.openEntry(dt);
+  }
+
+  onEditEntry(dt: GetDataTablesResponse, row: Record<string, unknown>): Promise<void> {
+    return this.openEntry(dt, row);
+  }
+
+  private openEntry(dt: GetDataTablesResponse, row?: Record<string, unknown>): Promise<void> {
     return this.dialogService
       .open<boolean>(DatatableEntryDialogComponent, {
         data: {
           datatableName: dt.registeredTableName!,
           apptableId: this.entityId(),
           columns: dt.columnHeaderData || [],
+          row,
+          rowId: row ? this.rowId(dt, row) : undefined,
         },
       })
       .then((saved) => {
@@ -233,5 +381,37 @@ export class EntityDatatablesComponent implements OnInit {
           this.loadTableData(dt.registeredTableName!);
         }
       });
+  }
+
+  /**
+   * Deletes one row, after a destructive confirmation.
+   *
+   * There is no undo: the platform drops the row outright, and a datatable is where an
+   * institution keeps the fields this UI knows nothing about — a reference it cannot be asked to
+   * re-derive.
+   */
+  async onDeleteEntry(dt: GetDataTablesResponse, row: Record<string, unknown>): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('COMMON.DELETE'),
+      message: this.i18n.translate('SYSTEM.CONFIRM_DELETE_ENTRY'),
+      destructive: true,
+    });
+    if (!confirmed) return;
+
+    const table = dt.registeredTableName!;
+    const rowId = this.rowId(dt, row);
+    const request$ =
+      rowId === undefined
+        ? this.datatablesService.deleteDatatablesDatatableApptableId(table, this.entityId())
+        : this.datatablesService.deleteDatatablesDatatableApptableIdDatatableId(
+            table,
+            this.entityId(),
+            rowId,
+          );
+
+    request$.subscribe({
+      next: () => this.loadTableData(table),
+      error: (err) => console.error(`Failed to delete the row from ${table}`, err),
+    });
   }
 }

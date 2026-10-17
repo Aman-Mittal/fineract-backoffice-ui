@@ -290,7 +290,8 @@
     "UNCHECK_ALL": "सभी अचयनित करें",
     "CHECKER": "चेकर",
     "CHECKED_DATE": "जांच की तारीख",
-    "REASON": "कारण"
+    "REASON": "कारण",
+    "DONE": "पूर्ण"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "खाता स्थानांतरण",
@@ -1886,7 +1887,10 @@
     "DELETE_DELINQUENCY_BUCKET": "चूक बकेट हटाएं",
     "CONFIRM_DELETE_DELINQUENCY_BUCKET": "चूक बकेट \"{{name}}\" हटाएं? इसका उपयोग करने वाले ऋण उत्पादों को दोबारा वर्गीकरण से पहले अलग बकेट की जरूरत होगी।",
     "DELETE_DATA_TABLE": "डेटा तालिका हटाएं",
-    "CONFIRM_DELETE_DATA_TABLE": "डेटा तालिका \"{{name}}\" हटाएं? तालिका और उसमें दर्ज सभी डेटा हटा दिए जाएंगे।"
+    "CONFIRM_DELETE_DATA_TABLE": "डेटा तालिका \"{{name}}\" हटाएं? तालिका और उसमें दर्ज सभी डेटा हटा दिए जाएंगे।",
+    "EDIT_ENTRY": "प्रविष्टि संपादित करें",
+    "CONFIRM_DELETE_ENTRY": "यह पंक्ति सीधे हटा दी जाएगी; इसे पूर्ववत नहीं किया जा सकता।",
+    "REQUIRED_CUSTOM_DATA": "आवश्यक कस्टम डेटा"
   },
   "ORGANIZATION": {
     "STAFF": "कर्मचारी",

@@ -149,12 +149,16 @@
   ],
   "CurrencyService": ["getCurrencies", "putCurrencies"],
   "DataTablesService": [
+    "deleteDatatablesDatatableApptableId",
+    "deleteDatatablesDatatableApptableIdDatatableId",
     "deleteDatatablesDatatableName",
     "getDatatables",
     "getDatatablesDatatable",
     "getDatatablesDatatableApptableId",
     "postDatatables",
     "postDatatablesDatatableApptableId",
+    "putDatatablesDatatableApptableId",
+    "putDatatablesDatatableApptableIdDatatableId",
     "putDatatablesDatatableName"
   ],
   "DefaultService": [

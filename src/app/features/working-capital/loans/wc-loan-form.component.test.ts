@@ -23,7 +23,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WcLoanFormComponent } from './wc-loan-form.component';
 
-import { WorkingCapitalLoansService, WorkingCapitalNearBreachService } from '../../../api';
+import {
+  DataTablesService,
+  EntityDataTableService,
+  WorkingCapitalLoansService,
+  WorkingCapitalNearBreachService,
+} from '../../../api';
+import { DialogService } from '../../../core/services/dialog.service';
+import { DatatableEntryDialogComponent } from '../../../shared/components/datatable-entry-dialog/datatable-entry-dialog.component';
 
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 
@@ -62,8 +69,31 @@ describe('WcLoanFormComponent', () => {
 
   let routerSpy: SpyObj<Router>;
 
+  let entityChecksSpy: SpyObj<EntityDataTableService>;
+
+  let datatablesSpy: SpyObj<DataTablesService>;
+
+  let dialogSpy: SpyObj<DialogService>;
+
   /** Mutated by the edit suite before the shared `beforeEach` builds the TestBed. */
   let routeParams: Record<string, string>;
+
+  /** One CREATE check on `m_wc_loan`, which is what makes the platform refuse the application. */
+  const CREATE_CHECK = {
+    id: 1,
+    entity: 'm_wc_loan',
+    status: { id: 100, code: 'statusEnum.create', value: 'CREATE' },
+    datatableName: 'wc_kyc',
+  };
+
+  const KYC_TABLE = {
+    registeredTableName: 'wc_kyc',
+    applicationTableName: 'm_wc_loan',
+    columnHeaderData: [
+      { columnName: 'wc_loan_id', isColumnPrimaryKey: true },
+      { columnName: 'reference', columnDisplayType: 'STRING' },
+    ],
+  };
 
   beforeEach(async () => {
     routeParams ??= {};
@@ -75,6 +105,19 @@ describe('WcLoanFormComponent', () => {
     ]);
 
     nearBreachServiceSpy = createSpyObj(['getWorkingCapitalNearBreach']);
+
+    entityChecksSpy = createSpyObj(['getEntityDatatableChecks']);
+    datatablesSpy = createSpyObj(['getDatatablesDatatable']);
+    dialogSpy = createSpyObj<DialogService>(['open', 'confirm']);
+    // No checks by default, which is how most tenants are configured.
+    entityChecksSpy.getEntityDatatableChecks.mockReturnValue(
+      of({ pageItems: [] }) as unknown as ReturnType<
+        EntityDataTableService['getEntityDatatableChecks']
+      >,
+    );
+    datatablesSpy.getDatatablesDatatable.mockReturnValue(
+      of(KYC_TABLE) as unknown as ReturnType<DataTablesService['getDatatablesDatatable']>,
+    );
 
     routerSpy = createSpyObj(['navigate']);
 
@@ -116,6 +159,12 @@ describe('WcLoanFormComponent', () => {
         },
 
         { provide: Router, useValue: routerSpy },
+
+        { provide: EntityDataTableService, useValue: entityChecksSpy },
+
+        { provide: DataTablesService, useValue: datatablesSpy },
+
+        { provide: DialogService, useValue: dialogSpy },
 
         {
           // `loans/create` carries no :id; the edit suite below supplies one.
@@ -242,6 +291,154 @@ describe('WcLoanFormComponent', () => {
       component.onCancel();
 
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/working-capital/loans/view/42']);
+    });
+  });
+
+  /**
+   * Fineract's entity datatable checks refuse the application until the registered table has a
+   * row — 403 "Please fill in the data table [x] before creating this working capital loan." —
+   * and the create request carries the rows inline, so there is no loan to add one to
+   * afterwards. The form collects them (issue #776).
+   */
+  describe('create-time datatable checks', () => {
+    async function withCheck(): Promise<void> {
+      entityChecksSpy.getEntityDatatableChecks.mockReturnValue(
+        of({ pageItems: [CREATE_CHECK] }) as unknown as ReturnType<
+          EntityDataTableService['getEntityDatatableChecks']
+        >,
+      );
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [WcLoanFormComponent],
+        providers: [
+          ...provideTranslateTesting(),
+          { provide: WorkingCapitalLoansService, useValue: serviceSpy },
+          { provide: WorkingCapitalNearBreachService, useValue: nearBreachServiceSpy },
+          { provide: Router, useValue: routerSpy },
+          { provide: EntityDataTableService, useValue: entityChecksSpy },
+          { provide: DataTablesService, useValue: datatablesSpy },
+          { provide: DialogService, useValue: dialogSpy },
+          {
+            provide: ActivatedRoute,
+            useValue: { snapshot: { paramMap: convertToParamMap({}) } },
+          },
+          provideNoopAnimations(),
+        ],
+      }).compileComponents();
+      fixture = TestBed.createComponent(WcLoanFormComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    }
+
+    it('asks the platform only for the checks that apply to creating this loan', () => {
+      expect(entityChecksSpy.getEntityDatatableChecks).toHaveBeenCalledWith(100, 'm_wc_loan');
+    });
+
+    it('requires nothing where the tenant has registered no checks', () => {
+      expect(component.requiredDatatables()).toHaveLength(0);
+      expect(component.hasOutstandingDatatables()).toBe(false);
+    });
+
+    it('reads the columns of each required table', async () => {
+      await withCheck();
+
+      expect(datatablesSpy.getDatatablesDatatable).toHaveBeenCalledWith('wc_kyc');
+      expect(component.requiredDatatables()).toEqual([
+        { name: 'wc_kyc', columns: KYC_TABLE.columnHeaderData },
+      ]);
+    });
+
+    it('holds the application back while a required table is unfilled', async () => {
+      await withCheck();
+
+      expect(component.hasOutstandingDatatables()).toBe(true);
+    });
+
+    /**
+     * Collected, not saved: the dialog is opened in its collect-only mode because there is no
+     * loan id yet to post a row against.
+     */
+    it('collects the fields through the entry dialog and sends them with the application', async () => {
+      await withCheck();
+      dialogSpy.open.mockResolvedValue({ reference: 'KYC-1', locale: 'en' });
+
+      await component.onFillRequiredDatatable(component.requiredDatatables()[0]);
+
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        DatatableEntryDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ datatableName: 'wc_kyc', collectOnly: true }),
+        }),
+      );
+      expect(component.hasOutstandingDatatables()).toBe(false);
+
+      serviceSpy.postWorkingCapitalLoans.mockReturnValue(
+        of({}) as unknown as ReturnType<WorkingCapitalLoansService['postWorkingCapitalLoans']>,
+      );
+      component.onSubmit();
+
+      const request = serviceSpy.postWorkingCapitalLoans.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
+      expect(request['datatables']).toEqual([
+        { registeredTableName: 'wc_kyc', data: { reference: 'KYC-1', locale: 'en' } },
+      ]);
+    });
+
+    it('sends no datatables key at all when nothing was collected', () => {
+      serviceSpy.postWorkingCapitalLoans.mockReturnValue(
+        of({}) as unknown as ReturnType<WorkingCapitalLoansService['postWorkingCapitalLoans']>,
+      );
+
+      component.onSubmit();
+
+      const request = serviceSpy.postWorkingCapitalLoans.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
+      expect(request['datatables']).toBeUndefined();
+    });
+
+    it('keeps what was entered when the dialog is dismissed', async () => {
+      await withCheck();
+      dialogSpy.open.mockResolvedValue({ reference: 'KYC-1' });
+      await component.onFillRequiredDatatable(component.requiredDatatables()[0]);
+
+      dialogSpy.open.mockResolvedValue(undefined);
+      await component.onFillRequiredDatatable(component.requiredDatatables()[0]);
+
+      expect(component.requiredDatatables()[0].data).toEqual({ reference: 'KYC-1' });
+    });
+
+    it('asks for no checks at all when modifying an existing application', async () => {
+      entityChecksSpy.getEntityDatatableChecks.mockClear();
+      routeParams = { id: '42' };
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [WcLoanFormComponent],
+        providers: [
+          ...provideTranslateTesting(),
+          { provide: WorkingCapitalLoansService, useValue: serviceSpy },
+          { provide: WorkingCapitalNearBreachService, useValue: nearBreachServiceSpy },
+          { provide: Router, useValue: routerSpy },
+          { provide: EntityDataTableService, useValue: entityChecksSpy },
+          { provide: DataTablesService, useValue: datatablesSpy },
+          { provide: DialogService, useValue: dialogSpy },
+          {
+            provide: ActivatedRoute,
+            useValue: { snapshot: { paramMap: convertToParamMap({ id: '42' }) } },
+          },
+          provideNoopAnimations(),
+        ],
+      }).compileComponents();
+      fixture = TestBed.createComponent(WcLoanFormComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      // The check is on CREATE; a modification is not one, and the rows already exist.
+      expect(entityChecksSpy.getEntityDatatableChecks).not.toHaveBeenCalled();
+      routeParams = {};
     });
   });
 });

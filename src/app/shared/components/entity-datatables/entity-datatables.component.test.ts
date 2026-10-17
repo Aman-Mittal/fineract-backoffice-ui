@@ -27,6 +27,9 @@ import { EntityDatatablesComponent } from './entity-datatables.component';
 import { DatatableEntryDialogComponent } from '../datatable-entry-dialog/datatable-entry-dialog.component';
 import { DataTablesService, GetDataTablesResponse } from '../../../api';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
+import { AuthService, UserSession } from '../../../core/services/auth.service';
+import { permissionsSatisfy } from '../../../core/utils/permission-matcher';
+import { signal, WritableSignal } from '@angular/core';
 
 describe('EntityDatatablesComponent', () => {
   let component: EntityDatatablesComponent;
@@ -34,6 +37,35 @@ describe('EntityDatatablesComponent', () => {
   let datatablesServiceSpy: SpyObj<DataTablesService>;
   let dialogServiceSpy: SpyObj<DialogService>;
   let dialogSpy: Mock;
+
+  /**
+   * A session holding exactly `permissions`.
+   *
+   * Datatable codes are generated per table — `READ_m_client_details` and the three write verbs
+   * — and the component asks `AuthService` for them by that exact spelling. A default
+   * `ALL_FUNCTIONS` user keeps the pre-existing expectations describing an administrator.
+   */
+  function session(permissions: string[]): UserSession {
+    return {
+      username: 'tester',
+      base64EncodedAuthenticationKey: 'key',
+      authenticated: true,
+      officeId: 1,
+      officeName: 'Head Office',
+      userId: 1,
+      permissions,
+    };
+  }
+
+  /**
+   * The session signal the fake AuthService reads, so a test can change the held permissions
+   * between renders.
+   */
+  let currentUser: WritableSignal<UserSession | null>;
+
+  function grant(permissions: string[]): void {
+    currentUser.set(session(permissions));
+  }
 
   const mockDatatables: GetDataTablesResponse[] = [
     {
@@ -65,7 +97,13 @@ describe('EntityDatatablesComponent', () => {
   };
 
   beforeEach(async () => {
-    datatablesServiceSpy = createSpyObj(['getDatatables', 'getDatatablesDatatableApptableId']);
+    currentUser = signal<UserSession | null>(session(['ALL_FUNCTIONS']));
+    datatablesServiceSpy = createSpyObj([
+      'getDatatables',
+      'getDatatablesDatatableApptableId',
+      'deleteDatatablesDatatableApptableId',
+      'deleteDatatablesDatatableApptableIdDatatableId',
+    ]);
     dialogServiceSpy = createSpyObj<DialogService>(['open', 'confirm']);
     dialogServiceSpy.open.mockResolvedValue(undefined);
 
@@ -76,6 +114,17 @@ describe('EntityDatatablesComponent', () => {
         provideIonicTesting(),
         { provide: DataTablesService, useValue: datatablesServiceSpy },
         { provide: DialogService, useValue: dialogServiceSpy },
+        {
+          provide: AuthService,
+          useValue: {
+            currentUser,
+            // Delegates to the same matcher the real service does, so the two platform
+            // shortcuts — ALL_FUNCTIONS, and ALL_FUNCTIONS_READ for a read-only request — behave
+            // here as they do in production.
+            hasPermission: (required: string | string[], matchAll = false) =>
+              permissionsSatisfy(currentUser()?.permissions ?? [], required, matchAll),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -255,9 +304,163 @@ describe('EntityDatatablesComponent', () => {
 
   it('should format column defs and filter out standard ID columns', () => {
     const colDefs = component.getColumnDefs(mockDatatables[0]);
-    expect(colDefs).toHaveLength(2);
-    expect(colDefs[0].key).toBe('business_type');
-    expect(colDefs[1].key).toBe('revenue');
+    // The data columns, plus the actions column an administrator gets.
+    expect(colDefs.map((col) => col.key)).toEqual(['business_type', 'revenue', '__actions']);
+  });
+
+  /**
+   * Datatable permissions are generated per table — `READ_<table>` and the three write verbs —
+   * and the platform checks the exact code, with `ALL_FUNCTIONS_READ` passing reads only. The
+   * tab list is filtered by the read code because a table the user cannot read has no rows to
+   * show; the write controls are disabled rather than removed, and name the missing code.
+   */
+  describe('per-table permissions', () => {
+    function render(): void {
+      datatablesServiceSpy.getDatatables.mockReturnValue(
+        of(mockDatatables) as unknown as ReturnType<DataTablesService['getDatatables']>,
+      );
+      datatablesServiceSpy.getDatatablesDatatableApptableId.mockReturnValue(
+        of([]) as unknown as ReturnType<DataTablesService['getDatatablesDatatableApptableId']>,
+      );
+      component.loadDatatables();
+    }
+
+    it('offers only the tables the user can read', () => {
+      grant(['READ_m_client_more_details']);
+      render();
+
+      expect(component.tableTabs().map((tab) => tab.value)).toEqual(['m_client_more_details']);
+      // And it selects one it can read, rather than fetching rows for a table that would 403.
+      expect(component.activeTable()?.registeredTableName).toBe('m_client_more_details');
+      expect(datatablesServiceSpy.getDatatablesDatatableApptableId).toHaveBeenCalledWith(
+        'm_client_more_details',
+        123,
+      );
+    });
+
+    it('shows every table to a read-only superuser, and lets them write to none', () => {
+      grant(['ALL_FUNCTIONS_READ']);
+      render();
+
+      expect(component.tableTabs()).toHaveLength(2);
+      expect(component.canRead(mockDatatables[0])).toBe(true);
+      expect(component.canWrite(mockDatatables[0], 'CREATE')).toBe(false);
+      expect(component.canWrite(mockDatatables[0], 'UPDATE')).toBe(false);
+      expect(component.canWrite(mockDatatables[0], 'DELETE')).toBe(false);
+      // Nothing to act on, so no column for the actions.
+      expect(component.getColumnDefs(mockDatatables[0])).toHaveLength(2);
+    });
+
+    it('offers no tab at all where the user can read none of them', () => {
+      grant(['READ_CLIENT']);
+      render();
+
+      expect(component.tableTabs()).toHaveLength(0);
+      expect(datatablesServiceSpy.getDatatablesDatatableApptableId).not.toHaveBeenCalled();
+    });
+
+    it('names the code generated for each action on the table', () => {
+      expect(component.permissionCode(mockDatatables[0], 'READ')).toBe('READ_m_client_details');
+      expect(component.permissionCode(mockDatatables[0], 'DELETE')).toBe('DELETE_m_client_details');
+    });
+
+    it('offers the actions column to a user who holds either write code', () => {
+      grant(['READ_m_client_details', 'DELETE_m_client_details']);
+
+      expect(component.canWrite(mockDatatables[0], 'UPDATE')).toBe(false);
+      expect(component.canWrite(mockDatatables[0], 'DELETE')).toBe(true);
+      expect(component.getColumnDefs(mockDatatables[0])).toHaveLength(3);
+    });
+  });
+
+  /**
+   * The listing carries no `multiRow` flag, so the shape is the discriminator: a multi-row
+   * table's primary key is its own `id`, while a single-row table's primary key is the entity's
+   * FK. It decides whether a row is addressed by id or by entity.
+   */
+  describe('one row per entity, or many', () => {
+    const multiRow: GetDataTablesResponse = {
+      registeredTableName: 'm_client_notes',
+      columnHeaderData: [
+        { columnName: 'id', isColumnPrimaryKey: true },
+        { columnName: 'client_id' },
+        { columnName: 'note' },
+      ],
+    };
+
+    it('reads the table shape rather than a flag', () => {
+      expect(component.isMultiRow(multiRow)).toBe(true);
+      expect(component.isMultiRow(mockDatatables[0])).toBe(false);
+    });
+
+    it('opens an edit with the row and its id for a multi-row table', async () => {
+      dialogSpy.mockResolvedValue(false);
+
+      await component.onEditEntry(multiRow, { id: 7, note: 'hello' });
+
+      expect(dialogSpy).toHaveBeenCalledWith(
+        DatatableEntryDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ rowId: 7, row: { id: 7, note: 'hello' } }),
+        }),
+      );
+    });
+
+    it('opens an edit with no row id for a single-row table', async () => {
+      dialogSpy.mockResolvedValue(false);
+
+      await component.onEditEntry(mockDatatables[0], { client_id: 123, revenue: 10 });
+
+      expect(dialogSpy).toHaveBeenCalledWith(
+        DatatableEntryDialogComponent,
+        expect.objectContaining({ data: expect.objectContaining({ rowId: undefined }) }),
+      );
+    });
+
+    it('deletes one row of a multi-row table by its id', async () => {
+      dialogServiceSpy.confirm.mockResolvedValue(true);
+      datatablesServiceSpy.deleteDatatablesDatatableApptableIdDatatableId.mockReturnValue(
+        of({}) as unknown as ReturnType<
+          DataTablesService['deleteDatatablesDatatableApptableIdDatatableId']
+        >,
+      );
+      datatablesServiceSpy.getDatatablesDatatableApptableId.mockReturnValue(
+        of([]) as unknown as ReturnType<DataTablesService['getDatatablesDatatableApptableId']>,
+      );
+
+      await component.onDeleteEntry(multiRow, { id: 7 });
+
+      expect(
+        datatablesServiceSpy.deleteDatatablesDatatableApptableIdDatatableId,
+      ).toHaveBeenCalledWith('m_client_notes', 123, 7);
+    });
+
+    it('deletes the single row of a one-row table by entity', async () => {
+      dialogServiceSpy.confirm.mockResolvedValue(true);
+      datatablesServiceSpy.deleteDatatablesDatatableApptableId.mockReturnValue(
+        of({}) as unknown as ReturnType<DataTablesService['deleteDatatablesDatatableApptableId']>,
+      );
+      datatablesServiceSpy.getDatatablesDatatableApptableId.mockReturnValue(
+        of([]) as unknown as ReturnType<DataTablesService['getDatatablesDatatableApptableId']>,
+      );
+
+      await component.onDeleteEntry(mockDatatables[0], { client_id: 123 });
+
+      expect(datatablesServiceSpy.deleteDatatablesDatatableApptableId).toHaveBeenCalledWith(
+        'm_client_details',
+        123,
+      );
+    });
+
+    it('deletes nothing when the confirmation is declined', async () => {
+      dialogServiceSpy.confirm.mockResolvedValue(false);
+
+      await component.onDeleteEntry(multiRow, { id: 7 });
+
+      expect(
+        datatablesServiceSpy.deleteDatatablesDatatableApptableIdDatatableId,
+      ).not.toHaveBeenCalled();
+    });
   });
 
   it('should open the add-entry dialog with the table columns and entity id', async () => {

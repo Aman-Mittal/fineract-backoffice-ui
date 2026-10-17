@@ -305,7 +305,8 @@
     "UNCHECK_ALL": "Uncheck All",
     "CHECKER": "Checker",
     "CHECKED_DATE": "Checked Date",
-    "REASON": "Reason"
+    "REASON": "Reason",
+    "DONE": "Done"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",
@@ -1126,7 +1127,10 @@
     "DELETE_DELINQUENCY_BUCKET": "Delete Delinquency Bucket",
     "CONFIRM_DELETE_DELINQUENCY_BUCKET": "Delete the delinquency bucket “{{name}}”? Loan products using it need a different bucket before they classify again.",
     "DELETE_DATA_TABLE": "Delete Data Table",
-    "CONFIRM_DELETE_DATA_TABLE": "Delete the data table “{{name}}”? The table and everything recorded in it are removed."
+    "CONFIRM_DELETE_DATA_TABLE": "Delete the data table “{{name}}”? The table and everything recorded in it are removed.",
+    "EDIT_ENTRY": "Edit entry",
+    "CONFIRM_DELETE_ENTRY": "This row is deleted outright; there is no undo.",
+    "REQUIRED_CUSTOM_DATA": "Required custom data"
   },
   "ACCOUNTING_RULES": {
     "CREATE": "Create Accounting Rule",

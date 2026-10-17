@@ -52,6 +52,7 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { RequiresPermissionDirective } from '../../../shared/directives/requires-permission.directive';
 import { DeferredDatetimeButtonComponent } from '../../../ui/deferred-datetime-button/deferred-datetime-button.component';
+import { EntityDatatablesComponent } from '../../../shared/components/entity-datatables/entity-datatables.component';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -112,6 +113,7 @@ export const WC_LOAN_TAB = {
   rateChanges: 'rateChanges',
   amortizationSchedule: 'amortizationSchedule',
   delinquencyRangeTags: 'delinquencyRangeTags',
+  customFields: 'customFields',
 } as const;
 
 export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
@@ -183,6 +185,7 @@ export type WcTransactionCorrection = 'adjust' | 'discountFeeAdjustment';
     IonDatetime,
     IonModal,
     DeferredDatetimeButtonComponent,
+    EntityDatatablesComponent,
     IonLabel,
     IonPopover,
     IonList,
@@ -473,6 +476,9 @@ export type WcTransactionCorrection = 'adjust' | 'discountFeeAdjustment';
         </ion-segment-button>
         <ion-segment-button [value]="TAB.delinquencyRangeTags">
           <ion-label>{{ 'WC_LOANS.TABS.DELINQUENCY_RANGE_TAGS' | appTranslate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button [value]="TAB.customFields">
+          <ion-label>{{ 'SYSTEM.CUSTOM_FIELDS' | appTranslate }}</ion-label>
         </ion-segment-button>
       </ion-segment>
 
@@ -1433,6 +1439,16 @@ export type WcTransactionCorrection = 'adjust' | 'discountFeeAdjustment';
               }
             </ion-card-content>
           </ion-card>
+        </div>
+      }
+      @if (activeTab() === TAB.customFields) {
+        <div class="tab-content">
+          <!--
+            The datatables an institution has attached to m_wc_loan. EntityTables declares
+            WC_LOAN there, so the tables, their rows and the permissions generated for them work
+            exactly as they do on a term loan (issue #776).
+          -->
+          <app-entity-datatables apptableName="m_wc_loan" [entityId]="loanId" />
         </div>
       }
     </div>

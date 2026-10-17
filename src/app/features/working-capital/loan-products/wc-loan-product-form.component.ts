@@ -80,6 +80,7 @@ import {
   reasonMappingsFromResponse,
 } from '../../products/accounting/product-accounting.model';
 import { PaymentCreditAllocationEditorComponent } from '../../products/payment-credit-allocation-editor.component';
+import { EntityDatatablesComponent } from '../../../shared/components/entity-datatables/entity-datatables.component';
 import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -121,6 +122,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
     ProductAccountingSectionComponent,
     AdvancedAccountingMappingsComponent,
     PaymentCreditAllocationEditorComponent,
+    EntityDatatablesComponent,
   ],
   template: `
     <div class="form-container">
@@ -617,6 +619,17 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
               (reasonMappingsChange)="reasonMappings.set($event)"
             ></app-advanced-accounting-mappings>
 
+            @if (isEditMode() && productId) {
+              <!--
+                Product-level custom fields, on edit only: a datatable row is keyed by the
+                product, so there is nothing to attach them to until it exists. EntityTables
+                declares WC_LOAN_PRODUCT, so m_wc_loan_product takes datatables exactly as
+                m_product_loan does (issue #776).
+              -->
+              <h3 class="section-title">{{ 'SYSTEM.CUSTOM_FIELDS' | appTranslate }}</h3>
+              <app-entity-datatables apptableName="m_wc_loan_product" [entityId]="productId" />
+            }
+
             <div class="form-actions">
               <ion-button
                 id="wc-product-cancel-btn"
@@ -670,6 +683,11 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
         justify-content: flex-end;
         gap: 12px;
         margin-top: 16px;
+      }
+      .section-title {
+        margin: 24px 0 0;
+        font-size: 16px;
+        font-weight: 600;
       }
     `,
   ],
