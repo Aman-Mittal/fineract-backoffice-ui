@@ -18,7 +18,9 @@
  */
 
 import {
+  CHARGE_COMMAND_PERMISSIONS,
   LOAN_COMMAND_PERMISSIONS,
+  LOAN_TRANSACTION_COMMAND_PERMISSIONS,
   SAVINGS_COMMAND_PERMISSIONS,
   WC_LOAN_COMMAND_PERMISSIONS,
   commandPermission,
@@ -39,7 +41,7 @@ function params(values: Record<string, string>): { get(name: string): string | n
  * authorisation probe gave no clean answer — not that they were forgotten. If one of these ever
  * gains an entry, this test is where the claim that it was unknowable gets retired.
  */
-const DELIBERATELY_UNMAPPED = ['undoContractTermination', 'reAmortize', 'undowriteoff'] as const;
+const DELIBERATELY_UNMAPPED = ['undoContractTermination', 'undowriteoff'] as const;
 
 describe('LOAN_COMMAND_PERMISSIONS', () => {
   it('maps every code to Fineract spelling: upper snake case, suffixed _LOAN', () => {
@@ -52,7 +54,7 @@ describe('LOAN_COMMAND_PERMISSIONS', () => {
 
   it('never maps a command to UPDATE_LOAN', () => {
     // The whole point. UPDATE_LOAN is in Fineract's `portfolio` grouping and authorises none of
-    // these commands; declaring it for all 29 is issue #691.
+    // these commands; declaring it for every one of them is issue #691.
     expect(Object.values(LOAN_COMMAND_PERMISSIONS)).not.toContain('UPDATE_LOAN');
   });
 
@@ -72,6 +74,102 @@ describe('LOAN_COMMAND_PERMISSIONS', () => {
     for (const command of DELIBERATELY_UNMAPPED) {
       expect(LOAN_COMMAND_PERMISSIONS[command], `${command} should be unmapped`).toBeUndefined();
     }
+  });
+
+  it('maps reAmortize, which the first probe could not settle', () => {
+    // It was in DELIBERATELY_UNMAPPED until #778 re-probed it. Pinned on its own so that
+    // removing it again is a deliberate act with a failing test attached.
+    expect(LOAN_COMMAND_PERMISSIONS['reAmortize']).toBe('REAMORTIZE_LOAN');
+  });
+
+  it('separates each undo from the action it reverses', () => {
+    // An operator who may re-age is not thereby an operator who may put the schedule back:
+    // #778 asks for the undo to sit with a supervisor, which only holds if the codes differ.
+    expect(LOAN_COMMAND_PERMISSIONS['undoReAge']).toBe('UNDO_REAGE_LOAN');
+    expect(LOAN_COMMAND_PERMISSIONS['undoReAmortize']).toBe('UNDO_REAMORTIZE_LOAN');
+    expect(LOAN_COMMAND_PERMISSIONS['undoReAge']).not.toBe(LOAN_COMMAND_PERMISSIONS['reAge']);
+    expect(LOAN_COMMAND_PERMISSIONS['undoReAmortize']).not.toBe(
+      LOAN_COMMAND_PERMISSIONS['reAmortize'],
+    );
+  });
+
+  it('maps the two deferred-income postings', () => {
+    expect(LOAN_COMMAND_PERMISSIONS['buyDownFee']).toBe('BUYDOWNFEE_LOAN');
+    expect(LOAN_COMMAND_PERMISSIONS['capitalizedIncome']).toBe('CAPITALIZEDINCOME_LOAN');
+  });
+});
+
+describe('LOAN_TRANSACTION_COMMAND_PERMISSIONS', () => {
+  it('keeps the generic adjustment apart from the two typed ones', () => {
+    // The platform switches both the operation and the code on the `command` parameter: the
+    // bare POST is the generic adjust and takes ADJUST_LOAN, which is refused each typed one.
+    expect(LOAN_TRANSACTION_COMMAND_PERMISSIONS.adjust).toBe('ADJUST_LOAN');
+    expect(LOAN_TRANSACTION_COMMAND_PERMISSIONS.buyDownFeeAdjustment).toBe(
+      'BUYDOWNFEEADJUSTMENT_LOAN',
+    );
+    expect(LOAN_TRANSACTION_COMMAND_PERMISSIONS.capitalizedIncomeAdjustment).toBe(
+      'CAPITALIZEDINCOMEADJUSTMENT_LOAN',
+    );
+  });
+
+  it('separates posting a deferred-income transaction from adjusting one', () => {
+    // #779 asks for this explicitly: an adjustment moves recognised income, so it is not the
+    // same authority as posting the fee in the first place.
+    expect(LOAN_TRANSACTION_COMMAND_PERMISSIONS.buyDownFeeAdjustment).not.toBe(
+      LOAN_COMMAND_PERMISSIONS['buyDownFee'],
+    );
+    expect(LOAN_TRANSACTION_COMMAND_PERMISSIONS.capitalizedIncomeAdjustment).not.toBe(
+      LOAN_COMMAND_PERMISSIONS['capitalizedIncome'],
+    );
+  });
+
+  it('reverses a waive-charge with neither the adjust nor the waive code', () => {
+    // Measured: a role holding ADJUST_LOAN is refused the PUT, and so is one holding
+    // WAIVE_LOANCHARGE. Falling back to either would lock the undo out of every role.
+    expect(LOAN_TRANSACTION_COMMAND_PERMISSIONS.undoWaiveCharge).toBe('UNDO_WAIVECHARGE');
+    expect(LOAN_TRANSACTION_COMMAND_PERMISSIONS.undoWaiveCharge).not.toBe('ADJUST_LOAN');
+    expect(LOAN_TRANSACTION_COMMAND_PERMISSIONS.undoWaiveCharge).not.toBe(
+      CHARGE_COMMAND_PERMISSIONS.loan.waive,
+    );
+  });
+});
+
+describe('CHARGE_COMMAND_PERMISSIONS', () => {
+  it("uses the platform spelling for paying each entity's charge", () => {
+    // A loan charge is paid with `pay`; a savings or client charge with `paycharge`. The
+    // inconsistency is Fineract's, and guessing either way produces an unsupported command.
+    expect(CHARGE_COMMAND_PERMISSIONS.loan).toHaveProperty('pay');
+    expect(CHARGE_COMMAND_PERMISSIONS.savings).toHaveProperty('paycharge');
+    expect(CHARGE_COMMAND_PERMISSIONS.client).toHaveProperty('paycharge');
+    expect(CHARGE_COMMAND_PERMISSIONS.loan).not.toHaveProperty('paycharge');
+  });
+
+  it('gates each entity on its own charge codes', () => {
+    expect(Object.values(CHARGE_COMMAND_PERMISSIONS.loan)).toEqual([
+      'PAY_LOANCHARGE',
+      'WAIVE_LOANCHARGE',
+      'ADJUSTMENT_LOANCHARGE',
+    ]);
+    expect(Object.values(CHARGE_COMMAND_PERMISSIONS.savings)).toEqual([
+      'PAY_SAVINGSACCOUNTCHARGE',
+      'WAIVE_SAVINGSACCOUNTCHARGE',
+      'INACTIVATE_SAVINGSACCOUNTCHARGE',
+    ]);
+    expect(Object.values(CHARGE_COMMAND_PERMISSIONS.client)).toEqual([
+      'PAY_CLIENTCHARGE',
+      'WAIVE_CLIENTCHARGE',
+    ]);
+  });
+
+  it("never falls back to the entity's portfolio write code", () => {
+    // Measured for all three: UPDATE_LOAN, UPDATE_SAVINGSACCOUNT and UPDATE_CLIENT are each
+    // refused their own entity's charge commands. #691 and #777, one layer down.
+    const codes = Object.values(CHARGE_COMMAND_PERMISSIONS).flatMap((entity) =>
+      Object.values(entity),
+    );
+    expect(codes).not.toContain('UPDATE_LOAN');
+    expect(codes).not.toContain('UPDATE_SAVINGSACCOUNT');
+    expect(codes).not.toContain('UPDATE_CLIENT');
   });
 });
 

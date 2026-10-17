@@ -655,7 +655,11 @@
       "UNASSIGN_LOAN_OFFICER": "Unassign Loan Officer",
       "UNDO_LAST_DISBURSAL": "Undo Last Disbursal",
       "REVISE_APPROVED_AMOUNT": "Revise Approved Amount",
-      "REVISE_AVAILABLE_DISBURSEMENT_AMOUNT": "Revise Available Disbursement Amount"
+      "REVISE_AVAILABLE_DISBURSEMENT_AMOUNT": "Revise Available Disbursement Amount",
+      "UNDO_RE_AGE": "Undo Re-age",
+      "UNDO_RE_AMORTIZE": "Undo Re-amortize",
+      "BUY_DOWN_FEE": "Buy-down Fee",
+      "CAPITALIZED_INCOME": "Capitalized Income"
     },
     "CREATE_LOAN_ACCOUNT": "Create Loan Account",
     "EDIT_LOAN_APPLICATION": "Edit Loan Application",
@@ -776,7 +780,9 @@
       "GRACE_ON_INTEREST": "Grace on Interest",
       "EXTRA_TERMS": "Extra Terms",
       "NEW_INTEREST_RATE": "New Interest Rate"
-    }
+    },
+    "CONFIRM_UNDO_RE_AGE": "Undo the re-age on this loan? The repayment schedule reverts to what it was before the loan was re-aged.",
+    "CONFIRM_UNDO_RE_AMORTIZE": "Undo the re-amortization on this loan? The repayment schedule reverts to what it was before the loan was re-amortized."
   },
   "TEMPLATES": {
     "TITLE": "Document Templates",

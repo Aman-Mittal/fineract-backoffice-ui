@@ -78,6 +78,7 @@ import { LoanAssetTransfersTabComponent } from './tabs/loan-asset-transfers-tab.
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
 import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
+import { transactionFlags } from './loan-transaction-type-flags.model';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { canTerminateLoanContract, isLoanContractTerminated } from './loan-contract-termination';
@@ -665,6 +666,39 @@ export function toEditableDate(value: unknown): string {
                           <ion-icon slot="start" name="repeat-outline"></ion-icon>
                           <ion-label>{{ 'LOANS.ACTIONS.RE_AMORTIZE' | appTranslate }}</ion-label>
                         </ion-item>
+
+                        <!-- Each undo appears only while its own transaction stands unreversed:
+                             there is nothing to put back otherwise, and the platform would
+                             refuse it. -->
+                        @if (canUndoReAge()) {
+                          <ion-item
+                            button
+                            class="warn-item"
+                            data-testid="loan-undo-re-age-action"
+                            appRequiresPermission="UNDO_REAGE_LOAN"
+                            (click)="onLoanTransactionAction('undoReAge')"
+                          >
+                            <ion-icon slot="start" color="warning" name="arrow-undo-outline">
+                            </ion-icon>
+                            <ion-label>{{ 'LOANS.ACTIONS.UNDO_RE_AGE' | appTranslate }}</ion-label>
+                          </ion-item>
+                        }
+
+                        @if (canUndoReAmortize()) {
+                          <ion-item
+                            button
+                            class="warn-item"
+                            data-testid="loan-undo-re-amortize-action"
+                            appRequiresPermission="UNDO_REAMORTIZE_LOAN"
+                            (click)="onLoanTransactionAction('undoReAmortize')"
+                          >
+                            <ion-icon slot="start" color="warning" name="arrow-undo-outline">
+                            </ion-icon>
+                            <ion-label>{{
+                              'LOANS.ACTIONS.UNDO_RE_AMORTIZE' | appTranslate
+                            }}</ion-label>
+                          </ion-item>
+                        }
                       }
                     }
 
@@ -1878,6 +1912,29 @@ export class LoanViewComponent implements OnInit, OnDestroy {
    */
   readonly showBuyDownFees = computed(() => this.loan()?.enableBuyDownFee === true);
   readonly showCapitalizedIncome = computed(() => this.loan()?.enableIncomeCapitalization === true);
+
+  /**
+   * Whether a re-age or re-amortization is standing and can be put back.
+   *
+   * Fineract reverses the most recent one, so the question is about the *latest* transaction of
+   * the type and not about whether any exists. An undone re-age keeps its row, flagged
+   * `manuallyReversed`, so "has a reAge transaction" would keep offering an Undo that can only
+   * be refused — the dead-end control #691 was about, arrived at from the other direction.
+   */
+  readonly canUndoReAge = computed(() => this.isUndoable('reAge'));
+  readonly canUndoReAmortize = computed(() => this.isUndoable('reAmortize'));
+
+  private isUndoable(flag: 'reAge' | 'reAmortize'): boolean {
+    const latest = this.transactions()
+      .filter((tx) => transactionFlags(tx)[flag] === true)
+      // By id rather than by position: nothing in the payload promises an order, and the date
+      // is the value date, which a back-dated correction can place before an earlier entry.
+      .reduce<GetLoansLoanIdTransactions | undefined>(
+        (newest, tx) => (newest === undefined || (tx.id ?? 0) > (newest.id ?? 0) ? tx : newest),
+        undefined,
+      );
+    return latest !== undefined && latest.manuallyReversed !== true;
+  }
 
   /** Tabs that are not always present, keyed by the segment value that selects them. */
   /**

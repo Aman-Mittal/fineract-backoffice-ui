@@ -210,3 +210,158 @@ describe('LoanTransactionFormComponent charge refund', () => {
     expect(transactionsSpy.postLoansLoanIdTransactions).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * The four commands #778 and #779 added to this form.
+ *
+ * Each is wired by membership of four sets, and getting one wrong is a quiet failure rather than
+ * a crash: a command missing from `NO_TEMPLATE_TYPES` issues a template request the platform
+ * refuses, one missing from `AMOUNT_VISIBLE_TYPES` renders a form with no amount to post, and
+ * one missing from `DESTRUCTIVE_TYPES` reverses a schedule without asking. The set memberships
+ * are not independently observable, so these assert the behaviour each produces.
+ */
+describe('LoanTransactionFormComponent deferred income and schedule undos', () => {
+  let component: LoanTransactionFormComponent;
+  let fixture: ComponentFixture<LoanTransactionFormComponent>;
+  let transactionsSpy: SpyObj<LoanTransactionsService>;
+  let dialogSpy: SpyObj<DialogService>;
+  let notificationsSpy: SpyObj<NotificationService>;
+
+  async function setup(type: string): Promise<void> {
+    const loansSpy = createSpyObj<LoansService>(['getLoansLoanId', 'postLoansLoanId']);
+    transactionsSpy = createSpyObj([
+      'getLoansLoanIdTransactionsTemplate',
+      'postLoansLoanIdTransactions',
+    ]);
+    const paymentTypesSpy = createSpyObj<PaymentTypeService>(['getPaymenttypes']);
+    dialogSpy = createSpyObj<DialogService>(['confirm']);
+    notificationsSpy = createSpyObj<NotificationService>(['success', 'error']);
+
+    loansSpy.getLoansLoanId.mockReturnValue(
+      of({ id: LOAN_ID, accountNo: 'L000456', clientName: 'Jane Smith', charges: [] }) as never,
+    );
+    paymentTypesSpy.getPaymenttypes.mockReturnValue(of([]) as never);
+    transactionsSpy.getLoansLoanIdTransactionsTemplate.mockReturnValue(
+      of({ amount: 250, date: [2026, 10, 2] }) as never,
+    );
+    transactionsSpy.postLoansLoanIdTransactions.mockReturnValue(of({}) as never);
+    // Confirmed, so the post is reached: refusing it is a separate question from wiring.
+    dialogSpy.confirm.mockResolvedValue(true);
+
+    await TestBed.configureTestingModule({
+      imports: [LoanTransactionFormComponent],
+      providers: [
+        ...provideTranslateTesting(),
+        provideIonicTesting(),
+        { provide: LoansService, useValue: loansSpy },
+        { provide: LoanTransactionsService, useValue: transactionsSpy },
+        { provide: PaymentTypeService, useValue: paymentTypesSpy },
+        { provide: NotificationService, useValue: notificationsSpy },
+        { provide: DialogService, useValue: dialogSpy },
+        { provide: Router, useValue: createSpyObj<Router>(['navigate']) },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ loanId: String(LOAN_ID), type }), snapshot: { data: {} } },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(LoanTransactionFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
+  it.each(['undoReAge', 'undoReAmortize'])(
+    'does not ask the template endpoint for %s, which refuses it',
+    async (type) => {
+      // Measured: the template endpoint answers `error.msg.query.parameter.value.unsupported`
+      // on `command` for both, while the POST itself is accepted. Asking anyway would put a
+      // failed request and a console error behind every opening of the form.
+      await setup(type);
+
+      expect(transactionsSpy.getLoansLoanIdTransactionsTemplate).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['undoReAge', 'undoReAmortize'])('offers no amount field for %s', async (type) => {
+    // The platform computes the reversal from the transaction being undone; an explicit
+    // transactionAmount is refused.
+    await setup(type);
+
+    expect(component.amountVisible).toBe(false);
+  });
+
+  it.each(['undoReAge', 'undoReAmortize'])(
+    'confirms before reversing a schedule (%s)',
+    async (type) => {
+      await setup(type);
+
+      await component.onSubmit();
+
+      expect(dialogSpy.confirm).toHaveBeenCalled();
+      expect(dialogSpy.confirm.mock.calls[0][0].destructive).toBe(true);
+      expect(transactionsSpy.postLoansLoanIdTransactions).toHaveBeenCalledWith(
+        LOAN_ID,
+        expect.anything(),
+        type,
+      );
+    },
+  );
+
+  it.each(['undoReAge', 'undoReAmortize'])(
+    'posts nothing if the undo is declined (%s)',
+    async (type) => {
+      await setup(type);
+      dialogSpy.confirm.mockResolvedValue(false);
+
+      await component.onSubmit();
+
+      expect(transactionsSpy.postLoansLoanIdTransactions).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['buyDownFee', 'capitalizedIncome'])(
+    'takes an amount and a date for %s, and asks for its template',
+    async (type) => {
+      await setup(type);
+
+      expect(component.amountVisible).toBe(true);
+      expect(component.dateVisible).toBe(true);
+      expect(transactionsSpy.getLoansLoanIdTransactionsTemplate).toHaveBeenCalledWith(
+        LOAN_ID,
+        type,
+      );
+    },
+  );
+
+  it.each(['buyDownFee', 'capitalizedIncome'])(
+    'posts %s with the amount, under the command spelling the platform accepts',
+    async (type) => {
+      await setup(type);
+      component.transaction.transactionAmount = 400;
+
+      await component.onSubmit();
+
+      // The casing is not cosmetic: the command goes on the query string verbatim and a
+      // lower-cased spelling answers "unsupported value".
+      expect(transactionsSpy.postLoansLoanIdTransactions).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ transactionAmount: 400 }),
+        type,
+      );
+    },
+  );
+
+  it.each(['buyDownFee', 'capitalizedIncome'])(
+    'does not put a confirmation in front of %s, which adds a record rather than removing one',
+    async (type) => {
+      await setup(type);
+      component.transaction.transactionAmount = 400;
+
+      await component.onSubmit();
+
+      expect(dialogSpy.confirm).not.toHaveBeenCalled();
+    },
+  );
+});

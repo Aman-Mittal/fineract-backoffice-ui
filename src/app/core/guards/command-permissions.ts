@@ -57,21 +57,28 @@
  *
  * ## Unmapped commands are not guessed at
  *
- * Four commands are deliberately absent, because the probe did not give a clean answer and a
+ * Three commands are deliberately absent, because the probe did not give a clean answer and a
  * wrong entry here is worse than no entry — it refuses a user the platform would have allowed:
  *
  * | Command                   | What the probe said |
  * | ------------------------- | ------------------- |
  * | `undoContractTermination` | 403 at the endpoint the form posts to, 400 at the other shape |
- * | `reAmortize`              | the mirror image: 400 at one shape, 403 at the form's |
  * | `undowriteoff`            | 503 from the platform |
  * | `postInterestAsOn`        | 403 for `POSTINTERESTASONDATE_SAVINGSACCOUNT` *and* for `UPDATE_SAVINGSACCOUNT` |
  *
  * {@link commandPermission} answers `undefined` for those, which leaves the route with no
  * client-side gate — the same position the products action dispatch route is already in, and
  * documented in `scripts/check-route-permissions.mjs`. Fineract still refuses what it refuses;
- * what is given up is only the "not led into a screen that will 403" guarantee, for four
+ * what is given up is only the "not led into a screen that will 403" guarantee, for three
  * commands, rather than being wrong about all of them.
+ *
+ * `reAmortize` was the fourth, and is now mapped. The original probe read it as "400 at one
+ * shape, 403 at the form's". Re-running it for issue #778, against the endpoint the form posts
+ * to and with a role holding `REAMORTIZE_LOAN` and nothing else, the platform answered 404
+ * `error.msg.loan.id.invalid` — past authorisation, failing only on the absent loan. The two
+ * readings disagree and this is the one with the evidence recorded;
+ * `e2e/loan-servicing-rbac-backend.spec.ts` re-measures it on every backend run, so a
+ * regression either way reports itself rather than sitting in a comment.
  */
 
 /**
@@ -107,7 +114,78 @@ export const LOAN_COMMAND_PERMISSIONS: Readonly<Record<string, string>> = {
   creditBalanceRefund: 'CREDITBALANCEREFUND_LOAN',
   recoverypayment: 'RECOVERYPAYMENT_LOAN',
   reAge: 'REAGE_LOAN',
+  reAmortize: 'REAMORTIZE_LOAN',
+  undoReAge: 'UNDO_REAGE_LOAN',
+  undoReAmortize: 'UNDO_REAMORTIZE_LOAN',
+  // Deferred-income postings, offered only on a loan whose product enables the feature. The
+  // product flag governs whether the command is *applicable*; the code governs whether this
+  // user may issue it, and the two are independent — see issue #779.
+  buyDownFee: 'BUYDOWNFEE_LOAN',
+  capitalizedIncome: 'CAPITALIZEDINCOME_LOAN',
 };
+
+/**
+ * Loan commands that act on **one transaction** rather than on the loan.
+ *
+ * These are not reachable through `/loans/:loanId/transactions/:type`, because their URL carries
+ * the transaction id: `POST /loans/{loanId}/transactions/{transactionId}?command=…`. They are
+ * gated on the control that issues them instead of by a route guard, which is why they are a
+ * separate map — a dispatch route cannot serve them.
+ *
+ * Measured by the same probe as the rest. The two deferred-income adjustments are the
+ * interesting pair: issue #779 expected them at `POST /loans/{loanId}/transactions`, where the
+ * platform answers `error.msg.query.parameter.value.unsupported` on `command` — the #268
+ * discriminator for a command it does not recognise at that URL. They are recognised on the
+ * per-transaction URL, each authorised by its own code and refused the bare adjust:
+ *
+ * ```
+ * BUYDOWNFEEADJUSTMENT_LOAN   → POST /loans/1/transactions/1                               403 not.authorized
+ * BUYDOWNFEEADJUSTMENT_LOAN   → POST /loans/1/transactions/1?command=buyDownFeeAdjustment   404 loan.id.invalid
+ * ADJUST_LOAN                 → POST /loans/1/transactions/1                               400 transactionDate
+ * ```
+ *
+ * So the bare POST is the generic adjustment and takes `ADJUST_LOAN`; naming a command switches
+ * both the operation and the code it requires. `UNDO_WAIVECHARGE` is the odd one out in being a
+ * `PUT` rather than a command — it is how a waive-charge transaction is reversed (#754) — and
+ * neither `ADJUST_LOAN` nor `WAIVE_LOANCHARGE` authorises it.
+ */
+export const LOAN_TRANSACTION_COMMAND_PERMISSIONS = {
+  /** `POST /loans/{loanId}/transactions/{transactionId}` with no command. */
+  adjust: 'ADJUST_LOAN',
+  buyDownFeeAdjustment: 'BUYDOWNFEEADJUSTMENT_LOAN',
+  capitalizedIncomeAdjustment: 'CAPITALIZEDINCOMEADJUSTMENT_LOAN',
+  /** `PUT /loans/{loanId}/transactions/{transactionId}` — reverses a waive-charge. */
+  undoWaiveCharge: 'UNDO_WAIVECHARGE',
+} as const satisfies Readonly<Record<string, string>>;
+
+/**
+ * Charge commands, for the three entities whose charges can be serviced.
+ *
+ * Gated on the row action rather than by a route guard: a charge is paid or waived from the
+ * charge list, which has no route of its own per command. Every pairing below was measured, and
+ * the spellings are the platform's own — a savings or client charge is paid with `paycharge`
+ * while a loan charge is paid with `pay`, and nothing but the platform says so.
+ *
+ * `UPDATE_LOAN`, `UPDATE_SAVINGSACCOUNT` and `UPDATE_CLIENT` each authorise none of their
+ * entity's charge commands, which is the same trap as #691 and #777 one layer down: the
+ * portfolio write code does not carry the charge operations.
+ */
+export const CHARGE_COMMAND_PERMISSIONS = {
+  loan: {
+    pay: 'PAY_LOANCHARGE',
+    waive: 'WAIVE_LOANCHARGE',
+    adjustment: 'ADJUSTMENT_LOANCHARGE',
+  },
+  savings: {
+    paycharge: 'PAY_SAVINGSACCOUNTCHARGE',
+    waive: 'WAIVE_SAVINGSACCOUNTCHARGE',
+    inactivate: 'INACTIVATE_SAVINGSACCOUNTCHARGE',
+  },
+  client: {
+    paycharge: 'PAY_CLIENTCHARGE',
+    waive: 'WAIVE_CLIENTCHARGE',
+  },
+} as const;
 
 /**
  * Savings commands, keyed by the `:command` segment of

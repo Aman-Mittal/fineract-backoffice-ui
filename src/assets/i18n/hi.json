@@ -1461,7 +1461,11 @@
       "UNASSIGN_LOAN_OFFICER": "ऋण अधिकारी हटाएं",
       "UNDO_LAST_DISBURSAL": "अंतिम संवितरण पूर्ववत करें",
       "REVISE_APPROVED_AMOUNT": "अनुमोदित राशि संशोधित करें",
-      "REVISE_AVAILABLE_DISBURSEMENT_AMOUNT": "उपलब्ध संवितरण राशि संशोधित करें"
+      "REVISE_AVAILABLE_DISBURSEMENT_AMOUNT": "उपलब्ध संवितरण राशि संशोधित करें",
+      "UNDO_RE_AGE": "री-एज पूर्ववत करें",
+      "UNDO_RE_AMORTIZE": "री-अमॉर्टाइज़ पूर्ववत करें",
+      "BUY_DOWN_FEE": "बाय-डाउन शुल्क",
+      "CAPITALIZED_INCOME": "पूंजीकृत आय"
     },
     "CREATE_LOAN_ACCOUNT": "ऋण खाता बनाएं",
     "EDIT_LOAN_APPLICATION": "ऋण आवेदन संपादित करें",
@@ -1613,7 +1617,9 @@
       "GRACE_ON_INTEREST": "ब्याज पर छूट",
       "EXTRA_TERMS": "अतिरिक्त शर्तें",
       "NEW_INTEREST_RATE": "नई ब्याज दर"
-    }
+    },
+    "CONFIRM_UNDO_RE_AGE": "इस ऋण की री-एज पूर्ववत करें? पुनर्भुगतान अनुसूची री-एज से पहले की स्थिति में लौट आएगी।",
+    "CONFIRM_UNDO_RE_AMORTIZE": "इस ऋण की री-अमॉर्टाइज़ेशन पूर्ववत करें? पुनर्भुगतान अनुसूची री-अमॉर्टाइज़ेशन से पहले की स्थिति में लौट आएगी।"
   },
   "WC_LOANS": {
     "CREATE": "कार्यशील पूंजी ऋण बनाएं",

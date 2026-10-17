@@ -513,6 +513,104 @@ describe('LoanViewComponent', () => {
     });
   });
 
+  /**
+   * #778. A re-age or re-amortization can be undone, and until this landed the only remedy for
+   * one applied to the wrong loan was a direct API call.
+   *
+   * The visibility rule is the interesting half. Fineract reverses the *most recent* re-age, and
+   * an undone one keeps its row with `manuallyReversed` set — so "the loan has a reAge
+   * transaction" would keep offering an Undo that can only answer 403, which is the dead-end
+   * control #691 was about approached from the other side.
+   */
+  describe('undoing a re-age or re-amortization', () => {
+    const PROGRESSIVE = {
+      loanScheduleType: { code: LOAN_SCHEDULE_TYPE.PROGRESSIVE, value: 'Progressive' },
+    };
+
+    /** A transaction as the loan response carries one: the type is a flag bag. */
+    function tx(id: number, flag: string, manuallyReversed = false): Record<string, unknown> {
+      return {
+        id,
+        amount: 100,
+        date: [2026, 10, 2],
+        manuallyReversed,
+        type: { id: 31, code: `loanTransactionType.${flag}`, value: flag, [flag]: true },
+      };
+    }
+
+    it('offers neither undo on a loan that was never re-aged', async () => {
+      await setup(PROGRESSIVE);
+
+      expect(component.canUndoReAge()).toBe(false);
+      expect(component.canUndoReAmortize()).toBe(false);
+    });
+
+    it('offers the undo once a re-age stands', async () => {
+      await setup({ ...PROGRESSIVE, transactions: [tx(7, 'reAge')] });
+
+      expect(component.canUndoReAge()).toBe(true);
+      // The two are independent: re-aging a loan says nothing about re-amortizing it.
+      expect(component.canUndoReAmortize()).toBe(false);
+    });
+
+    it('withdraws the undo once that re-age has itself been reversed', async () => {
+      await setup({ ...PROGRESSIVE, transactions: [tx(7, 'reAge', true)] });
+
+      expect(component.canUndoReAge()).toBe(false);
+    });
+
+    it('asks about the latest re-age, not about any of them', async () => {
+      // Re-aged, undone, re-aged again: the standing one is the second, so the undo is on offer
+      // even though an earlier row is flagged reversed.
+      await setup({
+        ...PROGRESSIVE,
+        transactions: [tx(7, 'reAge', true), tx(9, 'reAge')],
+      });
+
+      expect(component.canUndoReAge()).toBe(true);
+    });
+
+    it('reads the latest by id rather than by position in the payload', async () => {
+      // Nothing in the payload promises an order, and the date is the value date — which a
+      // back-dated correction can place before an earlier entry. Highest id wins.
+      await setup({
+        ...PROGRESSIVE,
+        transactions: [tx(9, 'reAge', true), tx(7, 'reAge')],
+      });
+
+      expect(component.canUndoReAge()).toBe(false);
+    });
+
+    it('tracks re-amortization separately', async () => {
+      await setup({ ...PROGRESSIVE, transactions: [tx(11, 'reAmortize')] });
+
+      expect(component.canUndoReAmortize()).toBe(true);
+      expect(component.canUndoReAge()).toBe(false);
+    });
+
+    it('sends each undo to the form under the command spelling the platform accepts', async () => {
+      await setup({
+        ...PROGRESSIVE,
+        transactions: [tx(7, 'reAge'), tx(11, 'reAmortize')],
+      });
+
+      component.onLoanTransactionAction('undoReAge');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/undoReAge`,
+      ]);
+
+      component.onLoanTransactionAction('undoReAmortize');
+      expect(routerSpy.navigate).toHaveBeenCalledWith([
+        `/loans/${component.loanId()}/transactions/undoReAmortize`,
+      ]);
+    });
+
+    // The per-item permission gate is asserted in the browser instead: these items live inside
+    // the Actions popover, whose content Angular only instantiates once the popover is
+    // presented, so there is no element here to read `appRequiresPermission` off.
+    // `e2e/loan-servicing.spec.ts` opens the menu and checks both.
+  });
+
   describe('refund by cash', () => {
     const ADVANCE = { paidInAdvance: { paidInAdvance: 250 } };
 
