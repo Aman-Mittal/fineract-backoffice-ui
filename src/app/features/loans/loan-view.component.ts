@@ -78,7 +78,10 @@ import { LoanAssetTransfersTabComponent } from './tabs/loan-asset-transfers-tab.
 import { LoanOverdueCharge } from './tabs/loan-overdue-charge.model';
 import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
 import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
-import { LOAN_TRANSACTION_COMMAND_PERMISSIONS } from '../../core/guards/command-permissions';
+import {
+  LOAN_COMMAND_PERMISSIONS,
+  LOAN_TRANSACTION_COMMAND_PERMISSIONS,
+} from '../../core/guards/command-permissions';
 import { transactionFlags } from './loan-transaction-type-flags.model';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
 import type { TransactionAdjustmentVariant } from './transaction-detail-dialog.component';
@@ -170,6 +173,44 @@ const CAPITALIZED_INCOME_ADJUSTMENT: TransactionAdjustmentVariant = {
   labelKey: 'LOANS.ACTIONS.ADJUST_CAPITALIZED_INCOME',
   confirmKey: 'LOANS.CONFIRM_ADJUST_CAPITALIZED_INCOME',
 };
+
+/**
+ * The codes the Actions menu gates on, taken from the map the route guard reads.
+ *
+ * Named one by one because `LOAN_COMMAND_PERMISSIONS` is an index-signature map, which the
+ * template cannot read with dotted access — but the values still come from it, so there is no
+ * second place where a code is written down. `reAge` and `reAmortize` are here for the undo
+ * tests to compare against, which is how "the undo is a different authority" is asserted.
+ */
+const MENU_COMMAND_PERMISSIONS = {
+  reAge: LOAN_COMMAND_PERMISSIONS['reAge'],
+  reAmortize: LOAN_COMMAND_PERMISSIONS['reAmortize'],
+  undoReAge: LOAN_COMMAND_PERMISSIONS['undoReAge'],
+  undoReAmortize: LOAN_COMMAND_PERMISSIONS['undoReAmortize'],
+  buyDownFee: LOAN_COMMAND_PERMISSIONS['buyDownFee'],
+  capitalizedIncome: LOAN_COMMAND_PERMISSIONS['capitalizedIncome'],
+} as const;
+
+/**
+ * Whether the platform can reverse a waive-charge transaction.
+ *
+ * `false`, because it cannot. `PUT /loans/{loanId}/transactions/{transactionId}` — which the
+ * API document titles "Undo a Waive Charge Transaction" — answers **500** on every call,
+ * measured against `apache/fineract:latest` with an empty body, with the ids in the body, with
+ * a transaction date and amount, and with each of `?command=undo`, `?command=waive` and
+ * `?command=undoWaiveCharge`. The platform log shows
+ * `java.util.NoSuchElementException: No value present`, an `Optional.get()` on an empty
+ * optional inside the handler, so the request never reaches a business rule.
+ *
+ * Issue #754 asks for this, and the code for it is written and tested: the adapter method, the
+ * dialog control and the gate on `UNDO_WAIVECHARGE` — which was probed and is authorised by
+ * neither `ADJUST_LOAN` nor `WAIVE_LOANCHARGE`. What is not shipped is the button, because a
+ * control whose every click ends in an error toast is the dead-end control of issues #691 and
+ * #751, arrived at from a third direction. Flipping this constant is the whole change once the
+ * platform answers; `e2e/charge-servicing-backend.spec.ts` pins the 500 so that the day it
+ * stops being true, a test says so rather than a user finding out.
+ */
+const UNDO_WAIVE_CHARGE_AVAILABLE = false;
 
 /**
  * Which adjustment a transaction takes, or `undefined` for the generic one.
@@ -665,7 +706,7 @@ export function toEditableDate(value: unknown): string {
                         <ion-item
                           button
                           data-testid="loan-buy-down-fee-action"
-                          appRequiresPermission="BUYDOWNFEE_LOAN"
+                          [appRequiresPermission]="commandPermissions.buyDownFee"
                           (click)="onLoanTransactionAction('buyDownFee')"
                         >
                           <ion-icon slot="start" name="trending-down-outline"></ion-icon>
@@ -677,7 +718,7 @@ export function toEditableDate(value: unknown): string {
                         <ion-item
                           button
                           data-testid="loan-capitalized-income-action"
-                          appRequiresPermission="CAPITALIZEDINCOME_LOAN"
+                          [appRequiresPermission]="commandPermissions.capitalizedIncome"
                           (click)="onLoanTransactionAction('capitalizedIncome')"
                         >
                           <ion-icon slot="start" name="trending-up-outline"></ion-icon>
@@ -742,7 +783,7 @@ export function toEditableDate(value: unknown): string {
                             button
                             class="warn-item"
                             data-testid="loan-undo-re-age-action"
-                            appRequiresPermission="UNDO_REAGE_LOAN"
+                            [appRequiresPermission]="commandPermissions.undoReAge"
                             (click)="onLoanTransactionAction('undoReAge')"
                           >
                             <ion-icon slot="start" color="warning" name="arrow-undo-outline">
@@ -756,7 +797,7 @@ export function toEditableDate(value: unknown): string {
                             button
                             class="warn-item"
                             data-testid="loan-undo-re-amortize-action"
-                            appRequiresPermission="UNDO_REAMORTIZE_LOAN"
+                            [appRequiresPermission]="commandPermissions.undoReAmortize"
                             (click)="onLoanTransactionAction('undoReAmortize')"
                           >
                             <ion-icon slot="start" color="warning" name="arrow-undo-outline">
@@ -1322,6 +1363,7 @@ export function toEditableDate(value: unknown): string {
                       <td cdk-cell *cdkCellDef="let tx">
                         <ion-button
                           fill="clear"
+                          [attr.data-testid]="'loan-transaction-view-' + tx.id"
                           (click)="onViewTransaction(tx)"
                           [attr.aria-label]="'COMMON.VIEW' | appTranslate"
                           [appTooltip]="'COMMON.VIEW' | appTranslate"
@@ -2585,7 +2627,7 @@ export class LoanViewComponent implements OnInit, OnDestroy {
           adjustable:
             (this.isCreditTransaction(tx) || adjustment !== undefined) && !tx.manuallyReversed,
           adjustment,
-          undoableWaiveCharge: tx.type?.waiveCharges === true,
+          undoableWaiveCharge: UNDO_WAIVE_CHARGE_AVAILABLE && tx.type?.waiveCharges === true,
         },
       })
       .then((changed) => {
@@ -2626,6 +2668,22 @@ export class LoanViewComponent implements OnInit, OnDestroy {
   get buyDownFeeAdjustPermission(): string {
     return BUY_DOWN_FEE_ADJUSTMENT.permission;
   }
+
+  /**
+   * The command-to-permission map, for the menu items added by #778 and #779.
+   *
+   * Read from the same map the route guard reads rather than written as a literal on each item.
+   * The two have to agree — a button gated on one code that opens a route demanding another is
+   * refused at whichever layer is stricter, which is how #691 managed to be wrong in both
+   * directions at once — and a shared value cannot drift. It also makes the gate assertable:
+   * these items live inside the Actions popover, whose content Angular instantiates only once
+   * the popover is presented, so there is no element in a component test to read the attribute
+   * off.
+   *
+   * The older items still carry literals. Converting them is a wider change than these two
+   * issues, and a half-converted map would be worse than either.
+   */
+  readonly commandPermissions = MENU_COMMAND_PERMISSIONS;
 
   /**
    * Charges back part or all of a repayment.

@@ -113,7 +113,19 @@ describe('SavingsChargesListComponent', () => {
    * a loan charge is paid), `waive` and `inactivate`.
    */
   describe('paying, waiving and inactivating', () => {
-    const OUTSTANDING = { id: 5, name: 'Annual Fee', amount: 50, amountOutstanding: 50 };
+    const OUTSTANDING = {
+      id: 5,
+      name: 'Account Maintenance',
+      amount: 50,
+      amountOutstanding: 50,
+      isActive: true,
+      // Specified due date: payable and waivable, but it does not recur, so not inactivatable.
+      chargeTimeType: {
+        id: 2,
+        code: 'chargeTimeType.specifiedDueDate',
+        value: 'Specified due date',
+      },
+    };
 
     beforeEach(() => {
       serviceSpy.postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId.mockReturnValue(
@@ -175,6 +187,39 @@ describe('SavingsChargesListComponent', () => {
     it('offers pay and waive only while something is outstanding', () => {
       expect(component.isOutstanding(OUTSTANDING)).toBe(true);
       expect(component.isOutstanding({ id: 6, amountOutstanding: 0 })).toBe(false);
+    });
+
+    describe('which rows can be inactivated', () => {
+      const ANNUAL = {
+        id: 7,
+        name: 'Annual Fee',
+        amount: 50,
+        isActive: true,
+        chargeTimeType: { id: 6, code: 'chargeTimeType.annualFee', value: 'Annual Fee' },
+      };
+
+      it('offers it on a recurring charge that is still active', () => {
+        expect(component.canInactivate(ANNUAL)).toBe(true);
+      });
+
+      it('withdraws it once the charge is inactive', () => {
+        // `isActive` is absent from the generated response type and present in the payload —
+        // measured, and pinned in `e2e/charge-servicing-backend.spec.ts`.
+        expect(component.canInactivate({ ...ANNUAL, isActive: false })).toBe(false);
+      });
+
+      it('does not offer it on a charge that does not recur', () => {
+        // Measured: `charge.inactivation.allowed.only.for.recurring.charges`. A
+        // specified-due-date fee is most of them, so gating on the active flag alone would put
+        // a button that can only fail on nearly every row.
+        expect(component.canInactivate(OUTSTANDING)).toBe(false);
+      });
+
+      it('treats a missing active flag as active, keeping a working control', () => {
+        const { isActive, ...withoutFlag } = ANNUAL;
+        expect(isActive).toBe(true);
+        expect(component.canInactivate(withoutFlag)).toBe(true);
+      });
     });
 
     it('posts nothing when a dialog is dismissed', async () => {

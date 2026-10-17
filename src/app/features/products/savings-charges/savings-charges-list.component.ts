@@ -39,6 +39,42 @@ const DATE_FORMAT = 'yyyy-MM-dd';
 const LOCALE = 'en';
 
 /**
+ * The charge fields this list branches on that the generated response type leaves out.
+ *
+ * `GetSavingsAccountsSavingsAccountIdChargesResponse` declares the amounts but not `isActive`,
+ * which the payload does carry — measured, and asserted in
+ * `e2e/charge-servicing-backend.spec.ts` so the claim is checked rather than assumed. Issue
+ * #653 is the general case.
+ */
+interface SavingsChargeFlags {
+  /** False once the charge has been inactivated and stops being applied. */
+  readonly isActive?: boolean;
+}
+
+/**
+ * The charge time types the platform will inactivate.
+ *
+ * Inactivation is refused for anything else with
+ * `charge.inactivation.allowed.only.for.recurring.charges` — measured — because inactivating a
+ * charge means stopping it recurring, and a specified-due-date or withdrawal fee does not
+ * recur. These are the three recurring codes the platform's own charge template offers.
+ */
+const RECURRING_CHARGE_CODES = new Set([
+  'chargeTimeType.annualFee',
+  'chargeTimeType.monthlyFee',
+  'chargeTimeType.weeklyFee',
+]);
+
+/**
+ * A charge row as this screen handles one: what the client declares, plus what it omits.
+ *
+ * Exported because it is the type of every row the component takes, including in its tests —
+ * which cannot import the generated response type at all (ADR 0006).
+ */
+export type SavingsChargeRow = GetSavingsAccountsSavingsAccountIdChargesResponse &
+  SavingsChargeFlags;
+
+/**
  * Lists the charges attached to a single savings account, and services them.
  *
  * The account id is read from the route snapshot; every action operates within that account's
@@ -96,21 +132,20 @@ const LOCALE = 'en';
             (click)="onWaive(row)"
           />
         }
-        <!-- Not gated on an active flag: the charge response type declares none, so the row
-             cannot tell whether this charge is already inactive. The platform answers a
-             domain-rule violation for one that is, which surfaces as the error toast — a
-             worse signal than a hidden button, but better than hiding the action on a guess
-             about a field that may not be sent. -->
-        <app-button
-          type="button"
-          emphasis="quiet"
-          data-testid="savings-charge-inactivate"
-          [label]="'CHARGES.INACTIVATE' | appTranslate"
-          icon="pause-circle-outline"
-          [appTooltip]="'CHARGES.INACTIVATE' | appTranslate"
-          [appRequiresPermission]="permissions.inactivate"
-          (click)="onInactivate(row)"
-        />
+        <!-- Narrower than it looks: only a recurring charge that is still active can be
+             inactivated. See canInactivate. -->
+        @if (canInactivate(row)) {
+          <app-button
+            type="button"
+            emphasis="quiet"
+            data-testid="savings-charge-inactivate"
+            [label]="'CHARGES.INACTIVATE' | appTranslate"
+            icon="pause-circle-outline"
+            [appTooltip]="'CHARGES.INACTIVATE' | appTranslate"
+            [appRequiresPermission]="permissions.inactivate"
+            (click)="onInactivate(row)"
+          />
+        }
         <app-button
           type="button"
           intent="danger"
@@ -143,7 +178,7 @@ export class SavingsChargesListComponent implements OnInit {
   ];
 
   savingsAccountId!: number;
-  readonly charges = signal<GetSavingsAccountsSavingsAccountIdChargesResponse[]>([]);
+  readonly charges = signal<SavingsChargeRow[]>([]);
 
   ngOnInit(): void {
     this.savingsAccountId = Number(this.route.snapshot.paramMap.get('savingsAccountId'));
@@ -170,8 +205,24 @@ export class SavingsChargesListComponent implements OnInit {
     ]);
   }
 
-  isOutstanding(row: GetSavingsAccountsSavingsAccountIdChargesResponse): boolean {
+  isOutstanding(row: SavingsChargeRow): boolean {
     return (row.amountOutstanding ?? 0) > 0;
+  }
+
+  /**
+   * Whether this charge can be inactivated.
+   *
+   * Two conditions, both measured. It has to still be active — the platform refuses an
+   * already-inactive charge, and the payload carries `isActive` so the row can tell. And it has
+   * to be a *recurring* charge: inactivation means stopping the recurrence, so the platform
+   * answers `charge.inactivation.allowed.only.for.recurring.charges` for a specified-due-date
+   * or withdrawal fee, which is most of them.
+   *
+   * `isActive` absent counts as active: a payload that omits the flag is an older platform, and
+   * hiding a working control there would be the wrong way to be wrong.
+   */
+  canInactivate(row: SavingsChargeRow): boolean {
+    return row.isActive !== false && RECURRING_CHARGE_CODES.has(row.chargeTimeType?.code ?? '');
   }
 
   /**
@@ -182,7 +233,7 @@ export class SavingsChargesListComponent implements OnInit {
    * together — and because a part payment is a legitimate thing to make, so the amount is
    * offered as the outstanding balance rather than fixed to it.
    */
-  async onPay(row: GetSavingsAccountsSavingsAccountIdChargesResponse): Promise<void> {
+  async onPay(row: SavingsChargeRow): Promise<void> {
     const values = await this.dialogService.prompt({
       title: this.i18n.translate('CHARGES.PAY'),
       message: this.i18n.translate('CHARGES.CONFIRM_PAY', {
@@ -215,7 +266,7 @@ export class SavingsChargesListComponent implements OnInit {
   }
 
   /** Waives a charge. No body: the platform waives what is outstanding. */
-  async onWaive(row: GetSavingsAccountsSavingsAccountIdChargesResponse): Promise<void> {
+  async onWaive(row: SavingsChargeRow): Promise<void> {
     const confirmed = await this.dialogService.confirm({
       title: this.i18n.translate('CHARGES.WAIVE'),
       message: this.i18n.translate('CHARGES.CONFIRM_WAIVE', {
@@ -235,7 +286,7 @@ export class SavingsChargesListComponent implements OnInit {
    * Distinct from both waive and delete: a waiver settles the amount outstanding now, and a
    * delete is refused once anything has been paid. This is the one that ends an annual fee.
    */
-  async onInactivate(row: GetSavingsAccountsSavingsAccountIdChargesResponse): Promise<void> {
+  async onInactivate(row: SavingsChargeRow): Promise<void> {
     const confirmed = await this.dialogService.confirm({
       title: this.i18n.translate('CHARGES.INACTIVATE'),
       message: this.i18n.translate('CHARGES.CONFIRM_INACTIVATE', { name: row.name ?? '' }),
@@ -247,7 +298,7 @@ export class SavingsChargesListComponent implements OnInit {
   }
 
   private send(
-    row: GetSavingsAccountsSavingsAccountIdChargesResponse,
+    row: SavingsChargeRow,
     command: keyof typeof CHARGE_COMMAND_PERMISSIONS.savings,
     body: Record<string, unknown>,
   ): void {
@@ -271,7 +322,7 @@ export class SavingsChargesListComponent implements OnInit {
       });
   }
 
-  async onDelete(row: GetSavingsAccountsSavingsAccountIdChargesResponse): Promise<void> {
+  async onDelete(row: SavingsChargeRow): Promise<void> {
     if (!row.id) return;
     const confirmed = await this.dialogService.confirm({
       title: this.i18n.translate('SAVINGS_CHARGES.DELETE'),

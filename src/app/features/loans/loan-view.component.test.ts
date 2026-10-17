@@ -605,10 +605,21 @@ describe('LoanViewComponent', () => {
       ]);
     });
 
-    // The per-item permission gate is asserted in the browser instead: these items live inside
-    // the Actions popover, whose content Angular only instantiates once the popover is
-    // presented, so there is no element here to read `appRequiresPermission` off.
-    // `e2e/loan-servicing.spec.ts` opens the menu and checks both.
+    it('gates each undo on its own code, not on the code that made the change', async () => {
+      // These items are inside the Actions popover, whose content Angular instantiates only
+      // once the popover is presented — so there is no element here to read the attribute off.
+      // Instead the template binds `commandPermissions`, which is the same map the route guard
+      // reads, and this asserts the values it will bind. The two layers cannot drift, which is
+      // what #691 managed to get wrong in both directions at once.
+      await setup(PROGRESSIVE);
+
+      expect(component.commandPermissions.undoReAge).toBe('UNDO_REAGE_LOAN');
+      expect(component.commandPermissions.undoReAmortize).toBe('UNDO_REAMORTIZE_LOAN');
+      expect(component.commandPermissions.undoReAge).not.toBe(component.commandPermissions.reAge);
+      expect(component.commandPermissions.undoReAmortize).not.toBe(
+        component.commandPermissions.reAmortize,
+      );
+    });
   });
 
   /**
@@ -655,6 +666,18 @@ describe('LoanViewComponent', () => {
 
       return (open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
     }
+
+    it('gates each posting on its own code, from the map the route guard reads', async () => {
+      await setup(BUY_DOWN);
+
+      expect(component.commandPermissions.buyDownFee).toBe('BUYDOWNFEE_LOAN');
+      expect(component.commandPermissions.capitalizedIncome).toBe('CAPITALIZEDINCOME_LOAN');
+      // And the adjustment is a different authority again: #779 asks for that explicitly.
+      expect(component.buyDownFeeAdjustPermission).toBe('BUYDOWNFEEADJUSTMENT_LOAN');
+      expect(component.buyDownFeeAdjustPermission).not.toBe(
+        component.commandPermissions.buyDownFee,
+      );
+    });
 
     it('posts each transaction under the command spelling the platform accepts', async () => {
       await setup(BUY_DOWN);

@@ -1878,3 +1878,197 @@ export async function reverseJournalEntry(
     comments: 'Reversed by the e2e suite',
   });
 }
+
+/**
+ * A charge definition that may be attached to a savings account.
+ *
+ * `chargeAppliesTo` 2 is savings. The time type matters: 2 is specified-due-date, which is the
+ * only one that produces a charge with an outstanding amount the moment it is attached — an
+ * annual or withdrawal fee has nothing outstanding until the event that levies it, so a Pay
+ * action on one would have nothing to pay.
+ *
+ * Reused across runs by name prefix: charges are tenant configuration rather than per-test
+ * state.
+ */
+export async function seedSavingsCharge(
+  api: APIRequestContext,
+  namePrefix = 'E2ESeed',
+  amount = 20,
+): Promise<SeededCharge> {
+  const existing = await get<{ id: number; name: string }[]>(api, '/charges?chargeAppliesTo=2');
+  const reusable = existing.find((charge) => charge.name.startsWith(`${namePrefix} Savings`));
+  if (reusable) return { chargeId: reusable.id, name: reusable.name };
+
+  const name = `${namePrefix} Savings Charge ${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/charges', {
+    name,
+    amount,
+    currencyCode: 'USD',
+    chargeAppliesTo: 2,
+    chargeTimeType: 2,
+    chargeCalculationType: 1,
+    penalty: false,
+    active: true,
+    locale: LOCALE,
+  });
+  return { chargeId: resourceId, name };
+}
+
+/**
+ * A recurring savings charge: an annual fee.
+ *
+ * Separate from {@link seedSavingsCharge} because the two answer different questions. A
+ * specified-due-date charge has an amount outstanding the moment it is attached, which is what
+ * Pay and Waive need; only a *recurring* charge can be inactivated, which the platform states as
+ * `charge.inactivation.allowed.only.for.recurring.charges`. Time type 6 is the annual fee, from
+ * the platform's own charge template.
+ */
+export async function seedRecurringSavingsCharge(
+  api: APIRequestContext,
+  namePrefix = 'E2ESeed',
+  amount = 12,
+): Promise<SeededCharge> {
+  const existing = await get<{ id: number; name: string }[]>(api, '/charges?chargeAppliesTo=2');
+  const reusable = existing.find((charge) => charge.name.startsWith(`${namePrefix} Annual`));
+  if (reusable) return { chargeId: reusable.id, name: reusable.name };
+
+  const name = `${namePrefix} Annual Fee ${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/charges', {
+    name,
+    amount,
+    currencyCode: 'USD',
+    chargeAppliesTo: 2,
+    chargeTimeType: 6,
+    chargeCalculationType: 1,
+    feeOnMonthDay: '01 January',
+    penalty: false,
+    active: true,
+    locale: LOCALE,
+    // `monthDayFormat`, not `dateFormat`: an annual fee's due day has no year, and sending it
+    // under `dateFormat` answers 500 rather than a validation error.
+    monthDayFormat: 'dd MMMM',
+  });
+  return { chargeId: resourceId, name };
+}
+
+/** A charge definition that may be attached to a client. `chargeAppliesTo` 3 is client. */
+export async function seedClientChargeDefinition(
+  api: APIRequestContext,
+  namePrefix = 'E2ESeed',
+  amount = 15,
+): Promise<SeededCharge> {
+  const existing = await get<{ id: number; name: string }[]>(api, '/charges?chargeAppliesTo=3');
+  const reusable = existing.find((charge) => charge.name.startsWith(`${namePrefix} Client`));
+  if (reusable) return { chargeId: reusable.id, name: reusable.name };
+
+  const name = `${namePrefix} Client Charge ${seedSuffix()}`;
+  const { resourceId } = await post<{ resourceId: number }>(api, '/charges', {
+    name,
+    amount,
+    currencyCode: 'USD',
+    chargeAppliesTo: 3,
+    chargeTimeType: 2,
+    chargeCalculationType: 1,
+    penalty: false,
+    active: true,
+    locale: LOCALE,
+  });
+  return { chargeId: resourceId, name };
+}
+
+/** Attaches a charge to a loan and hands back the loan-charge id. */
+export async function attachLoanCharge(
+  api: APIRequestContext,
+  loanId: number,
+  chargeId: number,
+  amount = 25,
+): Promise<number> {
+  const { resourceId } = await post<{ resourceId: number }>(api, `/loans/${loanId}/charges`, {
+    chargeId,
+    amount,
+    dueDate: fineractDate(),
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return resourceId;
+}
+
+/** Attaches a charge to a savings account and hands back the savings-charge id. */
+export async function attachSavingsCharge(
+  api: APIRequestContext,
+  savingsAccountId: number,
+  chargeId: number,
+  amount = 20,
+): Promise<number> {
+  const { resourceId } = await post<{ resourceId: number }>(
+    api,
+    `/savingsaccounts/${savingsAccountId}/charges`,
+    { chargeId, amount, dueDate: fineractDate(), locale: LOCALE, dateFormat: DATE_FORMAT },
+  );
+  return resourceId;
+}
+
+/** Attaches a charge to a client and hands back the client-charge id. */
+export async function attachClientCharge(
+  api: APIRequestContext,
+  clientId: number,
+  chargeId: number,
+  amount = 15,
+): Promise<number> {
+  const { resourceId } = await post<{ resourceId: number }>(api, `/clients/${clientId}/charges`, {
+    chargeId,
+    amount,
+    dueDate: fineractDate(),
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return resourceId;
+}
+
+/** One loan's charges, as the platform reports them. */
+export async function loanCharges(
+  api: APIRequestContext,
+  loanId: number,
+): Promise<
+  {
+    id: number;
+    name: string;
+    amount: number;
+    amountOutstanding?: number;
+    amountWaived?: number;
+    paid?: boolean;
+  }[]
+> {
+  return get(api, `/loans/${loanId}/charges`);
+}
+
+/** One savings account's charges, as the platform reports them. */
+export async function savingsCharges(
+  api: APIRequestContext,
+  savingsAccountId: number,
+): Promise<Record<string, unknown>[]> {
+  return get(api, `/savingsaccounts/${savingsAccountId}/charges`);
+}
+
+/** One loan's transactions, as the platform reports them on the loan response. */
+export async function loanTransactions(
+  api: APIRequestContext,
+  loanId: number,
+): Promise<
+  {
+    id: number;
+    amount: number;
+    manuallyReversed?: boolean;
+    type?: Record<string, unknown>;
+  }[]
+> {
+  const loan = await get<{
+    transactions?: {
+      id: number;
+      amount: number;
+      manuallyReversed?: boolean;
+      type?: Record<string, unknown>;
+    }[];
+  }>(api, `/loans/${loanId}?associations=all`);
+  return loan.transactions ?? [];
+}

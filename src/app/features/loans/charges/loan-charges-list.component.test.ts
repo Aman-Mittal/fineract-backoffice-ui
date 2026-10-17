@@ -50,6 +50,10 @@ describe('LoanChargesListComponent', () => {
   let dialogService: SpyObj<DialogService>;
   let notifications: SpyObj<NotificationService>;
 
+  /**
+   * A partly paid charge in the account-transfer payment mode, which is the only mode the
+   * platform will accept a payment for — so this is the one row that offers all three actions.
+   */
   const OUTSTANDING = {
     id: 5,
     name: 'Late Payment Penalty',
@@ -57,6 +61,7 @@ describe('LoanChargesListComponent', () => {
     amountOutstanding: 60,
     amountPaid: 40,
     paid: false,
+    chargePayable: true,
   };
 
   /** The charge list request, answered with one partly paid charge. */
@@ -128,6 +133,26 @@ describe('LoanChargesListComponent', () => {
       // Offering a payment the platform refuses is the worse of the two failures.
       expect(component.isOutstanding({ id: 7 })).toBe(false);
     });
+
+    it('offers Pay only on a charge the platform says is payable', () => {
+      // Measured: a charge whose payment mode is not account transfer is refused with
+      // `validation.msg.domain.rule.violation` — "This loan charge cannot be paid as the charge
+      // payment mode is not account transfer". Most charges are the regular mode, so gating Pay
+      // on the outstanding amount alone would put a button that can only fail on nearly every
+      // row. `chargePayable` is the platform's own answer, so it is the one asked.
+      expect(component.isPayable(OUTSTANDING)).toBe(true);
+      expect(component.isPayable({ ...OUTSTANDING, chargePayable: false })).toBe(false);
+      // Absent, not false: an older payload that omits the flag is treated as not payable.
+      expect(component.isPayable({ id: 8, amountOutstanding: 60 })).toBe(false);
+    });
+
+    it('still offers Waive and Adjustment on a charge that cannot be paid', () => {
+      // The narrower rule is Pay's alone: a regular-mode charge is waivable and adjustable.
+      const regular = { ...OUTSTANDING, chargePayable: false };
+
+      expect(component.isPayable(regular)).toBe(false);
+      expect(component.isOutstanding(regular)).toBe(true);
+    });
   });
 
   describe('pay', () => {
@@ -192,17 +217,15 @@ describe('LoanChargesListComponent', () => {
   });
 
   describe('adjustment', () => {
-    it('sends the amount, which is all this command takes', async () => {
+    it('sends the amount and literally nothing else', async () => {
+      // Not even `locale` and `dateFormat`, which every other command here requires: this one
+      // rejects parameters it does not support, and answers 400 for both. Measured.
       dialogService.prompt.mockResolvedValue({ amount: 25 });
 
       await component.onAdjust(OUTSTANDING);
 
       const request = expectCommand('adjustment');
-      expect(request.request.body).toEqual({
-        amount: 25,
-        locale: 'en',
-        dateFormat: 'yyyy-MM-dd',
-      });
+      expect(request.request.body).toEqual({ amount: 25 });
       request.flush({});
       flushLoad();
     });

@@ -31,7 +31,7 @@ import { RequiresPermissionDirective } from '../../../shared/directives/requires
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ButtonComponent } from '../../../ui/button/button.component';
 
-/** Fineract parses the dates these commands send against this format. */
+/** Fineract parses the date `pay` sends against this format. The adjustment takes neither. */
 const DATE_FORMAT = 'yyyy-MM-dd';
 const LOCALE = 'en';
 
@@ -41,9 +41,39 @@ const LOCALE = 'en';
  * `amountOutstanding` rather than the `paid` flag the delete action reads: a partly paid charge
  * is neither paid nor fully settled, and it is exactly the one that can still be waived.
  */
-function outstanding(charge: GetLoansLoanIdChargesChargeIdResponse): number {
+function outstanding(charge: LoanChargeRow): number {
   return charge.amountOutstanding ?? 0;
 }
+
+/**
+ * The charge fields this list branches on that the generated response type leaves out.
+ *
+ * `GetLoansLoanIdChargesChargeIdResponse` declares the amounts but not `chargePayable`,
+ * `waived` or `paid`, all three of which the payload carries:
+ *
+ * ```json
+ * {"amount":20,"amountOutstanding":20,"paid":false,"waived":false,"chargePayable":false,
+ *  "chargePaymentMode":{"id":0,"code":"chargepaymentmode.regular","value":"Regular"}}
+ * ```
+ *
+ * That is issue #653 again, and `chargePayable` is the one that matters: it is the platform's
+ * own answer to whether this charge can be paid. The delete action has read the undeclared
+ * `paid` from the template since before this change, which is how the omission was noticed.
+ */
+interface LoanChargeFlags {
+  /** False unless the charge's payment mode is account transfer. */
+  readonly chargePayable?: boolean;
+  readonly waived?: boolean;
+  readonly paid?: boolean;
+}
+
+/**
+ * A charge row as this screen handles one: what the client declares, plus what it omits.
+ *
+ * Exported because it is the type of every row the component takes, including in its tests —
+ * which cannot import the generated response type at all (ADR 0006).
+ */
+export type LoanChargeRow = GetLoansLoanIdChargesChargeIdResponse & LoanChargeFlags;
 
 /**
  * Lists the charges attached to a single loan, and services them.
@@ -91,7 +121,7 @@ function outstanding(charge: GetLoansLoanIdChargesChargeIdResponse): number {
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-row>
-        @if (isOutstanding(row)) {
+        @if (isPayable(row)) {
           <app-button
             type="button"
             emphasis="quiet"
@@ -102,6 +132,8 @@ function outstanding(charge: GetLoansLoanIdChargesChargeIdResponse): number {
             [appRequiresPermission]="permissions.pay"
             (click)="onPay(row)"
           />
+        }
+        @if (isOutstanding(row)) {
           <app-button
             type="button"
             emphasis="quiet"
@@ -158,7 +190,7 @@ export class LoanChargesListComponent implements OnInit {
   ];
 
   loanId!: number;
-  readonly charges = signal<GetLoansLoanIdChargesChargeIdResponse[]>([]);
+  readonly charges = signal<LoanChargeRow[]>([]);
 
   ngOnInit(): void {
     this.loanId = Number(this.route.snapshot.paramMap.get('loanId'));
@@ -178,8 +210,23 @@ export class LoanChargesListComponent implements OnInit {
     this.router.navigate(['/loans', this.loanId, 'charges', 'add']);
   }
 
-  isOutstanding(row: GetLoansLoanIdChargesChargeIdResponse): boolean {
+  isOutstanding(row: LoanChargeRow): boolean {
     return outstanding(row) > 0;
+  }
+
+  /**
+   * Whether this charge can be paid, as opposed to merely having something outstanding.
+   *
+   * Pay is narrower than Waive and Adjustment. The platform accepts it only for a charge whose
+   * payment mode is account transfer, and refuses every other one with
+   * `validation.msg.domain.rule.violation` — "This loan charge cannot be paid as the charge
+   * payment mode is not account transfer". Most charges are the regular mode, so gating Pay on
+   * the outstanding amount alone would put a button that can only fail on nearly every row.
+   *
+   * `chargePayable` is the platform's own answer to the question, so it is the one asked.
+   */
+  isPayable(row: LoanChargeRow): boolean {
+    return outstanding(row) > 0 && row.chargePayable === true;
   }
 
   /**
@@ -190,7 +237,7 @@ export class LoanChargesListComponent implements OnInit {
    * browser's, which is issue #758. The platform demands it:
    * `validation.msg.loan.charge.payment.transaction.transactionDate.cannot.be.blank`.
    */
-  async onPay(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {
+  async onPay(row: LoanChargeRow): Promise<void> {
     const values = await this.dialogService.prompt({
       title: this.i18n.translate('CHARGES.PAY'),
       message: this.i18n.translate('CHARGES.CONFIRM_PAY', {
@@ -223,7 +270,7 @@ export class LoanChargesListComponent implements OnInit {
    * this screen — the reversal is on the transaction it produces, on the loan's Transactions
    * tab, which is where the transaction id is.
    */
-  async onWaive(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {
+  async onWaive(row: LoanChargeRow): Promise<void> {
     const confirmed = await this.dialogService.confirm({
       title: this.i18n.translate('CHARGES.WAIVE'),
       message: this.i18n.translate('CHARGES.CONFIRM_WAIVE', {
@@ -237,8 +284,15 @@ export class LoanChargesListComponent implements OnInit {
     this.send(row, 'waive', {});
   }
 
-  /** Adjusts a charge to a different amount. `adjustment` takes the amount and nothing else. */
-  async onAdjust(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {
+  /**
+   * Adjusts a charge to a different amount.
+   *
+   * `amount` and nothing else — and "nothing else" is literal. Sending the `locale` and
+   * `dateFormat` that every other command here requires makes this one a 400: the command
+   * rejects parameters it does not support, and it supports neither. The platform fills in its
+   * own transaction date. Measured; the same quirk as the Working Capital charge adjustment.
+   */
+  async onAdjust(row: LoanChargeRow): Promise<void> {
     const values = await this.dialogService.prompt({
       title: this.i18n.translate('CHARGES.ADJUST'),
       message: this.i18n.translate('CHARGES.CONFIRM_ADJUST', { name: row.name ?? '' }),
@@ -253,11 +307,7 @@ export class LoanChargesListComponent implements OnInit {
     });
     if (!values) return;
 
-    this.send(row, 'adjustment', {
-      amount: Number(values['amount']),
-      locale: LOCALE,
-      dateFormat: DATE_FORMAT,
-    });
+    this.send(row, 'adjustment', { amount: Number(values['amount']) });
   }
 
   /**
@@ -268,7 +318,7 @@ export class LoanChargesListComponent implements OnInit {
    * row would keep offering actions the platform has just refused.
    */
   private send(
-    row: GetLoansLoanIdChargesChargeIdResponse,
+    row: LoanChargeRow,
     command: keyof typeof CHARGE_COMMAND_PERMISSIONS.loan,
     body: Record<string, unknown>,
   ): void {
@@ -287,7 +337,7 @@ export class LoanChargesListComponent implements OnInit {
       });
   }
 
-  async onDelete(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {
+  async onDelete(row: LoanChargeRow): Promise<void> {
     if (!row.id) return;
     const confirmed = await this.dialogService.confirm({
       title: this.i18n.translate('COMMON.DELETE'),
