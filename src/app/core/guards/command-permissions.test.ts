@@ -20,9 +20,11 @@
 import {
   LOAN_COMMAND_PERMISSIONS,
   SAVINGS_COMMAND_PERMISSIONS,
+  WC_LOAN_COMMAND_PERMISSIONS,
   commandPermission,
   loanCommandPermission,
   savingsCommandPermission,
+  wcLoanCommandPermission,
 } from './command-permissions';
 
 /** A `paramMap` stand-in; the resolver only ever calls `get`. */
@@ -83,6 +85,83 @@ describe('SAVINGS_COMMAND_PERMISSIONS', () => {
 
   it('never maps a command to UPDATE_SAVINGSACCOUNT', () => {
     expect(Object.values(SAVINGS_COMMAND_PERMISSIONS)).not.toContain('UPDATE_SAVINGSACCOUNT');
+  });
+});
+
+describe('WC_LOAN_COMMAND_PERMISSIONS', () => {
+  /**
+   * Every action the Working Capital loan screen can reach through the action route, and the code
+   * Fineract authorises it with. Spelled out rather than looped, because the pairing is the whole
+   * content of the fix: a wrong entry here either locks out a user the platform would allow or
+   * leads one into a 403, which is issue #777 reproduced one command at a time.
+   */
+  const EXPECTED: Readonly<Record<string, string>> = {
+    approve: 'APPROVE_WORKINGCAPITALLOAN',
+    undoapproval: 'APPROVALUNDO_WORKINGCAPITALLOAN',
+    reject: 'REJECT_WORKINGCAPITALLOAN',
+    disburse: 'DISBURSE_WORKINGCAPITALLOAN',
+    undodisbursal: 'DISBURSALUNDO_WORKINGCAPITALLOAN',
+    markasfraud: 'SETFRAUD_WORKINGCAPITALLOAN',
+    discount: 'UPDATEDISCOUNT_WORKINGCAPITALLOAN',
+    paymentrate: 'UPDATERATE_WORKINGCAPITALLOAN',
+    repayment: 'REPAYMENT_WORKINGCAPITALLOAN',
+    prepay: 'REPAYMENT_WORKINGCAPITALLOAN',
+    goodwillCredit: 'GOODWILLCREDIT_WORKINGCAPITALLOAN',
+    payoutRefund: 'PAYOUTREFUND_WORKINGCAPITALLOAN',
+    creditBalanceRefund: 'CREDITBALANCEREFUND_WORKINGCAPITALLOAN',
+    chargeOff: 'CHARGEOFF_WORKINGCAPITALLOAN',
+    undoChargeOff: 'UNDOCHARGEOFF_WORKINGCAPITALLOAN',
+    writeOff: 'WRITEOFF_WORKINGCAPITALLOAN',
+    undoWriteOff: 'UNDOWRITEOFF_WORKINGCAPITALLOAN',
+    recoveryPayment: 'RECOVERYPAYMENT_WORKINGCAPITALLOAN',
+  };
+
+  it('maps each command to the code Fineract authorises it with', () => {
+    expect(WC_LOAN_COMMAND_PERMISSIONS).toEqual(EXPECTED);
+  });
+
+  it('never maps a command to UPDATE_WORKINGCAPITALLOAN', () => {
+    // The defect: the route declared it for all of these, and it authorises none of them.
+    expect(Object.values(WC_LOAN_COMMAND_PERMISSIONS)).not.toContain('UPDATE_WORKINGCAPITALLOAN');
+  });
+
+  it('maps every code to Fineract spelling for the module', () => {
+    for (const [command, code] of Object.entries(WC_LOAN_COMMAND_PERMISSIONS)) {
+      expect(code, `${command} maps to a malformed code`).toMatch(
+        /^[A-Z][A-Z0-9]*_WORKINGCAPITALLOAN$/,
+      );
+    }
+  });
+
+  it('treats a prepayment as a repayment, as the term-loan map does', () => {
+    // Fineract has no prepay command at all: the form posts `repayment` with the payoff amount.
+    expect(WC_LOAN_COMMAND_PERMISSIONS['prepay']).toBe(WC_LOAN_COMMAND_PERMISSIONS['repayment']);
+  });
+
+  it('separates each undo from the action it reverses', () => {
+    // Undo is the checker-ish half of each pair and is routinely granted to a different role, so
+    // sharing a code with the forward action would hand it to whoever can perform that.
+    expect(WC_LOAN_COMMAND_PERMISSIONS['undoChargeOff']).not.toBe(
+      WC_LOAN_COMMAND_PERMISSIONS['chargeOff'],
+    );
+    expect(WC_LOAN_COMMAND_PERMISSIONS['undoWriteOff']).not.toBe(
+      WC_LOAN_COMMAND_PERMISSIONS['writeOff'],
+    );
+    expect(WC_LOAN_COMMAND_PERMISSIONS['undoapproval']).not.toBe(
+      WC_LOAN_COMMAND_PERMISSIONS['approve'],
+    );
+    expect(WC_LOAN_COMMAND_PERMISSIONS['undodisbursal']).not.toBe(
+      WC_LOAN_COMMAND_PERMISSIONS['disburse'],
+    );
+  });
+
+  it('resolves the code from the :command segment, not :type', () => {
+    // The Working Capital route names the segment `:command`; the term-loan route names it
+    // `:type`. Crossing them unmaps every command on one of the two.
+    expect(wcLoanCommandPermission(params({ command: 'chargeOff' }))).toBe(
+      'CHARGEOFF_WORKINGCAPITALLOAN',
+    );
+    expect(wcLoanCommandPermission(params({ type: 'chargeOff' }))).toBeUndefined();
   });
 });
 

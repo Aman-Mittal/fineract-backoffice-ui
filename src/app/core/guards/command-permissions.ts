@@ -143,8 +143,65 @@ export function commandPermission(
   };
 }
 
+/**
+ * Working Capital loan commands, keyed by the `:command` segment of
+ * `/working-capital/loans/:id/action/:command`.
+ *
+ * Same defect as #691, one module later: the route declared `UPDATE_WORKINGCAPITALLOAN` for all of
+ * these, and Fineract authorises that code for none of them — the lifecycle and transaction
+ * commands live in its `transaction_loan` grouping while `UPDATE_WORKINGCAPITALLOAN` is portfolio.
+ * See issue #777.
+ *
+ * ## How these codes were established
+ *
+ * Unlike the term-loan map above, these did not need a probe: the Working Capital module
+ * documents the pairing itself, endpoint by endpoint, and every code below is present in
+ * `scripts/permission-codes.json` — the catalogue snapshot taken from a running Fineract, which
+ * `scripts/check-permission-codes.mjs` enforces. The command spellings come from
+ * `WorkingCapitalLoanConstants` and from the `@Operation` description on
+ * `WorkingCapitalLoanTransactionsApiResource`, which lists exactly: `repayment`,
+ * `creditBalanceRefund`, `payoutRefund`, `goodwillCredit`, `discountFee`,
+ * `discountFeeAdjustment`, `chargeOff`, `undoChargeOff`, `writeOff`, `undoWriteOff`,
+ * `recoveryPayment`.
+ *
+ * Two keys are the UI's own rather than Fineract's, and are kept because changing them would
+ * break links that already exist:
+ *
+ *   - `markasfraud`, `discount` and `paymentrate` are `PUT` sub-resources, not commands.
+ *   - `prepay` posts `command=repayment` with the amount the `prepayLoan` template offers. There
+ *     is no prepay permission: a prepayment *is* a repayment, exactly as for term loans.
+ */
+export const WC_LOAN_COMMAND_PERMISSIONS: Readonly<Record<string, string>> = {
+  // Lifecycle — POST /working-capital-loans/{id}?command=…
+  approve: 'APPROVE_WORKINGCAPITALLOAN',
+  undoapproval: 'APPROVALUNDO_WORKINGCAPITALLOAN',
+  reject: 'REJECT_WORKINGCAPITALLOAN',
+  disburse: 'DISBURSE_WORKINGCAPITALLOAN',
+  undodisbursal: 'DISBURSALUNDO_WORKINGCAPITALLOAN',
+
+  // PUT sub-resources, reached through the same action form
+  markasfraud: 'SETFRAUD_WORKINGCAPITALLOAN',
+  discount: 'UPDATEDISCOUNT_WORKINGCAPITALLOAN',
+  paymentrate: 'UPDATERATE_WORKINGCAPITALLOAN',
+
+  // Transactions — POST /working-capital-loans/{id}/transactions?command=…
+  repayment: 'REPAYMENT_WORKINGCAPITALLOAN',
+  prepay: 'REPAYMENT_WORKINGCAPITALLOAN',
+  goodwillCredit: 'GOODWILLCREDIT_WORKINGCAPITALLOAN',
+  payoutRefund: 'PAYOUTREFUND_WORKINGCAPITALLOAN',
+  creditBalanceRefund: 'CREDITBALANCEREFUND_WORKINGCAPITALLOAN',
+  chargeOff: 'CHARGEOFF_WORKINGCAPITALLOAN',
+  undoChargeOff: 'UNDOCHARGEOFF_WORKINGCAPITALLOAN',
+  writeOff: 'WRITEOFF_WORKINGCAPITALLOAN',
+  undoWriteOff: 'UNDOWRITEOFF_WORKINGCAPITALLOAN',
+  recoveryPayment: 'RECOVERYPAYMENT_WORKINGCAPITALLOAN',
+};
+
 /** `data.permissions` for `/loans/:loanId/transactions/:type`. */
 export const loanCommandPermission = commandPermission('type', LOAN_COMMAND_PERMISSIONS);
 
 /** `data.permissions` for `/products/savings-accounts/:accountId/transactions/:command`. */
 export const savingsCommandPermission = commandPermission('command', SAVINGS_COMMAND_PERMISSIONS);
+
+/** `data.permissions` for `/working-capital/loans/:id/action/:command`. */
+export const wcLoanCommandPermission = commandPermission('command', WC_LOAN_COMMAND_PERMISSIONS);

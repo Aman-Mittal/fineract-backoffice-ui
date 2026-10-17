@@ -34,12 +34,16 @@ import {
   IonItem,
   IonLabel,
   IonModal,
+  IonSelect,
+  IonSelectOption,
   IonSpinner,
   IonTextarea,
 } from '@ionic/angular/standalone';
 import {
   WorkingCapitalLoansService,
+  WorkingCapitalLoanProductsService,
   WorkingCapitalLoanTransactionsService,
+  CodeValueData,
   PostWorkingCapitalLoansLoanIdRequest,
   PostWorkingCapitalLoanTransactionsRequest,
   PutWorkingCapitalLoansLoanIdDiscountRequest,
@@ -54,9 +58,62 @@ import {
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 /**
- * Handles WC loan lifecycle commands (approve, reject, undoapproval, disburse, undodisbursal)
- * and repayment transactions. Branches on the :command route param — mirrors the main
+ * The command each route segment posts to the transactions endpoint.
+ *
+ * Mostly an identity map, deliberately: the segment is Fineract's own command name, so the URL,
+ * the posted command and the permission in `WC_LOAN_COMMAND_PERMISSIONS` all read the same. The
+ * spellings are from `WorkingCapitalLoanConstants` and the `@Operation` description on
+ * `WorkingCapitalLoanTransactionsApiResource`.
+ *
+ * `prepay` is the exception. Fineract has no prepay command — a prepayment is a repayment settling
+ * the whole balance — so it posts `repayment` with the amount the `prepayLoan` template offers.
+ */
+const POSTED_TRANSACTION_COMMAND: Readonly<Record<string, string>> = {
+  prepay: 'repayment',
+  goodwillCredit: 'goodwillCredit',
+  payoutRefund: 'payoutRefund',
+  creditBalanceRefund: 'creditBalanceRefund',
+  recoveryPayment: 'recoveryPayment',
+  chargeOff: 'chargeOff',
+  undoChargeOff: 'undoChargeOff',
+  writeOff: 'writeOff',
+  undoWriteOff: 'undoWriteOff',
+};
+
+/**
+ * What each form asks `GET …/transactions/template?command=…` for.
+ *
+ * Absent means the form has nothing to prefill: the two undo commands carry no amount or date, and
+ * `writeOff`'s reasons do not come from here — see {@link loadWriteOffReasons}.
+ */
+const TEMPLATE_COMMAND: Readonly<Record<string, string>> = {
+  prepay: 'prepayLoan',
+  goodwillCredit: 'goodwillCredit',
+  payoutRefund: 'payoutRefund',
+  creditBalanceRefund: 'creditBalanceRefund',
+  recoveryPayment: 'recoveryPayment',
+  chargeOff: 'chargeOff',
+};
+
+/** Commands whose amount the user enters. `prepay` shows the template's figure read-only. */
+const AMOUNT_COMMANDS = new Set([
+  'goodwillCredit',
+  'payoutRefund',
+  'creditBalanceRefund',
+  'recoveryPayment',
+]);
+
+/** Commands that carry a transaction date. */
+const DATED_COMMANDS = new Set([...AMOUNT_COMMANDS, 'prepay', 'chargeOff', 'writeOff']);
+
+/**
+ * Handles WC loan lifecycle commands (approve, reject, undoapproval, disburse, undodisbursal),
+ * the `PUT` sub-resources (mark as fraud, discount, payment rate) and every transaction command
+ * the module supports. Branches on the :command route param — mirrors the main
  * loan-transaction-form pattern.
+ *
+ * Each command is reachable only from the loan screen, which offers it only in a status Fineract
+ * accepts it in, and the route is gated on the command's own permission code (issue #777).
  */
 @Component({
   selector: 'app-wc-loan-action-form',
@@ -78,6 +135,8 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    IonSelect,
+    IonSelectOption,
   ],
   template: `
     <div class="form-container">
@@ -337,7 +396,136 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
               </ion-item>
             }
 
+            @if (isDated) {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.TRANSACTION_DATE' | appTranslate
+                }}</ion-label>
+                @if (pickersReady()) {
+                  <ion-datetime-button datetime="txnDate-picker"></ion-datetime-button>
+                }
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="txnDate-picker"
+                      data-testid="txnDate-picker"
+                      presentation="date"
+                      name="txnDate"
+                      [(ngModel)]="transactionDate"
+                      required
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
+            }
+
+            @if (command === 'prepay') {
+              <!-- Read-only: Fineract settles the whole balance, and the figure is the
+                   template's as-of-date outstanding, not something to re-type. -->
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.PAYOFF_AMOUNT' | appTranslate
+                }}</ion-label>
+                <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.PAYOFF_AMOUNT' | appTranslate"
+                  type="number"
+                  name="payoffAmount"
+                  [ngModel]="transaction.transactionAmount"
+                  readonly
+                ></ion-input>
+              </ion-item>
+            }
+
+            @if (isAmountEntered) {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | appTranslate
+                }}</ion-label>
+                <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.TRANSACTION_AMOUNT' | appTranslate"
+                  type="number"
+                  name="transactionAmount"
+                  [(ngModel)]="transaction.transactionAmount"
+                  required
+                ></ion-input>
+              </ion-item>
+            }
+
+            @if (command === 'chargeOff' && chargeOffReasonOptions().length) {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.CHARGE_OFF_REASON' | appTranslate
+                }}</ion-label>
+                <ion-select
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.CHARGE_OFF_REASON' | appTranslate"
+                  name="chargeOffReasonId"
+                  [(ngModel)]="transaction.chargeOffReasonId"
+                >
+                  @for (reason of chargeOffReasonOptions(); track reason.id) {
+                    <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+            }
+
+            @if (command === 'writeOff' && writeOffReasonOptions().length) {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.WRITE_OFF_REASON' | appTranslate
+                }}</ion-label>
+                <ion-select
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.WRITE_OFF_REASON' | appTranslate"
+                  name="writeoffReasonId"
+                  [(ngModel)]="transaction.writeoffReasonId"
+                >
+                  @for (reason of writeOffReasonOptions(); track reason.id) {
+                    <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+            }
+
+            @if (command === 'undoWriteOff') {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.REVERSAL_EXTERNAL_ID' | appTranslate
+                }}</ion-label>
+                <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.REVERSAL_EXTERNAL_ID' | appTranslate"
+                  name="reversalExternalId"
+                  [(ngModel)]="transaction.reversalExternalId"
+                ></ion-input>
+              </ion-item>
+            }
+
+            @if (isDated) {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.EXTERNAL_ID' | appTranslate
+                }}</ion-label>
+                <ion-input
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.EXTERNAL_ID' | appTranslate"
+                  name="externalId"
+                  [(ngModel)]="transaction.externalId"
+                ></ion-input>
+              </ion-item>
+            }
+
+            @if (isTransaction && command !== 'undoChargeOff') {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{
+                  'WC_LOANS.ACTIONS.NOTE' | appTranslate
+                }}</ion-label>
+                <ion-textarea
+                  [attr.aria-label]="'WC_LOANS.ACTIONS.NOTE' | appTranslate"
+                  name="transactionNote"
+                  [(ngModel)]="transaction.note"
+                ></ion-textarea>
+              </ion-item>
+            }
+
             @if (
+              !isTransaction &&
               command !== 'repayment' &&
               command !== 'markasfraud' &&
               command !== 'discount' &&
@@ -397,6 +585,7 @@ export class WcLoanActionFormComponent implements OnInit {
   readonly pickersReady = createPickersReady();
 
   private readonly loansService = inject(WorkingCapitalLoansService);
+  private readonly productsService = inject(WorkingCapitalLoanProductsService);
   private readonly transactionsService = inject(WorkingCapitalLoanTransactionsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -424,6 +613,15 @@ export class WcLoanActionFormComponent implements OnInit {
   };
   fraud = false;
 
+  /** Body for every command that posts to the transactions endpoint. */
+  transaction: PostWorkingCapitalLoanTransactionsRequest = {
+    dateFormat: FINERACT_DATE_FORMAT,
+    locale: FINERACT_LOCALE,
+  };
+
+  readonly chargeOffReasonOptions = signal<CodeValueData[]>([]);
+  readonly writeOffReasonOptions = signal<CodeValueData[]>([]);
+
   approvedOnDate: string | null = null;
   expectedDisbursementDate: string | null = null;
   actualDisbursementDate: string | null = null;
@@ -442,8 +640,30 @@ export class WcLoanActionFormComponent implements OnInit {
       markasfraud: 'WC_LOANS.ACTIONS.MARK_AS_FRAUD',
       discount: 'WC_LOANS.ACTIONS.APPLY_DISCOUNT',
       paymentrate: 'WC_LOANS.ACTIONS.CHANGE_PAYMENT_RATE',
+      prepay: 'WC_LOANS.ACTIONS.PREPAY',
+      goodwillCredit: 'WC_LOANS.ACTIONS.GOODWILL_CREDIT',
+      payoutRefund: 'WC_LOANS.ACTIONS.PAYOUT_REFUND',
+      creditBalanceRefund: 'WC_LOANS.ACTIONS.CREDIT_BALANCE_REFUND',
+      chargeOff: 'WC_LOANS.ACTIONS.CHARGE_OFF',
+      undoChargeOff: 'WC_LOANS.ACTIONS.UNDO_CHARGE_OFF',
+      writeOff: 'WC_LOANS.ACTIONS.WRITE_OFF',
+      undoWriteOff: 'WC_LOANS.ACTIONS.UNDO_WRITE_OFF',
+      recoveryPayment: 'WC_LOANS.ACTIONS.RECOVERY_PAYMENT',
     };
     return map[this.command] ?? this.command;
+  }
+
+  /** True for the commands posted to `…/transactions`, as opposed to the lifecycle and PUT ones. */
+  get isTransaction(): boolean {
+    return this.command in POSTED_TRANSACTION_COMMAND;
+  }
+
+  get isDated(): boolean {
+    return DATED_COMMANDS.has(this.command);
+  }
+
+  get isAmountEntered(): boolean {
+    return AMOUNT_COMMANDS.has(this.command);
   }
 
   ngOnInit(): void {
@@ -451,10 +671,65 @@ export class WcLoanActionFormComponent implements OnInit {
     const cmd = this.route.snapshot.paramMap.get('command');
     if (id) this.loanId = +id;
     if (cmd) this.command = cmd;
+
+    if (this.isTransaction) {
+      this.loadTransactionTemplate();
+    }
+    if (this.command === 'writeOff') {
+      this.loadWriteOffReasons();
+    }
+  }
+
+  /**
+   * Prefills from `GET …/transactions/template?command=…`.
+   *
+   * The template is a convenience, not a precondition: the form stays usable when the call fails,
+   * because every field it fills is one the user can supply. The one exception is `prepay`, whose
+   * amount is the platform's own payoff figure — if that does not arrive, there is nothing
+   * truthful to put in the box, so the submit button stays disabled by the required field.
+   */
+  private loadTransactionTemplate(): void {
+    const templateCommand = TEMPLATE_COMMAND[this.command];
+    if (!templateCommand) return;
+    this.transactionsService
+      .getWorkingCapitalLoansLoanIdTransactionsTemplate(this.loanId, templateCommand)
+      .subscribe({
+        next: (template) => {
+          this.chargeOffReasonOptions.set(template.chargeOffReasonOptions ?? []);
+          if (template.expectedAmount != null) {
+            this.transaction.transactionAmount = template.expectedAmount;
+          }
+          const suggestedDate = template.chargeOffDate ?? template.transactionDate;
+          if (suggestedDate) {
+            this.transactionDate = toIsoDate(new Date(suggestedDate));
+          }
+        },
+        error: (err: unknown) =>
+          console.error(`Failed to load the ${templateCommand} transaction template`, err),
+      });
+  }
+
+  /**
+   * Write-off reasons come from the product template, not the transaction one.
+   *
+   * Fineract assembles `writeOffReasonOptions` in the loan *product* read service; the transaction
+   * template carries only `chargeOffReasonOptions`. A user without
+   * `READ_WORKINGCAPITALLOANPRODUCT` therefore gets no reason list — and the write-off still
+   * posts, because the reason is optional.
+   */
+  private loadWriteOffReasons(): void {
+    this.productsService.getWorkingCapitalLoanProductsTemplate().subscribe({
+      next: (template) => this.writeOffReasonOptions.set(template.writeOffReasonOptions ?? []),
+      error: (err: unknown) => console.error('Failed to load write-off reasons', err),
+    });
   }
 
   onSubmit(): void {
     this.isSaving.set(true);
+
+    if (this.isTransaction) {
+      return this.submitTransaction();
+    }
 
     switch (this.command) {
       case 'repayment':
@@ -476,6 +751,52 @@ export class WcLoanActionFormComponent implements OnInit {
     }
     this.transactionsService
       .postWorkingCapitalLoansLoanIdTransactions(this.loanId, 'repayment', this.repayment)
+      .subscribe({
+        next: () => this.router.navigate([`/working-capital/loans/view/${this.loanId}`]),
+        error: () => this.isSaving.set(false),
+      });
+  }
+
+  /**
+   * Posts one of the transaction commands.
+   *
+   * Only the fields the command actually takes are sent. Fineract rejects a request carrying a
+   * parameter the command does not support, so an amount left over from another branch of the form
+   * would turn a valid undo into a 400.
+   */
+  private submitTransaction(): void {
+    const body: PostWorkingCapitalLoanTransactionsRequest = {
+      dateFormat: FINERACT_DATE_FORMAT,
+      locale: FINERACT_LOCALE,
+    };
+    if (this.isDated && this.transactionDate) {
+      body.transactionDate = formatDateToFineract(this.transactionDate);
+    }
+    if (this.isAmountEntered || this.command === 'prepay') {
+      body.transactionAmount = this.transaction.transactionAmount;
+    }
+    if (this.command === 'chargeOff' && this.transaction.chargeOffReasonId != null) {
+      body.chargeOffReasonId = this.transaction.chargeOffReasonId;
+    }
+    if (this.command === 'writeOff' && this.transaction.writeoffReasonId != null) {
+      body.writeoffReasonId = this.transaction.writeoffReasonId;
+    }
+    if (this.command === 'undoWriteOff' && this.transaction.reversalExternalId) {
+      body.reversalExternalId = this.transaction.reversalExternalId;
+    }
+    if (this.isDated && this.transaction.externalId) {
+      body.externalId = this.transaction.externalId;
+    }
+    if (this.command !== 'undoChargeOff' && this.transaction.note) {
+      body.note = this.transaction.note;
+    }
+
+    this.transactionsService
+      .postWorkingCapitalLoansLoanIdTransactions(
+        this.loanId,
+        POSTED_TRANSACTION_COMMAND[this.command],
+        body,
+      )
       .subscribe({
         next: () => this.router.navigate([`/working-capital/loans/view/${this.loanId}`]),
         error: () => this.isSaving.set(false),

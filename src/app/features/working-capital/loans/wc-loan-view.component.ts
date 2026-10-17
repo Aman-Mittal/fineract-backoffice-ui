@@ -46,6 +46,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { CdkTableModule } from '@angular/cdk/table';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { RequiresPermissionDirective } from '../../../shared/directives/requires-permission.directive';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import {
   WorkingCapitalLoansService,
   WorkingCapitalLoanChargesService,
@@ -122,6 +124,12 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
     IonList,
     IonItem,
     TooltipDirective,
+    RequiresPermissionDirective,
+    // Used for the two icon-only row actions. `appRequiresPermission` disables the control and
+    // explains why, which is the right shape for an action on the record on screen — but it owns
+    // `attr.aria-label` to carry that explanation, so on a control whose only accessible name is
+    // its own aria-label it erases the name as soon as it grants. Those two are removed instead.
+    HasPermissionDirective,
   ],
   template: `
     <div class="view-container">
@@ -152,6 +160,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
               <ion-button
                 color="primary"
                 (click)="onRepayment()"
+                appRequiresPermission="REPAYMENT_WORKINGCAPITALLOAN"
                 [appTooltip]="'WC_LOANS.REPAYMENT' | appTranslate"
               >
                 <ion-icon name="cash-outline"></ion-icon>
@@ -163,6 +172,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
               <ion-button
                 color="secondary"
                 (click)="onAction('approve')"
+                appRequiresPermission="APPROVE_WORKINGCAPITALLOAN"
                 [appTooltip]="'WC_LOANS.APPROVE' | appTranslate"
               >
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -174,6 +184,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
               <ion-button
                 color="secondary"
                 (click)="onAction('disburse')"
+                appRequiresPermission="DISBURSE_WORKINGCAPITALLOAN"
                 [appTooltip]="'WC_LOANS.DISBURSE' | appTranslate"
               >
                 <ion-icon name="open-outline"></ion-icon>
@@ -189,42 +200,164 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
               <ng-template>
                 <ion-list>
                   @if (isLoanPendingApproval) {
-                    <ion-item button (click)="onEdit()">
+                    <ion-item
+                      button
+                      (click)="onEdit()"
+                      appRequiresPermission="UPDATE_WORKINGCAPITALLOAN"
+                    >
                       <ion-icon slot="start" name="create-outline"></ion-icon>
                       <ion-label>{{ 'WC_LOANS.ACTIONS.MODIFY' | appTranslate }}</ion-label>
                     </ion-item>
-                    <ion-item button (click)="onAction('reject')">
+                    <ion-item
+                      button
+                      (click)="onAction('reject')"
+                      appRequiresPermission="REJECT_WORKINGCAPITALLOAN"
+                    >
                       <ion-icon slot="start" name="close-circle-outline"></ion-icon>
                       <ion-label>{{ 'WC_LOANS.ACTIONS.REJECT' | appTranslate }}</ion-label>
                     </ion-item>
                   }
                   @if (isLoanApproved) {
-                    <ion-item button (click)="onAction('undoapproval')">
+                    <ion-item
+                      button
+                      (click)="onAction('undoapproval')"
+                      appRequiresPermission="APPROVALUNDO_WORKINGCAPITALLOAN"
+                    >
                       <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                       <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_APPROVAL' | appTranslate }}</ion-label>
                     </ion-item>
                   }
                   @if (isLoanActive) {
-                    <ion-item button (click)="onAction('undodisbursal')">
+                    <ion-item
+                      button
+                      (click)="onAction('undodisbursal')"
+                      appRequiresPermission="DISBURSALUNDO_WORKINGCAPITALLOAN"
+                    >
                       <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
                       <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_DISBURSAL' | appTranslate }}</ion-label>
                     </ion-item>
-                    <ion-item button (click)="onAction('markasfraud')">
+                    <ion-item
+                      button
+                      (click)="onAction('markasfraud')"
+                      appRequiresPermission="SETFRAUD_WORKINGCAPITALLOAN"
+                    >
                       <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                       <ion-label>{{ 'WC_LOANS.ACTIONS.MARK_AS_FRAUD' | appTranslate }}</ion-label>
                     </ion-item>
-                    <ion-item button (click)="onAction('discount')">
+                    <ion-item
+                      button
+                      (click)="onAction('discount')"
+                      appRequiresPermission="UPDATEDISCOUNT_WORKINGCAPITALLOAN"
+                    >
                       <ion-icon slot="start" name="pricetag-outline"></ion-icon>
                       <ion-label>{{ 'WC_LOANS.ACTIONS.APPLY_DISCOUNT' | appTranslate }}</ion-label>
                     </ion-item>
-                    <ion-item button (click)="onAction('paymentrate')">
+                    <ion-item
+                      button
+                      (click)="onAction('paymentrate')"
+                      appRequiresPermission="UPDATERATE_WORKINGCAPITALLOAN"
+                    >
                       <ion-icon slot="start" name="trending-up-outline"></ion-icon>
                       <ion-label>{{
                         'WC_LOANS.ACTIONS.CHANGE_PAYMENT_RATE' | appTranslate
                       }}</ion-label>
                     </ion-item>
+                    <ion-item
+                      button
+                      (click)="onAction('prepay')"
+                      appRequiresPermission="REPAYMENT_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="flash-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.PREPAY' | appTranslate }}</ion-label>
+                    </ion-item>
                   }
-                  <ion-item button (click)="onDelete()">
+                  @if (acceptsCredits) {
+                    <ion-item
+                      button
+                      (click)="onAction('goodwillCredit')"
+                      appRequiresPermission="GOODWILLCREDIT_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="gift-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.GOODWILL_CREDIT' | appTranslate }}</ion-label>
+                    </ion-item>
+                    <ion-item
+                      button
+                      (click)="onAction('payoutRefund')"
+                      appRequiresPermission="PAYOUTREFUND_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="return-down-back-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.PAYOUT_REFUND' | appTranslate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (hasCreditBalance) {
+                    <ion-item
+                      button
+                      (click)="onAction('creditBalanceRefund')"
+                      appRequiresPermission="CREDITBALANCEREFUND_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="wallet-outline"></ion-icon>
+                      <ion-label>{{
+                        'WC_LOANS.ACTIONS.CREDIT_BALANCE_REFUND' | appTranslate
+                      }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (isLoanActive && !isLoanChargedOff) {
+                    <ion-item
+                      button
+                      (click)="onAction('chargeOff')"
+                      appRequiresPermission="CHARGEOFF_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="remove-circle-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.CHARGE_OFF' | appTranslate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (isLoanChargedOff) {
+                    <ion-item
+                      button
+                      (click)="onAction('undoChargeOff')"
+                      appRequiresPermission="UNDOCHARGEOFF_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_CHARGE_OFF' | appTranslate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (isLoanActive) {
+                    <ion-item
+                      button
+                      (click)="onAction('writeOff')"
+                      appRequiresPermission="WRITEOFF_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="trending-down-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.WRITE_OFF' | appTranslate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (canUndoWriteOff) {
+                    <ion-item
+                      button
+                      (click)="onAction('undoWriteOff')"
+                      appRequiresPermission="UNDOWRITEOFF_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="arrow-undo-outline"></ion-icon>
+                      <ion-label>{{ 'WC_LOANS.ACTIONS.UNDO_WRITE_OFF' | appTranslate }}</ion-label>
+                    </ion-item>
+                  }
+                  @if (canRecordRecovery) {
+                    <ion-item
+                      button
+                      (click)="onAction('recoveryPayment')"
+                      appRequiresPermission="RECOVERYPAYMENT_WORKINGCAPITALLOAN"
+                    >
+                      <ion-icon slot="start" name="cash-outline"></ion-icon>
+                      <ion-label>{{
+                        'WC_LOANS.ACTIONS.RECOVERY_PAYMENT' | appTranslate
+                      }}</ion-label>
+                    </ion-item>
+                  }
+                  <ion-item
+                    button
+                    (click)="onDelete()"
+                    appRequiresPermission="DELETE_WORKINGCAPITALLOAN"
+                  >
                     <ion-icon slot="start" name="trash-outline"></ion-icon>
                     <ion-label>{{ 'WC_LOANS.ACTIONS.DELETE' | appTranslate }}</ion-label>
                   </ion-item>
@@ -319,7 +452,12 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
       @if (activeTab() === TAB.charges) {
         <div class="tab-content">
           <div class="tab-toolbar">
-            <ion-button color="primary" (click)="onAddCharge()" [disabled]="!loan()">
+            <ion-button
+              color="primary"
+              (click)="onAddCharge()"
+              appRequiresPermission="CREATE_WORKINGCAPITALLOANCHARGE"
+              [disabled]="!loan()"
+            >
               <ion-icon name="add-outline"></ion-icon>
               {{ 'WC_LOANS.CHARGE.ADD' | appTranslate }}
             </ion-button>
@@ -357,6 +495,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
                           color="danger"
                           [attr.aria-label]="'WC_LOANS.CHARGE.WAIVE' | appTranslate"
                           [appTooltip]="'WC_LOANS.CHARGE.WAIVE' | appTranslate"
+                          *appHasPermission="'WAIVE_WORKINGCAPITALLOANCHARGE'"
                           (click)="onWaiveCharge(c)"
                         >
                           {{ 'WC_LOANS.CHARGE.WAIVE' | appTranslate }}
@@ -417,7 +556,12 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
       @if (activeTab() === TAB.delinquencyActions) {
         <div class="tab-content">
           <div class="tab-toolbar">
-            <ion-button color="primary" (click)="onNewDelinquencyAction()" [disabled]="!loan()">
+            <ion-button
+              color="primary"
+              (click)="onNewDelinquencyAction()"
+              appRequiresPermission="CREATE_WC_DELINQUENCY_ACTION"
+              [disabled]="!loan()"
+            >
               <ion-icon name="add-outline"></ion-icon>
               {{ 'WC_LOANS.DELINQUENCY_ACTION.NEW' | appTranslate }}
             </ion-button>
@@ -558,7 +702,12 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
       @if (activeTab() === TAB.breachActions) {
         <div class="tab-content">
           <div class="tab-toolbar">
-            <ion-button color="primary" (click)="onNewBreachAction()" [disabled]="!loan()">
+            <ion-button
+              color="primary"
+              (click)="onNewBreachAction()"
+              appRequiresPermission="CREATE_WC_BREACH_ACTION"
+              [disabled]="!loan()"
+            >
               <ion-icon name="add-outline"></ion-icon>
               {{ 'WC_LOANS.BREACH_ACTION.NEW' | appTranslate }}
             </ion-button>
@@ -609,7 +758,12 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
       @if (activeTab() === TAB.nearBreachActions) {
         <div class="tab-content">
           <div class="tab-toolbar">
-            <ion-button color="primary" (click)="onNewNearBreachAction()" [disabled]="!loan()">
+            <ion-button
+              color="primary"
+              (click)="onNewNearBreachAction()"
+              appRequiresPermission="CREATE_WC_NEAR_BREACH_ACTION"
+              [disabled]="!loan()"
+            >
               <ion-icon name="add-outline"></ion-icon>
               {{ 'WC_LOANS.NEAR_BREACH_ACTION.NEW' | appTranslate }}
             </ion-button>
@@ -675,6 +829,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
             </ion-item>
             <ion-button
               color="primary"
+              appRequiresPermission="ATTACH_WORKING_CAPITAL_LOAN_ORIGINATOR"
               (click)="onAttachOriginator()"
               [disabled]="!originatorToAttach()"
             >
@@ -720,6 +875,7 @@ export type WcLoanTab = (typeof WC_LOAN_TAB)[keyof typeof WC_LOAN_TAB];
                         color="danger"
                         [attr.aria-label]="'WC_LOANS.ORIGINATORS.DETACH' | appTranslate"
                         [appTooltip]="'WC_LOANS.ORIGINATORS.DETACH' | appTranslate"
+                        *appHasPermission="'DETACH_WORKING_CAPITAL_LOAN_ORIGINATOR'"
                         (click)="onDetachOriginator(o)"
                       >
                         <ion-icon name="unlink-outline"></ion-icon>
@@ -1200,6 +1356,52 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
 
   get isLoanActive(): boolean {
     return this.loan()?.status?.active === true;
+  }
+
+  /**
+   * Status gates for the money-moving and loss-recognition actions.
+   *
+   * Each mirrors what the Working Capital module accepts, so the screen does not offer an action
+   * the platform will refuse. The statuses come from the module's own documentation:
+   * repayment, goodwill credit and payout refund take `ACTIVE`, `CLOSED_OBLIGATIONS_MET` and
+   * `OVERPAID`; a written-off loan is locked to everything but a recovery payment.
+   */
+  get isLoanOverpaid(): boolean {
+    return this.loan()?.status?.overpaid === true;
+  }
+
+  get isLoanChargedOff(): boolean {
+    return this.loan()?.chargedOff === true;
+  }
+
+  get isLoanWrittenOff(): boolean {
+    return this.loan()?.status?.closedWrittenOff === true;
+  }
+
+  /** Repayment-like credits: allowed while the balance can still move. */
+  get acceptsCredits(): boolean {
+    const status = this.loan()?.status;
+    return (
+      status?.active === true || status?.closedObligationsMet === true || status?.overpaid === true
+    );
+  }
+
+  /** A refund needs something to refund; Fineract caps it at the overpayment. */
+  get hasCreditBalance(): boolean {
+    return this.isLoanOverpaid && (this.loan()?.balance?.overpaymentAmount ?? 0) > 0;
+  }
+
+  /** Recovery is capped at what is still recoverable, which the template also offers. */
+  get canRecordRecovery(): boolean {
+    return this.isLoanWrittenOff && (this.loan()?.balance?.writtenOffOutstanding ?? 0) > 0;
+  }
+
+  /**
+   * Undo write-off is refused while any recovery stands: restoring the balance would replay money
+   * already booked as recovery income against it. The recoveries have to be reversed first.
+   */
+  get canUndoWriteOff(): boolean {
+    return this.isLoanWrittenOff && (this.loan()?.balance?.totalRecovered ?? 0) === 0;
   }
 
   onRepayment(): void {
