@@ -3035,5 +3035,11 @@
     "HINT": "लिंक पुराना हो सकता है, या पता गलत टाइप किया गया हो सकता है।",
     "BACK_TO_DASHBOARD": "डैशबोर्ड पर वापस जाएं",
     "SEARCH": "खोजें"
+  },
+  "DEPOSITS": {
+    "DEPOSIT_AMOUNT": "जमा राशि",
+    "MATURITY_DATE": "परिपक्वता तिथि",
+    "LINKED_ACCOUNT": "इस खाते से वित्तपोषित",
+    "TRANSFER_INTEREST_TO_SAVINGS": "ब्याज बचत खाते में"
   }
 }

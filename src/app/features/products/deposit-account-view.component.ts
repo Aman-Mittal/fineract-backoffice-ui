@@ -307,10 +307,58 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                     <span class="label">{{ 'COMMON.INTEREST_RATE' | appTranslate }}</span>
                     <span class="value">{{ account()?.['nominalAnnualInterestRate'] }}%</span>
                   </div>
-                  <div class="detail-item">
-                    <span class="label">{{ 'SAVINGS.MIN_BALANCE_REQUIRED' | appTranslate }}</span>
-                    <span class="value">{{ account()?.['minRequiredOpeningBalance'] }}</span>
-                  </div>
+
+                  <!-- The figures that define a term deposit. Each is rendered only when the
+                       payload carries it, so the savings accounts that share this view are
+                       unaffected rather than showing a row of blanks. -->
+                  @if (getDepositAmount() !== null) {
+                    <div class="detail-item" data-testid="deposit-amount">
+                      <span class="label">{{ 'DEPOSITS.DEPOSIT_AMOUNT' | appTranslate }}</span>
+                      <span class="value"
+                        >{{ getCurrencySymbol() }} {{ getDepositAmount() | number: '1.2-2' }}</span
+                      >
+                    </div>
+                  }
+                  @if (getDepositTerm()) {
+                    <div class="detail-item" data-testid="deposit-term">
+                      <span class="label">{{ 'COMMON.TERM' | appTranslate }}</span>
+                      <span class="value">{{ getDepositTerm() }}</span>
+                    </div>
+                  }
+                  @if (getMaturityAmount() !== null) {
+                    <div class="detail-item" data-testid="deposit-maturity-amount">
+                      <span class="label">{{ 'COMMON.MATURITY_AMOUNT' | appTranslate }}</span>
+                      <span class="value"
+                        >{{ getCurrencySymbol() }} {{ getMaturityAmount() | number: '1.2-2' }}</span
+                      >
+                    </div>
+                  }
+                  @if (account()?.['maturityDate']) {
+                    <div class="detail-item" data-testid="deposit-maturity-date">
+                      <span class="label">{{ 'DEPOSITS.MATURITY_DATE' | appTranslate }}</span>
+                      <span class="value">{{ getMaturityDate() }}</span>
+                    </div>
+                  }
+                  @if (getLinkedAccountNo()) {
+                    <div class="detail-item" data-testid="deposit-linked-account">
+                      <span class="label">{{ 'DEPOSITS.LINKED_ACCOUNT' | appTranslate }}</span>
+                      <span class="value">{{ getLinkedAccountNo() }}</span>
+                    </div>
+                  }
+                  @if (account()?.['transferInterestToSavings']) {
+                    <div class="detail-item" data-testid="deposit-transfer-interest">
+                      <span class="label">{{
+                        'DEPOSITS.TRANSFER_INTEREST_TO_SAVINGS' | appTranslate
+                      }}</span>
+                      <span class="value">{{ 'COMMON.YES' | appTranslate }}</span>
+                    </div>
+                  }
+                  @if (account()?.['minRequiredOpeningBalance'] !== undefined) {
+                    <div class="detail-item">
+                      <span class="label">{{ 'SAVINGS.MIN_BALANCE_REQUIRED' | appTranslate }}</span>
+                      <span class="value">{{ account()?.['minRequiredOpeningBalance'] }}</span>
+                    </div>
+                  }
                 </ion-card-content>
               </ion-card>
 
@@ -901,18 +949,67 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
     return (currency?.['displaySymbol'] as string) || '';
   }
 
+  /**
+   * The account's balance.
+   *
+   * `summary.accountBalance`, not the top level. A deposit account response carries no
+   * `accountBalance` of its own — measured against a running Fineract, where an active fixed
+   * deposit holding 5,000 answers `accountBalance: undefined` and
+   * `summary: { accountBalance: 5000 }`. Reading the top level rendered the balance as blank on
+   * every deposit account, which is issue #764.
+   *
+   * The top level is still read as a fallback rather than dropped: the savings screens share
+   * this component's shape, and a payload that does carry it should not be ignored.
+   */
   getAccountBalance(): number | null {
-    const balance = this.account()?.['accountBalance'];
+    const summary = this.account()?.['summary'] as Record<string, unknown> | undefined;
+    const balance = summary?.['accountBalance'] ?? this.account()?.['accountBalance'];
     return balance != null ? Number(balance) : null;
+  }
+
+  /** The figures that define a term deposit, each absent from the view before #764. */
+  getDepositAmount(): number | null {
+    return this.numberField('depositAmount');
+  }
+
+  getMaturityAmount(): number | null {
+    return this.numberField('maturityAmount');
+  }
+
+  getMaturityDate(): string {
+    return this.formatDate(this.account()?.['maturityDate']);
+  }
+
+  /**
+   * The term, as "12 Months".
+   *
+   * The unit is `depositPeriodFrequency`, which the payload sends as an enum object — a bare
+   * "12" could be days, months or years and the three are not interchangeable in a
+   * conversation with a customer.
+   */
+  getDepositTerm(): string {
+    const period = this.numberField('depositPeriod');
+    if (period === null) return '';
+    const frequency = this.account()?.['depositPeriodFrequency'] as
+      Record<string, unknown> | undefined;
+    const unit = (frequency?.['value'] as string) ?? '';
+    return unit ? `${period} ${unit}` : String(period);
+  }
+
+  /** The savings account this deposit draws from, if one was linked. See the form for why. */
+  getLinkedAccountNo(): string {
+    const linked = this.account()?.['linkedAccount'] as Record<string, unknown> | undefined;
+    return (linked?.['accountNo'] as string) ?? '';
+  }
+
+  private numberField(field: string): number | null {
+    const value = this.account()?.[field];
+    return value != null ? Number(value) : null;
   }
 
   getActivationDate(): string {
     const timeline = this.account()?.['timeline'] as Record<string, unknown>;
     return this.formatDate(timeline?.['activatedOnDate']);
-  }
-
-  getBalance(): number {
-    return (this.account()?.['accountBalance'] as number) || 0;
   }
 
   readonly clientId = computed(() => this.account()?.['clientId'] as number | undefined);

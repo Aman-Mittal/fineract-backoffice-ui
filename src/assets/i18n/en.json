@@ -3035,5 +3035,11 @@
     "CONFIRM": "This applies the action to {{count}} record(s) in one request.",
     "ALL_SUCCEEDED": "{{count}} record(s) processed successfully.",
     "PARTIAL": "{{succeeded}} of {{total}} succeeded. These were refused: {{names}}"
+  },
+  "DEPOSITS": {
+    "DEPOSIT_AMOUNT": "Deposit Amount",
+    "MATURITY_DATE": "Maturity Date",
+    "LINKED_ACCOUNT": "Funded From",
+    "TRANSFER_INTEREST_TO_SAVINGS": "Interest Paid to Savings"
   }
 }
