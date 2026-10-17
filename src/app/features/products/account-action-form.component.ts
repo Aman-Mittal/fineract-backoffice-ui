@@ -511,13 +511,10 @@ export class AccountActionFormComponent implements OnInit {
     this.isSaving.set(true);
     const formattedDate = formatDateToFineract(this.actionDate);
 
-    let obs$: Observable<unknown> | null = null;
-
-    if (this.accountType() === 'loan') {
-      obs$ = this.handleLoanAction(formattedDate).obs$;
-    } else {
-      obs$ = this.handleDepositAction(formattedDate).obs$;
-    }
+    const obs$ =
+      this.accountType() === 'loan'
+        ? this.handleLoanAction(formattedDate).obs$
+        : this.handleDepositAction(formattedDate).obs$;
 
     if (obs$) {
       obs$.subscribe({
