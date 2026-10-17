@@ -26,22 +26,14 @@ import {
   signal,
   viewChildren,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, from, map } from 'rxjs';
+import { from } from 'rxjs';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { SavingsStandingInstructionsTabComponent } from './savings/savings-standing-instructions-tab.component';
-import {
-  FixedDepositAccountService,
-  FixedDepositAccountTransactionsService,
-  RecurringDepositAccountService,
-  RecurringDepositAccountTransactionsService,
-  SavingsAccountChargeData,
-} from '../../api';
-import { BASE_PATH } from '../../api/variables';
-import { I18N, TranslatePipe } from '../../core/adapters';
+import { DEPOSIT_ACCOUNT_API, I18N, TranslatePipe } from '../../core/adapters';
+import type { DepositAccount, DepositAccountCharge, DepositType } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import { DialogService } from '../../core/services/dialog.service';
 import {
@@ -747,14 +739,9 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   private readonly popovers = viewChildren(IonPopover);
 
   readonly activeTab = signal<DepositTab>(DEPOSIT_TAB.overview);
-  private readonly fdService = inject(FixedDepositAccountService);
-  private readonly rdService = inject(RecurringDepositAccountService);
-  private readonly fdTransactionsService = inject(FixedDepositAccountTransactionsService);
-  private readonly rdTransactionsService = inject(RecurringDepositAccountTransactionsService);
-  private readonly httpClient = inject(HttpClient);
-  private readonly basePath = inject(BASE_PATH);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly dialogService = inject(DialogService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18N);
@@ -763,7 +750,21 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   isRD = false;
   readonly account = signal<Record<string, unknown> | null>(null);
   readonly transactions = signal<Record<string, unknown>[]>([]);
-  readonly charges = signal<SavingsAccountChargeData[]>([]);
+  readonly charges = signal<DepositAccountCharge[]>([]);
+
+  /**
+   * The account as the adapter models it.
+   *
+   * Held beside `account()` while the template is migrated off the payload: the figures the
+   * screen reasons about come from here, and the untyped record stays only for the bindings not
+   * yet converted. See `DepositAccount`.
+   */
+  readonly deposit = signal<DepositAccount | null>(null);
+
+  /** Which kind of deposit this screen is showing, for the adapter's operations. */
+  private get depositType(): DepositType {
+    return this.isRD ? 'recurring' : 'fixed';
+  }
 
   /**
    * The charges this account's product allows, from the account template.
@@ -809,19 +810,21 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     this.isLoading.set(true);
-    // Widened to `unknown`: the two responses are distinct generated types with no common
-    // supertype, and the screen reads both through the same untyped record either way.
-    const request$: Observable<unknown> = this.isRD
-      ? this.rdService.getRecurringdepositaccountsAccountId(this.accountId)
-      : this.fdService.getFixeddepositaccountsAccountId(this.accountId);
 
-    request$.subscribe({
-      next: (data) => {
-        this.account.set(data as unknown as Record<string, unknown>);
+    this.deposits.get(this.depositType, this.accountId).subscribe({
+      next: (account) => {
+        this.deposit.set(account);
+        // The screen still binds most of its template through the payload — see `DepositAccount`
+        // on the migration debt this names.
+        this.account.set(account.raw);
+        this.charges.set([...account.charges]);
+        this.chartSlabs.set(
+          ((account.raw['accountChart'] as { chartSlabs?: ChartSlab[] } | undefined)?.chartSlabs ??
+            []) as ChartSlab[],
+        );
         this.hasError.set(false);
         this.isLoading.set(false);
         this.loadTransactions();
-        this.loadCharges();
         this.loadChargeOptions();
       },
       error: () => {
@@ -832,39 +835,6 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Reads the charges on this account, which — like the recurring-deposit transaction list
-   * above — the plain account read does not carry. Fineract adds `charges` to the response only
-   * when asked with `?associations=all`, a parameter neither deposit endpoint's generated method
-   * can send, so this goes through the same `HttpClient` escape hatch as `loadTransactions`.
-   */
-  /**
-   * Reads the charges and the interest rate chart in one call — both live under the same
-   * `associations=all` response as `loadTransactions`'s recurring-deposit branch, so there is no
-   * reason to ask for them separately.
-   */
-  private loadCharges(): void {
-    const path = this.isRD
-      ? `${this.basePath}/v1/recurringdepositaccounts/${this.accountId}`
-      : `${this.basePath}/v1/fixeddepositaccounts/${this.accountId}`;
-
-    this.httpClient
-      .get<{
-        charges?: SavingsAccountChargeData[];
-        accountChart?: { chartSlabs?: ChartSlab[] };
-      }>(path, { params: { associations: 'all' } })
-      .subscribe({
-        next: (response) => {
-          this.charges.set(response.charges ?? []);
-          this.chartSlabs.set(response.accountChart?.chartSlabs ?? []);
-        },
-        error: () => {
-          this.charges.set([]);
-          this.chartSlabs.set([]);
-        },
-      });
-  }
-
-  /**
    * The charges this product allows, from the account template.
    *
    * Addressed with the client and product the account itself reports, because the template's
@@ -872,26 +842,15 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * a dialog whose submit can only be refused.
    */
   private loadChargeOptions(): void {
-    const clientId = this.account()?.['clientId'] as number | undefined;
-    // `depositProductId` on a deposit account. `savingsProductId` is what the savings response
-    // calls it, and the generated type declares that one — measured, a fixed deposit answers
-    // only `depositProductId`, so reading the declared name alone found nothing.
-    const productId = (this.account()?.['depositProductId'] ??
-      this.account()?.['savingsProductId']) as number | undefined;
-    if (clientId === undefined || productId === undefined) return;
+    const clientId = this.deposit()?.clientId;
+    const productId = this.deposit()?.productId;
+    if (clientId === null || clientId === undefined) return;
+    if (productId === null || productId === undefined) return;
 
-    const path = this.isRD
-      ? `${this.basePath}/v1/recurringdepositaccounts/template`
-      : `${this.basePath}/v1/fixeddepositaccounts/template`;
-
-    this.httpClient
-      .get<{ chargeOptions?: { id?: number; name?: string }[] }>(path, {
-        params: { clientId, productId },
-      })
-      .subscribe({
-        next: (template) => this.chargeOptions.set(template.chargeOptions ?? []),
-        error: () => this.chargeOptions.set([]),
-      });
+    this.deposits.template(this.depositType, clientId, productId).subscribe({
+      next: (template) => this.chargeOptions.set([...template.chargeOptions]),
+      error: () => this.chargeOptions.set([]),
+    });
   }
 
   /**
@@ -933,18 +892,18 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
     });
     if (!values) return;
 
-    this.httpClient
-      .post(`${this.basePath}/v1/savingsaccounts/${this.accountId}/charges`, {
+    this.deposits
+      .addCharge(this.accountId, {
         chargeId: Number(values['chargeId']),
         amount: Number(values['amount']),
         dueDate: String(values['dueDate']),
-        dateFormat: 'yyyy-MM-dd',
-        locale: FINERACT_LOCALE,
       })
       .subscribe({
         next: () => {
           this.notifications.success(this.i18n.translate('CHARGES.SAVED'));
-          this.loadCharges();
+          // One read brings the charge list back with the account, so there is nothing separate
+          // to refresh.
+          this.loadData();
         },
         error: () => this.notifications.error(this.i18n.translate('CHARGES.FAILED')),
       });
@@ -955,42 +914,18 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Reads the transaction list, which the account response does not carry.
+   * Reads the transaction list, which the account read does not carry.
    *
-   * `GET /fixeddepositaccounts/{id}` and `GET /recurringdepositaccounts/{id}` answer without a
-   * `transactions` key unless asked for one, so the tab read `account['transactions']` and found
-   * `undefined` on every account ever opened — the tab was empty by construction, not because
-   * these accounts had no transactions.
-   *
-   * The two account types are asked differently because only one of them can be:
-   *
-   * - **Fixed deposit** has a list endpoint, `GET /fixeddepositaccounts/{id}/transactions`, and a
-   *   generated method for it. That is the typed path and it is used.
-   * - **Recurring deposit** has no such endpoint — `GET /recurringdepositaccounts/{id}/transactions`
-   *   answers `405`. Its transactions come from `?associations=transactions` on the account, and
-   *   the upstream OpenAPI document does not describe an `associations` parameter for either
-   *   deposit type (it does for `/savingsaccounts/{accountId}`), so the generated client cannot
-   *   send it. Hence the same `HttpClient` escape hatch `group-view` uses, for the same reason.
-   *   Delete this branch once upstream describes the parameter.
+   * How it is fetched differs by deposit type, and that divergence now lives in
+   * `FineractDepositAccountApi` where it is a fact about the platform rather than about this
+   * screen.
    *
    * A failure here leaves the rest of the screen intact: the account loaded, and a missing
    * transaction list is not a reason to blank the lifecycle actions.
    */
   private loadTransactions(): void {
-    const transactions$: Observable<unknown[]> = this.isRD
-      ? this.httpClient
-          .get<{
-            transactions?: unknown[];
-          }>(`${this.basePath}/v1/recurringdepositaccounts/${this.accountId}`, {
-            params: { associations: 'transactions' },
-          })
-          .pipe(map((account) => account.transactions ?? []))
-      : this.fdTransactionsService.getFixeddepositaccountsFixedDepositAccountIdTransactions(
-          this.accountId,
-        );
-
-    transactions$.subscribe({
-      next: (transactions) => this.transactions.set(transactions as Record<string, unknown>[]),
+    this.deposits.transactions(this.depositType, this.accountId).subscribe({
+      next: (transactions) => this.transactions.set(transactions),
       error: () => this.transactions.set([]),
     });
   }
@@ -1024,29 +959,15 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
       })
       .then((confirmed) => {
         if (!confirmed) return;
-        // Both twins take (accountId, transactionId, body, command); the body is unused by the
-        // `undo` command but is a required positional argument.
-        const request$: Observable<unknown> = this.isRD
-          ? this.rdTransactionsService.postRecurringdepositaccountsRecurringDepositAccountIdTransactionsTransactionId(
-              this.accountId,
-              transactionId,
-              {},
-              'undo',
-            )
-          : this.fdTransactionsService.postFixeddepositaccountsFixedDepositAccountIdTransactionsTransactionId(
-              this.accountId,
-              transactionId,
-              {},
-              'undo',
-            );
-
-        request$.subscribe({
-          next: () => {
-            void this.notifications.success(this.i18n.translate('COMMON.SUCCESS'));
-            this.loadData();
-          },
-          error: () => undefined,
-        });
+        this.deposits
+          .transactionCommand(this.depositType, this.accountId, transactionId, 'undo')
+          .subscribe({
+            next: () => {
+              void this.notifications.success(this.i18n.translate('COMMON.SUCCESS'));
+              this.loadData();
+            },
+            error: () => undefined,
+          });
       });
   }
 
@@ -1310,11 +1231,7 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   }
 
   private runCommand(command: string, body: Record<string, unknown>): void {
-    const request$: Observable<unknown> = this.isRD
-      ? this.rdService.postRecurringdepositaccountsAccountId(this.accountId, body, command)
-      : this.fdService.postFixeddepositaccountsAccountId(this.accountId, body, command);
-
-    request$.subscribe({
+    this.deposits.command(this.depositType, this.accountId, command, body).subscribe({
       next: () => {
         void this.notifications.success(this.i18n.translate('COMMON.SUCCESS'));
         // Re-read rather than patch: a command moves the status, stamps a date and, for a

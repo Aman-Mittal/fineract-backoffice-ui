@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
+import { DEPOSIT_ACCOUNT_API, TranslatePipe } from '../../../core/adapters';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import {
@@ -43,15 +43,6 @@ import {
   IonNote,
 } from '@ionic/angular/standalone';
 import {
-  FixedDepositAccountService,
-  FixedDepositProductService,
-  GetFixedDepositAccountsTemplateResponse,
-  GetFixedDepositAccountsAccountIdResponse,
-  GetFixedDepositAccountsProductOptions,
-  PostFixedDepositAccountsRequest,
-  PutFixedDepositAccountsAccountIdRequest,
-} from '../../../api';
-import {
   formatArrayDate,
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -59,7 +50,11 @@ import {
   toIsoDate,
 } from '../../../core/utils/date-formatter';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
-import { DepositChartSlab, rateForTerm, slabsFromResponse } from '../deposit-chart';
+import { DepositChartSlab, rateForTerm } from '../deposit-chart';
+import type { DepositProductOption, DepositType } from '../../../core/adapters';
+
+/** This form opens fixed deposits only; the recurring one has its own. */
+const DEPOSIT_TYPE: DepositType = 'fixed';
 
 /**
  * Months. The frequency select defaults to it, and so does the rate lookup when a product's
@@ -424,12 +419,10 @@ export class FixedDepositAccountFormComponent implements OnInit {
   readonly pickersReady = createPickersReady();
 
   /** Service for term deposit operations */
-  private readonly fixedDepositService = inject(FixedDepositAccountService);
-  // The deposit amount is on the product, not on the account template — see onProductSelected.
-  private readonly productService = inject(FixedDepositProductService);
   /** Router for post-op navigation */
   private readonly router = inject(Router);
   /** Activated route for editing */
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly route = inject(ActivatedRoute);
 
   /** Path for redirection */
@@ -449,7 +442,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
   /** Submitted date for template binding */
   readonly submittedOnDate = signal(toIsoDate(new Date()));
   /** Available products list */
-  readonly products = signal<GetFixedDepositAccountsProductOptions[]>([]);
+  readonly products = signal<DepositProductOption[]>([]);
 
   /**
    * The chosen product's rate slabs, so the rate follows the term the user enters.
@@ -498,15 +491,8 @@ export class FixedDepositAccountFormComponent implements OnInit {
    * Fetches the list of eligible fixed deposit products for the client.
    */
   private loadProducts(clientId?: number): void {
-    this.fixedDepositService.getFixeddepositaccountsTemplate(clientId).subscribe({
-      next: (template: GetFixedDepositAccountsTemplateResponse) => {
-        if (template && template.productOptions) {
-          // Explicitly convert from Set or Array to ensure dropdown rendering
-          this.products.set(Array.from(template.productOptions));
-        } else {
-          this.products.set([]);
-        }
-      },
+    this.deposits.template(DEPOSIT_TYPE, clientId ?? 0).subscribe({
+      next: (template) => this.products.set([...template.productOptions]),
       error: (err: unknown) => {
         console.error('Failed to load eligible products', err);
         this.products.set([]);
@@ -541,50 +527,53 @@ export class FixedDepositAccountFormComponent implements OnInit {
   onProductSelected(productId: number): void {
     if (!productId) return;
 
-    this.fixedDepositService
-      .getFixeddepositaccountsTemplate(this.account()['clientId'] as number, undefined, productId)
+    this.loadProductOptions(productId, { prefill: true });
+
+    // The deposit amount, which only the product carries. Create only, for the same reason the
+    // prefill is: an existing account's amount is the agreement with the customer.
+    this.deposits.productDepositAmount(DEPOSIT_TYPE, productId).subscribe({
+      next: (amount) => this.patchAccount({ depositAmount: amount ?? undefined }),
+      error: (err: unknown) => console.error('Failed to load the product', err),
+    });
+  }
+
+  /**
+   * Loads what the chosen product offers, and optionally fills the form from it.
+   *
+   * `prefill` is false on edit. An existing account's term and rate are the agreement with the
+   * customer, so opening it for editing must not quietly replace them with the product's current
+   * defaults — but the option lists are still needed to render the selects.
+   */
+  private loadProductOptions(productId: number, { prefill }: { prefill: boolean }): void {
+    this.deposits
+      .template(DEPOSIT_TYPE, this.account()['clientId'] as number, productId)
       .subscribe({
-        next: (template: GetFixedDepositAccountsTemplateResponse) => {
-          const raw = template as unknown as Record<string, unknown>;
-          const slabs = slabsFromResponse(raw['accountChart']);
+        next: (template) => {
+          const slabs = template.chartSlabs.map((slab) => ({
+            periodType: slab.periodTypeId ?? DEFAULT_PERIOD_FREQUENCY,
+            fromPeriod: slab.fromPeriod ?? undefined,
+            toPeriod: slab.toPeriod ?? undefined,
+            annualInterestRate: slab.annualInterestRate ?? undefined,
+            locale: FINERACT_LOCALE,
+          }));
           this.chartSlabs.set(slabs);
+          this.savingsAccounts.set([...template.savingsAccounts]);
+          this.maturityInstructions.set([...template.maturityInstructions]);
 
-          const termType = (raw['minDepositTermType'] as Record<string, unknown> | undefined)?.[
-            'id'
-          ] as number | undefined;
-          const term = raw['minDepositTerm'] as number | undefined;
+          if (!prefill) return;
 
+          const termType = template.minDepositTermTypeId ?? DEFAULT_PERIOD_FREQUENCY;
+          const term = template.minDepositTerm ?? undefined;
           this.patchAccount({
             depositPeriod: term,
-            // The template's own unit for the minimum term; months when it offers none, which
-            // is the unit the frequency select defaults to.
-            depositPeriodFrequencyId: termType ?? DEFAULT_PERIOD_FREQUENCY,
-            nominalAnnualInterestRate: rateForTerm(
-              slabs,
-              term,
-              termType ?? DEFAULT_PERIOD_FREQUENCY,
-            ),
-            maturityInstructionId: raw['maturityInstructionId'],
+            // The template's own unit for the minimum term; months when it states none, which is
+            // the unit the frequency select defaults to.
+            depositPeriodFrequencyId: termType,
+            nominalAnnualInterestRate: rateForTerm(slabs, term, termType),
           });
-
-          this.savingsAccounts.set(
-            Array.from((raw['savingsAccounts'] as LinkableSavingsAccount[]) ?? []),
-          );
-          this.maturityInstructions.set(
-            Array.from((raw['maturityInstructionOptions'] as MaturityInstructionOption[]) ?? []),
-          );
         },
         error: (err: unknown) => console.error('Failed to load product defaults', err),
       });
-
-    // The deposit amount, which only the product carries.
-    this.productService.getFixeddepositproductsProductId(productId).subscribe({
-      next: (product) => {
-        const raw = product as unknown as Record<string, unknown>;
-        this.patchAccount({ depositAmount: raw['depositAmount'] });
-      },
-      error: (err: unknown) => console.error('Failed to load the product', err),
-    });
   }
 
   /**
@@ -640,27 +629,31 @@ export class FixedDepositAccountFormComponent implements OnInit {
    */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.fixedDepositService.getFixeddepositaccountsAccountId(this.accountId).subscribe({
-      next: (data: GetFixedDepositAccountsAccountIdResponse) => {
-        const dateArray = data.timeline?.submittedOnDate as unknown as number[];
-        if (dateArray) {
-          this.submittedOnDate.set(formatArrayDate(dateArray));
+    this.deposits.get(DEPOSIT_TYPE, this.accountId).subscribe({
+      next: (account) => {
+        const raw = account.raw;
+        const timeline = raw['timeline'] as { submittedOnDate?: unknown } | undefined;
+        if (timeline?.submittedOnDate) {
+          this.submittedOnDate.set(formatArrayDate(timeline.submittedOnDate));
         }
         this.account.set({
-          clientId: data.clientId,
-          // A fixed deposit answers `depositProductId`; `savingsProductId` is the savings
-          // response's name for it and is the one the generated type declares. Reading only the
-          // declared name left the product unselected on every edit.
-          productId:
-            ((data as unknown as Record<string, unknown>)['depositProductId'] as number) ??
-            data.savingsProductId,
-          depositAmount: data.depositAmount,
-          depositPeriod: data.depositPeriod,
-          depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
-          nominalAnnualInterestRate: (data as unknown as Record<string, unknown>)[
-            'nominalAnnualInterestRate'
-          ],
+          clientId: account.clientId ?? undefined,
+          // The adapter resolves which of the two names the payload uses. Reading only the
+          // declared `savingsProductId` left the product unselected on every edit.
+          productId: account.productId ?? undefined,
+          depositAmount: account.depositAmount ?? undefined,
+          depositPeriod: account.depositPeriod ?? undefined,
+          depositPeriodFrequencyId:
+            (raw['depositPeriodFrequency'] as { id?: number } | undefined)?.id ??
+            DEFAULT_PERIOD_FREQUENCY,
+          nominalAnnualInterestRate: account.nominalAnnualInterestRate ?? undefined,
+          maturityInstructionId: (raw['maturityInstruction'] as { id?: number } | undefined)?.id,
+          transferInterestToSavings: account.transferInterestToSavings,
         });
+        // Options only: the account's own term and rate stand. See `loadProductOptions`.
+        if (account.productId !== null) {
+          this.loadProductOptions(account.productId, { prefill: false });
+        }
       },
       error: (err: unknown) => console.error('Failed to load account', err),
     });
@@ -682,7 +675,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
       // Named field by field rather than spread, because an update must not resend the client
       // and product. Every field left out here is a field the update drops, so the maturity
       // instruction and the funding account are named too — see #783.
-      const payload: PutFixedDepositAccountsAccountIdRequest & Record<string, unknown> = {
+      const payload: Record<string, unknown> = {
         depositAmount: this.account()['depositAmount'] as number,
         locale: FINERACT_LOCALE,
         dateFormat: FINERACT_DATE_FORMAT,
@@ -700,17 +693,15 @@ export class FixedDepositAccountFormComponent implements OnInit {
         transferInterestToSavings: this.account()['transferInterestToSavings'] as
           boolean | undefined,
       };
-      this.fixedDepositService.putFixeddepositaccountsAccountId(this.accountId, payload).subscribe({
+      this.deposits.update(DEPOSIT_TYPE, this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => this.isSaving.set(false),
       });
     } else {
-      this.fixedDepositService
-        .postFixeddepositaccounts(this.account() as PostFixedDepositAccountsRequest)
-        .subscribe({
-          next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => this.isSaving.set(false),
-        });
+      this.deposits.create(DEPOSIT_TYPE, this.account()).subscribe({
+        next: () => this.router.navigate([this.LIST_PATH]),
+        error: () => this.isSaving.set(false),
+      });
     }
   }
 

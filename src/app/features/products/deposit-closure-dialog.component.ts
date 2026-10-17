@@ -26,10 +26,8 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
-import { Observable } from 'rxjs';
-
-import { FixedDepositAccountService, RecurringDepositAccountService } from '../../api';
-import { I18N, OVERLAY, TranslatePipe } from '../../core/adapters';
+import { DEPOSIT_ACCOUNT_API, I18N, OVERLAY, TranslatePipe } from '../../core/adapters';
+import type { DepositEnumOption, DepositSavingsAccount } from '../../core/adapters';
 
 export interface DepositClosureDialogData {
   accountId: number;
@@ -47,17 +45,6 @@ export interface DepositClosureResult {
   toSavingsAccountId?: number;
   /** Sent with a transfer so the receiving account's statement says where the money came from. */
   transferDescription?: string;
-}
-
-interface ClosureOption {
-  id?: number;
-  value?: string;
-}
-
-/** A savings account the proceeds can be transferred to, as the close template lists one. */
-interface TransferTarget {
-  id?: number;
-  accountNo?: string;
 }
 
 /**
@@ -198,13 +185,12 @@ interface TransferTarget {
 export class DepositClosureDialogComponent implements OnInit {
   private readonly overlay = inject(OVERLAY);
   private readonly i18n = inject(I18N);
-  private readonly fdService = inject(FixedDepositAccountService);
-  private readonly rdService = inject(RecurringDepositAccountService);
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
 
   readonly data = input.required<DepositClosureDialogData>();
 
-  readonly options = signal<ClosureOption[]>([]);
-  readonly transferTargets = signal<TransferTarget[]>([]);
+  readonly options = signal<DepositEnumOption[]>([]);
+  readonly transferTargets = signal<DepositSavingsAccount[]>([]);
   readonly prematureAmount = signal<number | null>(null);
   onAccountClosureId?: number;
   toSavingsAccountId?: number;
@@ -242,31 +228,22 @@ export class DepositClosureDialogComponent implements OnInit {
 
   private loadOptions(): void {
     const { accountId, isRD } = this.data();
-    const request$: Observable<unknown> = isRD
-      ? this.rdService.getRecurringdepositaccountsAccountIdTemplate(accountId, 'close')
-      : this.fdService.getFixeddepositaccountsAccountIdTemplate(accountId, 'close');
 
-    request$.subscribe({
+    this.deposits.closureTemplate(isRD ? 'recurring' : 'fixed', accountId).subscribe({
       next: (template) => {
-        const raw = template as {
-          onAccountClosureOptions?: ClosureOption[];
-          savingsAccounts?: TransferTarget[];
-          transferToSavingsId?: number;
-        };
-        const offered = raw.onAccountClosureOptions ?? [];
-
         // The template offers the same four options for both commands, but a premature closure
-        // cannot re-invest — the platform answers `reinvest.not.allowed`. Measured.
+        // cannot re-invest — the platform answers `reinvest.not.allowed`. Measured. The adapter
+        // reports the template as it stands, because this is a rule about the *operation*.
         this.options.set(
           this.data().premature
-            ? offered.filter((option) => !REINVEST_OPTIONS.has(option.id ?? 0))
-            : offered,
+            ? template.options.filter((option) => !REINVEST_OPTIONS.has(option.id))
+            : [...template.options],
         );
         this.onAccountClosureId = this.options()[0]?.id;
 
-        this.transferTargets.set(Array.from(raw.savingsAccounts ?? []));
+        this.transferTargets.set([...template.transferTargets]);
         // Defaults to the account this deposit already pays into, when it has one.
-        this.toSavingsAccountId = raw.transferToSavingsId;
+        this.toSavingsAccountId = template.defaultTransferTargetId ?? undefined;
       },
       error: () => {
         this.options.set([]);
@@ -283,28 +260,9 @@ export class DepositClosureDialogComponent implements OnInit {
    */
   private loadPrematureAmount(): void {
     const { accountId, isRD, closedOnDate } = this.data();
-    const body = {
-      closedOnDate: closedOnDate,
-      locale: 'en',
-      dateFormat: 'yyyy-MM-dd',
-    };
-    const request$: Observable<unknown> = isRD
-      ? this.rdService.postRecurringdepositaccountsAccountId(
-          accountId,
-          body,
-          'calculatePrematureAmount',
-        )
-      : this.fdService.postFixeddepositaccountsAccountId(
-          accountId,
-          body,
-          'calculatePrematureAmount',
-        );
 
-    request$.subscribe({
-      next: (result) => {
-        const amount = (result as { maturityAmount?: number }).maturityAmount;
-        this.prematureAmount.set(typeof amount === 'number' ? amount : null);
-      },
+    this.deposits.prematureAmount(isRD ? 'recurring' : 'fixed', accountId, closedOnDate).subscribe({
+      next: (amount) => this.prematureAmount.set(amount),
       error: () => this.prematureAmount.set(null),
     });
   }

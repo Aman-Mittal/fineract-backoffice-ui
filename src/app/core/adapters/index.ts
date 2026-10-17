@@ -40,6 +40,7 @@ export * from './api/office.api';
 export * from './api/entity-notes.api';
 export * from './api/loan.api';
 export * from './api/loan-transaction.api';
+export * from './api/deposit-account.api';
 export * from './api/staff.api';
 export * from './api/holiday-rescheduling-type';
 export * from './api/holiday.api';
