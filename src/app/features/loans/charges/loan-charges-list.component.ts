@@ -24,13 +24,40 @@ import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { LoanChargesService, GetLoansLoanIdChargesChargeIdResponse } from '../../../api';
 import { DialogService } from '../../../core/services/dialog.service';
+import { CHARGE_COMMAND_PERMISSIONS } from '../../../core/guards/command-permissions';
+import { NotificationService } from '../../../core/services/notification.service';
+import { toIsoDate } from '../../../core/utils/date-formatter';
+import { RequiresPermissionDirective } from '../../../shared/directives/requires-permission.directive';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ButtonComponent } from '../../../ui/button/button.component';
 
+/** Fineract parses the dates these commands send against this format. */
+const DATE_FORMAT = 'yyyy-MM-dd';
+const LOCALE = 'en';
+
 /**
- * Lists the charges attached to a single loan. The loan id is read from the route snapshot;
- * create and delete actions operate within that loan's charge collection. Paid charges cannot
- * be deleted and the delete button is hidden for those rows.
+ * Whether a charge still has something to pay, waive or adjust.
+ *
+ * `amountOutstanding` rather than the `paid` flag the delete action reads: a partly paid charge
+ * is neither paid nor fully settled, and it is exactly the one that can still be waived.
+ */
+function outstanding(charge: GetLoansLoanIdChargesChargeIdResponse): number {
+  return charge.amountOutstanding ?? 0;
+}
+
+/**
+ * Lists the charges attached to a single loan, and services them.
+ *
+ * The loan id is read from the route snapshot; every action operates within that loan's charge
+ * collection. Paid charges cannot be deleted and the delete button is hidden for those rows.
+ *
+ * Pay, Waive and Adjustment are offered per row, each gated on its own permission and on the
+ * charge still having something outstanding. Before this, a wrongly applied charge could only
+ * be deleted — which the platform refuses once it has been paid or partly paid, and which
+ * leaves no record that a waiver happened (issue #754).
+ *
+ * The bodies are the platform's, measured rather than inferred: `pay` takes a
+ * `transactionDate`, `adjustment` takes an `amount`, and `waive` takes neither.
  */
 @Component({
   selector: 'app-loan-charges-list',
@@ -41,6 +68,7 @@ import { ButtonComponent } from '../../../ui/button/button.component';
     CellTemplateDirective,
     ButtonComponent,
     TooltipDirective,
+    RequiresPermissionDirective,
   ],
   template: `
     <app-data-table
@@ -63,6 +91,38 @@ import { ButtonComponent } from '../../../ui/button/button.component';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-row>
+        @if (isOutstanding(row)) {
+          <app-button
+            type="button"
+            emphasis="quiet"
+            data-testid="loan-charge-pay"
+            [label]="'CHARGES.PAY' | appTranslate"
+            icon="cash-outline"
+            [appTooltip]="'CHARGES.PAY' | appTranslate"
+            [appRequiresPermission]="permissions.pay"
+            (click)="onPay(row)"
+          />
+          <app-button
+            type="button"
+            emphasis="quiet"
+            data-testid="loan-charge-waive"
+            [label]="'CHARGES.WAIVE' | appTranslate"
+            icon="remove-circle-outline"
+            [appTooltip]="'CHARGES.WAIVE' | appTranslate"
+            [appRequiresPermission]="permissions.waive"
+            (click)="onWaive(row)"
+          />
+          <app-button
+            type="button"
+            emphasis="quiet"
+            data-testid="loan-charge-adjust"
+            [label]="'CHARGES.ADJUST' | appTranslate"
+            icon="create-outline"
+            [appTooltip]="'CHARGES.ADJUST' | appTranslate"
+            [appRequiresPermission]="permissions.adjustment"
+            (click)="onAdjust(row)"
+          />
+        }
         @if (!row.paid) {
           <app-button
             type="button"
@@ -83,7 +143,11 @@ export class LoanChargesListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
+  private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18N);
+
+  /** For the template's gates, which need the codes as values. */
+  readonly permissions = CHARGE_COMMAND_PERMISSIONS.loan;
 
   readonly columns: ColumnDef[] = [
     { key: 'name', label: 'LOAN_CHARGES.TITLE', sortable: true },
@@ -112,6 +176,115 @@ export class LoanChargesListComponent implements OnInit {
 
   onCreate(): void {
     this.router.navigate(['/loans', this.loanId, 'charges', 'add']);
+  }
+
+  isOutstanding(row: GetLoansLoanIdChargesChargeIdResponse): boolean {
+    return outstanding(row) > 0;
+  }
+
+  /**
+   * Pays a charge on the date the user gives.
+   *
+   * The date is asked for rather than assumed to be today, because a charge is often paid
+   * against a date already past — and because the tenant's business date can be behind the
+   * browser's, which is issue #758. The platform demands it:
+   * `validation.msg.loan.charge.payment.transaction.transactionDate.cannot.be.blank`.
+   */
+  async onPay(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {
+    const values = await this.dialogService.prompt({
+      title: this.i18n.translate('CHARGES.PAY'),
+      message: this.i18n.translate('CHARGES.CONFIRM_PAY', {
+        name: row.name ?? '',
+        amount: outstanding(row),
+      }),
+      fields: [
+        {
+          name: 'transactionDate',
+          label: this.i18n.translate('COMMON.TRANSACTION_DATE'),
+          type: 'date',
+          value: toIsoDate(new Date()),
+        },
+      ],
+    });
+    if (!values) return;
+
+    this.send(row, 'pay', {
+      transactionDate: String(values['transactionDate']),
+      dateFormat: DATE_FORMAT,
+      locale: LOCALE,
+    });
+  }
+
+  /**
+   * Waives a charge, after confirming.
+   *
+   * No fields: the platform takes the whole outstanding amount and refuses a body that says
+   * otherwise. Destructive, because a waiver is a write-off of the fee and is not undone from
+   * this screen — the reversal is on the transaction it produces, on the loan's Transactions
+   * tab, which is where the transaction id is.
+   */
+  async onWaive(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: this.i18n.translate('CHARGES.WAIVE'),
+      message: this.i18n.translate('CHARGES.CONFIRM_WAIVE', {
+        name: row.name ?? '',
+        amount: outstanding(row),
+      }),
+      destructive: true,
+    });
+    if (!confirmed) return;
+
+    this.send(row, 'waive', {});
+  }
+
+  /** Adjusts a charge to a different amount. `adjustment` takes the amount and nothing else. */
+  async onAdjust(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {
+    const values = await this.dialogService.prompt({
+      title: this.i18n.translate('CHARGES.ADJUST'),
+      message: this.i18n.translate('CHARGES.CONFIRM_ADJUST', { name: row.name ?? '' }),
+      fields: [
+        {
+          name: 'amount',
+          label: this.i18n.translate('COMMON.AMOUNT'),
+          type: 'number',
+          value: outstanding(row),
+        },
+      ],
+    });
+    if (!values) return;
+
+    this.send(row, 'adjustment', {
+      amount: Number(values['amount']),
+      locale: LOCALE,
+      dateFormat: DATE_FORMAT,
+    });
+  }
+
+  /**
+   * Issues one charge command and reloads.
+   *
+   * The reload is unconditional on success because every one of these changes the row it was
+   * issued from — a paid charge's outstanding falls, a waived one's goes to zero — and a stale
+   * row would keep offering actions the platform has just refused.
+   */
+  private send(
+    row: GetLoansLoanIdChargesChargeIdResponse,
+    command: keyof typeof CHARGE_COMMAND_PERMISSIONS.loan,
+    body: Record<string, unknown>,
+  ): void {
+    if (!row.id) return;
+    this.loanChargesService
+      .postLoansLoanIdChargesLoanChargeId(this.loanId, row.id, body, command)
+      .subscribe({
+        next: () => {
+          this.notifications.success(this.i18n.translate('CHARGES.SAVED'));
+          this.load();
+        },
+        error: (err: unknown) => {
+          console.error(`Failed to ${command} loan charge`, err);
+          this.notifications.error(this.i18n.translate('CHARGES.FAILED'));
+        },
+      });
   }
 
   async onDelete(row: GetLoansLoanIdChargesChargeIdResponse): Promise<void> {

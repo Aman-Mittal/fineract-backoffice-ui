@@ -17,9 +17,17 @@
  * under the License.
  */
 
-import { inject, input, Component } from '@angular/core';
+import { computed, inject, input, signal, Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../core/adapters';
-import { IonButton, IonIcon, ModalController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  ModalController,
+} from '@ionic/angular/standalone';
 
 export interface ConfirmDialogData {
   title: string;
@@ -28,7 +36,35 @@ export interface ConfirmDialogData {
   confirmText?: string;
   cancelText?: string;
   destructive?: boolean;
+  /**
+   * Values to collect before confirming. Empty or absent, this is a plain confirmation.
+   *
+   * Here rather than in a dialog of its own because every alternative was worse. The operations
+   * that need this — pay a charge, waive one, adjust one, on a loan, a savings account or a
+   * client — each need an amount or a date and nothing more, and they are issued from list
+   * screens that have no form on them. A component per operation would be six near-identical
+   * dialogs; a form in each list screen would be three. Neither can be written at all under
+   * ADR 0005 and ADR 0006: a new file may not import `@ionic/angular/standalone`, there is no
+   * form primitive in `src/app/ui` yet (issues #287 and #684), and `eslint-suppressions.json`
+   * may only shrink. This file already imports Ionic, so the fields go where the buttons are.
+   */
+  fields?: readonly DialogField[];
 }
+
+/** One value a dialog collects. */
+export interface DialogField {
+  /** The key this field's value is returned under. */
+  readonly name: string;
+  /** Already translated: the dialog does not know the caller's keys. */
+  readonly label: string;
+  readonly type: 'number' | 'text' | 'date';
+  readonly value?: string | number;
+  /** Defaults to required. A field the platform demands is the normal case here. */
+  readonly optional?: boolean;
+}
+
+/** What a dialog with fields resolves to: the values, by field name. */
+export type DialogValues = Record<string, string | number>;
 
 /**
  * Confirmation modal. Prefer opening it through `DialogService.confirm()` rather than
@@ -37,7 +73,7 @@ export interface ConfirmDialogData {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [TranslatePipe, IonButton, IonIcon],
+  imports: [FormsModule, TranslatePipe, IonButton, IonIcon, IonInput, IonItem, IonLabel],
   template: `
     <div class="dialog">
       <h2 class="dialog-title">
@@ -59,6 +95,25 @@ export interface ConfirmDialogData {
             }
           </table>
         }
+
+        @if (fields().length) {
+          <div class="dialog-fields">
+            @for (field of fields(); track field.name) {
+              <ion-item fill="outline">
+                <ion-label position="stacked">{{ field.label }}</ion-label>
+                <ion-input
+                  [attr.data-testid]="'dialog-field-' + field.name"
+                  [attr.aria-label]="field.label"
+                  [type]="field.type"
+                  [name]="field.name"
+                  [required]="!field.optional"
+                  [ngModel]="values()[field.name]"
+                  (ngModelChange)="setValue(field.name, $event)"
+                ></ion-input>
+              </ion-item>
+            }
+          </div>
+        }
       </div>
 
       <div class="dialog-actions">
@@ -73,6 +128,7 @@ export interface ConfirmDialogData {
         <ion-button
           data-testid="confirm-dialog-confirm"
           [color]="data().destructive ? 'danger' : 'primary'"
+          [disabled]="!isComplete()"
           (click)="dismiss(true)"
         >
           {{ data().confirmText || ('COMMON.CONFIRM' | appTranslate) }}
@@ -114,6 +170,12 @@ export interface ConfirmDialogData {
         text-align: right;
         font-weight: 600;
       }
+      .dialog-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 12px;
+      }
       .dialog-actions {
         display: flex;
         justify-content: flex-end;
@@ -128,7 +190,50 @@ export class ConfirmDialogComponent {
 
   readonly data = input.required<ConfirmDialogData>();
 
+  readonly fields = computed<readonly DialogField[]>(() => this.data().fields ?? []);
+
+  /** The values as edited, seeded from each field's own default. */
+  readonly values = signal<DialogValues>({});
+
+  private seeded = false;
+
+  constructor() {
+    // Seeded once, on the first render that has the input. Re-seeding on every read would
+    // discard what the user typed.
+    queueMicrotask(() => {
+      if (this.seeded) return;
+      this.seeded = true;
+      this.values.set(
+        Object.fromEntries(this.fields().map((field) => [field.name, field.value ?? ''])),
+      );
+    });
+  }
+
+  /**
+   * Whether every required field has something in it.
+   *
+   * Checked here rather than left to the platform, because the alternative is a server
+   * round-trip that answers `validation.msg....cannot.be.blank` as a toast — which is what
+   * issue #753 is about for user creation.
+   */
+  readonly isComplete = computed(() =>
+    this.fields().every(
+      (field) => field.optional === true || `${this.values()[field.name] ?? ''}`.trim() !== '',
+    ),
+  );
+
+  setValue(name: string, value: string | number): void {
+    this.values.update((current) => ({ ...current, [name]: value }));
+  }
+
+  /**
+   * Dismisses with the collected values, or with the boolean when there are none.
+   *
+   * The two shapes are what let `DialogService.confirm` keep checking `=== true` while
+   * `DialogService.prompt` reads a record: a cancelled prompt resolves `false`, which is not a
+   * record, so the caller gets `undefined` and cannot mistake it for an empty answer.
+   */
   dismiss(confirmed: boolean): void {
-    this.modalController.dismiss(confirmed);
+    this.modalController.dismiss(confirmed && this.fields().length ? this.values() : confirmed);
   }
 }

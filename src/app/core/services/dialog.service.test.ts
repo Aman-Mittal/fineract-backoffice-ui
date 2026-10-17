@@ -134,4 +134,52 @@ describe('DialogService', () => {
       );
     });
   });
+
+  /**
+   * `prompt` is `confirm` with a few fields in front of it. It exists because the operations
+   * that need one — pay a charge, waive one, adjust one, across loans, savings and clients —
+   * each want an amount or a date and are issued from list screens that have no form on them.
+   * See `ConfirmDialogData.fields` for why the fields live in the confirm dialog.
+   */
+  describe('prompt', () => {
+    const FIELDS = [{ name: 'amount', label: 'Amount', type: 'number' as const }];
+
+    it('resolves with the values the dialog collected', async () => {
+      overlay.nextModalResult = { amount: 40 };
+
+      await expect(service.prompt({ title: 'T', message: 'M', fields: FIELDS })).resolves.toEqual({
+        amount: 40,
+      });
+    });
+
+    it('resolves undefined when cancelled, which a confirm reports as false', async () => {
+      // The two shapes are what keep the callers honest: a cancelled prompt must not look like
+      // an answer of zero fields, or a command would be issued with an empty body.
+      overlay.nextModalResult = false;
+
+      await expect(
+        service.prompt({ title: 'T', message: 'M', fields: FIELDS }),
+      ).resolves.toBeUndefined();
+    });
+
+    it('resolves undefined when dismissed with no result at all', async () => {
+      overlay.nextModalResult = undefined;
+
+      await expect(
+        service.prompt({ title: 'T', message: 'M', fields: FIELDS }),
+      ).resolves.toBeUndefined();
+    });
+
+    it('passes the fields through, with the same default button labels as confirm', async () => {
+      await service.prompt({ title: 'T', message: 'M', fields: FIELDS });
+
+      expect(overlay.lastModal!.inputs!['data']).toEqual(
+        expect.objectContaining({
+          fields: FIELDS,
+          confirmText: 'COMMON.CONFIRM',
+          cancelText: 'COMMON.CANCEL',
+        }),
+      );
+    });
+  });
 });

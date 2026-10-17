@@ -22,10 +22,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SavingsChargesListComponent } from './savings-charges-list.component';
 import { SavingsChargesService } from '../../../api';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { DialogService } from '../../../core/services/dialog.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 describe('SavingsChargesListComponent', () => {
   let component: SavingsChargesListComponent;
@@ -33,15 +34,18 @@ describe('SavingsChargesListComponent', () => {
   let serviceSpy: SpyObj<SavingsChargesService>;
   let routerSpy: SpyObj<Router>;
   let dialogService: SpyObj<DialogService>;
+  let notifications: SpyObj<NotificationService>;
 
   beforeEach(async () => {
     serviceSpy = createSpyObj([
       'getSavingsaccountsSavingsAccountIdCharges',
       'deleteSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId',
+      'postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId',
     ]);
     routerSpy = createSpyObj(['navigate']);
-    dialogService = createSpyObj(['confirm']);
+    dialogService = createSpyObj(['confirm', 'prompt']);
     dialogService.confirm.mockResolvedValue(true);
+    notifications = createSpyObj(['success', 'error']);
     serviceSpy.getSavingsaccountsSavingsAccountIdCharges.mockReturnValue(
       of([{ id: 1, name: 'Withdrawal Fee', amount: 10 }]) as unknown as ReturnType<
         SavingsChargesService['getSavingsaccountsSavingsAccountIdCharges']
@@ -55,6 +59,7 @@ describe('SavingsChargesListComponent', () => {
         { provide: SavingsChargesService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: DialogService, useValue: dialogService },
+        { provide: NotificationService, useValue: notifications },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ savingsAccountId: '1' }) } },
@@ -98,5 +103,114 @@ describe('SavingsChargesListComponent', () => {
     expect(
       serviceSpy.deleteSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId,
     ).not.toHaveBeenCalled();
+  });
+
+  /**
+   * #754. A savings charge could be added and deleted and nothing else, so an annual fee
+   * applied in error had no remedy — a delete is refused once anything has been collected.
+   *
+   * Three commands, and the spellings are the platform's: `paycharge` (not `pay`, which is how
+   * a loan charge is paid), `waive` and `inactivate`.
+   */
+  describe('paying, waiving and inactivating', () => {
+    const OUTSTANDING = { id: 5, name: 'Annual Fee', amount: 50, amountOutstanding: 50 };
+
+    beforeEach(() => {
+      serviceSpy.postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId.mockReturnValue(
+        of({}) as unknown as ReturnType<
+          SavingsChargesService['postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId']
+        >,
+      );
+    });
+
+    it('pays with the amount and due date the platform demands together', async () => {
+      // `validation.msg.savingsaccountcharge.amount.cannot.be.blank` names both parameters, so
+      // sending either alone is a round-trip wasted.
+      dialogService.prompt.mockResolvedValue({ amount: 50, dueDate: '2026-10-02' });
+
+      await component.onPay(OUTSTANDING);
+
+      expect(
+        serviceSpy.postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId,
+      ).toHaveBeenCalledWith(
+        1,
+        5,
+        { amount: 50, dueDate: '2026-10-02', dateFormat: 'yyyy-MM-dd', locale: 'en' },
+        'paycharge',
+      );
+    });
+
+    it('uses the platform spelling, which is not the loan charge one', async () => {
+      dialogService.prompt.mockResolvedValue({ amount: 50, dueDate: '2026-10-02' });
+
+      await component.onPay(OUTSTANDING);
+
+      const command =
+        serviceSpy.postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId.mock
+          .calls[0][3];
+      expect(command).toBe('paycharge');
+      expect(command).not.toBe('pay');
+    });
+
+    it('waives with an empty body after a destructive confirmation', async () => {
+      await component.onWaive(OUTSTANDING);
+
+      expect(dialogService.confirm).toHaveBeenCalledWith(
+        expect.objectContaining({ destructive: true }),
+      );
+      expect(
+        serviceSpy.postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId,
+      ).toHaveBeenCalledWith(1, 5, {}, 'waive');
+    });
+
+    it('inactivates a charge, which is neither a waiver nor a delete', async () => {
+      // A waiver settles what is outstanding now; this stops the charge being applied again.
+      await component.onInactivate(OUTSTANDING);
+
+      expect(
+        serviceSpy.postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId,
+      ).toHaveBeenCalledWith(1, 5, {}, 'inactivate');
+    });
+
+    it('offers pay and waive only while something is outstanding', () => {
+      expect(component.isOutstanding(OUTSTANDING)).toBe(true);
+      expect(component.isOutstanding({ id: 6, amountOutstanding: 0 })).toBe(false);
+    });
+
+    it('posts nothing when a dialog is dismissed', async () => {
+      dialogService.prompt.mockResolvedValue(undefined);
+      dialogService.confirm.mockResolvedValue(false);
+
+      await component.onPay(OUTSTANDING);
+      await component.onWaive(OUTSTANDING);
+      await component.onInactivate(OUTSTANDING);
+
+      expect(
+        serviceSpy.postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('reloads and reports, or reports the failure', async () => {
+      await component.onWaive(OUTSTANDING);
+      expect(serviceSpy.getSavingsaccountsSavingsAccountIdCharges).toHaveBeenCalledTimes(2);
+      expect(notifications.success).toHaveBeenCalled();
+
+      serviceSpy.postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId.mockReturnValue(
+        throwError(() => new Error('403')) as unknown as ReturnType<
+          SavingsChargesService['postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId']
+        >,
+      );
+      await component.onWaive(OUTSTANDING);
+      expect(notifications.error).toHaveBeenCalled();
+    });
+
+    it('gates each action on its own code, never on UPDATE_SAVINGSACCOUNT', () => {
+      // The list's own create button still declares UPDATE_SAVINGSACCOUNT, which is a separate
+      // question; measured, that code authorises none of these three commands.
+      expect(component.permissions.paycharge).toBe('PAY_SAVINGSACCOUNTCHARGE');
+      expect(component.permissions.waive).toBe('WAIVE_SAVINGSACCOUNTCHARGE');
+      expect(component.permissions.inactivate).toBe('INACTIVATE_SAVINGSACCOUNTCHARGE');
+      expect(Object.values(component.permissions)).not.toContain('UPDATE_SAVINGSACCOUNT');
+    });
   });
 });

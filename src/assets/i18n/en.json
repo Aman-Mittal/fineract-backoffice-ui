@@ -519,7 +519,17 @@
     "EDIT": "Edit Charge",
     "APPLIES_TO": "Applies To",
     "TIME_TYPE": "Charge Time Type",
-    "CALCULATION_TYPE": "Calculation Type"
+    "CALCULATION_TYPE": "Calculation Type",
+    "PAY": "Pay",
+    "WAIVE": "Waive",
+    "ADJUST": "Adjust",
+    "INACTIVATE": "Inactivate",
+    "SAVED": "Charge updated.",
+    "FAILED": "The charge could not be updated. Please try again.",
+    "CONFIRM_PAY": "Pay {{amount}} against {{name}}?",
+    "CONFIRM_WAIVE": "Waive {{amount}} of {{name}}? The charge is written off and will no longer be collected.",
+    "CONFIRM_ADJUST": "Adjust {{name}} to a different amount?",
+    "CONFIRM_INACTIVATE": "Inactivate {{name}}? The charge stops being applied to this account."
   },
   "LOANS": {
     "ACCOUNT_NO": "Account No",

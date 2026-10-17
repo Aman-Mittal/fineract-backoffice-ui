@@ -65,7 +65,8 @@
     "deleteClientsClientIdChargesChargeId",
     "getClientsClientIdCharges",
     "getClientsClientIdChargesTemplate",
-    "postClientsClientIdCharges"
+    "postClientsClientIdCharges",
+    "postClientsClientIdChargesChargeId"
   ],
   "ClientCollateralManagementService": [
     "deleteClientsClientIdCollateralsCollateralId",
@@ -386,7 +387,8 @@
     "deleteLoansLoanIdChargesLoanChargeId",
     "getLoansLoanIdCharges",
     "getLoansLoanIdChargesTemplate",
-    "postLoansLoanIdCharges"
+    "postLoansLoanIdCharges",
+    "postLoansLoanIdChargesLoanChargeId"
   ],
   "LoanCollateralManagementService": [
     "deleteLoanCollateralManagementId",
@@ -618,7 +620,8 @@
     "deleteSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId",
     "getSavingsaccountsSavingsAccountIdCharges",
     "getSavingsaccountsSavingsAccountIdChargesTemplate",
-    "postSavingsaccountsSavingsAccountIdCharges"
+    "postSavingsaccountsSavingsAccountIdCharges",
+    "postSavingsaccountsSavingsAccountIdChargesSavingsAccountChargeId"
   ],
   "SavingsProductService": [
     "getSavingsproducts",

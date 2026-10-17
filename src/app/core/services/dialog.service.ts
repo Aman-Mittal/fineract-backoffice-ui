@@ -19,9 +19,14 @@
 
 import { Injectable, Type, inject } from '@angular/core';
 import { I18N, ModalHandle, OVERLAY } from '../adapters';
-import type { ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import type {
+  ConfirmDialogData,
+  DialogField,
+  DialogValues,
+} from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 export type { ConfirmDialogData };
+export type { DialogField, DialogValues };
 
 /** Component constructor accepted by {@link DialogService.open}. */
 type ComponentRef = new (...args: never[]) => unknown;
@@ -112,5 +117,31 @@ export class DialogService {
     });
 
     return result === true;
+  }
+
+  /**
+   * Opens a confirmation that collects a few values first, and resolves with them.
+   *
+   * Resolves `undefined` if the user cancelled or dismissed, which is distinguishable from an
+   * empty answer: the dialog will not confirm while a required field is blank.
+   *
+   * For the short forms that belong to a row action rather than to a screen — pay a charge,
+   * waive one, adjust one. See `ConfirmDialogData.fields` for why they live in the confirm
+   * dialog rather than in six components of their own.
+   */
+  async prompt(data: ConfirmDialogData): Promise<DialogValues | undefined> {
+    const { ConfirmDialogComponent } =
+      await import('../../shared/components/confirm-dialog/confirm-dialog.component');
+
+    const result = await this.open<DialogValues | boolean>(ConfirmDialogComponent as ComponentRef, {
+      data: {
+        confirmText: this.i18n.translate('COMMON.CONFIRM'),
+        cancelText: this.i18n.translate('COMMON.CANCEL'),
+        ...data,
+      },
+    });
+
+    // A cancel resolves `false` and a dismissal `undefined`; only a record is an answer.
+    return typeof result === 'object' && result !== null ? result : undefined;
   }
 }
