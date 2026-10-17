@@ -20,7 +20,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CLIENT_TAB, ClientViewComponent } from './client-view.component';
+import {
+  CLIENT_TAB,
+  ClientViewComponent,
+  type ClientLoanAccountRow,
+} from './client-view.component';
 import {
   ClientService,
   NotesService,
@@ -216,6 +220,28 @@ describe('ClientViewComponent', () => {
       expect(freshComponent.loadError()).toBeNull();
       expect(freshComponent.client()?.displayName).toBe('John Doe');
     });
+  });
+
+  it('renders loan principals from the client accounts response, including zero and missing values', () => {
+    const loanAccounts: ClientLoanAccountRow[] = [
+      { id: 1, accountNo: 'L001', originalLoan: 88_888, currency: { displaySymbol: '$' } },
+      { id: 2, accountNo: 'L002', originalLoan: 0, currency: { displaySymbol: '$' } },
+      { id: 3, accountNo: 'L003', currency: { displaySymbol: '$' } },
+    ];
+    clientServiceSpy.getClientsClientIdAccounts.mockReturnValue(
+      // The generated spy selects the HttpEvent overload; the fixtures above remain typed.
+      of({ loanAccounts, savingsAccounts: [] }) as any,
+    );
+
+    component.loadClientAccounts();
+    component.onTabChange(CLIENT_TAB.loans);
+    fixture.detectChanges();
+
+    const cells = Array.from(
+      fixture.nativeElement.querySelectorAll('td.cdk-column-principal'),
+      (cell: Element) => cell.textContent?.trim(),
+    );
+    expect(cells).toEqual(['$ 88,888.00', '$ 0.00', '—']);
   });
 
   describe('empty account tabs', () => {

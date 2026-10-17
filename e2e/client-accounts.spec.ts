@@ -63,7 +63,7 @@ async function signIn(page: Page): Promise<void> {
   await expect(page).toHaveURL('/dashboard');
 }
 
-async function mockClientWithoutAccounts(page: Page): Promise<void> {
+async function mockClient(page: Page): Promise<void> {
   await page.route('**/api/v1/clients/2001**', async (route) => {
     await route.fulfill({
       status: 200,
@@ -88,9 +88,44 @@ async function mockClientWithoutAccounts(page: Page): Promise<void> {
   });
 }
 
+test('loan account rows show the principal returned by the accounts endpoint', async ({ page }) => {
+  await signIn(page);
+  await mockClient(page);
+  await page.route('**/api/v1/clients/2001/accounts**', (route) =>
+    route.fulfill({
+      json: {
+        loanAccounts: [
+          {
+            id: 10,
+            accountNo: '000000010',
+            productName: 'Synthetic Loan',
+            originalLoan: 88_888,
+            currency: { code: 'USD', displaySymbol: '$' },
+            status: { id: 300, value: 'Active' },
+          },
+          { id: 11, accountNo: '000000011', originalLoan: 0, currency: { displaySymbol: '$' } },
+          { id: 12, accountNo: '000000012', currency: { displaySymbol: '$' } },
+        ],
+        savingsAccounts: [],
+      },
+    }),
+  );
+  await page.goto(CLIENT_URL);
+  await page.getByRole('tab', { name: 'Loan Accounts', exact: true }).click({ force: true });
+
+  const loanRow = page.getByRole('row').filter({ hasText: '000000010' });
+  await expect(loanRow.getByRole('cell', { name: '$ 88,888.00', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('row').filter({ hasText: '000000011' }).locator('.cdk-column-principal'),
+  ).toHaveText('$ 0.00');
+  await expect(
+    page.getByRole('row').filter({ hasText: '000000012' }).locator('.cdk-column-principal'),
+  ).toHaveText('—');
+});
+
 test('empty account tabs offer the matching creation action', async ({ page }, testInfo) => {
   await signIn(page);
-  await mockClientWithoutAccounts(page);
+  await mockClient(page);
   await page.goto(CLIENT_URL);
 
   await page.getByRole('tab', { name: 'Savings Accounts', exact: true }).click({ force: true });

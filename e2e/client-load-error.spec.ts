@@ -23,7 +23,7 @@
  * A blank screen after an auto-dismissing toast is indistinguishable from the app doing nothing,
  * which is what these mocks are steered into: a 404/403 (the record cannot exist for this
  * caller) and a 500 (a transient failure worth retrying). Companion to
- * `client-empty-account-cta.spec.ts`, which covers the same screen's empty-but-loaded states.
+ * `client-accounts.spec.ts`, which covers the same screen's empty-but-loaded states.
  *
  *   npx playwright test e2e/client-load-error.spec.ts --project=mocked
  */
