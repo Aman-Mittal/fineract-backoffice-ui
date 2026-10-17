@@ -351,18 +351,22 @@ test.describe('a loan taken through four separated duties, every account built i
   test('a command with no mapped code is left to the platform rather than guessed at', async ({
     page,
   }) => {
-    // Four commands are deliberately unmapped because the authorisation probe gave no clean
+    // Three commands are deliberately unmapped because the authorisation probe gave no clean
     // answer; `core/guards/command-permissions.ts` lists them and what each answered. The
     // guard admits those rather than inventing a code, because a wrong code refuses a user the
     // platform would have allowed — the more damaging and less visible half of #691.
     //
-    // Asserted so that the choice is visible: if someone later maps `reAmortize`, this fails
+    // Asserted so that the choice is visible: if someone later maps `undowriteoff`, this fails
     // and they have to decide deliberately rather than discover it from a support ticket.
+    //
+    // The example used to be `reAmortize`, and this test is how that mapping got decided rather
+    // than drifted into: issue #778 re-ran the probe, got a clean answer, mapped it, and this
+    // failed until the example moved. `undowriteoff` is the one whose probe still answers 503.
     await loginAsSeededUser(page, editor);
     expect(
-      await landsOn(page, `/loans/${loanId}/transactions/reAmortize`),
+      await landsOn(page, `/loans/${loanId}/transactions/undowriteoff`),
       'an unmapped command is now gated; command-permissions.ts needs updating to match',
-    ).toBe(`/loans/${loanId}/transactions/reAmortize`);
+    ).toBe(`/loans/${loanId}/transactions/undowriteoff`);
   });
 
   test('a repayment duty reaches its own form, and records a repayment', async ({ page }) => {
