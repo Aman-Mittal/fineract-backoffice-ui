@@ -58,7 +58,7 @@ async function createClient(page: Page): Promise<string> {
   await page.getByRole('textbox', { name: 'Last Name' }).fill(lastName);
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page).toHaveURL(/\/clients$/, { timeout: 15000 });
+  await expect(page).toHaveURL(/\/clients\/view\/\d+$/, { timeout: 15000 });
 
   return `${firstName} ${lastName}`;
 }
@@ -149,7 +149,7 @@ async function createLoanApplication(
   const created = await captureJson<{ loanId: number }>(page, /\/loans$/, 'POST', () =>
     page.getByRole('button', { name: 'Save' }).click(),
   );
-  await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
+  await expect(page).toHaveURL(/\/loans\/view\/\d+$/, { timeout: 15000 });
   return created.loanId;
 }
 
@@ -190,12 +190,10 @@ test.describe('Loan lifecycle: creation, approval, disbursement', () => {
 
       // Disburse. Transaction amount/date default from the loan template, so
       // again no field interaction is needed beyond Save. This form (unlike
-      // the approve action form) redirects to the loans list rather than
-      // back to the loan's view page, so navigate there explicitly after.
       await page.getByRole('button', { name: 'Disburse' }).click();
       await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/disburse$`));
       await page.getByRole('button', { name: 'Save' }).click();
-      await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
+      await expect(page).toHaveURL(`/loans/view/${loanId}`, { timeout: 15000 });
 
       await page.goto(`/loans/view/${loanId}`);
       await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 15000 });

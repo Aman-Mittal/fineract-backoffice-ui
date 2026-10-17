@@ -92,7 +92,7 @@ test.describe('Loan servicing commands', () => {
     await page.getByRole('button', { name: 'Save' }).click();
 
     // Landing back on the list is the form's success path; a rejected payload keeps it put.
-    await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
+    await expect(page).toHaveURL(new RegExp(`/loans/view/${loanId}$`), { timeout: 15000 });
 
     await page.goto(`/loans/view/${loanId}`);
     await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 15000 });

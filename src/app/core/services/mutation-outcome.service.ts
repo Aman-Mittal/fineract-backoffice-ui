@@ -20,10 +20,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { I18N } from '../adapters';
-import {
-  extractMutationResourceId,
-  isMakerCheckerPending,
-} from '../utils/mutation-response';
+import { extractMutationResourceId, isMakerCheckerPending } from '../utils/mutation-response';
 import { NotificationService } from './notification.service';
 
 export interface MutationOutcomeOptions {
@@ -57,8 +54,7 @@ export class MutationOutcomeService {
 
     void this.notifications.success(message);
 
-    const resolvedId =
-      options.recordId ?? extractMutationResourceId(options.response);
+    const resolvedId = options.recordId ?? extractMutationResourceId(options.response);
 
     if (resolvedId !== undefined) {
       void this.router.navigate(options.recordRoute(resolvedId));

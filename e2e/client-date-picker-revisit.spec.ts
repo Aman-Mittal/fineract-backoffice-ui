@@ -109,6 +109,37 @@ test.describe('Client form date pickers', () => {
       }),
     );
 
+    await page.route(/\/api\/v1\/clients\/(\d+)(\?.*)?$/, async (route) => {
+      if (route.request().method() !== 'GET') {
+        await route.continue();
+        return;
+      }
+      const id = Number(
+        route
+          .request()
+          .url()
+          .match(/clients\/(\d+)/)?.[1],
+      );
+      const client = createdClients.find((c) => c.id === id);
+      if (!client) {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ...client, officeId: 1, legalFormId: 1, active: true }),
+      });
+    });
+
+    await page.route('**/api/v1/clients/*/accounts**', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ loanAccounts: [], savingsAccounts: [] }),
+      }),
+    );
+
     await page.goto('/login');
     if (!page.url().includes('/dashboard')) {
       await page.locator('#tenantId').fill('default');
@@ -156,9 +187,10 @@ test.describe('Client form date pickers', () => {
     await page.locator('input[name="lastname"]').fill('E2E');
     await page.getByRole('button', { name: 'Next' }).click();
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL('/clients');
+    await expect(page).toHaveURL(/\/clients\/view\/\d+/);
 
     // Second visit, with a different legal form, as reported.
+    await page.goto('/clients');
     await openCreateForm('Entity');
 
     await expect

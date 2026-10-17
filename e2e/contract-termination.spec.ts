@@ -155,7 +155,7 @@ test('terminates and undoes a progressive loan contract', async ({ page }, testI
 
   await page.getByRole('button', { name: 'Save' }).click();
   await page.getByRole('button', { name: 'Confirm' }).click();
-  await expect(page).toHaveURL('/loans');
+  await expect(page).toHaveURL(`/loans/view/${LOAN_ID}`);
 
   await page.goto(`/loans/view/${LOAN_ID}`);
   await page.locator('#loanMenu-trigger').click();
@@ -178,7 +178,7 @@ test('terminates and undoes a progressive loan contract', async ({ page }, testI
   await page.locator('ion-textarea[name="note"] textarea').fill('Correction requested by risk');
   await page.getByRole('button', { name: 'Save' }).click();
   await page.getByRole('button', { name: 'Confirm' }).click();
-  await expect(page).toHaveURL('/loans');
+  await expect(page).toHaveURL(`/loans/view/${LOAN_ID}`);
 
   expect(commands).toEqual([
     {

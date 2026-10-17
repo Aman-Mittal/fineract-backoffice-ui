@@ -29,7 +29,9 @@ const RESOURCE_ID_KEYS = [
 ] as const;
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === 'object' ? (value as Record<string, unknown>) : undefined;
+  return value !== null && typeof value === 'object'
+    ? (value as Record<string, unknown>)
+    : undefined;
 }
 
 /** Reads the new or affected resource id from a Fineract command response. */

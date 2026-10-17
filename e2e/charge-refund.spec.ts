@@ -190,7 +190,7 @@ test('refunds the remaining balance of a collected loan charge', async ({ page }
   });
 
   await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page).toHaveURL('/loans');
+  await expect(page).toHaveURL(`/loans/view/${LOAN_ID}`);
   expect(pageErrors).toEqual([]);
   expect(commands).toEqual([
     {

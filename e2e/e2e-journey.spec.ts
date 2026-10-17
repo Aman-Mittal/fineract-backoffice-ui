@@ -700,12 +700,38 @@ test.describe('E2E: Client Creation', () => {
     await expect(page.getByRole('button', { name: SAVE_BTN })).toBeEnabled();
   });
 
-  test('should submit client and redirect to clients list', async ({ page }) => {
+  test('should submit client and redirect to the new client view', async ({ page }) => {
     await mockClientTextSearch(page);
     await page.route('**/api/v1/clients?**', async (route) => {
       await route.fulfill(okJsonResponse(EMPTY_LIST));
     });
     await mockPostClient(page);
+    await page.route('**/api/v1/clients/100**', async (route) => {
+      if (route.request().method() !== 'GET' || route.request().url().includes('/accounts')) {
+        await route.continue();
+        return;
+      }
+      await route.fulfill(
+        okJsonResponse(
+          JSON.stringify({
+            id: 100,
+            firstname: 'Jane',
+            lastname: 'Smith',
+            displayName: 'Jane Smith',
+            officeId: 1,
+            officeName: HEAD_OFFICE,
+            active: true,
+            status: { value: 'Active' },
+            legalFormId: 1,
+          }),
+        ),
+      );
+    });
+    await page.route('**/api/v1/clients/100/accounts**', async (route) => {
+      await route.fulfill(
+        okJsonResponse(JSON.stringify({ loanAccounts: [], savingsAccounts: [] })),
+      );
+    });
 
     await page.getByRole('link', { name: 'Clients' }).click();
     await page.getByRole('button', { name: /Create Client/i }).click();
@@ -720,7 +746,7 @@ test.describe('E2E: Client Creation', () => {
     await page.getByRole('button', { name: 'Next' }).click();
 
     await page.getByRole('button', { name: SAVE_BTN }).click();
-    await expect(page).toHaveURL('/clients');
+    await expect(page).toHaveURL('/clients/view/100');
   });
 
   test('should cancel client creation and return to clients list', async ({ page }) => {

@@ -72,7 +72,7 @@ async function createClient(page: Page, suffix: string): Promise<string> {
   await page.getByRole('textbox', { name: 'Last Name' }).fill('Tester');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: /^save$/i }).click();
-  await expect(page).toHaveURL(/\/clients$/, { timeout: 20000 });
+  await expect(page).toHaveURL(/\/clients\/view\/\d+$/, { timeout: 20000 });
   return `${firstName} Tester`;
 }
 
@@ -108,7 +108,7 @@ async function createGroup(page: Page, name: string): Promise<void> {
   await page.locator('ion-checkbox[name="active"]').click();
   await expect(page.locator('ion-checkbox[name="active"]')).toHaveJSProperty('checked', false);
   await page.getByRole('button', { name: /^save$/i }).click();
-  await expect(page).toHaveURL(/\/groups$/, { timeout: 20000 });
+  await expect(page).toHaveURL(/\/groups\/view\/\d+$/, { timeout: 20000 });
 }
 
 /**

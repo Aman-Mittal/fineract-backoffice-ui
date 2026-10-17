@@ -68,16 +68,6 @@ async function createAndOpenClient(page: Page, suffix: string): Promise<string> 
   await page.getByRole('textbox', { name: 'Last Name' }).fill('Tester');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: /^save$/i }).click();
-  await expect(page).toHaveURL(/\/clients$/, { timeout: 20000 });
-
-  // The list paginates at ten rows and this suite adds one per run, so the new client is not
-  // necessarily on the first page. `localLogic` filters rows the table already holds.
-  await page.locator('ion-searchbar[data-testid="search-filter-input"] input').fill(firstName);
-  const row = page.getByRole('row', { name: new RegExp(firstName) }).first();
-  await expect(row).toBeVisible({ timeout: 20000 });
-  // The row itself is inert — the name cell carries the `routerLink`, so clicking the row does
-  // nothing and the test sits on /clients until it times out.
-  await row.getByRole('link').first().click();
   await expect(page).toHaveURL(/\/clients\/view\/\d+$/, { timeout: 20000 });
   return `${firstName} Tester`;
 }

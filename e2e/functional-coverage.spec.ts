@@ -18,6 +18,7 @@
  */
 
 import { mockClientTextSearch } from './utils/client-search-mock';
+import { URL_CLIENT_VIEW } from './utils/post-mutation-urls';
 import { test, expect, Page } from './fixtures';
 
 const TEST_USER = 'mifos';
@@ -128,6 +129,8 @@ async function loginAndGoToDashboard(page: Page) {
   await expect(page).toHaveURL('/dashboard');
 }
 
+const createdClientDetails = new Map<number, Record<string, unknown>>();
+
 async function setupClientMocks(page: Page, clients: unknown[] = []) {
   await mockClientTextSearch(page, clients);
   const body =
@@ -136,6 +139,35 @@ async function setupClientMocks(page: Page, clients: unknown[] = []) {
       : EMPTY_RESPONSE;
   await page.route(/\/api\/v1\/clients(\?|$)/, async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body });
+  });
+  await page.route(/\/api\/v1\/clients\/(\d+)(\?.*)?$/, async (route) => {
+    if (route.request().method() !== 'GET') {
+      await route.continue();
+      return;
+    }
+    const id = Number(
+      route
+        .request()
+        .url()
+        .match(/clients\/(\d+)/)?.[1],
+    );
+    const detail = createdClientDetails.get(id);
+    if (!detail) {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(detail),
+    });
+  });
+  await page.route('**/api/v1/clients/*/accounts**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ loanAccounts: [], savingsAccounts: [] }),
+    });
   });
   await page.route('**/api/v1/clients', async (route) => {
     if (route.request().method() === 'POST') {
@@ -148,10 +180,11 @@ async function setupClientMocks(page: Page, clients: unknown[] = []) {
         lastname: postData.lastname,
         officeId: postData.officeId,
         officeName: HEAD_OFFICE,
-        status: { id: 100, value: 'Pending' },
+        status: { id: 300, value: 'Active' },
         legalFormId: postData.legalFormId,
-        active: false,
+        active: postData.active !== false,
       };
+      createdClientDetails.set(created.id, created);
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -217,7 +250,7 @@ test.describe('Client CRUD Workflow', () => {
 
     /* submit the form */
     await page.getByRole('button', { name: BTN_SAVE }).click();
-    await expect(page).toHaveURL('/clients');
+    await expect(page).toHaveURL(URL_CLIENT_VIEW);
   });
 
   test('should complete full client creation flow — Entity', async ({ page }) => {
