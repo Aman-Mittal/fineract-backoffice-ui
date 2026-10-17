@@ -734,6 +734,7 @@
   ],
   "WorkingCapitalLoanChargesService": [
     "getWorkingCapitalLoansLoanIdCharges",
+    "getWorkingCapitalLoansLoanIdChargesLoanChargeId",
     "getWorkingCapitalLoansLoanIdChargesTemplate",
     "postWorkingCapitalLoansLoanIdCharges",
     "postWorkingCapitalLoansLoanIdChargesLoanChargeId"

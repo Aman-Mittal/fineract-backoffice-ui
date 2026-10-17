@@ -170,6 +170,19 @@ export function commandPermission(
  *   - `markasfraud`, `discount` and `paymentrate` are `PUT` sub-resources, not commands.
  *   - `prepay` posts `command=repayment` with the amount the `prepayLoan` template offers. There
  *     is no prepay permission: a prepayment *is* a repayment, exactly as for term loans.
+ *
+ * `discountFee` was added later than the rest and *was* probed, because the module's
+ * documentation does not pair it with a code: a role holding only
+ * `DISCOUNTFEE_WORKINGCAPITALLOAN` is authorised for it and refused every other command, and
+ * every other single-code role is refused `discountFee`.
+ *
+ * Three further commands act on **one transaction** rather than on the loan, so they are not
+ * reachable through this dispatch route and are gated on the buttons that issue them (#773,
+ * #774). Their codes were established by the same probe:
+ * `undo` → `UNDO_WORKINGCAPITALLOANTRANSACTION`, `adjust` →
+ * `ADJUST_WORKINGCAPITALLOANTRANSACTION`, `discountFeeAdjustment` →
+ * `DISCOUNTFEEADJUSTMENT_WORKINGCAPITALLOAN`, and the charge command `adjustment` →
+ * `ADJUSTMENT_WORKINGCAPITALLOANCHARGE`.
  */
 export const WC_LOAN_COMMAND_PERMISSIONS: Readonly<Record<string, string>> = {
   // Lifecycle — POST /working-capital-loans/{id}?command=…
@@ -190,6 +203,7 @@ export const WC_LOAN_COMMAND_PERMISSIONS: Readonly<Record<string, string>> = {
   goodwillCredit: 'GOODWILLCREDIT_WORKINGCAPITALLOAN',
   payoutRefund: 'PAYOUTREFUND_WORKINGCAPITALLOAN',
   creditBalanceRefund: 'CREDITBALANCEREFUND_WORKINGCAPITALLOAN',
+  discountFee: 'DISCOUNTFEE_WORKINGCAPITALLOAN',
   chargeOff: 'CHARGEOFF_WORKINGCAPITALLOAN',
   undoChargeOff: 'UNDOCHARGEOFF_WORKINGCAPITALLOAN',
   writeOff: 'WRITEOFF_WORKINGCAPITALLOAN',

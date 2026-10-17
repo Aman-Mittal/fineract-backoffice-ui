@@ -33,6 +33,7 @@ import {
   WorkingCapitalLoanOriginatorsService,
   LoanOriginatorsService,
   GetWorkingCapitalLoanTransactionIdResponse,
+  WorkingCapitalLoanChargeData,
 } from '../../../api';
 
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -68,6 +69,22 @@ const REPAYMENT: GetWorkingCapitalLoanTransactionIdResponse = {
   type: { id: 2, code: 'loanTransactionType.repayment', value: 'Repayment', repayment: true },
 };
 
+/** An unpaid charge with something still outstanding — the only state an adjustment applies to. */
+const CHARGE: WorkingCapitalLoanChargeData = {
+  id: 3,
+  chargeId: 2,
+  name: 'Processing Fee',
+  amount: 50,
+  amountPaid: 10,
+  amountWaived: 0,
+  amountOutstanding: 40,
+  dueDate: '2026-10-17',
+  paid: false,
+  penalty: false,
+  chargeTimeType: { id: 2, code: 'chargeTimeType.specifiedDueDate', value: 'Specified due date' },
+  chargeCalculationType: { id: 1, code: 'chargeCalculationType.flat', value: 'Flat' },
+};
+
 describe('WcLoanViewComponent', () => {
   let component: WcLoanViewComponent;
   let fixture: ComponentFixture<WcLoanViewComponent>;
@@ -100,6 +117,8 @@ describe('WcLoanViewComponent', () => {
 
     chargesSpy = createSpyObj<WorkingCapitalLoanChargesService>([
       'getWorkingCapitalLoansLoanIdCharges',
+      'getWorkingCapitalLoansLoanIdChargesLoanChargeId',
+      'postWorkingCapitalLoansLoanIdChargesLoanChargeId',
     ]);
 
     transactionsSpy = createSpyObj<WorkingCapitalLoanTransactionsService>([
@@ -230,6 +249,18 @@ describe('WcLoanViewComponent', () => {
         ],
       }) as unknown as ReturnType<
         WorkingCapitalLoanTransactionsService['getWorkingCapitalLoansLoanIdTransactions']
+      >,
+    );
+
+    chargesSpy.getWorkingCapitalLoansLoanIdChargesLoanChargeId.mockReturnValue(
+      of(CHARGE) as unknown as ReturnType<
+        WorkingCapitalLoanChargesService['getWorkingCapitalLoansLoanIdChargesLoanChargeId']
+      >,
+    );
+
+    chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId.mockReturnValue(
+      of({ loanId: 1, resourceId: 3, subResourceId: 11 }) as unknown as ReturnType<
+        WorkingCapitalLoanChargesService['postWorkingCapitalLoansLoanIdChargesLoanChargeId']
       >,
     );
 
@@ -441,6 +472,117 @@ describe('WcLoanViewComponent', () => {
         name: 'Acme Originator',
       },
     ]);
+  });
+
+  describe('the charges tab', () => {
+    it('re-reads the charge it opens', () => {
+      component.onViewCharge({ id: 3 });
+
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdChargesLoanChargeId).toHaveBeenCalledWith(1, 3);
+      expect(component.selectedCharge()?.id).toBe(3);
+    });
+
+    it('opens nothing for a charge with no id', () => {
+      component.onViewCharge({});
+
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdChargesLoanChargeId).not.toHaveBeenCalled();
+    });
+
+    it('shows what is paid, waived and still outstanding', async () => {
+      component.activeTab.set('charges');
+      component.onViewCharge({ id: 3 });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('[data-testid="wc-charge-outstanding"]')?.textContent).toContain(
+        '40.00',
+      );
+    });
+
+    it('prefills the adjustment with what is outstanding', () => {
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+
+      expect(component.chargeAdjustmentAmount()).toBe(40);
+    });
+
+    /**
+     * `amount` is the only parameter the command takes: an empty body answers
+     * `validation.msg.workingCapitalLoanChargeAdjustment.amount.cannot.be.blank`, and the
+     * platform dates the adjustment itself.
+     */
+    it('posts the adjustment under its own command, with the amount alone', () => {
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+      component.chargeAdjustmentAmount.set(15);
+      component.onSaveChargeAdjustment();
+
+      expect(chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId).toHaveBeenCalledWith(
+        1,
+        3,
+        expect.objectContaining({ amount: 15 }),
+        'adjustment',
+      );
+      const body = chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId.mock
+        .calls[0][2] as Record<string, unknown>;
+      expect(body['transactionDate']).toBeUndefined();
+      expect(body['dueDate']).toBeUndefined();
+    });
+
+    it('refuses to post an adjustment with no amount', () => {
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+      component.chargeAdjustmentAmount.set(undefined);
+      component.onSaveChargeAdjustment();
+
+      expect(chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId).not.toHaveBeenCalled();
+    });
+
+    /** An adjustment books a Charge Adjustment transaction, so the balance and the list move. */
+    it('re-reads the charge, the list, the transactions and the loan after adjusting', () => {
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+      component.chargeAdjustmentAmount.set(15);
+      component.onSaveChargeAdjustment();
+
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdChargesLoanChargeId).toHaveBeenCalledTimes(2);
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdCharges).toHaveBeenCalledTimes(2);
+      expect(transactionsSpy.getWorkingCapitalLoansLoanIdTransactions).toHaveBeenCalledTimes(2);
+      expect(loansSpy.getWorkingCapitalLoansLoanId).toHaveBeenCalledTimes(2);
+    });
+
+    it('says a queued adjustment was queued', () => {
+      chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId.mockReturnValue(
+        of({ commandId: 7 }) as unknown as ReturnType<
+          WorkingCapitalLoanChargesService['postWorkingCapitalLoansLoanIdChargesLoanChargeId']
+        >,
+      );
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+      component.chargeAdjustmentAmount.set(15);
+      component.onSaveChargeAdjustment();
+
+      expect(notificationsSpy.show).toHaveBeenCalled();
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdCharges).toHaveBeenCalledTimes(1);
+    });
+
+    /** A waiver is a transaction too, and one of the five the platform will undo. */
+    it('reloads the transactions after a waiver, not only the charges', () => {
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+      component.onWaiveCharge({ id: 3, name: 'Processing Fee' });
+
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdCharges).toHaveBeenCalledTimes(2);
+      expect(transactionsSpy.getWorkingCapitalLoansLoanIdTransactions).toHaveBeenCalledTimes(2);
+    });
+
+    it('closes the panel', () => {
+      component.onViewCharge({ id: 3 });
+      component.onCloseCharge();
+
+      expect(component.selectedCharge()).toBeNull();
+    });
   });
 
   describe('the transactions tab', () => {
@@ -975,6 +1117,22 @@ describe('WcLoanViewComponent', () => {
 
       withLoan({ status: { closedWrittenOff: true } });
       expect(component.acceptsCredits).toBe(false);
+    });
+
+    /**
+     * Fineract refuses a second discount fee —
+     * "Discount was already set before disbursement and cannot be added again" — and a loan
+     * priced with one at disbursement reads back carrying it.
+     */
+    it('offers the discount fee only on an active loan that has none yet', () => {
+      withLoan({ status: { active: true } });
+      expect(component.canPostDiscountFee).toBe(true);
+
+      withLoan({ status: { active: true }, discountFee: 12 });
+      expect(component.canPostDiscountFee).toBe(false);
+
+      withLoan({ status: { pendingApproval: true } });
+      expect(component.canPostDiscountFee).toBe(false);
     });
 
     it('offers a credit balance refund only when there is an overpayment to refund', () => {

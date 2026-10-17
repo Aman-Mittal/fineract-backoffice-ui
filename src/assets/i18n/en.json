@@ -1902,7 +1902,8 @@
       "UNDO_DISBURSAL": "Undo Disbursal",
       "UNDO_WRITE_OFF": "Undo Write-off",
       "WRITE_OFF": "Write Off",
-      "WRITE_OFF_REASON": "Reason for writing off"
+      "WRITE_OFF_REASON": "Reason for writing off",
+      "DISCOUNT_FEE": "Post discount fee"
     },
     "DELINQUENCY_ACTION": {
       "TITLE": "New Delinquency Action",
@@ -1950,7 +1951,12 @@
       "ADD": "Add Charge",
       "SELECT_CHARGE": "Select Charge",
       "DUE_DATE": "Due Date",
-      "WAIVE": "Waive Charge"
+      "WAIVE": "Waive Charge",
+      "WAIVED": "Waived",
+      "ADJUST": "Adjust charge",
+      "ADJUSTED_AMOUNT": "Adjusted amount",
+      "CALCULATION_TYPE": "Calculation",
+      "PENALTY": "Penalty"
     },
     "RATE_CHANGE": {
       "EFFECTIVE_DATE": "Effective Date",

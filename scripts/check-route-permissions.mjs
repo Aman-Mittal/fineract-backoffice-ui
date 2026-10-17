@@ -175,7 +175,7 @@ const PER_COMMAND = new Map([
       url: '/working-capital/loans/:id/action/:command',
       map: 'WC_LOAN_COMMAND_PERMISSIONS',
       reason:
-        'One path, 18 Working Capital loan commands. It declared UPDATE_WORKINGCAPITALLOAN, ' +
+        'One path, 19 Working Capital loan commands. It declared UPDATE_WORKINGCAPITALLOAN, ' +
         'which authorises none of them (issue #777); the code comes from :command instead.',
     },
   ],

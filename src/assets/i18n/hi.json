@@ -1677,7 +1677,8 @@
       "UNDO_DISBURSAL": "संवितरण पूर्ववत करें",
       "UNDO_WRITE_OFF": "अपलेखन पूर्ववत करें",
       "WRITE_OFF": "अपलेखन करें",
-      "WRITE_OFF_REASON": "अपलेखन का कारण"
+      "WRITE_OFF_REASON": "अपलेखन का कारण",
+      "DISCOUNT_FEE": "छूट शुल्क दर्ज करें"
     },
     "DELINQUENCY_ACTION": {
       "TITLE": "नई चूक कार्रवाई",
@@ -1725,7 +1726,12 @@
       "ADD": "शुल्क जोड़ें",
       "SELECT_CHARGE": "शुल्क चुनें",
       "DUE_DATE": "देय तिथि",
-      "WAIVE": "शुल्क माफ करें"
+      "WAIVE": "शुल्क माफ करें",
+      "WAIVED": "माफ़ किया गया",
+      "ADJUST": "शुल्क समायोजित करें",
+      "ADJUSTED_AMOUNT": "समायोजित राशि",
+      "CALCULATION_TYPE": "गणना",
+      "PENALTY": "दंड"
     },
     "RATE_CHANGE": {
       "EFFECTIVE_DATE": "प्रभावी तिथि",

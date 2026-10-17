@@ -311,6 +311,16 @@ export type WcTransactionCorrection = 'adjust' | 'discountFeeAdjustment';
                       <ion-icon slot="start" name="pricetag-outline"></ion-icon>
                       <ion-label>{{ 'WC_LOANS.ACTIONS.APPLY_DISCOUNT' | appTranslate }}</ion-label>
                     </ion-item>
+                    @if (canPostDiscountFee) {
+                      <ion-item
+                        button
+                        (click)="onAction('discountFee')"
+                        appRequiresPermission="DISCOUNTFEE_WORKINGCAPITALLOAN"
+                      >
+                        <ion-icon slot="start" name="receipt-outline"></ion-icon>
+                        <ion-label>{{ 'WC_LOANS.ACTIONS.DISCOUNT_FEE' | appTranslate }}</ion-label>
+                      </ion-item>
+                    }
                     <ion-item
                       button
                       (click)="onAction('paymentrate')"
@@ -510,6 +520,118 @@ export type WcTransactionCorrection = 'adjust' | 'discountFeeAdjustment';
       }
       @if (activeTab() === TAB.charges) {
         <div class="tab-content">
+          @if (selectedCharge(); as charge) {
+            <ion-card class="detail-card" data-testid="wc-charge-detail">
+              <ion-card-content>
+                <div class="detail-header">
+                  <h3>
+                    {{ charge.name }}
+                    <span class="detail-type">{{ charge.chargeTimeType?.value }}</span>
+                  </h3>
+                  <ion-button
+                    fill="clear"
+                    [attr.aria-label]="'COMMON.CLOSE' | appTranslate"
+                    (click)="onCloseCharge()"
+                  >
+                    <ion-icon name="close-outline"></ion-icon>
+                  </ion-button>
+                </div>
+
+                <div class="details-list">
+                  <div class="detail-item">
+                    <span class="label">{{ 'COMMON.AMOUNT' | appTranslate }}</span>
+                    <span class="value">{{ charge.amount | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'WC_LOANS.PAID' | appTranslate }}</span>
+                    <span class="value">{{ charge.amountPaid | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'WC_LOANS.CHARGE.WAIVED' | appTranslate }}</span>
+                    <span class="value">{{ charge.amountWaived | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'WC_LOANS.OUTSTANDING' | appTranslate }}</span>
+                    <span class="value" data-testid="wc-charge-outstanding">
+                      {{ charge.amountOutstanding | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'WC_LOANS.CHARGE.DUE_DATE' | appTranslate }}</span>
+                    <span class="value">{{ formatDate(charge.dueDate) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{
+                      'WC_LOANS.CHARGE.CALCULATION_TYPE' | appTranslate
+                    }}</span>
+                    <span class="value">{{ charge.chargeCalculationType?.value || '-' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">{{ 'WC_LOANS.CHARGE.PENALTY' | appTranslate }}</span>
+                    <span class="value">
+                      {{ (charge.penalty ? 'COMMON.YES' : 'COMMON.NO') | appTranslate }}
+                    </span>
+                  </div>
+                </div>
+
+                @if (isAdjustingCharge()) {
+                  <form class="correction-form" (ngSubmit)="onSaveChargeAdjustment()">
+                    <ion-item fill="outline">
+                      <ion-label position="stacked">{{
+                        'WC_LOANS.CHARGE.ADJUSTED_AMOUNT' | appTranslate
+                      }}</ion-label>
+                      <ion-input
+                        [attr.aria-label]="'WC_LOANS.CHARGE.ADJUSTED_AMOUNT' | appTranslate"
+                        data-testid="wc-charge-adjust-amount"
+                        type="number"
+                        name="chargeAdjustmentAmount"
+                        [ngModel]="chargeAdjustmentAmount()"
+                        (ngModelChange)="chargeAdjustmentAmount.set($event)"
+                        required
+                      ></ion-input>
+                    </ion-item>
+                    <div class="correction-actions">
+                      <ion-button
+                        fill="clear"
+                        color="medium"
+                        type="button"
+                        (click)="isAdjustingCharge.set(false)"
+                        [disabled]="isCorrecting()"
+                      >
+                        {{ 'COMMON.CANCEL' | appTranslate }}
+                      </ion-button>
+                      <ion-button
+                        type="submit"
+                        data-testid="wc-charge-adjust-submit"
+                        [disabled]="isCorrecting() || !chargeAdjustmentAmount()"
+                      >
+                        @if (isCorrecting()) {
+                          <ion-spinner name="crescent"></ion-spinner>
+                          {{ 'COMMON.SAVING' | appTranslate }}
+                        } @else {
+                          {{ 'COMMON.SUBMIT' | appTranslate }}
+                        }
+                      </ion-button>
+                    </div>
+                  </form>
+                } @else {
+                  <div class="detail-actions">
+                    @if (!charge.paid) {
+                      <ion-button
+                        fill="outline"
+                        data-testid="wc-charge-adjust"
+                        appRequiresPermission="ADJUSTMENT_WORKINGCAPITALLOANCHARGE"
+                        (click)="onOpenChargeAdjustment()"
+                      >
+                        <ion-icon name="create-outline"></ion-icon>
+                        {{ 'WC_LOANS.CHARGE.ADJUST' | appTranslate }}
+                      </ion-button>
+                    }
+                  </div>
+                }
+              </ion-card-content>
+            </ion-card>
+          }
           <div class="tab-toolbar">
             <ion-button
               color="primary"
@@ -548,6 +670,15 @@ export type WcTransactionCorrection = 'adjust' | 'discountFeeAdjustment';
                   <ng-container cdkColumnDef="actions">
                     <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.ACTIONS' | appTranslate }}</th>
                     <td cdk-cell *cdkCellDef="let c">
+                      <ion-button
+                        fill="clear"
+                        data-testid="wc-charge-view"
+                        [attr.aria-label]="'COMMON.VIEW' | appTranslate"
+                        [appTooltip]="'COMMON.VIEW' | appTranslate"
+                        (click)="onViewCharge(c)"
+                      >
+                        <ion-icon name="eye-outline"></ion-icon>
+                      </ion-button>
                       @if (!c.paid) {
                         <ion-button
                           fill="clear"
@@ -1554,6 +1685,17 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
     return transaction?.reversed !== true && transaction?.type?.code === DISCOUNT_FEE_TYPE_CODE;
   });
 
+  /**
+   * The charge opened from the table, re-read on its own.
+   *
+   * The list carries the same fields, but an adjustment changes the outstanding amount of *that*
+   * charge and the panel has to show the result rather than what the list held when the tab
+   * loaded.
+   */
+  readonly selectedCharge = signal<WorkingCapitalLoanChargeData | null>(null);
+  readonly isAdjustingCharge = signal(false);
+  readonly chargeAdjustmentAmount = signal<number | undefined>(undefined);
+
   chargeColumns = ['name', 'amount', 'paid', 'outstanding', 'actions'];
   transactionColumns = ['id', 'date', 'type', 'amount', 'txActions'];
   delinquencyActionColumns = ['action', 'startDate', 'endDate', 'frequency'];
@@ -1718,6 +1860,18 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * The discount fee is posted as a transaction only on a loan that has none yet.
+   *
+   * Fineract refuses a second one — `validation.msg.wc.loan.discount.already.set.before.disbursement`,
+   * "Discount was already set before disbursement and cannot be added again" — and a loan priced
+   * with a discount at disbursement reads back with it here. Changing an existing one is the
+   * `PUT /discount` sub-resource, which the Apply discount item above opens.
+   */
+  get canPostDiscountFee(): boolean {
+    return this.isLoanActive && !this.loan()?.discountFee;
+  }
+
   /** A refund needs something to refund; Fineract caps it at the overpayment. */
   get hasCreditBalance(): boolean {
     return this.isLoanOverpaid && (this.loan()?.balance?.overpaymentAmount ?? 0) > 0;
@@ -1869,12 +2023,85 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
     return date ? formatDateToFineract(date) : '-';
   }
 
+  onViewCharge(charge: WorkingCapitalLoanChargeData): void {
+    if (!charge.id) return;
+    this.isAdjustingCharge.set(false);
+    this.loadCharge(charge.id);
+  }
+
+  private loadCharge(chargeId: number): void {
+    this.chargesService
+      .getWorkingCapitalLoansLoanIdChargesLoanChargeId(this.loanId, chargeId)
+      .subscribe({
+        next: (data) => this.selectedCharge.set(data),
+        error: (err: unknown) => console.error('Failed to load the loan charge', err),
+      });
+  }
+
+  onCloseCharge(): void {
+    this.selectedCharge.set(null);
+    this.isAdjustingCharge.set(false);
+  }
+
+  onOpenChargeAdjustment(): void {
+    // The outstanding amount is the sum an adjustment is normally written against, and it is
+    // also the one the platform caps it at.
+    this.chargeAdjustmentAmount.set(this.selectedCharge()?.amountOutstanding);
+    this.isAdjustingCharge.set(true);
+  }
+
+  /**
+   * Posts `command=adjustment` against the open charge.
+   *
+   * `amount` is the only parameter the command takes beyond an external id and a note — measured:
+   * an empty body answers `validation.msg.workingCapitalLoanChargeAdjustment.amount.cannot.be.blank`,
+   * and the platform dates the adjustment itself rather than accepting a date. It books a Charge
+   * Adjustment *transaction*, so the transactions tab and the loan balance both move with it.
+   */
+  onSaveChargeAdjustment(): void {
+    const chargeId = this.selectedCharge()?.id;
+    const amount = this.chargeAdjustmentAmount();
+    if (!chargeId || !amount) return;
+    this.isCorrecting.set(true);
+    this.chargesService
+      .postWorkingCapitalLoansLoanIdChargesLoanChargeId(
+        this.loanId,
+        chargeId,
+        { amount, locale: FINERACT_LOCALE, dateFormat: FINERACT_DATE_FORMAT },
+        'adjustment',
+      )
+      .subscribe({
+        next: (response) => {
+          this.isCorrecting.set(false);
+          this.isAdjustingCharge.set(false);
+          if (isQueuedForChecker(response)) {
+            void this.notifications.show(this.i18n.translate('WC_LOANS.TRANSACTION.QUEUED'));
+            return;
+          }
+          this.loadCharge(chargeId);
+          this.loadCharges();
+          this.loadTransactions();
+          this.loadLoan();
+        },
+        error: (err: unknown) => {
+          this.isCorrecting.set(false);
+          console.error('Failed to adjust the loan charge', err);
+        },
+      });
+  }
+
   onWaiveCharge(charge: WorkingCapitalLoanChargeData): void {
     if (!charge.id || !confirm(`Waive the charge "${charge.name}"?`)) return;
+    const chargeId = charge.id;
     this.chargesService
-      .postWorkingCapitalLoansLoanIdChargesLoanChargeId(this.loanId, charge.id, {}, 'waive')
+      .postWorkingCapitalLoansLoanIdChargesLoanChargeId(this.loanId, chargeId, {}, 'waive')
       .subscribe({
-        next: () => this.loadCharges(),
+        next: () => {
+          this.loadCharges();
+          // A waiver is a transaction too, and it is one of the five the platform will undo.
+          this.loadTransactions();
+          if (this.selectedCharge()?.id === chargeId) this.loadCharge(chargeId);
+        },
         error: (err: unknown) => console.error('Failed to waive loan charge', err),
       });
   }

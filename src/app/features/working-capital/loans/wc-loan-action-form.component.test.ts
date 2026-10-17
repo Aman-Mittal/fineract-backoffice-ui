@@ -274,6 +274,7 @@ describe('WcLoanActionFormComponent', () => {
       ['payoutRefund', 'payoutRefund'],
       ['creditBalanceRefund', 'creditBalanceRefund'],
       ['recoveryPayment', 'recoveryPayment'],
+      ['discountFee', 'discountFee'],
       ['chargeOff', 'chargeOff'],
       ['undoChargeOff', 'undoChargeOff'],
       ['writeOff', 'writeOff'],
@@ -312,6 +313,27 @@ describe('WcLoanActionFormComponent', () => {
       createComponent('recoveryPayment');
 
       expect(component.transaction.transactionAmount).toBe(7500);
+    });
+
+    /**
+     * The discount fee is the one command whose amount is neither entered from a template figure
+     * nor optional: its template carries the currency and the classification options but no
+     * amount, and the platform needs `transactionAmount` — without it the insert fails the
+     * transaction row's not-null constraint rather than validating. The date is what Fineract
+     * resolves the related disbursement from.
+     */
+    it('sends an entered amount and a date for the discount fee', () => {
+      createComponent('discountFee');
+      component.transaction.transactionAmount = 25;
+      component.transactionDate = '2026-01-15T12:00:00';
+
+      component.onSubmit();
+
+      expect(post()[1]).toBe('discountFee');
+      expect(post()[2]).toMatchObject({
+        transactionAmount: 25,
+        transactionDate: expect.any(String),
+      });
     });
 
     it('loads charge-off reasons from the transaction template', () => {
