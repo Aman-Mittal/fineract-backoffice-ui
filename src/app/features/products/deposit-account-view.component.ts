@@ -873,7 +873,11 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    */
   private loadChargeOptions(): void {
     const clientId = this.account()?.['clientId'] as number | undefined;
-    const productId = this.account()?.['savingsProductId'] as number | undefined;
+    // `depositProductId` on a deposit account. `savingsProductId` is what the savings response
+    // calls it, and the generated type declares that one — measured, a fixed deposit answers
+    // only `depositProductId`, so reading the declared name alone found nothing.
+    const productId = (this.account()?.['depositProductId'] ??
+      this.account()?.['savingsProductId']) as number | undefined;
     if (clientId === undefined || productId === undefined) return;
 
     const path = this.isRD

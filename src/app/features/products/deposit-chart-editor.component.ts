@@ -53,9 +53,11 @@ export interface ChartPeriodTypeOption {
  * ## Validity is reported, not registered
  *
  * `NgModel` resolves its `ControlContainer` through the host injector, so controls inside this
- * component's own template do not join the parent `ngForm` even though they sit inside the form
- * element. Rather than work around that, the component reports {@link complete} and the parent
- * disables its own submit on it. The parent keeps one source of truth for "can this be saved".
+ * component's own template cannot join the parent `ngForm` even though they sit inside the form
+ * element — Angular says so with NG01354. Rather than wire them in with `viewProviders`, each
+ * control is declared `standalone`, which is the framework's other suggestion and the honest one
+ * here: the component reports {@link complete} and the parent disables its own submit on it, so
+ * the parent keeps one source of truth for "can this be saved" and the console stays quiet.
  */
 @Component({
   selector: 'app-deposit-chart-editor',
@@ -89,6 +91,7 @@ export interface ChartPeriodTypeOption {
               [ngModel]="slab.periodType"
               (ngModelChange)="patch($index, { periodType: +$event })"
               [name]="'slabPeriodType' + $index"
+              [ngModelOptions]="{ standalone: true }"
             >
               @for (option of periodTypes(); track option.id) {
                 <option [value]="option.id">{{ option.value }}</option>
@@ -109,6 +112,7 @@ export interface ChartPeriodTypeOption {
               [ngModel]="slab.fromPeriod"
               (ngModelChange)="patch($index, { fromPeriod: numberOrUndefined($event) })"
               [name]="'slabFrom' + $index"
+              [ngModelOptions]="{ standalone: true }"
               required
             />
           </div>
@@ -125,6 +129,7 @@ export interface ChartPeriodTypeOption {
               [ngModel]="slab.toPeriod"
               (ngModelChange)="patch($index, { toPeriod: numberOrUndefined($event) })"
               [name]="'slabTo' + $index"
+              [ngModelOptions]="{ standalone: true }"
             />
           </div>
 
@@ -142,6 +147,7 @@ export interface ChartPeriodTypeOption {
               [ngModel]="slab.annualInterestRate"
               (ngModelChange)="patch($index, { annualInterestRate: numberOrUndefined($event) })"
               [name]="'slabRate' + $index"
+              [ngModelOptions]="{ standalone: true }"
               required
             />
           </div>

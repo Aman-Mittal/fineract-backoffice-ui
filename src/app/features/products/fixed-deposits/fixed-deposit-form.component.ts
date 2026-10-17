@@ -648,7 +648,12 @@ export class FixedDepositAccountFormComponent implements OnInit {
         }
         this.account.set({
           clientId: data.clientId,
-          productId: data.savingsProductId,
+          // A fixed deposit answers `depositProductId`; `savingsProductId` is the savings
+          // response's name for it and is the one the generated type declares. Reading only the
+          // declared name left the product unselected on every edit.
+          productId:
+            ((data as unknown as Record<string, unknown>)['depositProductId'] as number) ??
+            data.savingsProductId,
           depositAmount: data.depositAmount,
           depositPeriod: data.depositPeriod,
           depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
