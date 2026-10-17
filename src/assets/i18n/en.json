@@ -3056,6 +3056,9 @@
     "MATURITY_INSTRUCTION": "At Maturity",
     "TRANSFER_TO_SAVINGS": "Transfer To Savings Account",
     "FUND_FROM_SAVINGS": "Fund From Savings Account",
-    "FUND_FROM_SAVINGS_WARNING": "Activating this deposit will transfer the deposit amount out of the chosen savings account. Activation is refused if that account does not hold enough."
+    "FUND_FROM_SAVINGS_WARNING": "Activating this deposit will transfer the deposit amount out of the chosen savings account. Activation is refused if that account does not hold enough.",
+    "NO_TRANSFER_TARGETS": "This client has no savings account to transfer the proceeds to.",
+    "REINVEST_NOTE": "This deposit will be closed and a new one opened for the maturity amount, awaiting approval.",
+    "TRANSFER_DESCRIPTION": "Deposit maturity proceeds"
   }
 }
