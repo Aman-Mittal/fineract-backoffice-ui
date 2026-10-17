@@ -305,7 +305,8 @@
     "UNCHECK_ALL": "Uncheck All",
     "CHECKER": "Checker",
     "CHECKED_DATE": "Checked Date",
-    "REASON": "Reason"
+    "REASON": "Reason",
+    "DONE": "Done"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",
@@ -491,7 +492,22 @@
       "SHARE_REFERENCE": "Share Reference",
       "SHARE_SUSPENSE": "Share Suspense Control",
       "TITLE": "Accounting",
-      "TRANSFERS_IN_SUSPENSE": "Transfers in suspense"
+      "TRANSFERS_IN_SUSPENSE": "Transfers in suspense",
+      "DEFERRED_INCOME_LIABILITY": "Deferred income liability",
+      "INCOME_FROM_DISCOUNT_FEE": "Income from discount fee",
+      "INCOME_FROM_CHARGE_OFF_FEES": "Income from charged-off fees",
+      "INCOME_FROM_CHARGE_OFF_PENALTY": "Income from charged-off penalties",
+      "INCOME_FROM_GOODWILL_CREDIT_FEES": "Income from goodwill credit fees",
+      "INCOME_FROM_GOODWILL_CREDIT_PENALTY": "Income from goodwill credit penalties",
+      "CHARGE_OFF_EXPENSE": "Charge-off expense",
+      "CHARGE_OFF_FRAUD_EXPENSE": "Charge-off expense (fraud)",
+      "GOODWILL_CREDIT": "Goodwill credit",
+      "EXPENSE_ACCOUNT": "Expense account",
+      "CHARGE_OFF_REASON_TITLE": "Charge-off reason to expense account",
+      "CHARGE_OFF_REASON": "Charge-off reason",
+      "WRITE_OFF_REASON_TITLE": "Write-off reason to expense account",
+      "WRITE_OFF_REASON": "Write-off reason",
+      "NO_REASONS_CONFIGURED": "No reasons are configured for this tenant. Add them under System → Manage codes before mapping them."
     },
     "DEPOSITS": {
       "ON_CLOSURE": "On closure",
@@ -1111,7 +1127,10 @@
     "DELETE_DELINQUENCY_BUCKET": "Delete Delinquency Bucket",
     "CONFIRM_DELETE_DELINQUENCY_BUCKET": "Delete the delinquency bucket “{{name}}”? Loan products using it need a different bucket before they classify again.",
     "DELETE_DATA_TABLE": "Delete Data Table",
-    "CONFIRM_DELETE_DATA_TABLE": "Delete the data table “{{name}}”? The table and everything recorded in it are removed."
+    "CONFIRM_DELETE_DATA_TABLE": "Delete the data table “{{name}}”? The table and everything recorded in it are removed.",
+    "EDIT_ENTRY": "Edit entry",
+    "CONFIRM_DELETE_ENTRY": "This row is deleted outright; there is no undo.",
+    "REQUIRED_CUSTOM_DATA": "Required custom data"
   },
   "ACCOUNTING_RULES": {
     "CREATE": "Create Accounting Rule",
@@ -1902,7 +1921,8 @@
       "UNDO_DISBURSAL": "Undo Disbursal",
       "UNDO_WRITE_OFF": "Undo Write-off",
       "WRITE_OFF": "Write Off",
-      "WRITE_OFF_REASON": "Reason for writing off"
+      "WRITE_OFF_REASON": "Reason for writing off",
+      "DISCOUNT_FEE": "Post discount fee"
     },
     "DELINQUENCY_ACTION": {
       "TITLE": "New Delinquency Action",
@@ -1950,7 +1970,12 @@
       "ADD": "Add Charge",
       "SELECT_CHARGE": "Select Charge",
       "DUE_DATE": "Due Date",
-      "WAIVE": "Waive Charge"
+      "WAIVE": "Waive Charge",
+      "WAIVED": "Waived",
+      "ADJUST": "Adjust charge",
+      "ADJUSTED_AMOUNT": "Adjusted amount",
+      "CALCULATION_TYPE": "Calculation",
+      "PENALTY": "Penalty"
     },
     "RATE_CHANGE": {
       "EFFECTIVE_DATE": "Effective Date",
@@ -1969,6 +1994,20 @@
       "DELINQUENT_DAYS": "Delinquent Days",
       "DELINQUENT_AMOUNT": "Delinquent Amount",
       "ADDED_ON_DATE": "Added On Date"
+    },
+    "TRANSACTION": {
+      "TITLE": "Transaction",
+      "REVERSED": "Reversed",
+      "REVERSED_ON": "Reversed on",
+      "PRINCIPAL_PORTION": "Principal",
+      "FEE_PORTION": "Fees",
+      "PENALTY_PORTION": "Penalties",
+      "OVERPAYMENT_PORTION": "Overpayment",
+      "UNDO": "Undo transaction",
+      "CONFIRM_UNDO": "Reversing this transaction changes the loan balance. This cannot be undone from here.",
+      "ADJUST": "Adjust transaction",
+      "ADJUST_DISCOUNT_FEE": "Adjust discount fee",
+      "QUEUED": "Sent for approval. A checker has to approve it before the loan changes."
     }
   },
   "LOANS_POINT_IN_TIME": {

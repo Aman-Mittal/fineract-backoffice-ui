@@ -45,12 +45,42 @@ import {
   WorkingCapitalLoanProductsService,
   PostWorkingCapitalLoanProductsRequest,
   StringEnumOptionData,
+  CodeValueData,
   CurrencyData,
   WorkingCapitalBreachData,
   WorkingCapitalNearBreachData,
   GetDelinquencyBucket,
   FundData,
+  AdvancedPaymentData,
+  EnumOptionData,
+  PaymentTypeData,
+  PostPaymentAllocation,
 } from '../../../api';
+import { ProductAccountingSectionComponent } from '../../products/accounting/product-accounting-section.component';
+import {
+  AdvancedAccountingMappingsComponent,
+  ChargeOption,
+} from '../../products/accounting/advanced-accounting-mappings.component';
+import {
+  AccountingMappings,
+  AccountingRuleKey,
+  AdvancedAccountingMappings,
+  GlAccountOptions,
+  ReasonAccountingMappings,
+  WC_ACCOUNTING_RULE,
+  WC_ACCOUNTING_RULES_WITH_MAPPINGS,
+  WC_LOAN_ACCOUNTING_FIELDS,
+  advancedMappingsForRequest,
+  advancedMappingsFromResponse,
+  emptyAdvancedMappings,
+  emptyReasonMappings,
+  mappingsForRule,
+  mappingsFromResponse,
+  reasonMappingsForRequest,
+  reasonMappingsFromResponse,
+} from '../../products/accounting/product-accounting.model';
+import { PaymentCreditAllocationEditorComponent } from '../../products/payment-credit-allocation-editor.component';
+import { EntityDatatablesComponent } from '../../../shared/components/entity-datatables/entity-datatables.component';
 import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -89,6 +119,10 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    ProductAccountingSectionComponent,
+    AdvancedAccountingMappingsComponent,
+    PaymentCreditAllocationEditorComponent,
+    EntityDatatablesComponent,
   ],
   template: `
     <div class="form-container">
@@ -403,27 +437,6 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline" class="form-item">
                     <ion-label position="stacked">{{
-                      'WC_LOAN_PRODUCTS.ACCOUNTING_RULE' | appTranslate
-                    }}</ion-label>
-                    <ion-select
-                      [attr.aria-label]="'WC_LOAN_PRODUCTS.ACCOUNTING_RULE' | appTranslate"
-                      interface="popover"
-                      id="wc-product-accounting-rule"
-                      data-testid="wc-product-accounting-rule"
-                      name="accountingRule"
-                      [ngModel]="product().accountingRule"
-                      (ngModelChange)="patchProduct('accountingRule', $event)"
-                    >
-                      @for (opt of accountingRuleOptions(); track opt.id) {
-                        <ion-select-option [value]="opt.code">{{ opt.value }}</ion-select-option>
-                      }
-                    </ion-select>
-                  </ion-item>
-                </ion-col>
-
-                <ion-col size="12" size-md="6">
-                  <ion-item fill="outline" class="form-item">
-                    <ion-label position="stacked">{{
                       'WC_LOAN_PRODUCTS.BREACH' | appTranslate
                     }}</ion-label>
                     <ion-select
@@ -568,6 +581,55 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
               </ion-row>
             </ion-grid>
 
+            <!--
+              Payment allocation, then accounting. The order follows the request: how a repayment
+              is split comes before where the split is posted.
+            -->
+            <app-payment-credit-allocation-editor
+              [transactionTypeOptions]="paymentAllocationTransactionTypes()"
+              [allocationRuleOptions]="paymentAllocationTypes()"
+              [showFutureInstallmentRule]="false"
+              [showCreditAllocation]="false"
+              [paymentAllocation]="paymentAllocation()"
+              (paymentAllocationChange)="onPaymentAllocationChange($event)"
+            ></app-payment-credit-allocation-editor>
+
+            <app-product-accounting-section
+              [fields]="accountingFields"
+              [accountOptions]="accountingMappingOptions()"
+              [ruleOptions]="accountingRuleOptions()"
+              [noneRule]="NONE_RULE"
+              [accountingRule]="product().accountingRule ?? NONE_RULE"
+              (accountingRuleChange)="onAccountingRuleChange($event)"
+              [mappings]="accountingMappings()"
+              (mappingsChange)="accountingMappings.set($event)"
+            ></app-product-accounting-section>
+
+            <app-advanced-accounting-mappings
+              [accountingRule]="product().accountingRule"
+              [rulesWithMappings]="POSTING_RULES"
+              [accountOptions]="accountingMappingOptions()"
+              [paymentTypeOptions]="paymentTypeOptions()"
+              [charges]="chargeOptions()"
+              [chargeOffReasonOptions]="chargeOffReasonOptions()"
+              [writeOffReasonOptions]="writeOffReasonOptions()"
+              [mappings]="advancedMappings()"
+              (mappingsChange)="advancedMappings.set($event)"
+              [reasonMappings]="reasonMappings()"
+              (reasonMappingsChange)="reasonMappings.set($event)"
+            ></app-advanced-accounting-mappings>
+
+            @if (isEditMode() && productId) {
+              <!--
+                Product-level custom fields, on edit only: a datatable row is keyed by the
+                product, so there is nothing to attach them to until it exists. EntityTables
+                declares WC_LOAN_PRODUCT, so m_wc_loan_product takes datatables exactly as
+                m_product_loan does (issue #776).
+              -->
+              <h3 class="section-title">{{ 'SYSTEM.CUSTOM_FIELDS' | appTranslate }}</h3>
+              <app-entity-datatables apptableName="m_wc_loan_product" [entityId]="productId" />
+            }
+
             <div class="form-actions">
               <ion-button
                 id="wc-product-cancel-btn"
@@ -622,6 +684,11 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
         gap: 12px;
         margin-top: 16px;
       }
+      .section-title {
+        margin: 24px 0 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
     `,
   ],
 })
@@ -658,6 +725,40 @@ export class WcLoanProductFormComponent implements OnInit {
   startDate: string | null = null;
   readonly closeDate = signal<string | null>(null);
 
+  /**
+   * Accounting.
+   *
+   * The field list, the rule options and the account options are all passed to
+   * `app-product-accounting-section`, which is shared with the five other product families; what
+   * is specific to this one is the field list and the fact that its rule is a **named string**
+   * rather than a numeric id.
+   */
+  readonly accountingFields = WC_LOAN_ACCOUNTING_FIELDS;
+  readonly NONE_RULE: AccountingRuleKey = WC_ACCOUNTING_RULE.NONE;
+  readonly POSTING_RULES = WC_ACCOUNTING_RULES_WITH_MAPPINGS;
+  readonly accountingMappingOptions = signal<GlAccountOptions>({});
+  readonly accountingMappings = signal<AccountingMappings>({});
+  /** Held apart from the base slots because these are arrays the user edits in place. */
+  readonly advancedMappings = signal<AdvancedAccountingMappings>(emptyAdvancedMappings());
+  readonly reasonMappings = signal<ReasonAccountingMappings>(emptyReasonMappings());
+  readonly chargeOffReasonOptions = signal<CodeValueData[]>([]);
+  readonly writeOffReasonOptions = signal<CodeValueData[]>([]);
+  readonly paymentTypeOptions = signal<PaymentTypeData[]>([]);
+  /**
+   * Charges the fee and penalty tables may map, from the **tenant catalogue**.
+   *
+   * The loan product form passes the charges attached to the product instead, which is the
+   * narrower and better source — mapping a charge the product does not carry can never fire. A
+   * Working Capital product carries none: its request has no `charges` field at all, and charges
+   * are attached per loan. The catalogue is therefore the only honest option list here, and the
+   * component still splits it by the `penalty` flag so neither table offers the other's charges.
+   */
+  readonly chargeOptions = signal<ChargeOption[]>([]);
+
+  /** Payment allocation. The product has one list and no credit allocation. */
+  readonly paymentAllocationTypes = signal<StringEnumOptionData[]>([]);
+  readonly paymentAllocationTransactionTypes = signal<EnumOptionData[]>([]);
+
   readonly currencyOptions = signal<CurrencyData[]>([]);
   readonly amortizationTypeOptions = signal<StringEnumOptionData[]>([]);
   readonly repaymentFrequencyTypeOptions = signal<StringEnumOptionData[]>([]);
@@ -677,6 +778,24 @@ export class WcLoanProductFormComponent implements OnInit {
       this.nearBreachOptions.set(tpl.nearBreachOptions ?? []);
       this.delinquencyBucketOptions.set(tpl.delinquencyBucketOptions ?? []);
       this.fundOptions.set(tpl.fundOptions ?? []);
+      // `accountingMappingOptions` is typed as a loose map because the generator cannot express
+      // "one list per account class"; the four lists inside it are the shape every product
+      // template uses, and the platform omits a class the tenant has no accounts of entirely.
+      this.accountingMappingOptions.set((tpl.accountingMappingOptions ?? {}) as GlAccountOptions);
+      this.chargeOffReasonOptions.set(tpl.chargeOffReasonOptions ?? []);
+      this.writeOffReasonOptions.set(tpl.writeOffReasonOptions ?? []);
+      this.paymentTypeOptions.set(tpl.paymentTypeOptions ?? []);
+      this.chargeOptions.set([...(tpl.chargeOptions ?? []), ...(tpl.penaltyOptions ?? [])]);
+      this.paymentAllocationTypes.set(tpl.advancedPaymentAllocationTypes ?? []);
+      this.paymentAllocationTransactionTypes.set(
+        tpl.advancedPaymentAllocationTransactionTypes ?? [],
+      );
+      // A product the platform accepts allocates every one of the six rules, so a new product
+      // starts with the default list rather than an empty editor. On edit the product's own
+      // allocation replaces it.
+      if (!this.isEditMode() && !this.product().paymentAllocation) {
+        this.patchProduct('paymentAllocation', this.defaultPaymentAllocation());
+      }
     });
 
     this.route.paramMap.subscribe((params) => {
@@ -719,6 +838,17 @@ export class WcLoanProductFormComponent implements OnInit {
         fundId: data.fundId,
         externalId: data.externalId,
       });
+      // Without these three, opening a configured product shows empty pickers and the next save
+      // posts the product with its accounting stripped.
+      this.accountingMappings.set(
+        mappingsFromResponse(this.accountingFields, data.accountingMappings),
+      );
+      this.advancedMappings.set(advancedMappingsFromResponse(data));
+      this.reasonMappings.set(reasonMappingsFromResponse(data));
+      this.patchProduct(
+        'paymentAllocation',
+        (data.paymentAllocation ?? []) as PostPaymentAllocation[],
+      );
       if (data.closeDate) {
         const cd = data.closeDate as unknown as number[];
         this.closeDate.set(
@@ -730,8 +860,14 @@ export class WcLoanProductFormComponent implements OnInit {
 
   onSubmit(): void {
     this.isSaving.set(true);
+    const rule = this.product().accountingRule;
     const payload: PostWorkingCapitalLoanProductsRequest = {
       ...this.product(),
+      // Exactly the slots the chosen rule has, and nothing left over from another: the platform
+      // rejects a mapping key the rule has no slot for, including one whose value is null.
+      ...mappingsForRule(this.accountingFields, rule, this.accountingMappings()),
+      ...advancedMappingsForRequest(rule, this.advancedMappings(), this.POSTING_RULES),
+      ...reasonMappingsForRequest(rule, this.reasonMappings(), this.POSTING_RULES),
       locale: FINERACT_LOCALE,
       dateFormat: FINERACT_DATE_FORMAT,
     };
@@ -747,6 +883,51 @@ export class WcLoanProductFormComponent implements OnInit {
       next: () => this.router.navigate([this.LIST_PATH]),
       error: () => this.isSaving.set(false),
     });
+  }
+
+  /**
+   * The allocation as the editor holds it.
+   *
+   * `AdvancedPaymentData` is the editor's shape and a superset of this product's
+   * `PostPaymentAllocation`: it also carries `futureInstallmentAllocationRule`, which this
+   * family has no rule for and refuses as an unsupported parameter. The editor is told not to
+   * offer that field, so the extra key is never populated and the two shapes agree in practice.
+   */
+  paymentAllocation(): AdvancedPaymentData[] {
+    return (this.product().paymentAllocation ?? []) as AdvancedPaymentData[];
+  }
+
+  onPaymentAllocationChange(allocation: AdvancedPaymentData[]): void {
+    this.patchProduct('paymentAllocation', allocation as PostPaymentAllocation[]);
+  }
+
+  /** `DEFAULT`, allocating all six rules in the order the platform lists them. */
+  private defaultPaymentAllocation(): PostPaymentAllocation[] {
+    return [
+      {
+        transactionType: 'DEFAULT' as PostPaymentAllocation.TransactionTypeEnum,
+        paymentAllocationOrder: this.paymentAllocationTypes().map((type, index) => ({
+          order: index + 1,
+          paymentAllocationRule: type.code,
+        })),
+      },
+    ];
+  }
+
+  /**
+   * Records the chosen rule, as the name the request carries.
+   *
+   * The select used to bind each option's `code`, the dotted `wcAccountingRuleType.*` spelling,
+   * which the platform refuses —
+   * `validation.msg.workingcapitalloanproduct.accountingRule.is.not.one.of.expected.enumerations`
+   * — so a product could not be saved at all once a rule had been picked. The shared section
+   * binds `id`, which is the name (`NONE`, `ACC_DEF_REV_AM`).
+   */
+  onAccountingRuleChange(rule: AccountingRuleKey): void {
+    this.patchProduct(
+      'accountingRule',
+      rule as PostWorkingCapitalLoanProductsRequest.AccountingRuleEnum,
+    );
   }
 
   onCancel(): void {

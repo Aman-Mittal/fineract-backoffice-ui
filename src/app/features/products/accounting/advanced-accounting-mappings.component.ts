@@ -31,10 +31,13 @@ import {
 import { TranslatePipe } from '../../../core/adapters';
 import {
   ACCOUNTING_RULES_WITH_MAPPINGS,
-  AccountingRuleId,
+  AccountingRuleKey,
   AdvancedAccountingMappings,
   GlAccountOption,
   GlAccountOptions,
+  ReasonAccountingMappings,
+  ReasonToExpenseMapping,
+  emptyReasonMappings,
 } from './product-accounting.model';
 
 /** A payment type as the product template offers it. */
@@ -48,6 +51,15 @@ export interface ChargeOption {
   id?: number;
   name?: string;
   penalty?: boolean;
+}
+
+/** Which of the two reason tables a row belongs to. */
+export type ReasonField = keyof ReasonAccountingMappings;
+
+/** A charge-off or write-off reason, as the template offers it: a code value. */
+export interface ReasonOption {
+  id?: number;
+  name?: string;
 }
 
 /**
@@ -231,6 +243,81 @@ export interface ChargeOption {
             {{ 'PRODUCTS.ACCOUNTING.ADD_MAPPING' | appTranslate }}
           </ion-button>
         }
+
+        <!-- Charge-off and write-off reason to expense account: offered only where the family has them -->
+        @for (table of reasonTables(); track table.key) {
+          <h4 class="table-title">{{ table.title | appTranslate }}</h4>
+          @if (!table.reasons.length) {
+            <p class="section-note" [attr.data-testid]="table.key + '-none'">
+              {{ 'PRODUCTS.ACCOUNTING.NO_REASONS_CONFIGURED' | appTranslate }}
+            </p>
+          }
+          @for (entry of table.rows; track entry.index) {
+            <div class="mapping-row" [attr.data-testid]="table.key + '-row-' + entry.index">
+              <ion-item fill="outline" class="row-field">
+                <ion-label position="stacked">{{ table.reasonLabel | appTranslate }}</ion-label>
+                <ion-select
+                  [attr.aria-label]="table.reasonLabel | appTranslate"
+                  interface="popover"
+                  [name]="table.key + '-reasonCodeValueId-' + entry.index"
+                  [attr.data-testid]="table.key + '-reason-' + entry.index"
+                  [ngModel]="entry.row.reasonCodeValueId"
+                  (ngModelChange)="
+                    setReasonMapping(table.field, entry.index, 'reasonCodeValueId', $event)
+                  "
+                >
+                  @for (reason of entry.reasons; track reason.id) {
+                    <ion-select-option [value]="reason.id">{{ reason.name }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+
+              <ion-item fill="outline" class="row-field">
+                <ion-label position="stacked">
+                  {{ 'PRODUCTS.ACCOUNTING.EXPENSE_ACCOUNT' | appTranslate }}
+                </ion-label>
+                <ion-select
+                  [attr.aria-label]="'PRODUCTS.ACCOUNTING.EXPENSE_ACCOUNT' | appTranslate"
+                  interface="popover"
+                  [name]="table.key + '-expenseAccountId-' + entry.index"
+                  [attr.data-testid]="table.key + '-account-' + entry.index"
+                  [ngModel]="entry.row.expenseAccountId"
+                  (ngModelChange)="
+                    setReasonMapping(table.field, entry.index, 'expenseAccountId', $event)
+                  "
+                >
+                  @for (account of expenseAccounts(); track account.id) {
+                    <ion-select-option [value]="account.id">
+                      {{ accountLabel(account) }}
+                    </ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+
+              <ion-button
+                fill="clear"
+                color="danger"
+                type="button"
+                [attr.data-testid]="table.key + '-remove-' + entry.index"
+                [attr.aria-label]="'COMMON.DELETE' | appTranslate"
+                (click)="removeReasonMapping(table.field, entry.index)"
+              >
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+          }
+          <ion-button
+            fill="outline"
+            size="small"
+            type="button"
+            [attr.data-testid]="table.key + '-add'"
+            [disabled]="!table.unusedReasons.length"
+            (click)="addReasonMapping(table.field)"
+          >
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            {{ 'PRODUCTS.ACCOUNTING.ADD_MAPPING' | appTranslate }}
+          </ion-button>
+        }
       </div>
     }
   `,
@@ -274,7 +361,14 @@ export interface ChargeOption {
 })
 export class AdvancedAccountingMappingsComponent {
   /** The rule the product carries; the tables are meaningless under `NONE`. */
-  readonly accountingRule = input<number | undefined>(undefined);
+  readonly accountingRule = input<AccountingRuleKey | undefined>(undefined);
+  /**
+   * The rules of *this* family that post to the ledger.
+   *
+   * Defaults to the numeric three, so the loan and savings forms pass nothing. The Working
+   * Capital product's rule is a named string enum, which would never match those.
+   */
+  readonly rulesWithMappings = input<readonly AccountingRuleKey[]>(ACCOUNTING_RULES_WITH_MAPPINGS);
   /** `accountingMappingOptions` from the product template. */
   readonly accountOptions = input<GlAccountOptions>({});
   /** `paymentTypeOptions` from the product template. */
@@ -287,7 +381,19 @@ export class AdvancedAccountingMappingsComponent {
    */
   readonly charges = input<ChargeOption[]>([]);
 
+  /**
+   * `chargeOffReasonOptions` and `writeOffReasonOptions` from the product template.
+   *
+   * Empty means two different things and the component says which: a family that has no reason
+   * mappings at all passes nothing and gets no tables, while a family that has them but whose
+   * tenant has configured no reason code values gets the tables with a note. The second is worth
+   * distinguishing, because the fix is to add code values rather than to look elsewhere.
+   */
+  readonly chargeOffReasonOptions = input<ReasonOption[]>([]);
+  readonly writeOffReasonOptions = input<ReasonOption[]>([]);
+
   readonly mappings = model.required<AdvancedAccountingMappings>();
+  readonly reasonMappings = model<ReasonAccountingMappings>(emptyReasonMappings());
 
   /** The two charge tables, which differ only by which side of the `penalty` flag they read. */
   private static readonly CHARGE_TABLES = [
@@ -305,16 +411,41 @@ export class AdvancedAccountingMappingsComponent {
     },
   ] as const;
 
+  /** The two reason tables, which differ only in which option list and which field they read. */
+  private static readonly REASON_TABLES = [
+    {
+      key: 'charge-off-reason-mapping',
+      field: 'chargeOffReasonToExpenseAccountMappings',
+      title: 'PRODUCTS.ACCOUNTING.CHARGE_OFF_REASON_TITLE',
+      reasonLabel: 'PRODUCTS.ACCOUNTING.CHARGE_OFF_REASON',
+    },
+    {
+      key: 'write-off-reason-mapping',
+      field: 'writeOffReasonsToExpenseMappings',
+      title: 'PRODUCTS.ACCOUNTING.WRITE_OFF_REASON_TITLE',
+      reasonLabel: 'PRODUCTS.ACCOUNTING.WRITE_OFF_REASON',
+    },
+  ] as const satisfies readonly {
+    key: string;
+    field: ReasonField;
+    title: string;
+    reasonLabel: string;
+  }[];
+
   /** Hidden under `NONE`: there is no base mapping for these to override. */
-  readonly visible = computed(() =>
-    ACCOUNTING_RULES_WITH_MAPPINGS.includes(this.accountingRule() as AccountingRuleId),
-  );
+  readonly visible = computed(() => {
+    const rule = this.accountingRule();
+    return rule !== undefined && this.rulesWithMappings().includes(rule);
+  });
 
   readonly assetAccounts = computed(() =>
     Array.from(this.accountOptions().assetAccountOptions ?? []),
   );
   readonly incomeAccounts = computed(() =>
     Array.from(this.accountOptions().incomeAccountOptions ?? []),
+  );
+  readonly expenseAccounts = computed(() =>
+    Array.from(this.accountOptions().expenseAccountOptions ?? []),
   );
 
   /**
@@ -367,6 +498,80 @@ export class AdvancedAccountingMappingsComponent {
       ).map((row, index) => ({ row, index })),
     })),
   );
+
+  /**
+   * The two reason tables, each with the rows it holds and the reasons still unrouted.
+   *
+   * A reason may be routed once — a second row for the same reason is accepted by the platform
+   * and can never fire, the same silent-acceptance trap the charge tables document — so each
+   * row offers the unused reasons plus its own current selection.
+   *
+   * A table with no options at all is dropped entirely rather than rendered empty: that is the
+   * family-has-no-reason-mappings case, and the loan and savings forms pass no options.
+   */
+  readonly reasonTables = computed(() =>
+    AdvancedAccountingMappingsComponent.REASON_TABLES.filter(
+      (table) =>
+        this.optionsFor(table.field).length > 0 || this.reasonRowsFor(table.field).length > 0,
+    ).map((table) => {
+      const rows = this.reasonRowsFor(table.field);
+      const options = this.optionsFor(table.field);
+      const taken = new Set(
+        rows.map((row) => row.reasonCodeValueId).filter((id): id is number => id != null),
+      );
+      return {
+        ...table,
+        reasons: options,
+        unusedReasons: options.filter((option) => option.id == null || !taken.has(option.id)),
+        rows: rows.map((row, index) => ({
+          row,
+          index,
+          reasons: options.filter(
+            (option) =>
+              option.id == null || !taken.has(option.id) || option.id === row.reasonCodeValueId,
+          ),
+        })),
+      };
+    }),
+  );
+
+  /** The options for one reason table. */
+  private optionsFor(field: ReasonField): ReasonOption[] {
+    return field === 'chargeOffReasonToExpenseAccountMappings'
+      ? this.chargeOffReasonOptions()
+      : this.writeOffReasonOptions();
+  }
+
+  private reasonRowsFor(field: ReasonField): ReasonToExpenseMapping[] {
+    return this.reasonMappings()[field];
+  }
+
+  addReasonMapping(field: ReasonField): void {
+    this.patchReasons(field, [...this.reasonRowsFor(field), {}]);
+  }
+
+  removeReasonMapping(field: ReasonField, index: number): void {
+    this.patchReasons(
+      field,
+      this.reasonRowsFor(field).filter((_, i) => i !== index),
+    );
+  }
+
+  setReasonMapping(
+    field: ReasonField,
+    index: number,
+    key: 'reasonCodeValueId' | 'expenseAccountId',
+    value: number,
+  ): void {
+    this.patchReasons(
+      field,
+      this.reasonRowsFor(field).map((row, i) => (i === index ? { ...row, [key]: value } : row)),
+    );
+  }
+
+  private patchReasons(field: ReasonField, rows: ReasonToExpenseMapping[]): void {
+    this.reasonMappings.set({ ...this.reasonMappings(), [field]: rows });
+  }
 
   canAddPaymentChannel(): boolean {
     return this.unusedPaymentTypes().length > 0;

@@ -71,6 +71,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
 const POSTED_TRANSACTION_COMMAND: Readonly<Record<string, string>> = {
   prepay: 'repayment',
   goodwillCredit: 'goodwillCredit',
+  discountFee: 'discountFee',
   payoutRefund: 'payoutRefund',
   creditBalanceRefund: 'creditBalanceRefund',
   recoveryPayment: 'recoveryPayment',
@@ -89,6 +90,7 @@ const POSTED_TRANSACTION_COMMAND: Readonly<Record<string, string>> = {
 const TEMPLATE_COMMAND: Readonly<Record<string, string>> = {
   prepay: 'prepayLoan',
   goodwillCredit: 'goodwillCredit',
+  discountFee: 'discountFee',
   payoutRefund: 'payoutRefund',
   creditBalanceRefund: 'creditBalanceRefund',
   recoveryPayment: 'recoveryPayment',
@@ -101,9 +103,21 @@ const AMOUNT_COMMANDS = new Set([
   'payoutRefund',
   'creditBalanceRefund',
   'recoveryPayment',
+  // The discount fee is entered, not offered: its template carries the currency and the
+  // classification options but no amount, and the platform refuses the command without one —
+  // without `transactionAmount` it fails the not-null constraint on the transaction row rather
+  // than validating, which is a platform defect but still a refusal.
+  'discountFee',
 ]);
 
 /** Commands that carry a transaction date. */
+/**
+ * Commands that carry a transaction date.
+ *
+ * `discountFee` carries one for a reason worth stating: the date identifies the disbursement the
+ * fee attaches to. Fineract resolves `relatedResourceId` from it — the response's `changes` name
+ * the disbursement it picked — and a date that matches no disbursement is refused.
+ */
 const DATED_COMMANDS = new Set([...AMOUNT_COMMANDS, 'prepay', 'chargeOff', 'writeOff']);
 
 /**
@@ -662,6 +676,7 @@ export class WcLoanActionFormComponent implements OnInit {
       goodwillCredit: 'WC_LOANS.ACTIONS.GOODWILL_CREDIT',
       payoutRefund: 'WC_LOANS.ACTIONS.PAYOUT_REFUND',
       creditBalanceRefund: 'WC_LOANS.ACTIONS.CREDIT_BALANCE_REFUND',
+      discountFee: 'WC_LOANS.ACTIONS.DISCOUNT_FEE',
       chargeOff: 'WC_LOANS.ACTIONS.CHARGE_OFF',
       undoChargeOff: 'WC_LOANS.ACTIONS.UNDO_CHARGE_OFF',
       writeOff: 'WC_LOANS.ACTIONS.WRITE_OFF',

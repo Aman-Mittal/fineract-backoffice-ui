@@ -43,6 +43,17 @@ export const ACCOUNTING_RULE = {
 
 export type AccountingRuleId = (typeof ACCOUNTING_RULE)[keyof typeof ACCOUNTING_RULE];
 
+/**
+ * A rule as the product's own request carries it.
+ *
+ * Numeric for the five families above, whose `accountingRule` is Fineract's `accountingRuleType`
+ * id. The Working Capital product is the exception: its rule is a **string enum** — `NONE` or
+ * `ACC_DEF_REV_AM` — and its template returns those names as `id`, with the dotted
+ * `wcAccountingRuleType.*` spelling in `code`. Sending the dotted code is refused, so which half
+ * of the option is bound matters, and that is why the section takes it as an input.
+ */
+export type AccountingRuleKey = number | string;
+
 /** Every rule that posts to the ledger — i.e. everything except `NONE`. */
 export const ACCOUNTING_RULES_WITH_MAPPINGS: readonly AccountingRuleId[] = [
   ACCOUNTING_RULE.CASH,
@@ -99,8 +110,17 @@ export interface AccountingMappingField {
   readonly accountType: GlAccountType;
   /** Translation key for the field label. */
   readonly label: string;
-  /** The rules that require this slot. A rule outside this list must not send the key. */
-  readonly rules: readonly AccountingRuleId[];
+  /** The rules that offer this slot. A rule outside this list must not send the key. */
+  readonly rules: readonly AccountingRuleKey[];
+  /**
+   * Whether the platform insists on it, which defaults to true.
+   *
+   * Every slot in the five original families is mandatory under the rules that name it — each
+   * list was enumerated *from* a 400 that named the missing parameters. The Working Capital
+   * product is the first with optional slots: seven of its nineteen are not named by that 400,
+   * and marking them required would stop a product saving that the platform would accept.
+   */
+  readonly required?: boolean;
 }
 
 /** The id/name pair a product response carries for a mapped account. */
@@ -217,9 +237,9 @@ export const LOAN_ACCOUNTING_FIELDS: readonly AccountingMappingField[] = [
 /** The slots `rule` requires, in declaration order. */
 export function fieldsForRule(
   fields: readonly AccountingMappingField[],
-  rule: number | undefined,
+  rule: AccountingRuleKey | undefined,
 ): AccountingMappingField[] {
-  return fields.filter((field) => field.rules.includes(rule as AccountingRuleId));
+  return rule === undefined ? [] : fields.filter((field) => field.rules.includes(rule));
 }
 
 /**
@@ -232,7 +252,7 @@ export function fieldsForRule(
  */
 export function mappingsForRule(
   fields: readonly AccountingMappingField[],
-  rule: number | undefined,
+  rule: AccountingRuleKey | undefined,
   mappings: AccountingMappings,
 ): AccountingMappings {
   const payload: AccountingMappings = {};
@@ -458,6 +478,202 @@ export const SHARE_ACCOUNTING_FIELDS: readonly AccountingMappingField[] = [
   },
 ];
 
+/**
+ * The rules a **Working Capital loan product** may carry, as the request spells them.
+ *
+ * Two, not four. The module has no cash basis and no choice of accrual timing: either it posts
+ * nothing, or it posts on accrual with the deferred revenue amortization the discount-fee model
+ * needs. The template returns these names in `id` and `wcAccountingRuleType.*` in `code`, and
+ * only the name is accepted — posting the dotted code answers 400.
+ */
+export const WC_ACCOUNTING_RULE = {
+  NONE: 'NONE',
+  ACCRUAL_DEFERRED_REVENUE: 'ACC_DEF_REV_AM',
+} as const;
+
+export type WcAccountingRule = (typeof WC_ACCOUNTING_RULE)[keyof typeof WC_ACCOUNTING_RULE];
+
+/** The one Working Capital rule that posts to the ledger. */
+export const WC_ACCOUNTING_RULES_WITH_MAPPINGS: readonly AccountingRuleKey[] = [
+  WC_ACCOUNTING_RULE.ACCRUAL_DEFERRED_REVENUE,
+];
+
+/** Every slot under the posting rule, with `required` set from what the platform insists on. */
+const WC_POSTING_RULES = WC_ACCOUNTING_RULES_WITH_MAPPINGS;
+
+/**
+ * The slots a **Working Capital loan product** maps.
+ *
+ * Enumerated from the platform the same way as the other families — post the rule with no
+ * mapping ids and read the 400 — and it answers with twelve mandatory parameters:
+ *
+ *     POST /working-capital-loan-products  {"accountingRule": "ACC_DEF_REV_AM", …no ids…}
+ *     → fundSourceAccountId, loanPortfolioAccountId, transfersInSuspenseAccountId,
+ *       deferredIncomeLiabilityAccountId, incomeFromDiscountFeeAccountId,
+ *       receivableFeeAccountId, receivablePenaltyAccountId, incomeFromFeeAccountId,
+ *       incomeFromPenaltyAccountId, incomeFromRecoveryAccountId, writeOffAccountId,
+ *       overpaymentLiabilityAccountId
+ *
+ * Seven more are accepted and not demanded — the charge-off, fraud and goodwill-credit slots —
+ * and are offered here as optional. A product that books a charge-off without
+ * `chargeOffExpenseAccountId` is a product whose charge-off cannot post, so they are worth
+ * asking for; refusing to save without them would be this UI inventing a rule.
+ *
+ * Two differences from the term-loan list are worth naming, because both look like omissions:
+ *
+ *  - **No interest slot.** This product earns a discount fee rather than interest; there is no
+ *    `interestOnLoanAccountId`, and `incomeFromDiscountFeeAccountId` is the mandatory slot that
+ *    takes its place.
+ *  - **A deferred income liability.** The discount fee is recognised over the loan's life, so the
+ *    unearned part sits in a liability. No other family has this slot.
+ */
+export const WC_LOAN_ACCOUNTING_FIELDS: readonly AccountingMappingField[] = [
+  // Assets
+  {
+    key: 'fundSourceAccountId',
+    responseKey: 'fundSourceAccount',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.FUND_SOURCE',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'loanPortfolioAccountId',
+    responseKey: 'loanPortfolioAccount',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.LOAN_PORTFOLIO',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'transfersInSuspenseAccountId',
+    responseKey: 'transfersInSuspenseAccount',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.TRANSFERS_IN_SUSPENSE',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'receivableFeeAccountId',
+    responseKey: 'receivableFeeAccount',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.RECEIVABLE_FEE',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'receivablePenaltyAccountId',
+    responseKey: 'receivablePenaltyAccount',
+    accountType: 'asset',
+    label: 'PRODUCTS.ACCOUNTING.RECEIVABLE_PENALTY',
+    rules: WC_POSTING_RULES,
+  },
+  // Liabilities
+  {
+    key: 'deferredIncomeLiabilityAccountId',
+    responseKey: 'deferredIncomeLiabilityAccount',
+    accountType: 'liability',
+    label: 'PRODUCTS.ACCOUNTING.DEFERRED_INCOME_LIABILITY',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'overpaymentLiabilityAccountId',
+    responseKey: 'overpaymentLiabilityAccount',
+    accountType: 'liability',
+    label: 'PRODUCTS.ACCOUNTING.OVERPAYMENT_LIABILITY',
+    rules: WC_POSTING_RULES,
+  },
+  // Income
+  {
+    key: 'incomeFromDiscountFeeAccountId',
+    responseKey: 'incomeFromDiscountFeeAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_DISCOUNT_FEE',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'incomeFromFeeAccountId',
+    responseKey: 'incomeFromFeeAccount',
+    accountType: 'income',
+    label: INCOME_FROM_FEES_LABEL,
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'incomeFromPenaltyAccountId',
+    responseKey: 'incomeFromPenaltyAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_PENALTIES',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'incomeFromRecoveryAccountId',
+    responseKey: 'incomeFromRecoveryAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_RECOVERY',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'incomeFromChargeOffFeesAccountId',
+    responseKey: 'incomeFromChargeOffFeesAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_CHARGE_OFF_FEES',
+    rules: WC_POSTING_RULES,
+    required: false,
+  },
+  {
+    key: 'incomeFromChargeOffPenaltyAccountId',
+    responseKey: 'incomeFromChargeOffPenaltyAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_CHARGE_OFF_PENALTY',
+    rules: WC_POSTING_RULES,
+    required: false,
+  },
+  {
+    key: 'incomeFromGoodwillCreditFeesAccountId',
+    responseKey: 'incomeFromGoodwillCreditFeesAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_GOODWILL_CREDIT_FEES',
+    rules: WC_POSTING_RULES,
+    required: false,
+  },
+  {
+    key: 'incomeFromGoodwillCreditPenaltyAccountId',
+    responseKey: 'incomeFromGoodwillCreditPenaltyAccount',
+    accountType: 'income',
+    label: 'PRODUCTS.ACCOUNTING.INCOME_FROM_GOODWILL_CREDIT_PENALTY',
+    rules: WC_POSTING_RULES,
+    required: false,
+  },
+  // Expenses
+  {
+    key: 'writeOffAccountId',
+    responseKey: 'writeOffAccount',
+    accountType: 'expense',
+    label: 'PRODUCTS.ACCOUNTING.LOSSES_WRITTEN_OFF',
+    rules: WC_POSTING_RULES,
+  },
+  {
+    key: 'chargeOffExpenseAccountId',
+    responseKey: 'chargeOffExpenseAccount',
+    accountType: 'expense',
+    label: 'PRODUCTS.ACCOUNTING.CHARGE_OFF_EXPENSE',
+    rules: WC_POSTING_RULES,
+    required: false,
+  },
+  {
+    key: 'chargeOffFraudExpenseAccountId',
+    responseKey: 'chargeOffFraudExpenseAccount',
+    accountType: 'expense',
+    label: 'PRODUCTS.ACCOUNTING.CHARGE_OFF_FRAUD_EXPENSE',
+    rules: WC_POSTING_RULES,
+    required: false,
+  },
+  {
+    key: 'goodwillCreditAccountId',
+    responseKey: 'goodwillCreditAccount',
+    accountType: 'expense',
+    label: 'PRODUCTS.ACCOUNTING.GOODWILL_CREDIT',
+    rules: WC_POSTING_RULES,
+    required: false,
+  },
+];
+
 // --- Advanced mappings ------------------------------------------------------------------------
 //
 // The base slots above send every payment to one fund source and every fee to one income
@@ -516,10 +732,15 @@ function isCompleteChargeMapping(row: ChargeToIncomeMapping): boolean {
  * A rule with no mappings gets nothing, for the same reason the base slots do.
  */
 export function advancedMappingsForRequest(
-  rule: number | undefined,
+  rule: AccountingRuleKey | undefined,
   mappings: AdvancedAccountingMappings,
+  /**
+   * The rules that post to the ledger for this family. Defaults to the numeric three, so the
+   * five original families call this unchanged; the Working Capital product passes its own.
+   */
+  rulesWithMappings: readonly AccountingRuleKey[] = ACCOUNTING_RULES_WITH_MAPPINGS,
 ): Record<string, unknown> {
-  if (!ACCOUNTING_RULES_WITH_MAPPINGS.includes(rule as AccountingRuleId)) return {};
+  if (rule === undefined || !rulesWithMappings.includes(rule)) return {};
 
   const request: Record<string, unknown> = {};
 
@@ -579,5 +800,110 @@ export function advancedMappingsFromResponse(
     (row) => ({ chargeId: row.charge?.id, incomeAccountId: row.incomeAccount?.id }),
   );
 
+  return mappings;
+}
+
+// --- Reason mappings --------------------------------------------------------------------------
+//
+// Charge-off and write-off each route to one expense account by default. These two tables
+// override that per *reason*, so losses can be reported by why they happened — fraud separately
+// from insolvency — which is a regulatory requirement in several jurisdictions and the reason
+// the Working Capital product carries them while the term-loan form does not yet.
+
+/** One reason routed to its own expense account. */
+export interface ReasonToExpenseMapping {
+  reasonCodeValueId?: number;
+  expenseAccountId?: number;
+}
+
+/** The two reason tables a Working Capital product holds. */
+export interface ReasonAccountingMappings {
+  chargeOffReasonToExpenseAccountMappings: ReasonToExpenseMapping[];
+  writeOffReasonsToExpenseMappings: ReasonToExpenseMapping[];
+}
+
+/** An empty set of reason tables. */
+export function emptyReasonMappings(): ReasonAccountingMappings {
+  return {
+    chargeOffReasonToExpenseAccountMappings: [],
+    writeOffReasonsToExpenseMappings: [],
+  };
+}
+
+/**
+ * The request key each table uses for its reason.
+ *
+ * They disagree, and nothing in the field names suggests it: a charge-off row carries
+ * `chargeOffReasonCodeValueId` and a write-off row `writeOffReasonCodeValueId`, while **both**
+ * read back under `reasonCodeValue`. One mapping holding both spellings is what stops an edit
+ * from silently dropping the table it did not name.
+ */
+const REASON_REQUEST_KEY = {
+  chargeOffReasonToExpenseAccountMappings: 'chargeOffReasonCodeValueId',
+  writeOffReasonsToExpenseMappings: 'writeOffReasonCodeValueId',
+} as const;
+
+/** A row is worth sending only once both halves are chosen. */
+function isCompleteReasonMapping(row: ReasonToExpenseMapping): boolean {
+  return row.reasonCodeValueId != null && row.expenseAccountId != null;
+}
+
+/**
+ * The reason tables as the create/update request carries them.
+ *
+ * Half-filled rows are dropped and empty tables produce no key at all, for the same reasons
+ * {@link advancedMappingsForRequest} does it: the tables are edited in place, and a rule that
+ * posts nothing has no slots to map.
+ */
+export function reasonMappingsForRequest(
+  rule: AccountingRuleKey | undefined,
+  mappings: ReasonAccountingMappings,
+  rulesWithMappings: readonly AccountingRuleKey[] = ACCOUNTING_RULES_WITH_MAPPINGS,
+): Record<string, unknown> {
+  if (rule === undefined || !rulesWithMappings.includes(rule)) return {};
+
+  const request: Record<string, unknown> = {};
+  for (const table of [
+    'chargeOffReasonToExpenseAccountMappings',
+    'writeOffReasonsToExpenseMappings',
+  ] as const) {
+    const rows = mappings[table].filter(isCompleteReasonMapping);
+    if (rows.length) {
+      request[table] = rows.map((row) => ({
+        [REASON_REQUEST_KEY[table]]: row.reasonCodeValueId,
+        expenseAccountId: row.expenseAccountId,
+      }));
+    }
+  }
+  return request;
+}
+
+/** The response shape, which names the reason differently from the request. */
+interface ReasonMappingResponse {
+  chargeOffReasonToExpenseAccountMappings?: {
+    reasonCodeValue?: { id?: number };
+    expenseAccount?: { id?: number };
+  }[];
+  writeOffReasonsToExpenseMappings?: {
+    reasonCodeValue?: { id?: number };
+    expenseAccount?: { id?: number };
+  }[];
+}
+
+/** The reason tables a loaded product already has, keyed the way the form holds them. */
+export function reasonMappingsFromResponse(product: object | undefined): ReasonAccountingMappings {
+  const mappings = emptyReasonMappings();
+  if (!product) return mappings;
+  const source = product as ReasonMappingResponse;
+
+  for (const table of [
+    'chargeOffReasonToExpenseAccountMappings',
+    'writeOffReasonsToExpenseMappings',
+  ] as const) {
+    mappings[table] = (source[table] ?? []).map((row) => ({
+      reasonCodeValueId: row.reasonCodeValue?.id,
+      expenseAccountId: row.expenseAccount?.id,
+    }));
+  }
   return mappings;
 }

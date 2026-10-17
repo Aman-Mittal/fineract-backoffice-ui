@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
+import { I18N, TranslatePipe } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -29,6 +29,7 @@ import {
   IonCardTitle,
   IonDatetime,
   IonDatetimeButton,
+  IonIcon,
   IonInput,
   IonItem,
   IonLabel,
@@ -49,6 +50,9 @@ import {
   StringEnumOptionData,
   GetDelinquencyBucket,
   FundData,
+  DataTablesService,
+  EntityDataTableService,
+  ResultsetColumnHeaderData,
 } from '../../../api';
 import {
   formatDateToFineract,
@@ -57,6 +61,29 @@ import {
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
+import { DialogService } from '../../../core/services/dialog.service';
+import {
+  DatatableEntryDialogComponent,
+  DatatableEntryDialogData,
+} from '../../../shared/components/datatable-entry-dialog/datatable-entry-dialog.component';
+
+/**
+ * A datatable Fineract will not let this loan be created without.
+ *
+ * `status.id` 100 is CREATE. The platform refuses the application outright —
+ * 403 "Please fill in the data table [x] before creating this working capital loan." — and the
+ * create request carries the rows inline, so the row cannot be added afterwards either. The form
+ * collects the fields and sends them with the application.
+ */
+interface RequiredDatatable {
+  name: string;
+  columns: ResultsetColumnHeaderData[];
+  /** What the user filled in, or undefined while it is outstanding. */
+  data?: Record<string, unknown>;
+}
+
+/** `statusEnum.create`, the only check status that applies to creating a loan. */
+const CREATE_CHECK_STATUS = 100;
 
 /**
  * Create form for a Working Capital Loan application. Required fields are
@@ -72,6 +99,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
     TranslatePipe,
     IonButton,
     IonSpinner,
+    IonIcon,
     IonInput,
     IonTextarea,
     IonItem,
@@ -315,6 +343,40 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 ></ion-textarea>
               </ion-item>
 
+              @if (requiredDatatables().length) {
+                <!--
+                  Datatables this tenant has registered as a CREATE check. Fineract refuses the
+                  application until each has a row, and the create request carries them inline,
+                  so they are collected here rather than added afterwards (issue #776).
+                -->
+                <div class="required-datatables" data-testid="wc-loan-required-datatables">
+                  <h3>{{ 'SYSTEM.REQUIRED_CUSTOM_DATA' | appTranslate }}</h3>
+                  @for (entry of requiredDatatables(); track entry.name) {
+                    <div class="required-datatable">
+                      <span class="required-name">
+                        {{ entry.name }}
+                        @if (entry.data) {
+                          <ion-icon
+                            name="checkmark-circle-outline"
+                            color="success"
+                            [attr.aria-label]="'COMMON.DONE' | appTranslate"
+                          ></ion-icon>
+                        }
+                      </span>
+                      <ion-button
+                        fill="outline"
+                        size="small"
+                        type="button"
+                        [attr.data-testid]="'wc-loan-fill-' + entry.name"
+                        (click)="onFillRequiredDatatable(entry)"
+                      >
+                        {{ datatableActionLabel(entry) }}
+                      </ion-button>
+                    </div>
+                  }
+                </div>
+              }
+
               <div class="form-actions">
                 <ion-button fill="clear" type="button" (click)="onCancel()" [disabled]="isSaving()">
                   {{ 'COMMON.CANCEL' | appTranslate }}
@@ -322,7 +384,8 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 <ion-button
                   color="primary"
                   type="submit"
-                  [disabled]="loanForm.invalid || isSaving()"
+                  data-testid="wc-loan-submit"
+                  [disabled]="loanForm.invalid || isSaving() || hasOutstandingDatatables()"
                 >
                   @if (isSaving()) {
                     <ion-spinner name="crescent"></ion-spinner>
@@ -359,6 +422,23 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
         justify-content: center;
         padding: 32px;
       }
+      .required-datatables h3 {
+        margin: 0 0 8px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .required-datatable {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 4px 0;
+      }
+      .required-name {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
     `,
   ],
 })
@@ -368,6 +448,10 @@ export class WcLoanFormComponent implements OnInit {
 
   private readonly loansService = inject(WorkingCapitalLoansService);
   private readonly nearBreachService = inject(WorkingCapitalNearBreachService);
+  private readonly entityChecksService = inject(EntityDataTableService);
+  private readonly datatablesService = inject(DataTablesService);
+  private readonly dialogService = inject(DialogService);
+  private readonly i18n = inject(I18N);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -407,6 +491,13 @@ export class WcLoanFormComponent implements OnInit {
   readonly delinquencyBucketOptions = signal<GetDelinquencyBucket[]>([]);
   readonly fundOptions = signal<FundData[]>([]);
 
+  /** Datatables registered as a CREATE check on `m_wc_loan`; empty for most tenants. */
+  readonly requiredDatatables = signal<RequiredDatatable[]>([]);
+  /** True while a required datatable is still outstanding, which the platform would refuse. */
+  readonly hasOutstandingDatatables = computed(() =>
+    this.requiredDatatables().some((entry) => entry.data === undefined),
+  );
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -414,6 +505,9 @@ export class WcLoanFormComponent implements OnInit {
       this.isEdit.set(true);
       this.isReady.set(false);
       this.loadLoan(+id);
+    }
+    if (!this.isEdit()) {
+      this.loadCreateChecks();
     }
     this.nearBreachService.getWorkingCapitalNearBreach().subscribe((data) => {
       this.nearBreachOptions.set(data);
@@ -466,6 +560,79 @@ export class WcLoanFormComponent implements OnInit {
     });
   }
 
+  /**
+   * Finds the datatables this tenant requires before a Working Capital loan may be created.
+   *
+   * A failure here is left silent beyond the log: entity datatable checks are an uncommon
+   * configuration, and a tenant that has none would otherwise see an error for a call whose
+   * answer is "nothing to do". The platform still refuses a create that needs one, and says
+   * which table it wants.
+   */
+  private loadCreateChecks(): void {
+    // Filtered by the platform rather than by this form: the endpoint takes both, and the
+    // client-side filter below stays as the guarantee, because a tenant with many checks would
+    // otherwise be paged through.
+    this.entityChecksService.getEntityDatatableChecks(CREATE_CHECK_STATUS, 'm_wc_loan').subscribe({
+      next: (page) => {
+        const required = (page.pageItems ?? []).filter(
+          (check) =>
+            check.entity === 'm_wc_loan' &&
+            check.status?.id === CREATE_CHECK_STATUS &&
+            !!check.datatableName,
+        );
+        for (const check of required) {
+          this.loadRequiredDatatable(check.datatableName!);
+        }
+      },
+      error: (err: unknown) => console.error('Failed to load entity datatable checks', err),
+    });
+  }
+
+  /** Reads one required table's columns, which are what the dialog renders fields from. */
+  private loadRequiredDatatable(name: string): void {
+    this.datatablesService.getDatatablesDatatable(name).subscribe({
+      next: (table) => {
+        this.requiredDatatables.update((entries) => [
+          ...entries,
+          { name, columns: table.columnHeaderData ?? [] },
+        ]);
+      },
+      error: (err: unknown) => console.error(`Failed to load the datatable ${name}`, err),
+    });
+  }
+
+  /**
+   * Collects one required table's fields.
+   *
+   * The entry dialog does the rendering, in its collect-only mode: there is no loan yet to post
+   * a row against, and the create request carries the rows inline. Reopening it shows what was
+   * entered, so a correction does not mean retyping.
+   */
+  async onFillRequiredDatatable(entry: RequiredDatatable): Promise<void> {
+    const data: DatatableEntryDialogData = {
+      datatableName: entry.name,
+      apptableId: 0,
+      columns: entry.columns,
+      row: entry.data,
+      collectOnly: true,
+    };
+    const values = await this.dialogService.open<Record<string, unknown>>(
+      DatatableEntryDialogComponent,
+      { data },
+    );
+    if (!values) return;
+    this.requiredDatatables.update((entries) =>
+      entries.map((candidate) =>
+        candidate.name === entry.name ? { ...candidate, data: values } : candidate,
+      ),
+    );
+  }
+
+  /** The label for one required table's button: fill it in, or change what was filled in. */
+  datatableActionLabel(entry: RequiredDatatable): string {
+    return this.i18n.translate(entry.data === undefined ? 'SYSTEM.ADD_ENTRY' : 'COMMON.EDIT');
+  }
+
   onSubmit(): void {
     this.isSaving.set(true);
     return this.isEdit() ? this.submitModification() : this.submitApplication();
@@ -483,6 +650,18 @@ export class WcLoanFormComponent implements OnInit {
     }
     if (this.expectedDisbursementDate) {
       request.expectedDisbursementDate = formatDateToFineract(this.expectedDisbursementDate);
+    }
+    const datatables = this.requiredDatatables()
+      .filter((entry) => entry.data !== undefined)
+      // The spec types each value as `object`, which no datatable value is: they are strings,
+      // numbers, booleans and dates. Narrowed here rather than in the collected record, whose
+      // own shape is honest.
+      .map((entry) => ({
+        registeredTableName: entry.name,
+        data: entry.data as Record<string, object>,
+      }));
+    if (datatables.length) {
+      request.datatables = datatables;
     }
 
     this.loansService.postWorkingCapitalLoans(request as PostWorkingCapitalLoansRequest).subscribe({

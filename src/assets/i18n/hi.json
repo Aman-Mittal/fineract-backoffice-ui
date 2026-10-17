@@ -290,7 +290,8 @@
     "UNCHECK_ALL": "सभी अचयनित करें",
     "CHECKER": "चेकर",
     "CHECKED_DATE": "जांच की तारीख",
-    "REASON": "कारण"
+    "REASON": "कारण",
+    "DONE": "पूर्ण"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "खाता स्थानांतरण",
@@ -476,7 +477,22 @@
       "SHARE_REFERENCE": "शेयर संदर्भ",
       "SHARE_SUSPENSE": "शेयर सस्पेंस नियंत्रण",
       "TITLE": "लेखा",
-      "TRANSFERS_IN_SUSPENSE": "सस्पेंस में अंतरण"
+      "TRANSFERS_IN_SUSPENSE": "सस्पेंस में अंतरण",
+      "DEFERRED_INCOME_LIABILITY": "आस्थगित आय देयता",
+      "INCOME_FROM_DISCOUNT_FEE": "छूट शुल्क से आय",
+      "INCOME_FROM_CHARGE_OFF_FEES": "बट्टे खाते डाले गए शुल्कों से आय",
+      "INCOME_FROM_CHARGE_OFF_PENALTY": "बट्टे खाते डाले गए दंडों से आय",
+      "INCOME_FROM_GOODWILL_CREDIT_FEES": "सद्भावना क्रेडिट शुल्कों से आय",
+      "INCOME_FROM_GOODWILL_CREDIT_PENALTY": "सद्भावना क्रेडिट दंडों से आय",
+      "CHARGE_OFF_EXPENSE": "चार्ज-ऑफ व्यय",
+      "CHARGE_OFF_FRAUD_EXPENSE": "चार्ज-ऑफ व्यय (धोखाधड़ी)",
+      "GOODWILL_CREDIT": "सद्भावना क्रेडिट",
+      "EXPENSE_ACCOUNT": "व्यय खाता",
+      "CHARGE_OFF_REASON_TITLE": "चार्ज-ऑफ कारण से व्यय खाता",
+      "CHARGE_OFF_REASON": "चार्ज-ऑफ कारण",
+      "WRITE_OFF_REASON_TITLE": "बट्टे खाते का कारण से व्यय खाता",
+      "WRITE_OFF_REASON": "बट्टे खाते का कारण",
+      "NO_REASONS_CONFIGURED": "इस टेनेंट के लिए कोई कारण कॉन्फ़िगर नहीं है। मैप करने से पहले सिस्टम → कोड प्रबंधित करें में उन्हें जोड़ें।"
     },
     "DEPOSITS": {
       "ON_CLOSURE": "बंद होने पर",
@@ -1677,7 +1693,8 @@
       "UNDO_DISBURSAL": "संवितरण पूर्ववत करें",
       "UNDO_WRITE_OFF": "अपलेखन पूर्ववत करें",
       "WRITE_OFF": "अपलेखन करें",
-      "WRITE_OFF_REASON": "अपलेखन का कारण"
+      "WRITE_OFF_REASON": "अपलेखन का कारण",
+      "DISCOUNT_FEE": "छूट शुल्क दर्ज करें"
     },
     "DELINQUENCY_ACTION": {
       "TITLE": "नई चूक कार्रवाई",
@@ -1725,7 +1742,12 @@
       "ADD": "शुल्क जोड़ें",
       "SELECT_CHARGE": "शुल्क चुनें",
       "DUE_DATE": "देय तिथि",
-      "WAIVE": "शुल्क माफ करें"
+      "WAIVE": "शुल्क माफ करें",
+      "WAIVED": "माफ़ किया गया",
+      "ADJUST": "शुल्क समायोजित करें",
+      "ADJUSTED_AMOUNT": "समायोजित राशि",
+      "CALCULATION_TYPE": "गणना",
+      "PENALTY": "दंड"
     },
     "RATE_CHANGE": {
       "EFFECTIVE_DATE": "प्रभावी तिथि",
@@ -1744,6 +1766,20 @@
       "DELINQUENT_DAYS": "चूक के दिन",
       "DELINQUENT_AMOUNT": "चूक राशि",
       "ADDED_ON_DATE": "जोड़ी गई तिथि"
+    },
+    "TRANSACTION": {
+      "TITLE": "लेन-देन",
+      "REVERSED": "निरस्त",
+      "REVERSED_ON": "निरस्त किया गया",
+      "PRINCIPAL_PORTION": "मूलधन",
+      "FEE_PORTION": "शुल्क",
+      "PENALTY_PORTION": "दंड",
+      "OVERPAYMENT_PORTION": "अधिक भुगतान",
+      "UNDO": "लेन-देन निरस्त करें",
+      "CONFIRM_UNDO": "इस लेन-देन को निरस्त करने से ऋण शेष बदल जाएगा। इसे यहाँ से पूर्ववत नहीं किया जा सकता।",
+      "ADJUST": "लेन-देन समायोजित करें",
+      "ADJUST_DISCOUNT_FEE": "छूट शुल्क समायोजित करें",
+      "QUEUED": "अनुमोदन के लिए भेजा गया। ऋण में बदलाव से पहले चेकर को इसे स्वीकृत करना होगा।"
     }
   },
   "WC_LOAN_PRODUCTS": {
@@ -1851,7 +1887,10 @@
     "DELETE_DELINQUENCY_BUCKET": "चूक बकेट हटाएं",
     "CONFIRM_DELETE_DELINQUENCY_BUCKET": "चूक बकेट \"{{name}}\" हटाएं? इसका उपयोग करने वाले ऋण उत्पादों को दोबारा वर्गीकरण से पहले अलग बकेट की जरूरत होगी।",
     "DELETE_DATA_TABLE": "डेटा तालिका हटाएं",
-    "CONFIRM_DELETE_DATA_TABLE": "डेटा तालिका \"{{name}}\" हटाएं? तालिका और उसमें दर्ज सभी डेटा हटा दिए जाएंगे।"
+    "CONFIRM_DELETE_DATA_TABLE": "डेटा तालिका \"{{name}}\" हटाएं? तालिका और उसमें दर्ज सभी डेटा हटा दिए जाएंगे।",
+    "EDIT_ENTRY": "प्रविष्टि संपादित करें",
+    "CONFIRM_DELETE_ENTRY": "यह पंक्ति सीधे हटा दी जाएगी; इसे पूर्ववत नहीं किया जा सकता।",
+    "REQUIRED_CUSTOM_DATA": "आवश्यक कस्टम डेटा"
   },
   "ORGANIZATION": {
     "STAFF": "कर्मचारी",

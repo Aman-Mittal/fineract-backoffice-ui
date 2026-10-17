@@ -109,6 +109,7 @@ describe('WC_LOAN_COMMAND_PERMISSIONS', () => {
     goodwillCredit: 'GOODWILLCREDIT_WORKINGCAPITALLOAN',
     payoutRefund: 'PAYOUTREFUND_WORKINGCAPITALLOAN',
     creditBalanceRefund: 'CREDITBALANCEREFUND_WORKINGCAPITALLOAN',
+    discountFee: 'DISCOUNTFEE_WORKINGCAPITALLOAN',
     chargeOff: 'CHARGEOFF_WORKINGCAPITALLOAN',
     undoChargeOff: 'UNDOCHARGEOFF_WORKINGCAPITALLOAN',
     writeOff: 'WRITEOFF_WORKINGCAPITALLOAN',
@@ -131,6 +132,17 @@ describe('WC_LOAN_COMMAND_PERMISSIONS', () => {
         /^[A-Z][A-Z0-9]*_WORKINGCAPITALLOAN$/,
       );
     }
+  });
+
+  /**
+   * The discount fee posts a transaction, so the obvious guess is the code that sets the agreed
+   * discount before disbursement. It is not: `UPDATEDISCOUNT_WORKINGCAPITALLOAN` is refused the
+   * `discountFee` command, and `DISCOUNTFEE_WORKINGCAPITALLOAN` is refused the PUT. Measured.
+   */
+  it('separates posting the discount fee from updating the agreed discount', () => {
+    expect(WC_LOAN_COMMAND_PERMISSIONS['discountFee']).not.toBe(
+      WC_LOAN_COMMAND_PERMISSIONS['discount'],
+    );
   });
 
   it('treats a prepayment as a repayment, as the term-loan map does', () => {

@@ -67,6 +67,7 @@ import {
 import {
   ACCOUNTING_RULE,
   AccountingMappings,
+  AccountingRuleKey,
   GlAccountOptions,
   LOAN_ACCOUNTING_FIELDS,
   mappingsForRule,
@@ -1290,7 +1291,7 @@ type TemplateEnumOption<T> = T & { value?: string };
               [accountOptions]="accountingMappingOptions()"
               [ruleOptions]="accountingRuleOptions()"
               [accountingRule]="product().accountingRule ?? 1"
-              (accountingRuleChange)="product().accountingRule = $event"
+              (accountingRuleChange)="setAccountingRule($event)"
               [mappings]="accountingMappings()"
               (mappingsChange)="accountingMappings.set($event)"
             ></app-product-accounting-section>
@@ -1988,5 +1989,16 @@ export class LoanProductFormComponent implements OnInit {
 
   onCancel() {
     this.router.navigate([this.LIST_PATH]);
+  }
+
+  /**
+   * Records the chosen accounting rule.
+   *
+   * `app-product-accounting-section` is family-agnostic and types its rule as `number | string`,
+   * because the Working Capital product's rule is a named string enum. This family's is a numeric
+   * `accountingRuleType` id, so the value is narrowed here rather than in the template.
+   */
+  setAccountingRule(rule: AccountingRuleKey): void {
+    this.product().accountingRule = Number(rule);
   }
 }

@@ -33,7 +33,20 @@ import {
   IonButton,
   IonIcon,
 } from '@ionic/angular/standalone';
-import { EnumOptionData, AdvancedPaymentData, CreditAllocationData } from '../../api';
+import { AdvancedPaymentData, CreditAllocationData } from '../../api';
+
+/**
+ * One option in an allocation list: the code the request carries and the label to show.
+ *
+ * Structural rather than one of the generated types, because the two product families that use
+ * this editor are given different ones — the term-loan template returns `EnumOptionData` (`id`
+ * numeric) and the Working Capital template `StringEnumOptionData` (`id` a name) — and the
+ * editor reads neither `id`.
+ */
+export interface AllocationOption {
+  code?: string;
+  value?: string;
+}
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 @Component({
@@ -80,22 +93,24 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
               </ion-button>
             </div>
 
-            <ion-item fill="outline" class="future-installment-field form-item">
-              <ion-label position="stacked">{{
-                'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | appTranslate
-              }}</ion-label>
-              <ion-select
-                [attr.aria-label]="'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | appTranslate"
-                interface="popover"
-                [(ngModel)]="rule.futureInstallmentAllocationRule"
-                [name]="'futureInstallmentRule' + ruleIndex"
-                (ngModelChange)="emitPaymentAllocation()"
-              >
-                @for (option of futureInstallmentOptions(); track option.code) {
-                  <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
-                }
-              </ion-select>
-            </ion-item>
+            @if (showFutureInstallmentRule()) {
+              <ion-item fill="outline" class="future-installment-field form-item">
+                <ion-label position="stacked">{{
+                  'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | appTranslate
+                }}</ion-label>
+                <ion-select
+                  [attr.aria-label]="'PRODUCTS.FUTURE_INSTALLMENT_ALLOCATION_RULE' | appTranslate"
+                  interface="popover"
+                  [(ngModel)]="rule.futureInstallmentAllocationRule"
+                  [name]="'futureInstallmentRule' + ruleIndex"
+                  (ngModelChange)="emitPaymentAllocation()"
+                >
+                  @for (option of futureInstallmentOptions(); track option.code) {
+                    <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+            }
 
             <ion-list class="allocation-order-list">
               @for (
@@ -163,95 +178,97 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
       </ion-card-content>
     </ion-card>
 
-    <ion-card class="allocation-card">
-      <ion-card-header>
-        <ion-card-title [appTooltip]="'HELP.CREDIT_ALLOCATION_DESC' | appTranslate">
-          {{ 'PRODUCTS.CREDIT_ALLOCATION' | appTranslate }}
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        @for (rule of creditAllocation(); track rule.transactionType; let ruleIndex = $index) {
-          <div class="allocation-block">
-            <div class="allocation-block-header">
-              <strong>{{
-                transactionTypeLabel(rule.transactionType, creditTransactionTypeOptions())
-              }}</strong>
+    @if (showCreditAllocation()) {
+      <ion-card class="allocation-card">
+        <ion-card-header>
+          <ion-card-title [appTooltip]="'HELP.CREDIT_ALLOCATION_DESC' | appTranslate">
+            {{ 'PRODUCTS.CREDIT_ALLOCATION' | appTranslate }}
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          @for (rule of creditAllocation(); track rule.transactionType; let ruleIndex = $index) {
+            <div class="allocation-block">
+              <div class="allocation-block-header">
+                <strong>{{
+                  transactionTypeLabel(rule.transactionType, creditTransactionTypeOptions())
+                }}</strong>
+                <ion-button
+                  fill="clear"
+                  type="button"
+                  color="danger"
+                  [attr.aria-label]="'COMMON.DELETE' | appTranslate"
+                  (click)="removeCreditTransactionType(ruleIndex)"
+                >
+                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
+
+              <ion-list class="allocation-order-list">
+                @for (
+                  order of rule.creditAllocationOrder;
+                  track order.creditAllocationRule;
+                  let orderIndex = $index
+                ) {
+                  <ion-item class="allocation-item">
+                    <span class="order-index">{{ orderIndex + 1 }}.</span>
+                    <span class="order-label">{{
+                      allocationRuleLabel(order.creditAllocationRule, creditAllocationRuleOptions())
+                    }}</span>
+                    <ion-button
+                      fill="clear"
+                      type="button"
+                      [disabled]="orderIndex === 0"
+                      (click)="moveOrderEntry(rule.creditAllocationOrder!, orderIndex, -1)"
+                      [attr.aria-label]="'COMMON.MOVE_UP' | appTranslate"
+                    >
+                      <ion-icon name="arrow-up-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+                    <ion-button
+                      fill="clear"
+                      type="button"
+                      [disabled]="orderIndex === rule.creditAllocationOrder!.length - 1"
+                      (click)="moveOrderEntry(rule.creditAllocationOrder!, orderIndex, 1)"
+                      [attr.aria-label]="'COMMON.MOVE_DOWN' | appTranslate"
+                    >
+                      <ion-icon name="arrow-down-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+                  </ion-item>
+                }
+              </ion-list>
+            </div>
+          }
+
+          @if (availableCreditTransactionTypes().length) {
+            <div class="add-transaction-type-row">
+              <ion-item fill="outline" class="form-item flex-1">
+                <ion-label position="stacked">{{
+                  'PRODUCTS.ADD_TRANSACTION_TYPE' | appTranslate
+                }}</ion-label>
+                <ion-select
+                  [attr.aria-label]="'PRODUCTS.ADD_TRANSACTION_TYPE' | appTranslate"
+                  interface="popover"
+                  name="newCreditTransactionType"
+                  [(ngModel)]="newCreditTransactionType"
+                >
+                  @for (option of availableCreditTransactionTypes(); track option.code) {
+                    <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
               <ion-button
-                fill="clear"
+                fill="outline"
                 type="button"
-                color="danger"
-                [attr.aria-label]="'COMMON.DELETE' | appTranslate"
-                (click)="removeCreditTransactionType(ruleIndex)"
+                [disabled]="!newCreditTransactionType"
+                (click)="addCreditTransactionType()"
               >
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                <ion-icon name="add-outline" slot="start"></ion-icon>
+                {{ 'COMMON.ADD' | appTranslate }}
               </ion-button>
             </div>
-
-            <ion-list class="allocation-order-list">
-              @for (
-                order of rule.creditAllocationOrder;
-                track order.creditAllocationRule;
-                let orderIndex = $index
-              ) {
-                <ion-item class="allocation-item">
-                  <span class="order-index">{{ orderIndex + 1 }}.</span>
-                  <span class="order-label">{{
-                    allocationRuleLabel(order.creditAllocationRule, creditAllocationRuleOptions())
-                  }}</span>
-                  <ion-button
-                    fill="clear"
-                    type="button"
-                    [disabled]="orderIndex === 0"
-                    (click)="moveOrderEntry(rule.creditAllocationOrder!, orderIndex, -1)"
-                    [attr.aria-label]="'COMMON.MOVE_UP' | appTranslate"
-                  >
-                    <ion-icon name="arrow-up-outline" slot="icon-only"></ion-icon>
-                  </ion-button>
-                  <ion-button
-                    fill="clear"
-                    type="button"
-                    [disabled]="orderIndex === rule.creditAllocationOrder!.length - 1"
-                    (click)="moveOrderEntry(rule.creditAllocationOrder!, orderIndex, 1)"
-                    [attr.aria-label]="'COMMON.MOVE_DOWN' | appTranslate"
-                  >
-                    <ion-icon name="arrow-down-outline" slot="icon-only"></ion-icon>
-                  </ion-button>
-                </ion-item>
-              }
-            </ion-list>
-          </div>
-        }
-
-        @if (availableCreditTransactionTypes().length) {
-          <div class="add-transaction-type-row">
-            <ion-item fill="outline" class="form-item flex-1">
-              <ion-label position="stacked">{{
-                'PRODUCTS.ADD_TRANSACTION_TYPE' | appTranslate
-              }}</ion-label>
-              <ion-select
-                [attr.aria-label]="'PRODUCTS.ADD_TRANSACTION_TYPE' | appTranslate"
-                interface="popover"
-                name="newCreditTransactionType"
-                [(ngModel)]="newCreditTransactionType"
-              >
-                @for (option of availableCreditTransactionTypes(); track option.code) {
-                  <ion-select-option [value]="option.code">{{ option.value }}</ion-select-option>
-                }
-              </ion-select>
-            </ion-item>
-            <ion-button
-              fill="outline"
-              type="button"
-              [disabled]="!newCreditTransactionType"
-              (click)="addCreditTransactionType()"
-            >
-              <ion-icon name="add-outline" slot="start"></ion-icon>
-              {{ 'COMMON.ADD' | appTranslate }}
-            </ion-button>
-          </div>
-        }
-      </ion-card-content>
-    </ion-card>
+          }
+        </ion-card-content>
+      </ion-card>
+    }
   `,
   styles: [
     `
@@ -294,11 +311,28 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
   ],
 })
 export class PaymentCreditAllocationEditorComponent {
-  readonly transactionTypeOptions = input<EnumOptionData[]>([]);
-  readonly allocationRuleOptions = input<EnumOptionData[]>([]);
-  readonly futureInstallmentOptions = input<EnumOptionData[]>([]);
-  readonly creditTransactionTypeOptions = input<EnumOptionData[]>([]);
-  readonly creditAllocationRuleOptions = input<EnumOptionData[]>([]);
+  readonly transactionTypeOptions = input<AllocationOption[]>([]);
+  readonly allocationRuleOptions = input<AllocationOption[]>([]);
+  readonly futureInstallmentOptions = input<AllocationOption[]>([]);
+  readonly creditTransactionTypeOptions = input<AllocationOption[]>([]);
+  readonly creditAllocationRuleOptions = input<AllocationOption[]>([]);
+
+  /**
+   * Whether this product family has a future-installment allocation rule.
+   *
+   * The term-loan product does; the Working Capital product does not — its template returns no
+   * `advancedPaymentAllocationFutureInstallmentAllocationRules`, and sending the field is refused
+   * as an unsupported parameter. Rendering an empty select for it would also ask the user to
+   * choose from nothing.
+   */
+  readonly showFutureInstallmentRule = input(true);
+  /**
+   * Whether this family allocates *credits* as well as payments.
+   *
+   * Only the term-loan product does. The Working Capital product has one allocation list, so a
+   * second empty card would read as a section that failed to load.
+   */
+  readonly showCreditAllocation = input(true);
 
   // `model()` rather than `input()`, because this component writes its own allocation lists when
   // a transaction type is added or removed. It also supplies the `…Change` outputs the parent
@@ -310,20 +344,20 @@ export class PaymentCreditAllocationEditorComponent {
   newPaymentTransactionType: string | null = null;
   newCreditTransactionType: string | null = null;
 
-  transactionTypeLabel(code: string | undefined, options: EnumOptionData[]): string {
+  transactionTypeLabel(code: string | undefined, options: AllocationOption[]): string {
     return options.find((option) => option.code === code)?.value ?? code ?? '';
   }
 
-  allocationRuleLabel(code: string | undefined, options: EnumOptionData[]): string {
+  allocationRuleLabel(code: string | undefined, options: AllocationOption[]): string {
     return options.find((option) => option.code === code)?.value ?? code ?? '';
   }
 
-  readonly availablePaymentTransactionTypes = computed<EnumOptionData[]>(() => {
+  readonly availablePaymentTransactionTypes = computed<AllocationOption[]>(() => {
     const used = new Set(this.paymentAllocation().map((rule) => rule.transactionType));
     return this.transactionTypeOptions().filter((option) => !used.has(option.code));
   });
 
-  readonly availableCreditTransactionTypes = computed<EnumOptionData[]>(() => {
+  readonly availableCreditTransactionTypes = computed<AllocationOption[]>(() => {
     const used = new Set(this.creditAllocation().map((rule) => rule.transactionType));
     return this.creditTransactionTypeOptions().filter((option) => !used.has(option.code));
   });
@@ -334,8 +368,14 @@ export class PaymentCreditAllocationEditorComponent {
       ...this.paymentAllocation(),
       {
         transactionType: this.newPaymentTransactionType,
-        futureInstallmentAllocationRule:
-          this.futureInstallmentOptions()[0]?.code ?? 'NEXT_INSTALLMENT',
+        // Omitted where the family has no such rule: the Working Capital product refuses the
+        // parameter outright rather than ignoring it.
+        ...(this.showFutureInstallmentRule()
+          ? {
+              futureInstallmentAllocationRule:
+                this.futureInstallmentOptions()[0]?.code ?? 'NEXT_INSTALLMENT',
+            }
+          : {}),
         paymentAllocationOrder: this.allocationRuleOptions().map((option, index) => ({
           order: index + 1,
           paymentAllocationRule: option.code,

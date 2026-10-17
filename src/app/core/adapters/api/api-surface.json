@@ -149,12 +149,16 @@
   ],
   "CurrencyService": ["getCurrencies", "putCurrencies"],
   "DataTablesService": [
+    "deleteDatatablesDatatableApptableId",
+    "deleteDatatablesDatatableApptableIdDatatableId",
     "deleteDatatablesDatatableName",
     "getDatatables",
     "getDatatablesDatatable",
     "getDatatablesDatatableApptableId",
     "postDatatables",
     "postDatatablesDatatableApptableId",
+    "putDatatablesDatatableApptableId",
+    "putDatatablesDatatableApptableIdDatatableId",
     "putDatatablesDatatableName"
   ],
   "DefaultService": [
@@ -734,6 +738,7 @@
   ],
   "WorkingCapitalLoanChargesService": [
     "getWorkingCapitalLoansLoanIdCharges",
+    "getWorkingCapitalLoansLoanIdChargesLoanChargeId",
     "getWorkingCapitalLoansLoanIdChargesTemplate",
     "postWorkingCapitalLoansLoanIdCharges",
     "postWorkingCapitalLoansLoanIdChargesLoanChargeId"
@@ -766,7 +771,9 @@
   "WorkingCapitalLoanTransactionsService": [
     "getWorkingCapitalLoansLoanIdTransactions",
     "getWorkingCapitalLoansLoanIdTransactionsTemplate",
-    "postWorkingCapitalLoansLoanIdTransactions"
+    "getWorkingCapitalLoansLoanIdTransactionsTransactionId",
+    "postWorkingCapitalLoansLoanIdTransactions",
+    "postWorkingCapitalLoansLoanIdTransactionsTransactionId"
   ],
   "WorkingCapitalLoansService": [
     "deleteWorkingCapitalLoansLoanId",

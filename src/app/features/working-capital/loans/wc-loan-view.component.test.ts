@@ -32,6 +32,8 @@ import {
   WorkingCapitalLoanNearBreachActionsService,
   WorkingCapitalLoanOriginatorsService,
   LoanOriginatorsService,
+  GetWorkingCapitalLoanTransactionIdResponse,
+  WorkingCapitalLoanChargeData,
 } from '../../../api';
 
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -46,7 +48,42 @@ import { createSpyObj, SpyObj } from '../../../testing/mocks';
 
 import { AuthService } from '../../../core/services/auth.service';
 
+import { DialogService } from '../../../core/services/dialog.service';
+
+import { NotificationService } from '../../../core/services/notification.service';
+
 import { signal } from '@angular/core';
+
+/** A live repayment — the transaction type both corrections and the undo apply to. */
+const REPAYMENT: GetWorkingCapitalLoanTransactionIdResponse = {
+  id: 9,
+  wcLoanId: 1,
+  transactionDate: '2026-10-17',
+  submittedOnDate: '2026-10-17',
+  transactionAmount: 500,
+  principalPortion: 490,
+  feeChargesPortion: 7,
+  penaltyChargesPortion: 3,
+  overpaymentPortion: 0,
+  reversed: false,
+  type: { id: 2, code: 'loanTransactionType.repayment', value: 'Repayment', repayment: true },
+};
+
+/** An unpaid charge with something still outstanding — the only state an adjustment applies to. */
+const CHARGE: WorkingCapitalLoanChargeData = {
+  id: 3,
+  chargeId: 2,
+  name: 'Processing Fee',
+  amount: 50,
+  amountPaid: 10,
+  amountWaived: 0,
+  amountOutstanding: 40,
+  dueDate: '2026-10-17',
+  paid: false,
+  penalty: false,
+  chargeTimeType: { id: 2, code: 'chargeTimeType.specifiedDueDate', value: 'Specified due date' },
+  chargeCalculationType: { id: 1, code: 'chargeCalculationType.flat', value: 'Flat' },
+};
 
 describe('WcLoanViewComponent', () => {
   let component: WcLoanViewComponent;
@@ -64,6 +101,10 @@ describe('WcLoanViewComponent', () => {
   let originatorsSpy: SpyObj<LoanOriginatorsService>;
   let routerSpy: SpyObj<Router>;
 
+  let dialogSpy: SpyObj<DialogService>;
+
+  let notificationsSpy: SpyObj<NotificationService>;
+
   let authSpy: SpyObj<AuthService>;
 
   beforeEach(async () => {
@@ -76,10 +117,14 @@ describe('WcLoanViewComponent', () => {
 
     chargesSpy = createSpyObj<WorkingCapitalLoanChargesService>([
       'getWorkingCapitalLoansLoanIdCharges',
+      'getWorkingCapitalLoansLoanIdChargesLoanChargeId',
+      'postWorkingCapitalLoansLoanIdChargesLoanChargeId',
     ]);
 
     transactionsSpy = createSpyObj<WorkingCapitalLoanTransactionsService>([
       'getWorkingCapitalLoansLoanIdTransactions',
+      'getWorkingCapitalLoansLoanIdTransactionsTransactionId',
+      'postWorkingCapitalLoansLoanIdTransactionsTransactionId',
     ]);
 
     delinquencyActionsSpy = createSpyObj<WorkingCapitalLoanDelinquencyActionsService>([
@@ -111,6 +156,12 @@ describe('WcLoanViewComponent', () => {
     originatorsSpy = createSpyObj<LoanOriginatorsService>(['getLoanOriginators']);
 
     routerSpy = createSpyObj<Router>(['navigate']);
+
+    dialogSpy = createSpyObj<DialogService>(['confirm']);
+    dialogSpy.confirm.mockResolvedValue(true);
+
+    notificationsSpy = createSpyObj<NotificationService>(['show', 'success', 'error']);
+    notificationsSpy.show.mockResolvedValue(undefined);
 
     // An administrator by default, so the existing expectations describe an unrestricted user;
     // the gating suite below narrows it per test.
@@ -198,6 +249,30 @@ describe('WcLoanViewComponent', () => {
         ],
       }) as unknown as ReturnType<
         WorkingCapitalLoanTransactionsService['getWorkingCapitalLoansLoanIdTransactions']
+      >,
+    );
+
+    chargesSpy.getWorkingCapitalLoansLoanIdChargesLoanChargeId.mockReturnValue(
+      of(CHARGE) as unknown as ReturnType<
+        WorkingCapitalLoanChargesService['getWorkingCapitalLoansLoanIdChargesLoanChargeId']
+      >,
+    );
+
+    chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId.mockReturnValue(
+      of({ loanId: 1, resourceId: 3, subResourceId: 11 }) as unknown as ReturnType<
+        WorkingCapitalLoanChargesService['postWorkingCapitalLoansLoanIdChargesLoanChargeId']
+      >,
+    );
+
+    transactionsSpy.getWorkingCapitalLoansLoanIdTransactionsTransactionId.mockReturnValue(
+      of(REPAYMENT) as unknown as ReturnType<
+        WorkingCapitalLoanTransactionsService['getWorkingCapitalLoansLoanIdTransactionsTransactionId']
+      >,
+    );
+
+    transactionsSpy.postWorkingCapitalLoansLoanIdTransactionsTransactionId.mockReturnValue(
+      of({ loanId: 1, resourceId: 9 }) as unknown as ReturnType<
+        WorkingCapitalLoanTransactionsService['postWorkingCapitalLoansLoanIdTransactionsTransactionId']
       >,
     );
 
@@ -349,6 +424,14 @@ describe('WcLoanViewComponent', () => {
           useValue: routerSpy,
         },
         {
+          provide: DialogService,
+          useValue: dialogSpy,
+        },
+        {
+          provide: NotificationService,
+          useValue: notificationsSpy,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -389,6 +472,360 @@ describe('WcLoanViewComponent', () => {
         name: 'Acme Originator',
       },
     ]);
+  });
+
+  describe('the charges tab', () => {
+    it('re-reads the charge it opens', () => {
+      component.onViewCharge({ id: 3 });
+
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdChargesLoanChargeId).toHaveBeenCalledWith(1, 3);
+      expect(component.selectedCharge()?.id).toBe(3);
+    });
+
+    it('opens nothing for a charge with no id', () => {
+      component.onViewCharge({});
+
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdChargesLoanChargeId).not.toHaveBeenCalled();
+    });
+
+    it('shows what is paid, waived and still outstanding', async () => {
+      component.activeTab.set('charges');
+      component.onViewCharge({ id: 3 });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('[data-testid="wc-charge-outstanding"]')?.textContent).toContain(
+        '40.00',
+      );
+    });
+
+    it('prefills the adjustment with what is outstanding', () => {
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+
+      expect(component.chargeAdjustmentAmount()).toBe(40);
+    });
+
+    /**
+     * `amount` is the only parameter the command takes: an empty body answers
+     * `validation.msg.workingCapitalLoanChargeAdjustment.amount.cannot.be.blank`, and the
+     * platform dates the adjustment itself.
+     */
+    it('posts the adjustment under its own command, with the amount alone', () => {
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+      component.chargeAdjustmentAmount.set(15);
+      component.onSaveChargeAdjustment();
+
+      expect(chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId).toHaveBeenCalledWith(
+        1,
+        3,
+        expect.objectContaining({ amount: 15 }),
+        'adjustment',
+      );
+      const body = chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId.mock
+        .calls[0][2] as Record<string, unknown>;
+      expect(body['transactionDate']).toBeUndefined();
+      expect(body['dueDate']).toBeUndefined();
+    });
+
+    it('refuses to post an adjustment with no amount', () => {
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+      component.chargeAdjustmentAmount.set(undefined);
+      component.onSaveChargeAdjustment();
+
+      expect(chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId).not.toHaveBeenCalled();
+    });
+
+    /** An adjustment books a Charge Adjustment transaction, so the balance and the list move. */
+    it('re-reads the charge, the list, the transactions and the loan after adjusting', () => {
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+      component.chargeAdjustmentAmount.set(15);
+      component.onSaveChargeAdjustment();
+
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdChargesLoanChargeId).toHaveBeenCalledTimes(2);
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdCharges).toHaveBeenCalledTimes(2);
+      expect(transactionsSpy.getWorkingCapitalLoansLoanIdTransactions).toHaveBeenCalledTimes(2);
+      expect(loansSpy.getWorkingCapitalLoansLoanId).toHaveBeenCalledTimes(2);
+    });
+
+    it('says a queued adjustment was queued', () => {
+      chargesSpy.postWorkingCapitalLoansLoanIdChargesLoanChargeId.mockReturnValue(
+        of({ commandId: 7 }) as unknown as ReturnType<
+          WorkingCapitalLoanChargesService['postWorkingCapitalLoansLoanIdChargesLoanChargeId']
+        >,
+      );
+      component.onViewCharge({ id: 3 });
+      component.onOpenChargeAdjustment();
+      component.chargeAdjustmentAmount.set(15);
+      component.onSaveChargeAdjustment();
+
+      expect(notificationsSpy.show).toHaveBeenCalled();
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdCharges).toHaveBeenCalledTimes(1);
+    });
+
+    /** A waiver is a transaction too, and one of the five the platform will undo. */
+    it('reloads the transactions after a waiver, not only the charges', () => {
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+      component.onWaiveCharge({ id: 3, name: 'Processing Fee' });
+
+      expect(chargesSpy.getWorkingCapitalLoansLoanIdCharges).toHaveBeenCalledTimes(2);
+      expect(transactionsSpy.getWorkingCapitalLoansLoanIdTransactions).toHaveBeenCalledTimes(2);
+    });
+
+    it('closes the panel', () => {
+      component.onViewCharge({ id: 3 });
+      component.onCloseCharge();
+
+      expect(component.selectedCharge()).toBeNull();
+    });
+  });
+
+  describe('the transactions tab', () => {
+    function openRepayment(
+      transaction: GetWorkingCapitalLoanTransactionIdResponse = REPAYMENT,
+    ): void {
+      transactionsSpy.getWorkingCapitalLoansLoanIdTransactionsTransactionId.mockReturnValue(
+        of(transaction) as unknown as ReturnType<
+          WorkingCapitalLoanTransactionsService['getWorkingCapitalLoansLoanIdTransactionsTransactionId']
+        >,
+      );
+      component.onViewTransaction({ id: transaction.id });
+    }
+
+    it('re-reads the transaction it opens, rather than trusting the row', () => {
+      openRepayment();
+
+      expect(
+        transactionsSpy.getWorkingCapitalLoansLoanIdTransactionsTransactionId,
+      ).toHaveBeenCalledWith(1, 9);
+      expect(component.selectedTransaction()?.id).toBe(9);
+    });
+
+    it('opens nothing for a transaction with no id', () => {
+      component.onViewTransaction({});
+
+      expect(
+        transactionsSpy.getWorkingCapitalLoansLoanIdTransactionsTransactionId,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('shows the allocation the table has no room for', async () => {
+      component.activeTab.set('transactions');
+      openRepayment();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(text).toContain('490.00');
+      expect(text).toContain('7.00');
+      expect(text).toContain('3.00');
+    });
+
+    it('closes the panel', () => {
+      openRepayment();
+      component.onCloseTransaction();
+
+      expect(component.selectedTransaction()).toBeNull();
+    });
+
+    /**
+     * Strike-through alone is invisible to a screen reader, so a reversal also has to be stated
+     * in words — the amount otherwise reads as money that moved.
+     */
+    it('marks a reversed transaction in words as well as in style', async () => {
+      component.transactions.set([
+        { id: 1, transactionAmount: 500, reversed: true },
+        { id: 2, transactionAmount: 250, reversed: false },
+      ]);
+      component.activeTab.set('transactions');
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelectorAll('.reversed-amount')).toHaveLength(1);
+      expect(host.querySelectorAll('.sr-only')).toHaveLength(1);
+    });
+
+    /**
+     * The platform accepts undo for WAIVE_CHARGES, REPAYMENT, GOODWILL_CREDIT, CHARGE_ADJUSTMENT
+     * and PAYOUT_REFUND, and adjust for the same list without the waiver. Offering more than that
+     * sends the user into a refusal they cannot tell apart from a fault.
+     */
+    describe('which corrections it offers', () => {
+      it('offers undo and adjust on a live repayment', () => {
+        openRepayment();
+
+        expect(component.canUndoTransaction()).toBe(true);
+        expect(component.canAdjustTransaction()).toBe(true);
+        expect(component.canAdjustDiscountFee()).toBe(false);
+      });
+
+      it('offers neither on a disbursement', () => {
+        openRepayment({
+          ...REPAYMENT,
+          type: { id: 1, code: 'loanTransactionType.disbursement', disbursement: true },
+        });
+
+        expect(component.canUndoTransaction()).toBe(false);
+        expect(component.canAdjustTransaction()).toBe(false);
+      });
+
+      it('offers neither on an already reversed transaction', () => {
+        openRepayment({ ...REPAYMENT, reversed: true, reversedOnDate: '2026-10-18' });
+
+        expect(component.canUndoTransaction()).toBe(false);
+        expect(component.canAdjustTransaction()).toBe(false);
+      });
+
+      it('offers undo but not adjust on a charge waiver', () => {
+        openRepayment({
+          ...REPAYMENT,
+          type: { id: 9, code: 'loanTransactionType.waiveCharges', waiveCharges: true },
+        });
+
+        expect(component.canUndoTransaction()).toBe(true);
+        expect(component.canAdjustTransaction()).toBe(false);
+      });
+
+      /**
+       * A discount fee is corrected by its own command and carries no boolean flag of its own,
+       * so the type code is the only thing to recognise it by.
+       */
+      it('offers the discount-fee adjustment on a discount fee, and nothing else', () => {
+        openRepayment({
+          ...REPAYMENT,
+          type: { id: 44, code: 'loanTransactionType.discountFee', value: 'Discount Fee' },
+        });
+
+        expect(component.canAdjustDiscountFee()).toBe(true);
+        expect(component.canUndoTransaction()).toBe(false);
+        expect(component.canAdjustTransaction()).toBe(false);
+      });
+    });
+
+    describe('undo', () => {
+      it('posts the command once confirmed, and re-reads what it changed', async () => {
+        openRepayment();
+        await component.onUndoTransaction();
+
+        expect(dialogSpy.confirm).toHaveBeenCalledWith(
+          expect.objectContaining({ destructive: true }),
+        );
+        expect(
+          transactionsSpy.postWorkingCapitalLoansLoanIdTransactionsTransactionId,
+        ).toHaveBeenCalledWith(1, 9, 'undo', expect.objectContaining({ locale: 'en' }));
+        // The loan header and the list both moved with the balance.
+        expect(loansSpy.getWorkingCapitalLoansLoanId).toHaveBeenCalledTimes(2);
+        expect(transactionsSpy.getWorkingCapitalLoansLoanIdTransactions).toHaveBeenCalledTimes(2);
+      });
+
+      it('does nothing when the confirmation is declined', async () => {
+        dialogSpy.confirm.mockResolvedValue(false);
+        openRepayment();
+        await component.onUndoTransaction();
+
+        expect(
+          transactionsSpy.postWorkingCapitalLoansLoanIdTransactionsTransactionId,
+        ).not.toHaveBeenCalled();
+      });
+
+      it('sends no amount or date of its own', async () => {
+        openRepayment();
+        await component.onUndoTransaction();
+
+        const body = transactionsSpy.postWorkingCapitalLoansLoanIdTransactionsTransactionId.mock
+          .calls[0][3] as Record<string, unknown>;
+        expect(body['transactionAmount']).toBeUndefined();
+        expect(body['transactionDate']).toBeUndefined();
+      });
+
+      /**
+       * With maker-checker on, the platform answers 200 with a command id and no resource:
+       * nothing has happened to the loan yet, and re-reading it would show the transaction
+       * unchanged with no explanation.
+       */
+      it('says the command was queued rather than claiming it was applied', async () => {
+        transactionsSpy.postWorkingCapitalLoansLoanIdTransactionsTransactionId.mockReturnValue(
+          of({ commandId: 11 }) as unknown as ReturnType<
+            WorkingCapitalLoanTransactionsService['postWorkingCapitalLoansLoanIdTransactionsTransactionId']
+          >,
+        );
+        openRepayment();
+        await component.onUndoTransaction();
+
+        expect(notificationsSpy.show).toHaveBeenCalled();
+        expect(loansSpy.getWorkingCapitalLoansLoanId).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('adjust', () => {
+      it('prefills the form from the transaction', () => {
+        openRepayment();
+        component.onOpenCorrection('adjust');
+
+        expect(component.correctionAmount()).toBe(500);
+        expect(component.correctionDate).toBe('2026-10-17');
+      });
+
+      it('posts the adjusted amount and date', () => {
+        openRepayment();
+        component.onOpenCorrection('adjust');
+        component.correctionAmount.set(300);
+        component.onSaveCorrection();
+
+        expect(
+          transactionsSpy.postWorkingCapitalLoansLoanIdTransactionsTransactionId,
+        ).toHaveBeenCalledWith(
+          1,
+          9,
+          'adjust',
+          expect.objectContaining({ transactionAmount: 300, transactionDate: '17 October 2026' }),
+        );
+      });
+
+      it('posts the discount-fee adjustment under its own command', () => {
+        openRepayment({
+          ...REPAYMENT,
+          type: { id: 44, code: 'loanTransactionType.discountFee', value: 'Discount Fee' },
+        });
+        component.onOpenCorrection('discountFeeAdjustment');
+        component.correctionAmount.set(5);
+        component.onSaveCorrection();
+
+        expect(
+          transactionsSpy.postWorkingCapitalLoansLoanIdTransactionsTransactionId,
+        ).toHaveBeenCalledWith(
+          1,
+          9,
+          'discountFeeAdjustment',
+          expect.objectContaining({ transactionAmount: 5 }),
+        );
+      });
+
+      it('refuses to post a correction with no amount', () => {
+        openRepayment();
+        component.onOpenCorrection('adjust');
+        component.correctionAmount.set(undefined);
+        component.onSaveCorrection();
+
+        expect(
+          transactionsSpy.postWorkingCapitalLoansLoanIdTransactionsTransactionId,
+        ).not.toHaveBeenCalled();
+      });
+
+      it('closes the form once the correction is accepted', () => {
+        openRepayment();
+        component.onOpenCorrection('adjust');
+        component.onSaveCorrection();
+
+        expect(component.correction()).toBeNull();
+      });
+    });
   });
 
   it('should navigate back to the list', () => {
@@ -469,6 +906,14 @@ describe('WcLoanViewComponent', () => {
         {
           provide: Router,
           useValue: routerSpy,
+        },
+        {
+          provide: DialogService,
+          useValue: dialogSpy,
+        },
+        {
+          provide: NotificationService,
+          useValue: notificationsSpy,
         },
         {
           provide: ActivatedRoute,
@@ -672,6 +1117,22 @@ describe('WcLoanViewComponent', () => {
 
       withLoan({ status: { closedWrittenOff: true } });
       expect(component.acceptsCredits).toBe(false);
+    });
+
+    /**
+     * Fineract refuses a second discount fee —
+     * "Discount was already set before disbursement and cannot be added again" — and a loan
+     * priced with one at disbursement reads back carrying it.
+     */
+    it('offers the discount fee only on an active loan that has none yet', () => {
+      withLoan({ status: { active: true } });
+      expect(component.canPostDiscountFee).toBe(true);
+
+      withLoan({ status: { active: true }, discountFee: 12 });
+      expect(component.canPostDiscountFee).toBe(false);
+
+      withLoan({ status: { pendingApproval: true } });
+      expect(component.canPostDiscountFee).toBe(false);
     });
 
     it('offers a credit balance refund only when there is an overpayment to refund', () => {
