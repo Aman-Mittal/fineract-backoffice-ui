@@ -41,6 +41,14 @@ import { provideFakeAdapters } from '../../testing/adapters';
       Both
     </button>
     <button data-testid="ungated" appRequiresPermission="">Always</button>
+    <button
+      data-testid="icon-only"
+      [appRequiresPermission]="single()"
+      aria-label="Waive charge"
+      title="Waive charge"
+    >
+      <span aria-hidden="true">x</span>
+    </button>
   `,
 })
 class HostComponent {
@@ -176,5 +184,58 @@ describe('RequiresPermissionDirective', () => {
     TestBed.inject(AuthService).currentUser.set(session(['APPROVE_LOAN']));
     fixture.detectChanges();
     expect(button('single').getAttribute('disabled')).toBeNull();
+  });
+
+  /**
+   * The directive makes the hint the accessible name while it refuses, which is deliberate: the
+   * user already reached the screen, and what they need to know is which permission is missing.
+   *
+   * What it must not do is take the name away once it grants. These attributes used to be host
+   * bindings of the form `granted() ? null : hint()`, and a host binding applies after the
+   * element's own bindings — so the `null` branch removed whatever the template had set. On a
+   * control whose only accessible name is its own `aria-label`, granting the permission left a
+   * nameless button.
+   */
+  describe("the host element's own accessible name", () => {
+    function iconOnly(): HTMLElement {
+      return host.querySelector('[data-testid="icon-only"]')!;
+    }
+
+    it('is left alone when the permission is held', async () => {
+      await render(['APPROVE_LOAN']);
+
+      expect(iconOnly().getAttribute('aria-label')).toBe('Waive charge');
+      expect(iconOnly().getAttribute('title')).toBe('Waive charge');
+    });
+
+    it('gives way to the hint while the permission is missing', async () => {
+      await render([]);
+
+      expect(iconOnly().getAttribute('aria-label')).toContain('APPROVE_LOAN');
+      expect(iconOnly().getAttribute('title')).toContain('APPROVE_LOAN');
+    });
+
+    it('comes back when the permission arrives', async () => {
+      await render([]);
+      expect(iconOnly().getAttribute('aria-label')).not.toBe('Waive charge');
+
+      // Permissions can arrive after the first render — the session loads asynchronously.
+      TestBed.inject(AuthService).currentUser.set(session(['APPROVE_LOAN']));
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(iconOnly().getAttribute('aria-label')).toBe('Waive charge');
+      expect(iconOnly().getAttribute('title')).toBe('Waive charge');
+    });
+
+    it('leaves a control that had no name of its own without one', async () => {
+      // The common case: a button named by its visible text. Granting must not invent a label,
+      // because an aria-label would then override that text for a screen reader.
+      await render(['APPROVE_LOAN']);
+
+      const textButton = host.querySelector('[data-testid="single"]')!;
+      expect(textButton.hasAttribute('aria-label')).toBe(false);
+      expect(textButton.hasAttribute('title')).toBe(false);
+    });
   });
 });

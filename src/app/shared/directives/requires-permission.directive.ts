@@ -58,8 +58,6 @@ const BLOCK_WHEN_REFUSED = 'onClick($event)';
     '[attr.disabled]': 'granted() ? null : true',
     '[attr.aria-disabled]': 'granted() ? null : "true"',
     '[class.app-requires-permission]': '!granted()',
-    '[attr.title]': 'granted() ? null : hint()',
-    '[attr.aria-label]': 'granted() ? null : hint()',
     '(click)': BLOCK_WHEN_REFUSED,
     '(keydown.enter)': BLOCK_WHEN_REFUSED,
     '(keydown.space)': BLOCK_WHEN_REFUSED,
@@ -85,6 +83,14 @@ export class RequiresPermissionDirective {
     if (!required || required.length === 0) return true;
     return this.authService.hasPermission(required, this.appRequiresPermissionMatchAll());
   });
+
+  /**
+   * The host's own `title` and `aria-label`, saved the first time this directive overwrote them.
+   *
+   * `undefined` means the directive has not written to the host, and the element's own bindings
+   * own both attributes.
+   */
+  private overwritten: { title: string | null; ariaLabel: string | null } | undefined;
 
   /** The text on the tooltip and the accessible name: what is missing, in both forms. */
   protected readonly hint = computed(() => {
@@ -112,6 +118,47 @@ export class RequiresPermissionDirective {
       const element = this.host.nativeElement as HTMLElement & { disabled?: boolean };
       if ('disabled' in element) element.disabled = !this.granted();
     });
+
+    // `title` and `aria-label` are written imperatively, and only while refusing.
+    //
+    // They were host bindings of the form `granted() ? null : hint()`, which looks equivalent and
+    // is not: a host binding applies after the element's own bindings, so the `null` branch
+    // *removed* whatever the template had put there. On a control whose only accessible name is
+    // its own `aria-label` — an icon-only button — the name disappeared as soon as the directive
+    // granted the permission, leaving a nameless button for anyone using a screen reader. The
+    // fix is to touch the attributes only when there is a hint to show, and to put back what was
+    // there when there is not.
+    effect(() => {
+      const element = this.host.nativeElement;
+      if (this.granted()) {
+        this.restoreOwnLabels(element);
+        return;
+      }
+      this.overwritten ??= {
+        title: element.getAttribute('title'),
+        ariaLabel: element.getAttribute('aria-label'),
+      };
+      const hint = this.hint();
+      element.setAttribute('title', hint);
+      element.setAttribute('aria-label', hint);
+    });
+  }
+
+  /** Puts the host's own `title` and `aria-label` back, or removes them if it had none. */
+  private restoreOwnLabels(element: HTMLElement): void {
+    const own = this.overwritten;
+    if (!own) return;
+    this.overwritten = undefined;
+    for (const [attribute, value] of [
+      ['title', own.title],
+      ['aria-label', own.ariaLabel],
+    ] as const) {
+      if (value === null) {
+        element.removeAttribute(attribute);
+      } else {
+        element.setAttribute(attribute, value);
+      }
+    }
   }
 
   /**

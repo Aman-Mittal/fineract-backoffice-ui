@@ -767,6 +767,120 @@ export async function disburseLoan(api: APIRequestContext, loanId: number): Prom
   });
 }
 
+/** A Working Capital loan seeded through the API, already Active. */
+export interface SeededWorkingCapitalLoan {
+  readonly clientId: number;
+  readonly productId: number;
+  readonly loanId: number;
+  readonly principal: number;
+}
+
+/**
+ * Creates a Working Capital loan product.
+ *
+ * Every field here is one the platform insisted on; the payload was arrived at by posting and
+ * reading the validation errors back, against the image `deploy/docker-compose-e2e.yml` runs.
+ * Three of them are worth knowing about:
+ *
+ *  - `paymentAllocation` is mandatory, and its six rules must cover every allocation type the
+ *    product template offers. A short list is rejected.
+ *  - `npvDayCount` is mandatory under the `EIR` amortization type, which is what makes the
+ *    schedule solvable.
+ *  - `principal`, `periodPaymentRate`, `repaymentEvery` and `repaymentFrequencyType` are product
+ *    defaults, and the product does **not** allow the loan application to override the last two:
+ *    sending them on the loan answers `repaymentEvery.override.not.allowed.by.product`.
+ */
+export async function seedWorkingCapitalLoanProduct(
+  api: APIRequestContext,
+  namePrefix = 'E2EWc',
+): Promise<number> {
+  const suffix = seedSuffix();
+  const allocationRules = [
+    'DUE_PENALTY',
+    'DUE_FEE',
+    'DUE_PRINCIPAL',
+    'IN_ADVANCE_PENALTY',
+    'IN_ADVANCE_FEE',
+    'IN_ADVANCE_PRINCIPAL',
+  ];
+  const { resourceId } = await post<{ resourceId: number }>(api, '/working-capital-loan-products', {
+    name: `${namePrefix} Product ${suffix}`,
+    // Fineract caps the short name at four characters.
+    shortName: `W${suffix}`.slice(0, 4),
+    currencyCode: 'USD',
+    digitsAfterDecimal: 2,
+    inMultiplesOf: 0,
+    amortizationType: 'EIR',
+    paymentAmountCalculationStrategy: 'TPV',
+    npvDayCount: 360,
+    principal: 10_000,
+    periodPaymentRate: 5,
+    repaymentEvery: 1,
+    repaymentFrequencyType: 'DAYS',
+    accountingRule: 'NONE',
+    paymentAllocation: [
+      {
+        transactionType: 'DEFAULT',
+        paymentAllocationOrder: allocationRules.map((paymentAllocationRule, index) => ({
+          paymentAllocationRule,
+          order: index + 1,
+        })),
+      },
+    ],
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return resourceId;
+}
+
+/**
+ * Creates a client and a Working Capital loan, then approves and disburses it — an Active loan
+ * with an outstanding balance, which is the starting point for every action on the loan screen.
+ *
+ * Each command takes only its own parameters: Fineract answers `error.msg.parameter.unsupported`
+ * for anything else, so the approve body must not carry the disbursement's fields and vice versa.
+ * `approve` additionally requires `expectedDisbursementDate`, and `disburse` requires
+ * `transactionAmount` — neither is obvious from the command name, and both were measured.
+ */
+export async function seedActiveWorkingCapitalLoan(
+  api: APIRequestContext,
+  productId?: number,
+  namePrefix = 'E2EWc',
+): Promise<SeededWorkingCapitalLoan> {
+  const client = await seedClient(api, namePrefix);
+  const product = productId ?? (await seedWorkingCapitalLoanProduct(api, namePrefix));
+  const today = fineractDate();
+  const principal = 10_000;
+
+  const { resourceId: loanId } = await post<{ resourceId: number }>(api, '/working-capital-loans', {
+    clientId: client.clientId,
+    productId: product,
+    principalAmount: principal,
+    totalPaymentVolume: 60_000,
+    periodPaymentRate: 5,
+    submittedOnDate: today,
+    expectedDisbursementDate: today,
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+
+  await post(api, `/working-capital-loans/${loanId}?command=approve`, {
+    approvedOnDate: today,
+    approvedLoanAmount: principal,
+    expectedDisbursementDate: today,
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  await post(api, `/working-capital-loans/${loanId}?command=disburse`, {
+    actualDisbursementDate: today,
+    transactionAmount: principal,
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+
+  return { clientId: client.clientId, productId: product, loanId, principal };
+}
+
 /**
  * Creates a client, a loan product and a loan application, then approves and
  * disburses it — leaving an Active loan, the starting point the servicing specs
