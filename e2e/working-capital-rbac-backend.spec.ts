@@ -34,12 +34,20 @@
  * writing anything:
  *
  * ```
- * 403            → the code does not authorise this command
- * anything else  → it does, and only the body or the loan id was wrong (404 here: loan 1 is absent)
+ * 403 error.msg.not.authorized → the code does not authorise this command
+ * anything else                → it does, and only the body or the resource was wrong
  * ```
  *
+ * The globalisation code rather than the bare status, because the platform also answers 403 for a
+ * **domain rule violation** — a charge that is already waived, a loan in the wrong status — and a
+ * status alone cannot tell "you may not" from "not like that". The waiver pair is exactly that
+ * case: on a charge some other spec has already waived, the status is 403 and the reason is not
+ * authorisation.
+ *
  * The loan therefore does not need to exist, which is what keeps this spec to API calls and
- * seconds rather than seeding a Working Capital product and a disbursed loan per command.
+ * seconds rather than seeding a Working Capital product and a disbursed loan per command. The
+ * same holds for the commands that act on one transaction or one charge: those resources need
+ * not exist either.
  *
  * ## Why the pairs are restated here
  *
@@ -50,13 +58,10 @@
  */
 
 import { test, expect } from './fixtures';
-import { createApiContext, seedRestrictedUser, statusAs } from './utils/seed-api';
+import { createApiContext, notAuthorisedAs, seedRestrictedUser } from './utils/seed-api';
 
-// Eighteen roles and users, each probed. API only — no browser, no stack beyond Fineract itself.
+// A role and a user per pair, each probed. API only — no browser, no stack beyond Fineract.
 test.describe.configure({ mode: 'serial', timeout: 240_000 });
-
-/** Fineract's answer when the permission does not authorise the command. */
-const REFUSED = 403;
 
 /**
  * Any loan id. Authorisation happens before the lookup, so an absent loan answers 404 once the
@@ -77,6 +82,17 @@ interface WcCommand {
 const LIFECYCLE = (command: string) => `/working-capital-loans/${LOAN_ID}?command=${command}`;
 const TRANSACTION = (command: string) =>
   `/working-capital-loans/${LOAN_ID}/transactions?command=${command}`;
+
+/**
+ * Any transaction id, and any charge id, for the commands that act on one rather than on the
+ * loan. Absent resources answer 404 once the caller is authorised, which is the same signal.
+ */
+const TRANSACTION_ID = 1;
+const CHARGE_ID = 1;
+const ON_TRANSACTION = (command: string) =>
+  `/working-capital-loans/${LOAN_ID}/transactions/${TRANSACTION_ID}?command=${command}`;
+const ON_CHARGE = (command: string) =>
+  `/working-capital-loans/${LOAN_ID}/charges/${CHARGE_ID}?command=${command}`;
 
 const COMMANDS: readonly WcCommand[] = [
   {
@@ -187,6 +203,46 @@ const COMMANDS: readonly WcCommand[] = [
     method: 'POST',
     path: TRANSACTION('recoveryPayment'),
   },
+  {
+    command: 'discountFee',
+    code: 'DISCOUNTFEE_WORKINGCAPITALLOAN',
+    method: 'POST',
+    path: TRANSACTION('discountFee'),
+  },
+
+  // The commands that act on one transaction or one charge rather than on the loan. They are not
+  // reachable through the action dispatch route, so they are gated on the buttons that issue
+  // them (#773, #774) — and the pairing still has to be the platform's.
+  {
+    command: 'undo',
+    code: 'UNDO_WORKINGCAPITALLOANTRANSACTION',
+    method: 'POST',
+    path: ON_TRANSACTION('undo'),
+  },
+  {
+    command: 'adjust',
+    code: 'ADJUST_WORKINGCAPITALLOANTRANSACTION',
+    method: 'POST',
+    path: ON_TRANSACTION('adjust'),
+  },
+  {
+    command: 'discountFeeAdjustment',
+    code: 'DISCOUNTFEEADJUSTMENT_WORKINGCAPITALLOAN',
+    method: 'POST',
+    path: ON_TRANSACTION('discountFeeAdjustment'),
+  },
+  {
+    command: 'charge adjustment',
+    code: 'ADJUSTMENT_WORKINGCAPITALLOANCHARGE',
+    method: 'POST',
+    path: ON_CHARGE('adjustment'),
+  },
+  {
+    command: 'charge waiver',
+    code: 'WAIVE_WORKINGCAPITALLOANCHARGE',
+    method: 'POST',
+    path: ON_CHARGE('waive'),
+  },
 ];
 
 test.describe('Working Capital command permissions, on the platform', () => {
@@ -197,11 +253,11 @@ test.describe('Working Capital command permissions, on the platform', () => {
         // Exactly one permission, not even READ: the claim under test is that this code alone
         // authorises this command, and a second code in the role would blur it.
         const user = await seedRestrictedUser(api, [code]);
-        const status = await statusAs(user, method, path);
+        const refused = await notAuthorisedAs(user, method, path);
         // Soft, so one wrong entry reports itself alongside every other rather than hiding them.
         expect
-          .soft(status, `${code} did not authorise ${command} (${method} ${path})`)
-          .not.toBe(REFUSED);
+          .soft(refused, `${code} did not authorise ${command} (${method} ${path})`)
+          .toBe(false);
       }
     } finally {
       await api.dispose();
@@ -218,10 +274,10 @@ test.describe('Working Capital command permissions, on the platform', () => {
         'UPDATE_WORKINGCAPITALLOAN',
       ]);
       for (const { command, method, path } of COMMANDS) {
-        const status = await statusAs(editor, method, path);
+        const refused = await notAuthorisedAs(editor, method, path);
         expect
-          .soft(status, `UPDATE_WORKINGCAPITALLOAN unexpectedly authorised ${command}`)
-          .toBe(REFUSED);
+          .soft(refused, `UPDATE_WORKINGCAPITALLOAN unexpectedly authorised ${command}`)
+          .toBe(true);
       }
     } finally {
       await api.dispose();

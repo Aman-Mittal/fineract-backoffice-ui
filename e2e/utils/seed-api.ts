@@ -805,8 +805,11 @@ export async function seedWorkingCapitalLoanProduct(
   ];
   const { resourceId } = await post<{ resourceId: number }>(api, '/working-capital-loan-products', {
     name: `${namePrefix} Product ${suffix}`,
-    // Fineract caps the short name at four characters.
-    shortName: `W${suffix}`.slice(0, 4),
+    // Fineract caps the short name at four characters and refuses a duplicate, so the three
+    // characters taken are the *last* of the suffix: `seedSuffix` is a base-36 timestamp, whose
+    // leading characters are shared by every run within the same minute. Taking the leading ones
+    // made two runs a minute apart collide on `Wcez`.
+    shortName: `W${suffix.slice(-3)}`,
     currencyCode: 'USD',
     digitsAfterDecimal: 2,
     inMultiplesOf: 0,
@@ -894,6 +897,362 @@ export async function seedActiveLoan(
   await approveLoan(api, loan.loanId);
   await disburseLoan(api, loan.loanId);
   return loan;
+}
+
+/**
+ * A charge that may be attached to a Working Capital loan.
+ *
+ * Two values here are not interchangeable with the term-loan ones and were measured:
+ * `chargeAppliesTo` 5 is `chargeAppliesTo.workingCapitalLoan`, and the only charge *time* type
+ * the module accepts is 2 (specified due date) — attaching a disbursement-time charge answers
+ * 403 `error.msg.wc.loan.charge.time.type.not.supported`.
+ *
+ * Reused across runs by name prefix: charges are tenant configuration rather than per-test state.
+ */
+export async function seedWorkingCapitalCharge(api: APIRequestContext): Promise<number> {
+  const existing = await get<{ id: number; name: string }[]>(
+    api,
+    '/charges?chargeAppliesTo=5',
+  ).catch(() => [] as { id: number; name: string }[]);
+  const found = existing.find((charge) => charge.name.startsWith('E2EWcFee'));
+  if (found) return found.id;
+
+  const { resourceId } = await post<{ resourceId: number }>(api, '/charges', {
+    name: `E2EWcFee ${seedSuffix()}`,
+    chargeAppliesTo: 5,
+    chargeTimeType: 2,
+    chargeCalculationType: 1,
+    currencyCode: 'USD',
+    amount: 50,
+    active: true,
+    locale: LOCALE,
+    monthDayFormat: 'dd MMM',
+  });
+  return resourceId;
+}
+
+/** The product's name, which is what a form's product select offers rather than its id. */
+export async function workingCapitalProductName(
+  api: APIRequestContext,
+  productId: number,
+): Promise<string> {
+  const product = await get<{ name: string }>(api, `/working-capital-loan-products/${productId}`);
+  return product.name;
+}
+
+/** Attaches a charge to one loan, and hands back the loan-charge id the screen addresses. */
+export async function attachWorkingCapitalCharge(
+  api: APIRequestContext,
+  loanId: number,
+  chargeId: number,
+  amount = 50,
+): Promise<number> {
+  const { resourceId } = await post<{ resourceId: number }>(
+    api,
+    `/working-capital-loans/${loanId}/charges`,
+    { chargeId, amount, dueDate: fineractDate(), locale: LOCALE, dateFormat: DATE_FORMAT },
+  );
+  return resourceId;
+}
+
+/** Posts a repayment and hands back its transaction id — the transaction panel's subject. */
+export async function postWorkingCapitalRepayment(
+  api: APIRequestContext,
+  loanId: number,
+  amount: number,
+): Promise<number> {
+  const { resourceId } = await post<{ resourceId: number }>(
+    api,
+    `/working-capital-loans/${loanId}/transactions?command=repayment`,
+    {
+      transactionDate: fineractDate(),
+      transactionAmount: amount,
+      locale: LOCALE,
+      dateFormat: DATE_FORMAT,
+    },
+  );
+  return resourceId;
+}
+
+/** The transactions of one loan, as the platform reports them. */
+export async function workingCapitalTransactions(
+  api: APIRequestContext,
+  loanId: number,
+): Promise<
+  {
+    id: number;
+    transactionAmount: number;
+    reversed: boolean;
+    type: { value?: string; code?: string };
+  }[]
+> {
+  const page = await get<{
+    content?: {
+      id: number;
+      transactionAmount: number;
+      reversed: boolean;
+      type: { value?: string; code?: string };
+    }[];
+  }>(api, `/working-capital-loans/${loanId}/transactions`);
+  return page.content ?? [];
+}
+
+/** GL accounts by class, enough to map a Working Capital product's twelve mandatory slots. */
+export interface SeededGlAccounts {
+  readonly asset: number[];
+  readonly liability: number[];
+  readonly income: number[];
+  readonly expense: number[];
+}
+
+/**
+ * Manual-entry GL accounts, six of each class a product can map.
+ *
+ * Reused across runs by GL code prefix. The classes are Fineract's `type` ids — 1 asset,
+ * 2 liability, 4 income, 5 expense — and pointing a slot at the wrong class is refused with
+ * `validation.msg.domain.rule.violation`, which is why the product form offers each slot only
+ * the accounts of the class it expects.
+ */
+export async function seedGlAccountsForProductAccounting(
+  api: APIRequestContext,
+): Promise<SeededGlAccounts> {
+  const existing = await get<{ id: number; glCode: string; type: { id: number } }[]>(
+    api,
+    '/glaccounts',
+  );
+  const byType = (type: number) =>
+    existing
+      .filter((account) => account.type?.id === type && account.glCode.startsWith('E2E-ACC-'))
+      .map((account) => account.id);
+
+  const seeded: Record<number, number[]> = {
+    1: byType(1),
+    2: byType(2),
+    4: byType(4),
+    5: byType(5),
+  };
+  for (const type of [1, 2, 4, 5]) {
+    while (seeded[type].length < 6) {
+      const index = seeded[type].length + 1;
+      const { resourceId } = await post<{ resourceId: number }>(api, '/glaccounts', {
+        name: `E2E Accounting ${type}-${index}`,
+        glCode: `E2E-ACC-${type}-${index}`,
+        type,
+        usage: 1,
+        manualEntriesAllowed: true,
+      });
+      seeded[type].push(resourceId);
+    }
+  }
+  return { asset: seeded[1], liability: seeded[2], income: seeded[4], expense: seeded[5] };
+}
+
+/**
+ * One code value on each of the two loss-reason codes, so the reason mapping tables have
+ * something to offer.
+ *
+ * A bare Fineract defines `ChargeOffReasons` and `WriteOffReasons` and leaves both empty, and the
+ * product template omits `chargeOffReasonOptions` entirely rather than sending an empty list.
+ */
+export async function seedLossReasonCodeValues(
+  api: APIRequestContext,
+): Promise<{ chargeOffReasonId: number; writeOffReasonId: number }> {
+  const codes = await get<{ id: number; name: string }[]>(api, '/codes');
+  const firstValue = async (codeName: string, valueName: string): Promise<number> => {
+    const code = codes.find((candidate) => candidate.name === codeName);
+    if (!code) throw new Error(`the ${codeName} code is missing from this tenant`);
+    const values = await get<{ id: number; name: string }[]>(api, `/codes/${code.id}/codevalues`);
+    const found = values.find((value) => value.name.startsWith('E2E'));
+    if (found) return found.id;
+    const { subResourceId } = await post<{ subResourceId: number }>(
+      api,
+      `/codes/${code.id}/codevalues`,
+      { name: valueName, position: 1, isActive: true },
+    );
+    return subResourceId;
+  };
+
+  return {
+    chargeOffReasonId: await firstValue('ChargeOffReasons', 'E2E Insolvency'),
+    writeOffReasonId: await firstValue('WriteOffReasons', 'E2E Uncollectible'),
+  };
+}
+
+/**
+ * A Working Capital product with the posting rule and every mandatory GL account mapped.
+ *
+ * The twelve slots are the ones the platform names when the rule is sent without them, and the
+ * seven it accepts without demanding — the charge-off, fraud and goodwill slots — are left out
+ * here so a spec can tell a mapped slot from an unmapped one.
+ */
+export async function seedWorkingCapitalAccrualProduct(
+  api: APIRequestContext,
+  accounts: SeededGlAccounts,
+  reasons: { chargeOffReasonId: number; writeOffReasonId: number },
+  namePrefix = 'E2EWcAcc',
+): Promise<number> {
+  const suffix = seedSuffix();
+  const { resourceId } = await post<{ resourceId: number }>(api, '/working-capital-loan-products', {
+    name: `${namePrefix} Product ${suffix}`,
+    // Last three for the same reason as `seedWorkingCapitalLoanProduct`: a four-character name
+    // that has to be unique cannot be built from the slow end of a timestamp.
+    shortName: `A${suffix.slice(-3)}`,
+    currencyCode: 'USD',
+    digitsAfterDecimal: 2,
+    inMultiplesOf: 0,
+    amortizationType: 'EIR',
+    paymentAmountCalculationStrategy: 'TPV',
+    npvDayCount: 360,
+    principal: 10_000,
+    periodPaymentRate: 5,
+    repaymentEvery: 1,
+    repaymentFrequencyType: 'DAYS',
+    accountingRule: 'ACC_DEF_REV_AM',
+    fundSourceAccountId: accounts.asset[0],
+    loanPortfolioAccountId: accounts.asset[1],
+    transfersInSuspenseAccountId: accounts.asset[2],
+    receivableFeeAccountId: accounts.asset[3],
+    receivablePenaltyAccountId: accounts.asset[4],
+    deferredIncomeLiabilityAccountId: accounts.liability[0],
+    overpaymentLiabilityAccountId: accounts.liability[1],
+    incomeFromDiscountFeeAccountId: accounts.income[0],
+    incomeFromFeeAccountId: accounts.income[1],
+    incomeFromPenaltyAccountId: accounts.income[2],
+    incomeFromRecoveryAccountId: accounts.income[3],
+    writeOffAccountId: accounts.expense[0],
+    chargeOffReasonToExpenseAccountMappings: [
+      {
+        chargeOffReasonCodeValueId: reasons.chargeOffReasonId,
+        expenseAccountId: accounts.expense[1],
+      },
+    ],
+    writeOffReasonsToExpenseMappings: [
+      {
+        writeOffReasonCodeValueId: reasons.writeOffReasonId,
+        expenseAccountId: accounts.expense[0],
+      },
+    ],
+    paymentAllocation: [
+      {
+        transactionType: 'DEFAULT',
+        paymentAllocationOrder: [
+          'DUE_PENALTY',
+          'DUE_FEE',
+          'DUE_PRINCIPAL',
+          'IN_ADVANCE_PENALTY',
+          'IN_ADVANCE_FEE',
+          'IN_ADVANCE_PRINCIPAL',
+        ].map((paymentAllocationRule, index) => ({ paymentAllocationRule, order: index + 1 })),
+      },
+    ],
+    locale: LOCALE,
+    dateFormat: DATE_FORMAT,
+  });
+  return resourceId;
+}
+
+/** One Working Capital product as the platform reports it, for checking what a form saved. */
+export async function workingCapitalProduct(
+  api: APIRequestContext,
+  productId: number,
+): Promise<{
+  name?: string;
+  accountingRule?: { id?: string };
+  accountingMappings?: Record<string, { id?: number; name?: string }>;
+  chargeOffReasonToExpenseAccountMappings?: {
+    reasonCodeValue?: { id?: number };
+    expenseAccount?: { id?: number };
+  }[];
+  writeOffReasonsToExpenseMappings?: {
+    reasonCodeValue?: { id?: number };
+    expenseAccount?: { id?: number };
+  }[];
+  paymentAllocation?: { transactionType?: string; paymentAllocationOrder?: unknown[] }[];
+}> {
+  return get(api, `/working-capital-loan-products/${productId}`);
+}
+
+/**
+ * A datatable registered against `m_wc_loan`.
+ *
+ * Reused rather than created per run, as {@link seedLoanDatatable} is and for the same reason:
+ * registering a datatable is DDL, and a table per run would accumulate in the volume.
+ *
+ * `multiRow` decides more than the row count. A multi-row table's primary key is its own `id`
+ * and the entity key is an ordinary column; a single-row table's primary key *is* the entity key.
+ * That is what the screen reads to decide whether a row is addressed by id or by entity, so both
+ * shapes are worth seeding.
+ */
+export async function seedWorkingCapitalLoanDatatable(
+  api: APIRequestContext,
+  multiRow: boolean,
+): Promise<string> {
+  const prefix = multiRow ? 'e2e_wc_notes_' : 'e2e_wc_kyc_';
+  const existing = await get<{ registeredTableName: string; applicationTableName: string }[]>(
+    api,
+    '/datatables?apptable=m_wc_loan',
+  );
+  const found = existing.find((table) => table.registeredTableName.startsWith(prefix));
+  if (found) return found.registeredTableName;
+
+  const datatableName = `${prefix}${seedSuffix()}`;
+  await post(api, '/datatables', {
+    datatableName,
+    apptableName: 'm_wc_loan',
+    multiRow,
+    columns: [{ name: 'reference', type: 'String', length: 40, mandatory: false }],
+  });
+  return datatableName;
+}
+
+/**
+ * Registers a datatable as a CREATE check on `m_wc_loan`, and hands back the id to remove it by.
+ *
+ * Status 100 is `statusEnum.create`. While it stands, the platform refuses every Working Capital
+ * application that does not carry a row for the table — including those of other specs — so a
+ * caller must remove it in a `finally`.
+ */
+export async function seedWorkingCapitalCreateCheck(
+  api: APIRequestContext,
+  datatableName: string,
+): Promise<number> {
+  // A run that died before its cleanup leaves one behind, and it would then refuse every loan
+  // the other specs create. Clearing first makes this seeder idempotent.
+  await clearWorkingCapitalCreateChecks(api);
+  const { resourceId } = await post<{ resourceId: number }>(api, '/entityDatatableChecks', {
+    entity: 'm_wc_loan',
+    status: 100,
+    datatableName,
+  });
+  return resourceId;
+}
+
+/** Every CREATE check on `m_wc_loan`, removed. */
+export async function clearWorkingCapitalCreateChecks(api: APIRequestContext): Promise<void> {
+  const page = await get<{ pageItems?: { id: number }[] }>(
+    api,
+    '/entityDatatableChecks?status=100&entity=m_wc_loan',
+  );
+  for (const check of page.pageItems ?? []) {
+    await removeEntityDatatableCheck(api, check.id);
+  }
+}
+
+/**
+ * Removes a datatable check.
+ *
+ * Tolerant of a check that is already gone, and it never throws: a caller runs this in a
+ * `finally`, and a cleanup that throws replaces the failure the test was reporting with its own
+ * — which is how a navigation assertion came to be reported as a failed DELETE.
+ */
+export async function removeEntityDatatableCheck(
+  api: APIRequestContext,
+  checkId: number,
+): Promise<void> {
+  const res = await api.delete(`${API_BASE}/entityDatatableChecks/${checkId}`);
+  if (!res.ok() && res.status() !== 404) {
+    console.warn(`DELETE /entityDatatableChecks/${checkId} -> ${res.status()}`);
+  }
 }
 
 /**
@@ -1231,6 +1590,50 @@ export async function statusAs(
           ? await context.put(url, { data: body ?? {} })
           : await context.post(url, { data: body ?? {} });
     return response.status();
+  } finally {
+    await context.dispose();
+  }
+}
+
+/**
+ * Whether Fineract refused the request **for want of permission**, as that user.
+ *
+ * `statusAs` is enough for most of the authorisation probe, because an unauthorised command
+ * answers 403 while an authorised one answers 400 or 404 on the body or the resource. It is not
+ * enough everywhere: the platform also answers **403** for a domain rule violation — a charge
+ * that is already waived, a loan in the wrong status — so a bare status cannot tell "you may not"
+ * from "not like that". This reads the globalisation code, which can:
+ *
+ * ```
+ * 403 error.msg.not.authorized          → the code does not authorise the command
+ * 403 validation.msg.domain.rule.violation → it does; the resource was in the wrong state
+ * ```
+ */
+export async function notAuthorisedAs(
+  user: SeededRestrictedUser,
+  method: 'GET' | 'POST' | 'PUT',
+  path: string,
+  body?: unknown,
+): Promise<boolean> {
+  const context = await playwrightRequest.newContext({
+    ignoreHTTPSErrors: true,
+    extraHTTPHeaders: {
+      'Fineract-Platform-TenantId': TENANT,
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${user.username}:${user.password}`).toString('base64')}`,
+    },
+  });
+  try {
+    const url = `${API_BASE}${path}`;
+    const response =
+      method === 'GET'
+        ? await context.get(url)
+        : method === 'PUT'
+          ? await context.put(url, { data: body ?? {} })
+          : await context.post(url, { data: body ?? {} });
+    if (response.status() !== 403) return false;
+    const text = await response.text();
+    return text.includes('error.msg.not.authorized');
   } finally {
     await context.dispose();
   }
