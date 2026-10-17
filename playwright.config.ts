@@ -83,6 +83,8 @@ const BACKEND_SPECS = [
   'rbac-multi-permission.spec.ts',
   'rbac-office-scoped-user.spec.ts',
   'rbac-permissionless-user.spec.ts',
+  'working-capital-loan-actions-backend.spec.ts',
+  'working-capital-rbac-backend.spec.ts',
   'client-transfer.spec.ts',
   'client-legal-form-search.spec.ts',
   'deposit-account-servicing.spec.ts',
