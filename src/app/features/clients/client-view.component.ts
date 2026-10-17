@@ -90,6 +90,9 @@ import {
   IonSegmentButton,
 } from '@ionic/angular/standalone';
 
+// The client accounts response includes amounts omitted by the generated model.
+export type ClientLoanAccountRow = GetClientsLoanAccounts & { originalLoan?: number };
+
 /** Shape the client action dialog resolves with. */
 interface ClientActionResult {
   actionDate: Date;
@@ -764,8 +767,14 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                           {{ 'LOANS.PRINCIPAL' | appTranslate }}
                         </th>
                         <td cdk-cell *cdkCellDef="let account">
-                          {{ account.currency?.displaySymbol }}
-                          {{ account.originalLoan || 0 | number: '1.2-2' }}
+                          @if (
+                            account.originalLoan !== undefined && account.originalLoan !== null
+                          ) {
+                            {{ account.currency?.displaySymbol }}
+                            {{ account.originalLoan | number: '1.2-2' }}
+                          } @else {
+                            —
+                          }
                         </td>
                       </ng-container>
 
@@ -1181,7 +1190,7 @@ export class ClientViewComponent implements OnInit, OnDestroy {
    * else (a 500, a dropped connection), where retrying the same request can succeed.
    */
   readonly loadError = signal<'not-found' | 'failed' | null>(null);
-  readonly loanAccounts = signal<GetClientsLoanAccounts[]>([]);
+  readonly loanAccounts = signal<ClientLoanAccountRow[]>([]);
   readonly savingsAccounts = signal<GetClientsSavingsAccounts[]>([]);
   readonly shareAccounts = signal<ShareAccountRow[]>([]);
 
