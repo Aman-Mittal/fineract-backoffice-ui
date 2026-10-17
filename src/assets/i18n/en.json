@@ -3052,6 +3052,10 @@
     "DEPOSIT_AMOUNT": "Deposit Amount",
     "MATURITY_DATE": "Maturity Date",
     "LINKED_ACCOUNT": "Funded From",
-    "TRANSFER_INTEREST_TO_SAVINGS": "Interest Paid to Savings"
+    "TRANSFER_INTEREST_TO_SAVINGS": "Interest Paid to Savings",
+    "MATURITY_INSTRUCTION": "At Maturity",
+    "TRANSFER_TO_SAVINGS": "Transfer To Savings Account",
+    "FUND_FROM_SAVINGS": "Fund From Savings Account",
+    "FUND_FROM_SAVINGS_WARNING": "Activating this deposit will transfer the deposit amount out of the chosen savings account. Activation is refused if that account does not hold enough."
   }
 }

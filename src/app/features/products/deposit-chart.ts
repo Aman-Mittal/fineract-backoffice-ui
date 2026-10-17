@@ -156,3 +156,35 @@ export function slabsAreComplete(slabs: readonly DepositChartSlab[]): boolean {
       slab.fromPeriod !== null,
   );
 }
+
+/**
+ * The rate a chart pays for a given term.
+ *
+ * This is what a deposit account form needs and cannot get anywhere else. The account template
+ * carries `nominalAnnualInterestRate: 0` for a product whose chart pays 7% — measured against a
+ * running Fineract — so the rate has to be read out of the chart's slabs. The previous prefill
+ * read the template field and wrote `0 || undefined`, which is one of the reasons issue #766
+ * reported that choosing a product filled nothing in.
+ *
+ * A slab matches when its period type is the unit the term is expressed in and the term falls
+ * inside its range. `toPeriod` is open-ended when absent, which is how the last band of a
+ * tiered product is usually written.
+ *
+ * @param slabs - the product's chart slabs, from `accountChart` on the account template
+ * @param term - the deposit period the user entered
+ * @param periodTypeId - the unit that period is in, matching the slab's `periodType`
+ */
+export function rateForTerm(
+  slabs: readonly DepositChartSlab[],
+  term: number | undefined,
+  periodTypeId: number | undefined,
+): number | undefined {
+  if (term === undefined || term === null) return undefined;
+  const match = slabs.find(
+    (slab) =>
+      slab.periodType === periodTypeId &&
+      (slab.fromPeriod ?? 0) <= term &&
+      (slab.toPeriod === undefined || slab.toPeriod === null || term <= slab.toPeriod),
+  );
+  return match?.annualInterestRate;
+}

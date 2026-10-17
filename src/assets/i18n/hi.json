@@ -3052,6 +3052,10 @@
     "DEPOSIT_AMOUNT": "जमा राशि",
     "MATURITY_DATE": "परिपक्वता तिथि",
     "LINKED_ACCOUNT": "इस खाते से वित्तपोषित",
-    "TRANSFER_INTEREST_TO_SAVINGS": "ब्याज बचत खाते में"
+    "TRANSFER_INTEREST_TO_SAVINGS": "ब्याज बचत खाते में",
+    "MATURITY_INSTRUCTION": "परिपक्वता पर",
+    "TRANSFER_TO_SAVINGS": "इस बचत खाते में अंतरित करें",
+    "FUND_FROM_SAVINGS": "इस बचत खाते से वित्तपोषित करें",
+    "FUND_FROM_SAVINGS_WARNING": "इस जमा को सक्रिय करने पर जमा राशि चुने गए बचत खाते से अंतरित हो जाएगी। यदि उस खाते में पर्याप्त शेष नहीं है तो सक्रियण अस्वीकृत हो जाएगा।"
   }
 }
