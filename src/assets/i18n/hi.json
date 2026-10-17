@@ -291,7 +291,8 @@
     "CHECKER": "चेकर",
     "CHECKED_DATE": "जांच की तारीख",
     "REASON": "कारण",
-    "DONE": "पूर्ण"
+    "DONE": "पूर्ण",
+    "NONE": "कोई नहीं"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "खाता स्थानांतरण",

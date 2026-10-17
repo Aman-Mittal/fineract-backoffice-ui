@@ -306,7 +306,8 @@
     "CHECKER": "Checker",
     "CHECKED_DATE": "Checked Date",
     "REASON": "Reason",
-    "DONE": "Done"
+    "DONE": "Done",
+    "NONE": "None"
   },
   "ACTIONS": {
     "ACCOUNT_TRANSFER": "Account Transfer",
