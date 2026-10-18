@@ -28,6 +28,7 @@ import {
   signal,
   viewChildren,
 } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonButton,
@@ -55,7 +56,6 @@ import {
   FINERACT_LOCALE,
   formatArrayDate,
   formatDateToFineract,
-  toIsoDate,
 } from '../../../core/utils/date-formatter';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import {
@@ -391,6 +391,12 @@ export class ShareAccountViewComponent implements OnInit, OnDestroy {
   private readonly popovers = viewChildren(IonPopover);
   private readonly shareService = inject(ShareAccountService);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
   private readonly notifications = inject(NotificationService);
@@ -480,7 +486,7 @@ export class ShareAccountViewComponent implements OnInit, OnDestroy {
    * reasoning as the group and deposit screens.
    */
   private commandDate(floorKey: string): string {
-    const today = toIsoDate(new Date());
+    const today = this.platformDate.today();
     const stamped = formatArrayDate(this.account()?.timeline?.[floorKey]);
     const iso = stamped !== '-' && stamped > today ? stamped : today;
     return formatDateToFineract(iso);

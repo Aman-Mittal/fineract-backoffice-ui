@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OFFICE_API, STAFF_API, TranslatePipe } from '../../../core/adapters';
@@ -40,7 +41,6 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular/standalone';
-import { toIsoDate } from '../../../core/utils/date-formatter';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
@@ -344,6 +344,12 @@ export class StaffFormComponent implements OnInit {
   private readonly officeApi = inject(OFFICE_API);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly notifications = inject(NotificationService);
 
   private readonly staffListPath = '/organization/staff';
@@ -351,7 +357,7 @@ export class StaffFormComponent implements OnInit {
   staffId?: number;
   isEditMode = false;
   readonly offices = signal<readonly Office[]>([]);
-  readonly joiningDate = signal(toIsoDate(new Date()));
+  readonly joiningDate = signal(this.platformDate.today());
 
   readonly staff = signal<{
     officeId?: number;

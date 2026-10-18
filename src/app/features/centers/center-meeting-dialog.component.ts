@@ -18,6 +18,7 @@
  */
 
 import { HttpClient } from '@angular/common/http';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -35,7 +36,6 @@ import {
 import { BASE_PATH } from '../../api';
 import { OVERLAY, TranslatePipe } from '../../core/adapters';
 import { CenterMeeting } from './center-detail.model';
-import { toIsoDate } from '../../core/utils/date-formatter';
 
 export interface CenterMeetingDialogData {
   centerId: number;
@@ -212,6 +212,12 @@ interface CodeOption {
 })
 export class CenterMeetingDialogComponent implements OnInit {
   private readonly overlay = inject(OVERLAY);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly httpClient = inject(HttpClient);
   private readonly basePath = inject(BASE_PATH);
 
@@ -222,7 +228,7 @@ export class CenterMeetingDialogComponent implements OnInit {
   readonly dayOptions = signal<CodeOption[]>([]);
 
   title = '';
-  startDate = toIsoDate(new Date());
+  startDate = this.platformDate.today();
   frequency = 2;
   interval = 1;
   typeId = 1;

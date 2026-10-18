@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslatePipe } from '../../../core/adapters';
@@ -42,7 +43,6 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
-  toIsoDate,
 } from '../../../core/utils/date-formatter';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
@@ -205,6 +205,12 @@ export class OfficeTransactionFormComponent implements OnInit {
 
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly notifications = inject(NotificationService);
 
   readonly fromOfficeOptions = signal<{ id: number; name: string }[]>([]);
@@ -212,7 +218,7 @@ export class OfficeTransactionFormComponent implements OnInit {
   fromOfficeId: number | null = null;
   toOfficeId: number | null = null;
   amount: number | null = null;
-  transactionDate = toIsoDate(new Date());
+  transactionDate = this.platformDate.today();
   description = '';
   readonly isSaving = signal(false);
 

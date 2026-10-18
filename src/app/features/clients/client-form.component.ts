@@ -60,7 +60,6 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
-  toIsoDate,
 } from '../../core/utils/date-formatter';
 
 @Component({
@@ -637,8 +636,8 @@ export class ClientFormComponent implements OnInit {
     active: true,
   });
 
-  readonly submittedOnDate = signal(toIsoDate(new Date()));
-  readonly activationDate = signal(toIsoDate(new Date()));
+  readonly submittedOnDate = signal(this.platformDate.today());
+  readonly activationDate = signal(this.platformDate.today());
   readonly dateOfBirth = signal<string | null>(null);
   readonly offices = signal<GetOfficesResponse[]>([]);
 

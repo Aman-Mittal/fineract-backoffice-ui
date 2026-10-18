@@ -33,7 +33,6 @@ import {
 import { GroupsService } from '../../api';
 import { PlatformDateService } from '../../core/services/platform-date.service';
 import { OVERLAY, TranslatePipe } from '../../core/adapters';
-import { toIsoDate } from '../../core/utils/date-formatter';
 
 export interface GroupActionDialogData {
   /** Translation key for the heading. */
@@ -172,7 +171,7 @@ export class GroupActionDialogComponent implements OnInit {
 
   readonly data = input.required<GroupActionDialogData>();
 
-  readonly actionDate = signal(toIsoDate(new Date()));
+  readonly actionDate = signal(this.platformDate.today());
   readonly minDate = signal<string | undefined>(undefined);
   readonly maxDate = signal<string | undefined>(undefined);
   readonly closureReasons = signal<{ id?: number; name?: string }[]>([]);

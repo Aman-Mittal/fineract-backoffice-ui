@@ -57,7 +57,6 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
-  toIsoDate,
 } from '../../core/utils/date-formatter';
 import { createPickersReady } from '../../shared/utils/pickers-ready';
 
@@ -274,7 +273,7 @@ export class SavingsAccountFormComponent implements OnInit {
    * configured. That is issue #761, and the depositor only finds out at interest posting.
    */
   readonly interestRate = signal<number | null>(null);
-  readonly submittedOnDate = signal(toIsoDate(new Date()));
+  readonly submittedOnDate = signal(this.platformDate.today());
   readonly products = signal<GetSavingsProductsResponse[]>([]);
 
   ngOnInit(): void {

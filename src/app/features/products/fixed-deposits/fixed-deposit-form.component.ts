@@ -47,7 +47,6 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
-  toIsoDate,
 } from '../../../core/utils/date-formatter';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
 import { DepositChartSlab, rateForTerm } from '../deposit-chart';
@@ -441,7 +440,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
     depositPeriodFrequencyId: DEFAULT_PERIOD_FREQUENCY,
   });
   /** Submitted date for template binding */
-  readonly submittedOnDate = signal(toIsoDate(new Date()));
+  readonly submittedOnDate = signal(this.platformDate.today());
   /** Available products list */
   readonly products = signal<DepositProductOption[]>([]);
 

@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import {
   IonButton,
@@ -33,7 +34,6 @@ import {
 
 import { ClientService } from '../../api';
 import { OVERLAY, TranslatePipe } from '../../core/adapters';
-import { toIsoDate } from '../../core/utils/date-formatter';
 
 export interface ClientTransferDialogData {
   /**
@@ -176,12 +176,18 @@ export interface ClientTransferResult {
 })
 export class ClientTransferDialogComponent implements OnInit {
   private readonly overlay = inject(OVERLAY);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly clientService = inject(ClientService);
 
   readonly data = input.required<ClientTransferDialogData>();
 
   readonly offices = signal<{ id?: number; name?: string }[]>([]);
-  readonly transferDate = signal(toIsoDate(new Date()));
+  readonly transferDate = signal(this.platformDate.today());
   readonly note = signal('');
   destinationOfficeId?: number;
 

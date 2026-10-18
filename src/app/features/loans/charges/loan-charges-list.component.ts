@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { I18N, TranslatePipe } from '../../../core/adapters';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
@@ -26,7 +27,6 @@ import { LoanChargesService, GetLoansLoanIdChargesChargeIdResponse } from '../..
 import { DialogService } from '../../../core/services/dialog.service';
 import { CHARGE_COMMAND_PERMISSIONS } from '../../../core/guards/command-permissions';
 import { NotificationService } from '../../../core/services/notification.service';
-import { toIsoDate } from '../../../core/utils/date-formatter';
 import { RequiresPermissionDirective } from '../../../shared/directives/requires-permission.directive';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ButtonComponent } from '../../../ui/button/button.component';
@@ -173,6 +173,12 @@ export type LoanChargeRow = GetLoansLoanIdChargesChargeIdResponse & LoanChargeFl
 export class LoanChargesListComponent implements OnInit {
   private readonly loanChargesService = inject(LoanChargesService);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
   private readonly notifications = inject(NotificationService);
@@ -249,7 +255,7 @@ export class LoanChargesListComponent implements OnInit {
           name: 'transactionDate',
           label: this.i18n.translate('COMMON.TRANSACTION_DATE'),
           type: 'date',
-          value: toIsoDate(new Date()),
+          value: this.platformDate.today(),
         },
       ],
     });

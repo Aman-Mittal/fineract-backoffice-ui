@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -438,6 +439,12 @@ export class LoanTransactionFormComponent implements OnInit {
   private readonly paymentTypeService = inject(PaymentTypeService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly notifications = inject(NotificationService);
   private readonly dialogService = inject(DialogService);
   private readonly i18n = inject(I18N);
@@ -450,7 +457,7 @@ export class LoanTransactionFormComponent implements OnInit {
   readonly isSaving = signal(false);
 
   transaction: PostLoansLoanIdTransactionsRequest = {};
-  readonly transactionDate = signal(toIsoDate(new Date()));
+  readonly transactionDate = signal(this.platformDate.today());
   readonly paymentTypeOptions = signal<GetPaymentTypeOptions[]>([]);
   readonly loanSummary = signal<LoanSummary | null>(null);
   readonly chargeOffReasonOptions = signal<{ id?: number; name?: string }[]>([]);

@@ -26,6 +26,7 @@ import {
   signal,
   viewChildren,
 } from '@angular/core';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { from } from 'rxjs';
 import { DecimalPipe, NgClass } from '@angular/common';
@@ -53,7 +54,6 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
   formatDateToFineract,
-  toIsoDate,
 } from '../../core/utils/date-formatter';
 import { CdkTableModule } from '@angular/cdk/table';
 import { RequiresPermissionDirective } from '../../shared/directives/requires-permission.directive';
@@ -741,6 +741,12 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
 
   readonly activeTab = signal<DepositTab>(DEPOSIT_TAB.overview);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
   private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly dialogService = inject(DialogService);
@@ -891,7 +897,7 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
           name: 'dueDate',
           label: this.i18n.translate('SAVINGS_CHARGES.DUE_DATE'),
           type: 'date',
-          value: toIsoDate(new Date()),
+          value: this.platformDate.today(),
         },
       ],
     });
@@ -1089,7 +1095,7 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * here to keep out.
    */
   private commandDateIso(floor: string | null): string {
-    const today = toIsoDate(new Date());
+    const today = this.platformDate.today();
     return floor !== null && floor > today ? floor : today;
   }
 

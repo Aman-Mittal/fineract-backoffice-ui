@@ -32,7 +32,6 @@ import {
   IonTextarea,
   ModalController,
 } from '@ionic/angular/standalone';
-import { toIsoDate } from '../../core/utils/date-formatter';
 import { CodesService, CodeValuesService, GetCodeValuesDataResponse } from '../../api';
 import { PlatformDateService } from '../../core/services/platform-date.service';
 
@@ -139,7 +138,7 @@ export class ClientActionDialogComponent implements OnInit {
   public readonly modalController = inject(ModalController);
   readonly data = input.required<ClientActionDialogData>();
 
-  readonly actionDate = signal(toIsoDate(new Date()));
+  readonly actionDate = signal(this.platformDate.today());
   readonly maxDate = signal<string | undefined>(undefined);
   reasonId?: number;
   note = '';

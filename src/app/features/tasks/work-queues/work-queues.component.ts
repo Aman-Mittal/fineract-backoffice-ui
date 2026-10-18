@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Observable, map, of } from 'rxjs';
@@ -315,6 +316,12 @@ export class WorkQueuesComponent implements OnInit {
   private readonly dialog = inject(DialogService);
   private readonly notifications = inject(NotificationService);
   private readonly router = inject(Router);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly i18n = inject(I18N);
 
   /** Cached once, since offices are shared master data that does not change mid-session. */
@@ -593,7 +600,7 @@ export class WorkQueuesComponent implements OnInit {
     index: number,
     command: 'approve' | 'reject',
   ): BatchRequest {
-    const today = formatDateToFineract(new Date());
+    const today = formatDateToFineract(this.platformDate.today());
     const dated = (field: string) =>
       JSON.stringify({ [field]: today, locale: 'en', dateFormat: FINERACT_DATE_FORMAT });
 

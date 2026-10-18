@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -180,6 +181,12 @@ export class AccountingClosureFormComponent implements OnInit {
   private readonly closureApi = inject(ACCOUNTING_CLOSURE_API);
   private readonly officeApi = inject(OFFICE_API);
   private readonly router = inject(Router);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
 
   readonly offices = signal<Office[]>([]);
   /**
@@ -191,7 +198,7 @@ export class AccountingClosureFormComponent implements OnInit {
     officeId: undefined,
     comments: '',
   };
-  closingDate = toIsoDate(new Date());
+  closingDate = this.platformDate.today();
   readonly isSaving = signal(false);
 
   ngOnInit() {

@@ -259,7 +259,7 @@ export class GroupFormComponent implements OnInit {
     active: true,
   });
 
-  activationDate = toIsoDate(new Date());
+  activationDate = this.platformDate.today();
   readonly offices = signal<GetOfficesResponse[]>([]);
 
   ngOnInit(): void {
