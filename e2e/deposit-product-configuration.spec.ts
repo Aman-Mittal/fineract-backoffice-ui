@@ -95,6 +95,15 @@ test.describe('Deposit product configuration', () => {
     await page.locator('ion-searchbar input').first().fill(name);
     const row = page.getByRole('row', { name: new RegExp(name) }).first();
     await expect(row).toBeVisible({ timeout: 20000 });
+
+    // The list states the figures the endpoint answers. It used to carry an interest rate
+    // column instead, which read `0.00 %` against every deposit product on the screen —
+    // `GET /fixeddepositproducts` sends `nominalAnnualInterestRate: 0` for all of them and no
+    // chart to read the real rate from, so the column could never have shown this product's
+    // 6.5%.
+    await expect(row).toContainText('1,000.00');
+    await expect(row).toContainText(/1\s+Months/);
+    await expect(row).not.toContainText('0.00 %');
     // By its icon: the action buttons on the list screens are icon-only and carry no accessible
     // name, which is #233 and not this change's to fix.
     await row
