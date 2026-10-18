@@ -30,6 +30,11 @@
  * Neither is visible to a mock, and neither is visible to a unit spec that asserts on the body it
  * built. Only the platform's answer settles them.
  *
+ * Both forms also require an interest rate chart now. They always sent one — a hidden slab at 5%
+ * for 1–60 months that the user never saw, which is issue #765 — and the rate is the product, so
+ * it has to be entered rather than invented. That is why these tests fill the chart: a product
+ * with no stated rate is deliberately unsaveable.
+ *
  *   npx playwright test e2e/deposit-product-configuration.spec.ts --project=backend --workers=1
  */
 
@@ -37,6 +42,20 @@ import { test, expect, Page, recordingTimeout } from './fixtures';
 import { login, uniqueSuffix } from './utils/fineract-login';
 import { ionSelect } from './utils/ionic-locators';
 import { selectOption } from './utils/select-option';
+
+/**
+ * Fills the interest rate chart, which both deposit product forms require.
+ *
+ * Native inputs, not Ionic ones: the chart editor is a shared component built on the
+ * `.form-field` house style, because ADR 0005 puts Ionic out of bounds for new files and
+ * `src/app/ui` has no input primitive yet.
+ */
+async function fillChart(page: Page, rate: string, from = '1', to = '60'): Promise<void> {
+  await expect(page.locator('[data-testid="chart-slab-0"]')).toBeVisible({ timeout: 20000 });
+  await page.locator('[data-testid="slab-from-0"]').fill(from);
+  await page.locator('[data-testid="slab-to-0"]').fill(to);
+  await page.locator('[data-testid="slab-rate-0"]').fill(rate);
+}
 
 /** Fills the fields both deposit product forms share. */
 async function fillCommon(page: Page, name: string, shortName: string): Promise<void> {
@@ -62,6 +81,12 @@ test.describe('Deposit product configuration', () => {
     await page.goto('/products/fixed/create');
     await expect(page.locator('input[name="name"]')).toBeVisible({ timeout: 20000 });
     await fillCommon(page, name, suffix.slice(-4).toUpperCase());
+
+    // Refused until the chart states a rate: a deposit product with no rate must not be
+    // saveable, which is what the old hidden 5% default concealed.
+    await expect(page.getByTestId('product-submit')).toHaveJSProperty('disabled', true);
+
+    await fillChart(page, '6.5');
     await page.getByRole('button', { name: /^save$/i }).click();
     await expect(page).toHaveURL(/\/products\/fixed$/, { timeout: 20000 });
 
@@ -79,6 +104,14 @@ test.describe('Deposit product configuration', () => {
 
     const nameField = page.locator('input[name="name"]');
     await expect(nameField).toHaveValue(new RegExp(name), { timeout: 20000 });
+
+    // The product's own rate comes back into the editor, which is both halves of #765: the chart
+    // is visible, and the update resends *this* product's chart with its ids rather than a newly
+    // invented one — which is what used to answer 500.
+    await expect(page.locator('[data-testid="slab-rate-0"]')).toHaveValue('6.5', {
+      timeout: 20000,
+    });
+
     await nameField.fill(`${name} v2`);
     await page.getByRole('button', { name: /^save$/i }).click();
     await expect(page).toHaveURL(/\/products\/fixed$/, { timeout: 20000 });
@@ -94,6 +127,8 @@ test.describe('Deposit product configuration', () => {
     await page.goto('/products/recurring/create');
     await expect(page.locator('input[name="name"]')).toBeVisible({ timeout: 20000 });
     await fillCommon(page, name, suffix.slice(-4).toUpperCase());
+
+    await fillChart(page, '5.25');
 
     // The recurrence the form collects has to reach the platform — it used to be deleted on the
     // way out, so nothing carried it and every save was refused.
