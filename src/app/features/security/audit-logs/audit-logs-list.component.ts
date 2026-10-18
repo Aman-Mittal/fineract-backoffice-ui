@@ -219,6 +219,7 @@ export interface AuditFilters {
         [columns]="columns()"
         [data]="visibleLogs()"
         [totalRecords]="totalRecords()"
+        [exactTotal]="false"
         [pageSize]="pageSize()"
         [pageIndex]="pageIndex()"
         [isLoading]="isLoading()"

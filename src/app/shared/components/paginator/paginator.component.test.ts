@@ -48,6 +48,11 @@ describe('PaginatorComponent', () => {
   });
 
   describe('range label', () => {
+    it.each([1, 11, 21])('uses an exact total of %i by default', (length) => {
+      setInputs({ length, pageSize: 10, pageIndex: 0 });
+      expect(rangeLabel()).toBe(`1 - ${Math.min(length, 10)} of ${length}`);
+    });
+
     it('reports an empty range when there are no records', () => {
       setInputs({ length: 0, pageSize: 10, pageIndex: 0 });
 
@@ -68,7 +73,7 @@ describe('PaginatorComponent', () => {
 
     // Fineract returns offset + pageSize + 1 when it does not know the real total.
     it('renders "of many" when the total is Fineract\'s unknown-total sentinel', () => {
-      setInputs({ length: 11, pageSize: 10, pageIndex: 0 });
+      setInputs({ length: 11, pageSize: 10, pageIndex: 0, exactTotal: false });
 
       expect(rangeLabel()).toBe('1 - 10 of many');
     });

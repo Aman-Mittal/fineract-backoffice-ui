@@ -380,7 +380,7 @@ export class DataTableComponent<T> {
   /** Total number of records. If server-side, this comes from API response. */
   readonly totalRecords = input(0);
   /** Set when a server endpoint returns an exact count rather than an unknown-total sentinel. */
-  readonly exactTotal = input(false);
+  readonly exactTotal = input(true);
   readonly pageSize = input(10);
   readonly pageIndex = input(0);
   readonly pageSizeOptions = input([5, 10, 25, 100]);
