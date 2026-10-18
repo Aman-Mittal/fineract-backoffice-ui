@@ -97,7 +97,7 @@
     "@emnapi/core": "1.11.3",
     "@emnapi/runtime": "1.11.3",
     "@openapitools/openapi-generator-cli": "^2.40.1",
-    "@playwright/test": "^1.61.1",
+    "@playwright/test": "^1.64.0",
     "@softarc/native-federation-orchestrator": "^4.5.2",
     "angular-eslint": "^22.0.0",
     "eslint": "^9.39.4",
