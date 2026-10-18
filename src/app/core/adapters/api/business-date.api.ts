@@ -31,6 +31,17 @@ export interface BusinessDateEntry {
 /** Application contract for reading the platform's business dates. */
 export interface BusinessDateApi {
   getBusinessDates(): Observable<readonly BusinessDateEntry[]>;
+
+  /**
+   * Whether the business-date feature is switched on for this tenant.
+   *
+   * Asked because `GET /businessdate` answers either way. The rows persist after the feature is
+   * disabled, and they stop being maintained — measured on a running Fineract, a tenant with the
+   * feature off still reported `BUSINESS_DATE 2026-10-17` on the 18th, and
+   * `POST /businessdate` refused to update it with `business.date.is.not.enabled`. A screen that
+   * read the row without asking this seeded every date field a day in the past.
+   */
+  isBusinessDateEnabled(): Observable<boolean>;
 }
 
 export const BUSINESS_DATE_API = new InjectionToken<BusinessDateApi>('BUSINESS_DATE_API', {

@@ -29,12 +29,8 @@ import {
   HasPermissionDirective,
 } from '../../../shared';
 import { I18N, TranslatePipe } from '../../../core/adapters';
-import {
-  BusinessDateManagementService,
-  GetLoansLoanIdDelinquencySummary,
-  LoansService,
-} from '../../../api';
-import { skipErrorToast } from '../../../core/http/http-context';
+import { GetLoansLoanIdDelinquencySummary, LoansService } from '../../../api';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -233,7 +229,7 @@ export class LoanDelinquencyTabComponent implements OnInit {
   readonly changed = output<void>();
 
   private readonly loansService = inject(LoansService);
-  private readonly businessDateService = inject(BusinessDateManagementService);
+  private readonly platformDate = inject(PlatformDateService);
   private readonly dialogs = inject(DialogService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18N);
@@ -245,13 +241,22 @@ export class LoanDelinquencyTabComponent implements OnInit {
   /** A pause or resume request is in flight; both buttons wait for it. */
   readonly isActing = signal(false);
 
-  /** The platform's business date as `YYYY-MM-DD`, once known. */
-  readonly businessDate = signal<string | undefined>(undefined);
+  /**
+   * The date this tab treats as now, `YYYY-MM-DD`: the business date when one governs, and the
+   * platform's own clock otherwise.
+   *
+   * Both halves matter. A resume has to be dated a day the platform accepts as current, and the
+   * stored business date is not that day on a tenant with the feature switched off — those rows
+   * persist and stop being maintained (#758). Equally, withholding Resume from such a tenant
+   * because it has no business date would remove the action from everyone not using the feature,
+   * which is most of them.
+   */
+  readonly platformToday = signal<string | undefined>(undefined);
 
   /** Pause periods ride along on the summary rather than being a resource of their own. */
   readonly pausePeriods = computed(() => this.summary()?.delinquencyPausePeriods ?? []);
 
-  readonly resumable = computed(() => canResume(this.pausePeriods(), this.businessDate()));
+  readonly resumable = computed(() => canResume(this.pausePeriods(), this.platformToday()));
 
   tagColumns: ColumnDef[] = [
     { key: 'classification', label: 'LOANS.CLASSIFICATION' },
@@ -282,15 +287,12 @@ export class LoanDelinquencyTabComponent implements OnInit {
    * without a date the tab simply does not offer Resume.
    */
   private loadBusinessDate(): void {
-    this.businessDateService
-      .getBusinessdate('body', false, { context: skipErrorToast() })
-      .subscribe({
-        next: (dates) => {
-          const business = dates.find(({ type }) => type === 'BUSINESS_DATE');
-          this.businessDate.set(toIsoDay(business?.date) || undefined);
-        },
-        error: () => undefined,
-      });
+    // Through `PlatformDateService`, which answers the business date when one governs and the
+    // platform's clock when none does — see `platformToday`.
+    this.platformDate.resolveToday().subscribe({
+      next: (today) => this.platformToday.set(today),
+      error: () => undefined,
+    });
   }
 
   async onPause(): Promise<void> {
@@ -298,7 +300,9 @@ export class LoanDelinquencyTabComponent implements OnInit {
       await import('./loan-delinquency-pause-dialog.component');
     const period = await this.dialogs.open<LoanDelinquencyPauseResult>(
       LoanDelinquencyPauseDialogComponent,
-      { data: { businessDate: this.businessDate() } },
+      // The dialog's field is still called `businessDate`: it is the bound it enforces, and on a
+      // tenant using the feature that is exactly what this is.
+      { data: { businessDate: this.platformToday() } },
     );
     if (!period) return;
 
@@ -313,7 +317,7 @@ export class LoanDelinquencyTabComponent implements OnInit {
   }
 
   async onResume(): Promise<void> {
-    const businessDate = this.businessDate();
+    const businessDate = this.platformToday();
     if (!businessDate) return;
 
     const confirmed = await this.dialogs.confirm({

@@ -20,7 +20,7 @@
 import { createSpyObj, SpyObj } from '../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
@@ -404,7 +404,7 @@ describe('DepositAccountViewComponent', () => {
       component.loadData();
 
       expect(component.transactions()).toEqual([]);
-      expect(component.hasError()).toBe(false);
+      expect(component.loadError()).toBeNull();
       expect(component.deposit()).toBeTruthy();
     });
   });
@@ -478,7 +478,7 @@ describe('DepositAccountViewComponent', () => {
       await setup(account({ id: 300, value: 'Active', active: true }));
 
       expect(component.charges()).toEqual([]);
-      expect(component.hasError()).toBe(false);
+      expect(component.loadError()).toBeNull();
     });
   });
 
@@ -565,7 +565,34 @@ describe('DepositAccountViewComponent', () => {
 
       expect(component.chartRows()).toEqual([]);
       // The account read failing *is* an error for this screen, unlike the separate reads.
-      expect(component.hasError()).toBe(true);
+      expect(component.loadError()).toBe('failed');
+    });
+
+    it('offers a retry on a failed read, and nothing to retry on a 404', async () => {
+      // The screen used to render the breadcrumb and an empty page either way — it held a
+      // `hasError` boolean that no part of the template read.
+      await setup(account({ id: 300, value: 'Active', active: true }));
+      deposits['get'].mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 500 })) as never,
+      );
+      component.loadData();
+      fixture.detectChanges();
+      expect(component.loadError()).toBe('failed');
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="deposit-load-error-action"]'),
+      ).not.toBeNull();
+
+      deposits['get'].mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 404 })) as never,
+      );
+      component.loadData();
+      fixture.detectChanges();
+      // A 404 or 403 cannot be retried, so the action goes back instead of repeating a request
+      // that will fail again.
+      expect(component.loadError()).toBe('not-found');
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="deposit-load-error"]'),
+      ).not.toBeNull();
     });
   });
 

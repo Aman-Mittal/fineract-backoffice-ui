@@ -74,8 +74,12 @@ async function loginAndMockApi(page: Page) {
     });
   });
 
-  // The header leaves out the business date when the instance has none, and
-  // 'header shows logged-in user info' checks for it.
+  // The header leaves out the business date when none *governs*, and 'header shows logged-in
+  // user info' checks for it. The app asks whether the feature is enabled before trusting the
+  // stored rows, which persist after it is switched off (#758), so both are answered here.
+  await page.route('**/api/v1/configurations/name/enable-business-date**', async (route) => {
+    await route.fulfill({ json: { name: 'enable-business-date', enabled: true } });
+  });
   await page.route('**/api/v1/businessdate**', async (route) => {
     await route.fulfill({ json: [{ type: 'BUSINESS_DATE', date: [2026, 10, 2] }] });
   });

@@ -92,6 +92,8 @@ const BACKEND_SPECS = [
   'client-transfer.spec.ts',
   'client-legal-form-search.spec.ts',
   'deposit-account-servicing.spec.ts',
+  'double-submit-backend.spec.ts',
+  'tenant-date-defaults-backend.spec.ts',
   'deposit-lifecycle-backend.spec.ts',
   'deposit-product-configuration.spec.ts',
   'full-demo.spec.ts',

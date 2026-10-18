@@ -18,6 +18,11 @@
  */
 
 import { Provider, signal } from '@angular/core';
+import {
+  BUSINESS_DATE_API,
+  type BusinessDateApi,
+  type BusinessDateEntry,
+} from '../core/adapters/api/business-date.api';
 import { Observable, of } from 'rxjs';
 import {
   DOWNLOAD,
@@ -220,6 +225,28 @@ export class FakeDownloadAdapter implements DownloadAdapter {
   }
 }
 
+/**
+ * A {@link BusinessDateApi} that answers for a tenant with the feature switched off.
+ *
+ * The default, because that is the common tenant: `PlatformDateService` then resolves today
+ * from the platform's clock, and a component under test that seeds a date gets the browser's
+ * date rather than reaching for HTTP. Set {@link businessDate} to put a tenant on one.
+ */
+export class FakeBusinessDateApi implements BusinessDateApi {
+  /** The governing business date, ISO, or `null` for a tenant without the feature. */
+  businessDate: string | null = null;
+
+  getBusinessDates(): Observable<readonly BusinessDateEntry[]> {
+    return of(
+      this.businessDate === null ? [] : [{ type: 'BUSINESS_DATE', date: this.businessDate }],
+    );
+  }
+
+  isBusinessDateEnabled(): Observable<boolean> {
+    return of(this.businessDate !== null);
+  }
+}
+
 /** Every adapter token bound to a fake, plus handles for asserting on them. */
 export function provideFakeAdapters(): {
   providers: Provider[];
@@ -227,11 +254,13 @@ export function provideFakeAdapters(): {
   i18n: FakeI18nAdapter;
   storage: FakeStorageAdapter;
   download: FakeDownloadAdapter;
+  businessDate: FakeBusinessDateApi;
 } {
   const overlay = new FakeOverlayAdapter();
   const i18n = new FakeI18nAdapter();
   const storage = new FakeStorageAdapter();
   const download = new FakeDownloadAdapter();
+  const businessDate = new FakeBusinessDateApi();
 
   return {
     providers: [
@@ -239,10 +268,14 @@ export function provideFakeAdapters(): {
       { provide: I18N, useValue: i18n },
       { provide: STORAGE, useValue: storage },
       { provide: DOWNLOAD, useValue: download },
+      // Not a UI adapter, but the same reason: every screen that defaults a date now resolves
+      // it through `PlatformDateService`, and a TestBed should not need HTTP to render a form.
+      { provide: BUSINESS_DATE_API, useValue: businessDate },
     ],
     overlay,
     i18n,
     storage,
     download,
+    businessDate,
   };
 }

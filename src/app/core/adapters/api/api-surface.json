@@ -285,7 +285,11 @@
     "postGlaccountsUploadtemplate",
     "putGlaccountsGlAccountId"
   ],
-  "GlobalConfigurationService": ["getConfigurations", "putConfigurationsConfigId"],
+  "GlobalConfigurationService": [
+    "getConfigurations",
+    "getConfigurationsNameName",
+    "putConfigurationsConfigId"
+  ],
   "GroupsLevelService": ["getGrouplevels"],
   "GroupsService": [
     "getGroups",

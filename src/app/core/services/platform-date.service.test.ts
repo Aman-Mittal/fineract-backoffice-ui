@@ -34,8 +34,16 @@ describe('PlatformDateService', () => {
   let businessDateApiSpy: SpyObj<BusinessDateApi>;
   let tenantTimezone = 'Asia/Kolkata';
 
-  function setup(dates: BusinessDateEntry[] | 'error' = []): void {
-    businessDateApiSpy = createSpyObj(['getBusinessDates']);
+  /**
+   * @param dates - what `GET /businessdate` answers, or `'error'`.
+   * @param enabled - whether the tenant has the business-date feature switched on. Defaults to
+   *   `true` so the cases below read as they did; the disabled case is its own test, because a
+   *   disabled feature leaves stale rows behind and that is the trap this service exists to
+   *   avoid.
+   */
+  function setup(dates: BusinessDateEntry[] | 'error' = [], enabled = true): void {
+    businessDateApiSpy = createSpyObj(['getBusinessDates', 'isBusinessDateEnabled']);
+    businessDateApiSpy.isBusinessDateEnabled.mockReturnValue(of(enabled));
     if (dates === 'error') {
       businessDateApiSpy.getBusinessDates.mockReturnValue(throwError(() => new Error('403')));
     } else {
@@ -65,6 +73,70 @@ describe('PlatformDateService', () => {
   });
 
   describe('tenant timezone date resolution', () => {
+    it('does not read the business date at all when the feature is off', () => {
+      // Measured: the rows persist after the feature is disabled and stop being maintained — a
+      // tenant with it off still reported `BUSINESS_DATE 2026-10-17` on the 18th, and
+      // `POST /businessdate` refused to move it with `business.date.is.not.enabled`. Seeding
+      // from that row put every date field a day in the past.
+      setup([{ type: 'BUSINESS_DATE', date: '2026-10-17' }], false);
+
+      let emitted: string | undefined;
+      service.resolveToday().subscribe((date) => (emitted = date));
+
+      expect(businessDateApiSpy.getBusinessDates).not.toHaveBeenCalled();
+      expect(service.getBusinessDate()).toBeNull();
+      expect(emitted).toBe(service.getTenantToday());
+    });
+
+    it('prefers the platform clock over the browser clock', () => {
+      // The browser is the one party whose opinion about "today" the platform does not share.
+      tenantTimezone = '';
+      setup();
+      service.recordServerTime(new Date('2026-08-15T10:00:00Z'));
+
+      expect(service.getTenantToday()).toBe('2026-08-15');
+      expect(service.today()).toBe('2026-08-15');
+    });
+
+    it('ignores an unreadable Date header rather than taking NaN for a date', () => {
+      tenantTimezone = '';
+      setup();
+      service.recordServerTime(new Date('not a date'));
+
+      expect(service.today()).toBe(toIsoDate(new Date()));
+    });
+
+    it('reads the platform clock in the tenant timezone when one is configured', () => {
+      // 2026-08-15 20:00Z is already the 16th in Asia/Kolkata (UTC+5:30).
+      setup();
+      service.recordServerTime(new Date('2026-08-15T20:00:00Z'));
+
+      expect(service.today()).toBe('2026-08-16');
+    });
+
+    it('does not invent a timezone when none is configured', () => {
+      // This service used to assume Asia/Kolkata, which is a date up to a day away from the
+      // platform's for every tenant that is not in that zone — the same guess it exists to
+      // remove.
+      tenantTimezone = '';
+      setup();
+      const instant = new Date('2026-08-15T20:00:00Z');
+
+      expect(service.getTenantToday(instant)).toBe(toIsoDate(instant));
+    });
+
+    it('resolves once however many screens ask', () => {
+      // Five places used to read `GET /businessdate` for themselves.
+      setup([{ type: 'BUSINESS_DATE', date: '2026-03-04' }]);
+
+      service.resolveToday().subscribe();
+      service.resolveToday().subscribe();
+      service.loadBusinessDate().subscribe();
+
+      expect(businessDateApiSpy.isBusinessDateEnabled).toHaveBeenCalledTimes(1);
+      expect(businessDateApiSpy.getBusinessDates).toHaveBeenCalledTimes(1);
+    });
+
     it('defaults to the tenant timezone today when business date is not set', () => {
       const now = new Date();
       const expected = service.getTenantToday(now);

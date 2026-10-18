@@ -135,6 +135,14 @@ async function signInWithLoan(page: Page, setup: Setup = {}): Promise<Probe> {
       }),
     ),
   );
+  // A tenant *using* the business date, which is what these cases are about: the app asks
+  // whether the feature is enabled before trusting the stored rows, because they persist after
+  // it is switched off and stop being maintained (#758). Without the first mock this tab would
+  // fall back to the platform's clock, which is the right answer for a tenant without the
+  // feature and the wrong one for these assertions.
+  await page.route('**/api/v1/configurations/name/enable-business-date**', (route) =>
+    route.fulfill(json({ name: 'enable-business-date', enabled: true })),
+  );
   await page.route('**/api/v1/businessdate**', (route) =>
     route.fulfill(json([{ type: 'BUSINESS_DATE', date: BUSINESS_DATE }])),
   );

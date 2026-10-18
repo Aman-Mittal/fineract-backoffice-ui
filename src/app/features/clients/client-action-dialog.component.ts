@@ -32,13 +32,9 @@ import {
   IonTextarea,
   ModalController,
 } from '@ionic/angular/standalone';
-import { formatArrayDate, toIsoDate } from '../../core/utils/date-formatter';
-import {
-  CodesService,
-  CodeValuesService,
-  GetCodeValuesDataResponse,
-  BusinessDateManagementService,
-} from '../../api';
+import { toIsoDate } from '../../core/utils/date-formatter';
+import { CodesService, CodeValuesService, GetCodeValuesDataResponse } from '../../api';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 
 export interface ClientActionDialogData {
   title: string;
@@ -139,7 +135,7 @@ export interface ClientActionDialogData {
 export class ClientActionDialogComponent implements OnInit {
   private readonly codesService = inject(CodesService);
   private readonly codeValuesService = inject(CodeValuesService);
-  private readonly businessDateService = inject(BusinessDateManagementService);
+  private readonly platformDate = inject(PlatformDateService);
   public readonly modalController = inject(ModalController);
   readonly data = input.required<ClientActionDialogData>();
 
@@ -159,17 +155,22 @@ export class ClientActionDialogComponent implements OnInit {
     this.loadBusinessDate();
   }
 
+  /**
+   * Bounds the picker at the business date, when one governs.
+   *
+   * Through `PlatformDateService` rather than reading `GET /businessdate` here: the rows behind
+   * that endpoint persist after the feature is switched off and stop being maintained, so a
+   * screen that reads them unasked bounds the picker at a stale day (#758). The service asks
+   * whether the feature is on first, and answers `null` when it is not.
+   */
   private loadBusinessDate(): void {
-    this.businessDateService.getBusinessdate().subscribe({
-      next: (dates) => {
-        const bd = dates.find((d) => d.type === 'BUSINESS_DATE');
-        if (bd && bd.date) {
-          // ion-datetime works in ISO strings, including its max bound.
-          const bDate = formatArrayDate(bd.date);
-          this.actionDate.set(bDate);
-          this.maxDate.set(bDate);
-        }
-      },
+    this.platformDate.resolveToday().subscribe(() => {
+      // ion-datetime works in ISO strings, including its max bound.
+      const businessDate = this.platformDate.getBusinessDate();
+      if (businessDate) {
+        this.actionDate.set(businessDate);
+        this.maxDate.set(businessDate);
+      }
     });
   }
 

@@ -17,16 +17,21 @@
  * under the License.
  */
 
+import { HttpContext } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
-import { BusinessDateManagementService } from '../../../api';
+import { BusinessDateManagementService, GlobalConfigurationService } from '../../../api';
 import { FineractBusinessDateApi } from './fineract-business-date.api';
+import { RETRY, SKIP_ERROR_TOAST } from '../../http/http-context';
 
 describe('FineractBusinessDateApi', () => {
   let serviceMock: {
     getBusinessdate: ReturnType<typeof vi.fn>;
+  };
+  let configurationsMock: {
+    getConfigurationsNameName: ReturnType<typeof vi.fn>;
   };
   let api: FineractBusinessDateApi;
 
@@ -34,10 +39,65 @@ describe('FineractBusinessDateApi', () => {
     serviceMock = {
       getBusinessdate: vi.fn(),
     };
+    configurationsMock = {
+      getConfigurationsNameName: vi.fn().mockReturnValue(of({ enabled: true })),
+    };
     TestBed.configureTestingModule({
-      providers: [{ provide: BusinessDateManagementService, useValue: serviceMock }],
+      providers: [
+        { provide: BusinessDateManagementService, useValue: serviceMock },
+        { provide: GlobalConfigurationService, useValue: configurationsMock },
+      ],
     });
     api = TestBed.inject(FineractBusinessDateApi);
+  });
+
+  /**
+   * Whether the feature is on has to be asked separately, because `GET /businessdate` answers
+   * either way: measured, a tenant with the feature disabled still reported
+   * `BUSINESS_DATE 2026-10-17` on the 18th, and `POST /businessdate` refused to move it with
+   * `business.date.is.not.enabled`.
+   */
+  describe('isBusinessDateEnabled', () => {
+    it('reads the tenant setting by name, quietly and without retrying', async () => {
+      const enabled = await new Promise((resolve) =>
+        api.isBusinessDateEnabled().subscribe(resolve),
+      );
+
+      const call = configurationsMock.getConfigurationsNameName.mock.lastCall as [
+        string,
+        unknown,
+        unknown,
+        { context: HttpContext },
+      ];
+      const options = call[3];
+      expect(call[0]).toBe('enable-business-date');
+      expect(enabled).toBe(true);
+
+      // Asked on behalf of a date default, with a safe answer when it fails: three retries and
+      // an error toast for a tenant setting is noise on every screen that seeds a date.
+      expect(options.context.get(SKIP_ERROR_TOAST)).toBe(true);
+      expect(options.context.get(RETRY)).toBe(0);
+    });
+
+    it('answers false for a disabled setting', async () => {
+      configurationsMock.getConfigurationsNameName.mockReturnValue(of({ enabled: false }));
+
+      expect(await new Promise((resolve) => api.isBusinessDateEnabled().subscribe(resolve))).toBe(
+        false,
+      );
+    });
+
+    it('answers false when the setting cannot be read', async () => {
+      // Not being able to read the setting is not evidence that a stored date governs, and the
+      // caller's fallback — the platform's own clock — is the safer of the two answers.
+      configurationsMock.getConfigurationsNameName.mockReturnValue(
+        throwError(() => new Error('403')),
+      );
+
+      expect(await new Promise((resolve) => api.isBusinessDateEnabled().subscribe(resolve))).toBe(
+        false,
+      );
+    });
   });
 
   it('maps business dates from generated service', async () => {

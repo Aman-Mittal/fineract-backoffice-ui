@@ -25,7 +25,8 @@ import { SavingsAccountService } from '../../api';
 import { AuthService } from '../../core/services/auth.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { provideIonicTesting } from '../../testing/ionic-testing';
@@ -108,13 +109,69 @@ describe('SavingsAccountViewComponent', () => {
   });
 
   it('should load savings details on init', () => {
+    // `associations=all` is what brings the transactions and charges with the account; the
+    // trailing arguments are the generated signature's `observe`, `reportProgress` and options —
+    // the last carrying `skipErrorToast`, because this screen reports a failure itself.
     expect(savingsServiceSpy.getSavingsaccountsAccountId).toHaveBeenCalledWith(
       789,
       false,
       undefined,
       'all',
+      'body',
+      false,
+      expect.objectContaining({ context: expect.anything() }),
     );
     expect(component.account()?.savingsProductName).toBe('Regular Savings');
+    expect(component.loadError()).toBeNull();
+    expect(component.isLoading()).toBe(false);
+  });
+
+  /**
+   * #763. A failed account read rendered the breadcrumb and an empty page: no message, no retry,
+   * no spinner, so staff could not tell a missing account from a broken request.
+   */
+  describe('when the account cannot be loaded', () => {
+    function failWith(status: number): void {
+      savingsServiceSpy.getSavingsaccountsAccountId.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status })) as never,
+      );
+      component.loadAccountData();
+      fixture.detectChanges();
+    }
+
+    it('shows the shared error state with a working retry', () => {
+      failWith(500);
+
+      expect(component.loadError()).toBe('failed');
+      const panel = fixture.nativeElement.querySelector('[data-testid="savings-load-error"]');
+      expect(panel).not.toBeNull();
+      expect(panel.getAttribute('role')).toBe('alert');
+
+      const retry = fixture.nativeElement.querySelector(
+        '[data-testid="savings-load-error-action"]',
+      );
+      expect(retry).not.toBeNull();
+
+      // And the retry actually re-reads: the count goes up when it is pressed.
+      const before = savingsServiceSpy.getSavingsaccountsAccountId.mock.calls.length;
+      retry.click();
+      expect(savingsServiceSpy.getSavingsaccountsAccountId.mock.calls.length).toBe(before + 1);
+    });
+
+    it('offers no retry for a 404 or a 403, which cannot succeed on a second try', () => {
+      failWith(404);
+      expect(component.loadError()).toBe('not-found');
+
+      failWith(403);
+      expect(component.loadError()).toBe('not-found');
+    });
+
+    it('stops showing the spinner once the read has failed', () => {
+      failWith(500);
+
+      expect(component.isLoading()).toBe(false);
+      expect(fixture.nativeElement.querySelector('[data-testid="savings-loading"]')).toBeNull();
+    });
   });
 
   it('renders the overview labels through the translation adapter', () => {

@@ -37,12 +37,19 @@ import {
   SavingsAccountTransactionData,
   SavingsAccountChargeData,
 } from '../../api';
-import { StatusBadgeComponent, RequiresPermissionDirective } from '../../shared';
+import {
+  StatusBadgeComponent,
+  RequiresPermissionDirective,
+  LoadErrorComponent,
+} from '../../shared';
+import { SpinnerComponent } from '../../ui/spinner/spinner.component';
 import { EntityNotesComponent } from '../../shared/components/entity-notes/entity-notes.component';
 import { EntityDocumentsComponent } from '../../shared/components/entity-documents/entity-documents.component';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { SavingsStandingInstructionsTabComponent } from './savings/savings-standing-instructions-tab.component';
 import { NotificationService } from '../../core/services/notification.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { skipErrorToast } from '../../core/http/http-context';
 import { DialogService } from '../../core/services/dialog.service';
 import {
   SavingsBlockDialogComponent,
@@ -110,6 +117,8 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
     EntityNotesComponent,
     EntityDocumentsComponent,
     EntityDatatablesComponent,
+    LoadErrorComponent,
+    SpinnerComponent,
     SavingsStandingInstructionsTabComponent,
     RouterModule,
     TranslatePipe,
@@ -134,7 +143,30 @@ export type SavingsTab = (typeof SAVINGS_TAB)[keyof typeof SAVINGS_TAB];
     TooltipDirective,
   ],
   template: `
-    @if (account()) {
+    @if (loadError() === 'not-found') {
+      <div class="view-container">
+        <app-load-error
+          testId="savings-load-error"
+          icon="wallet-outline"
+          [message]="'SAVINGS.NOT_FOUND' | appTranslate"
+          [actionLabel]="'COMMON.BACK' | appTranslate"
+          (action)="onBack()"
+        ></app-load-error>
+      </div>
+    } @else if (loadError() === 'failed') {
+      <div class="view-container">
+        <app-load-error
+          testId="savings-load-error"
+          [message]="'SAVINGS.LOAD_FAILED' | appTranslate"
+          [actionLabel]="'COMMON.RETRY' | appTranslate"
+          (action)="loadAccountData()"
+        ></app-load-error>
+      </div>
+    } @else if (isLoading()) {
+      <div class="view-container">
+        <app-spinner data-testid="savings-loading" />
+      </div>
+    } @else if (account()) {
       <div class="view-container">
         <!-- Header Actions Card -->
         <ion-card class="header-card">
@@ -859,6 +891,14 @@ export class SavingsAccountViewComponent implements OnInit, OnDestroy {
   private readonly i18n = inject(I18N);
 
   accountId = 0;
+  /**
+   * Why the account is not on screen: absent, or the read failed. `null` once it is loaded.
+   *
+   * Two states rather than one because the answers differ: a 404 or 403 cannot be retried, and
+   * offering Try again on one is offering a button that will fail again.
+   */
+  readonly loadError = signal<'not-found' | 'failed' | null>(null);
+  readonly isLoading = signal(true);
   readonly account = signal<SavingsAccountData | null>(null);
   readonly transactions = signal<SavingsAccountTransactionData[]>([]);
   readonly charges = signal<SavingsAccountChargeData[]>([]);
@@ -905,16 +945,35 @@ export class SavingsAccountViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Reads the account.
+   *
+   * A failure used to toast and leave the screen blank: the whole template was wrapped in
+   * `@if (account())`, so a 5xx, an outage or a dropped connection rendered the breadcrumb and
+   * nothing else, and staff could not tell a missing account from a broken request (#763).
+   *
+   * The toast is suppressed here because the page now reports the failure itself — the shared
+   * error state with a working Try again, which is what the rest of the app does since #223.
+   * A 404 or 403 gets the other branch: no retry, because repeating it cannot succeed.
+   */
   loadAccountData() {
+    this.isLoading.set(true);
     this.savingsService
-      .getSavingsaccountsAccountId(this.accountId, false, undefined, 'all')
+      .getSavingsaccountsAccountId(this.accountId, false, undefined, 'all', 'body', false, {
+        context: skipErrorToast(),
+      })
       .subscribe({
         next: (data) => {
           this.account.set(data);
           this.transactions.set(data.transactions || []);
           this.charges.set(data.charges || []);
+          this.loadError.set(null);
+          this.isLoading.set(false);
         },
-        error: () => this.notifications.error('Operation failed. Please try again.'),
+        error: (error: HttpErrorResponse) => {
+          this.loadError.set(error.status === 404 || error.status === 403 ? 'not-found' : 'failed');
+          this.isLoading.set(false);
+        },
       });
   }
 

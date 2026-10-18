@@ -30,6 +30,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { from } from 'rxjs';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
+import { LoadErrorComponent } from '../../shared';
+import { SpinnerComponent } from '../../ui/spinner/spinner.component';
+import { HttpErrorResponse } from '@angular/common/http';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { SavingsStandingInstructionsTabComponent } from './savings/savings-standing-instructions-tab.component';
 import { DEPOSIT_ACCOUNT_API, I18N, TranslatePipe } from '../../core/adapters';
@@ -111,9 +114,34 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
     IonList,
     IonItem,
     RequiresPermissionDirective,
+    LoadErrorComponent,
+    SpinnerComponent,
   ],
   template: `
-    @if (deposit()) {
+    @if (loadError() === 'not-found') {
+      <div class="view-container">
+        <app-load-error
+          testId="deposit-load-error"
+          icon="wallet-outline"
+          [message]="'DEPOSITS.NOT_FOUND' | appTranslate"
+          [actionLabel]="'COMMON.BACK' | appTranslate"
+          (action)="onBack()"
+        ></app-load-error>
+      </div>
+    } @else if (loadError() === 'failed') {
+      <div class="view-container">
+        <app-load-error
+          testId="deposit-load-error"
+          [message]="'DEPOSITS.LOAD_FAILED' | appTranslate"
+          [actionLabel]="'COMMON.RETRY' | appTranslate"
+          (action)="loadData()"
+        ></app-load-error>
+      </div>
+    } @else if (isLoading()) {
+      <div class="view-container">
+        <app-spinner data-testid="deposit-loading" />
+      </div>
+    } @else if (deposit()) {
       <div class="view-container">
         <ion-card class="header-card">
           <ion-card-content class="header-content">
@@ -750,7 +778,14 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   readonly chartRows = signal<readonly DepositChartRow[]>([]);
   readonly expandedSlabIndex = signal<number | null>(null);
   readonly isLoading = signal(true);
-  readonly hasError = signal(false);
+  /**
+   * Why the account is not on screen: absent, or the read failed. `null` once it is loaded.
+   *
+   * This replaces a `hasError` boolean that nothing rendered — the template was wrapped in
+   * `@if (deposit())`, so a failed read showed the breadcrumb and an empty page, which is the
+   * savings view's #763 on this screen. Two states, because a 404 or 403 cannot be retried.
+   */
+  readonly loadError = signal<'not-found' | 'failed' | null>(null);
 
   readonly transactionColumns = ['id', 'date', 'type', 'amount', 'runningBalance', 'actions'];
   readonly chargeColumns = ['name', 'amount', 'outstanding'];
@@ -788,13 +823,17 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
         this.deposit.set(account);
         this.charges.set([...account.charges]);
         this.chartRows.set(account.chartRows);
-        this.hasError.set(false);
+        this.loadError.set(null);
         this.isLoading.set(false);
         this.loadTransactions();
         this.loadChargeOptions();
       },
-      error: () => {
-        this.hasError.set(true);
+      // The interceptor's toast still fires here, unlike on the savings view: this read goes
+      // through `DEPOSIT_ACCOUNT_API`, which takes no per-request context, and suppressing it
+      // inside the adapter would also silence the deposit *form*, which reports nothing of its
+      // own. A toast beside the panel is a duplicate report; a silent form is a blank screen.
+      error: (error: HttpErrorResponse) => {
+        this.loadError.set(error.status === 404 || error.status === 403 ? 'not-found' : 'failed');
         this.isLoading.set(false);
       },
     });
