@@ -85,7 +85,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -123,7 +123,7 @@ jobs:
         run: npx playwright test --project=mobile --reporter=list
 
       - name: Upload report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-mobile
@@ -147,7 +147,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -198,7 +198,7 @@ jobs:
         run: npx playwright test --project=mocked --shard="$SHARD_INDEX/$SHARD_TOTAL" --reporter=blob,list
 
       - name: Upload blob report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-blob-mocked-${{ matrix.shard }}
@@ -220,7 +220,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -229,7 +229,7 @@ jobs:
         run: npm ci
 
       - name: Download blob reports
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: all-blob-reports
           pattern: playwright-blob-mocked-*
@@ -244,7 +244,7 @@ jobs:
         run: npx playwright merge-reports --reporter=list,html,json ./all-blob-reports
 
       - name: Upload merged report and videos
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-report-mocked
@@ -278,7 +278,7 @@ jobs:
       # `workflow_run` workflow running from the default branch, with a writable token and
       # none of this job's untrusted checkout, posts it. See DOCS/CI_CHECKS.md.
       - name: Upload the summary for the commenter
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: pr-comment-e2e-mocked
@@ -297,7 +297,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -363,7 +363,7 @@ jobs:
             logs --tail=100 fineract-backend mailpit
 
       - name: Upload report and videos
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: playwright-report-two-factor
@@ -391,7 +391,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -494,7 +494,7 @@ jobs:
           docker compose -f deploy/docker-compose-e2e.yml logs --tail=100 fineract-backend
 
       - name: Upload blob report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-blob-backend-${{ matrix.shard }}
@@ -506,7 +506,7 @@ jobs:
       # shard and are what a failure is actually diagnosed from, whereas the merged report is
       # what a passing run is read from.
       - name: Upload videos and traces
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: playwright-artifacts-backend-${{ matrix.shard }}
@@ -528,7 +528,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -537,7 +537,7 @@ jobs:
         run: npm ci
 
       - name: Download blob reports
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: all-blob-reports
           pattern: playwright-blob-backend-*
@@ -552,7 +552,7 @@ jobs:
         run: npx playwright merge-reports --reporter=list,html,json ./all-blob-reports
 
       - name: Upload merged report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-report-backend
@@ -589,7 +589,7 @@ jobs:
       # `workflow_run` workflow running from the default branch, with a writable token and
       # none of this job's untrusted checkout, posts it. See DOCS/CI_CHECKS.md.
       - name: Upload the summary for the commenter
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: pr-comment-e2e-backend
