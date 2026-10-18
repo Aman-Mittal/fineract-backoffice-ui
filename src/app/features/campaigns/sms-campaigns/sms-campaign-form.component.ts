@@ -21,8 +21,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { I18N, TranslatePipe } from '../../../core/adapters';
-import { DefaultService, CommandWrapper, SmsCampaignData } from '../../../api';
+import {
+  DefaultService,
+  SmsCampaignCreationDto,
+  SmsCampaignData,
+  SmsCampaignUpdateDto,
+} from '../../../api';
 import { NotificationService } from '../../../core/services/notification.service';
+import { FINERACT_DATE_FORMAT, FINERACT_LOCALE } from '../../../core/utils/date-formatter';
 import {
   IonButton,
   IonCard,
@@ -250,22 +256,33 @@ export class SmsCampaignFormComponent implements OnInit {
       return;
     }
 
-    const payload = {
-      campaignName: this.model.campaignName,
-      campaignType: this.model.campaignType,
-      triggerType: this.model.triggerType,
-      runOnDayOfMonth: this.model.runOnDayOfMonth,
+    // `SmsCampaignCreationDto` is what the platform documents, and it names two fields this
+    // form does not collect: `runReportId` and `paramValue`. Both are mandatory — measured,
+    // the payload below is refused with `validation.msg.sms.runReportId.cannot.be.blank` and
+    // `validation.msg.sms.paramValue.cannot.be.blank` — so creating a campaign from this screen
+    // cannot succeed until the form asks for a report and its parameters. That is a gap in the
+    // form rather than in this request, and it is left for its own change rather than guessed
+    // at here; `CommandWrapper`, which used to carry this payload untyped, is gone from the
+    // spec, which is how the gap became visible.
+    //
+    // `runOnDayOfMonth` and `parameterizedMessage` are dropped with it: neither is in the
+    // documented request, and the request was refused before reaching them.
+    const payload: SmsCampaignCreationDto & SmsCampaignUpdateDto = {
+      campaignName: this.model.campaignName ?? undefined,
+      campaignType: this.model.campaignType ?? undefined,
+      triggerType: this.model.triggerType ?? undefined,
       message: this.model.message,
-      parameterizedMessage: this.model.parameterizedMessage,
+      locale: FINERACT_LOCALE,
+      dateFormat: FINERACT_DATE_FORMAT,
     };
 
     if (this.isEditMode && this.campaignId !== null) {
-      this.api.putSmscampaignsCampaignId(this.campaignId, payload as CommandWrapper).subscribe({
+      this.api.putSmscampaignsCampaignId(this.campaignId, payload).subscribe({
         next: () => this.onSuccess(),
         error: () => this.onError(),
       });
     } else {
-      this.api.postSmscampaigns(payload as CommandWrapper).subscribe({
+      this.api.postSmscampaigns(payload).subscribe({
         next: () => this.onSuccess(),
         error: () => this.onError(),
       });

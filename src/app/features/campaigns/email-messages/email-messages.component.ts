@@ -17,6 +17,8 @@
  * under the License.
  */
 import { Component, OnInit, signal, inject } from '@angular/core';
+import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
+import { FINERACT_LOCALE } from '../../../core/utils/date-formatter';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../core/adapters';
@@ -68,6 +70,7 @@ export type EmailTab = (typeof EMAIL_TAB)[keyof typeof EMAIL_TAB];
   selector: 'app-email-messages',
   standalone: true,
   imports: [
+    ClientSearchComponent,
     CommonModule,
     FormsModule,
     CdkTableModule,
@@ -117,17 +120,19 @@ export type EmailTab = (typeof EMAIL_TAB)[keyof typeof EMAIL_TAB];
 
               @if (showCreateForm()) {
                 <div class="create-form">
-                  <ion-item fill="outline" class="full-width">
-                    <ion-label position="stacked">{{
-                      'EMAIL_MESSAGES.TO' | appTranslate
-                    }}</ion-label>
-                    <ion-input
-                      [attr.aria-label]="'EMAIL_MESSAGES.TO' | appTranslate"
-                      type="email"
-                      [ngModel]="newTo()"
-                      (ngModelChange)="newTo.set($event)"
-                    ></ion-input>
-                  </ion-item>
+                  <!--
+                    The recipient is a client, not an address: the platform reads the email
+                    address off the client's record and refuses the send when they have none
+                    ("The group, client or staff provided has no email address"). A free-text
+                    address had nowhere to go in the request.
+                  -->
+                  <app-client-search
+                    class="full-width"
+                    [label]="'EMAIL_MESSAGES.TO' | appTranslate"
+                    [required]="true"
+                    [initialClientId]="newClientId()"
+                    (clientSelected)="newClientId.set($event)"
+                  ></app-client-search>
                   <ion-item fill="outline" class="full-width">
                     <ion-label position="stacked">{{
                       'EMAIL_MESSAGES.SUBJECT' | appTranslate
@@ -347,7 +352,8 @@ export class EmailMessagesComponent implements OnInit {
   readonly configJson = signal('');
 
   readonly showCreateForm = signal(false);
-  readonly newTo = signal('');
+  /** The client the message is addressed to; the platform resolves their email itself. */
+  readonly newClientId = signal<number | null>(null);
   readonly newSubject = signal('');
   readonly newBody = signal('');
 
@@ -427,18 +433,37 @@ export class EmailMessagesComponent implements OnInit {
     });
   }
 
+  /**
+   * Sends a message.
+   *
+   * The body is the request the platform documents — `clientId`, `emailSubject`,
+   * `emailMessage` — and it is sent as an object. This used to post
+   * `JSON.stringify({ to, subject, body })`, which the platform refused twice over: a JSON
+   * string where an object belongs ("Expected BEGIN_OBJECT but was STRING"), carrying three
+   * field names it does not accept. Measured against a running Fineract; creating a message
+   * from this screen could never have worked.
+   */
   createMessage(): void {
-    const body = { to: this.newTo(), subject: this.newSubject(), body: this.newBody() };
-    this.defaultService.postEmail(JSON.stringify(body)).subscribe({
-      next: () => {
-        this.notifications.success(SUCCESS_MSG);
-        this.newTo.set('');
-        this.newSubject.set('');
-        this.newBody.set('');
-        this.showCreateForm.set(false);
-        this.loadMessages();
-      },
-    });
+    const clientId = this.newClientId();
+    if (clientId === null) return;
+
+    this.defaultService
+      .postEmail({
+        clientId,
+        emailSubject: this.newSubject(),
+        emailMessage: this.newBody(),
+        locale: FINERACT_LOCALE,
+      })
+      .subscribe({
+        next: () => {
+          this.notifications.success(SUCCESS_MSG);
+          this.newClientId.set(null);
+          this.newSubject.set('');
+          this.newBody.set('');
+          this.showCreateForm.set(false);
+          this.loadMessages();
+        },
+      });
   }
 
   deleteMessage(id: number): void {
