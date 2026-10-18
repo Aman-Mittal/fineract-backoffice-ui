@@ -382,6 +382,21 @@ describe('DepositAccountViewComponent', () => {
       expect(deposits['transactionCommand']).not.toHaveBeenCalled();
     });
 
+    it('formats a row date, which still arrives in Fineract array form', async () => {
+      await setup(account(ACTIVE), [{ ...deposit, date: [2026, 10, 18] }]);
+
+      // The account's own dates reach this screen as ISO strings, because the adapter converts
+      // them. A transaction row does not — it is an unmodelled payload record, deliberately, so
+      // the table keeps formatting what the platform sent. A formatter that took only the ISO
+      // form threw `date.split is not a function` once per row, which rendered the row empty
+      // and took its undo button with it.
+      expect(component.formatDate([2026, 10, 18])).not.toBe('-');
+      expect(component.formatDate('2027-10-17')).not.toBe('-');
+      expect(component.formatDate(undefined)).toBe('-');
+      expect(component.formatDate('')).toBe('-');
+      expect(component.formatDate('not a date')).toBe('-');
+    });
+
     it('leaves the account on screen when the transaction read fails', async () => {
       await setup(account(ACTIVE));
       deposits['transactions'].mockReturnValue(throwError(() => new Error('unavailable')) as never);
