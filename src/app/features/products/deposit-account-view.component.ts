@@ -33,7 +33,12 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { SavingsStandingInstructionsTabComponent } from './savings/savings-standing-instructions-tab.component';
 import { DEPOSIT_ACCOUNT_API, I18N, TranslatePipe } from '../../core/adapters';
-import type { DepositAccount, DepositAccountCharge, DepositType } from '../../core/adapters';
+import type {
+  DepositAccount,
+  DepositAccountCharge,
+  DepositChartRow,
+  DepositType,
+} from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import { DialogService } from '../../core/services/dialog.service';
 import {
@@ -44,7 +49,6 @@ import {
 import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
-  formatArrayDate,
   formatDateToFineract,
   toIsoDate,
 } from '../../core/utils/date-formatter';
@@ -64,37 +68,6 @@ import {
   IonSegment,
   IonSegmentButton,
 } from '@ionic/angular/standalone';
-
-/**
- * One row of a deposit product's interest rate chart.
- *
- * Read off `accountChart.chartSlabs` on the same `associations=all` response
- * `loadCharges` already fetches for the charges tab — no separate request. The generated
- * `GetFixedDepositAccountsChartSlabs`/`GetRecurringDepositAccountsChartSlabs` models describe
- * only `annualInterestRate`, `currency`, `fromPeriod`, `id`, `periodType` and `toPeriod`; the
- * amount range, description and incentives fields the real response carries (and web-app's own
- * `interest-rate-chart-tab` renders) aren't in either generated model, so this is typed locally
- * from what is actually read off the wire rather than forced through the incomplete type.
- */
-interface ChartSlabIncentive {
-  entityType?: { value?: string };
-  attributeName?: { value?: string };
-  conditionType?: { value?: string };
-  attributeValueDesc?: string;
-  incentiveType?: { value?: string };
-  amount?: number;
-}
-
-interface ChartSlab {
-  fromPeriod?: number;
-  toPeriod?: number;
-  periodType?: { value?: string };
-  amountRangeFrom?: number;
-  amountRangeTo?: number;
-  annualInterestRate?: number;
-  description?: string;
-  incentives?: ChartSlabIncentive[];
-}
 
 /**
  * The tabs on this screen, named.
@@ -140,7 +113,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
     RequiresPermissionDirective,
   ],
   template: `
-    @if (account()) {
+    @if (deposit()) {
       <div class="view-container">
         <ion-card class="header-card">
           <ion-card-content class="header-content">
@@ -149,11 +122,11 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                 <ion-icon name="wallet-outline"></ion-icon>
               </div>
               <div class="title-details">
-                <h2>{{ account()?.['productName'] }}</h2>
+                <h2>{{ deposit()?.productName }}</h2>
                 <div class="subtitle-row">
-                  <span class="account-no">#{{ account()?.['accountNo'] }}</span>
+                  <span class="account-no">#{{ deposit()?.accountNo }}</span>
                   <span class="divider">|</span>
-                  <span class="client-name">Client: {{ account()?.['clientName'] }}</span>
+                  <span class="client-name">Client: {{ deposit()?.clientName }}</span>
                   <app-status-badge
                     data-testid="deposit-status"
                     [status]="getStatusValue()"
@@ -299,7 +272,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                   </div>
                   <div class="detail-item">
                     <span class="label">{{ 'COMMON.INTEREST_RATE' | appTranslate }}</span>
-                    <span class="value">{{ account()?.['nominalAnnualInterestRate'] }}%</span>
+                    <span class="value">{{ deposit()?.nominalAnnualInterestRate }}%</span>
                   </div>
 
                   <!-- The figures that define a term deposit. Each is rendered only when the
@@ -327,7 +300,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                       >
                     </div>
                   }
-                  @if (account()?.['maturityDate']) {
+                  @if (deposit()?.maturityDate) {
                     <div class="detail-item" data-testid="deposit-maturity-date">
                       <span class="label">{{ 'DEPOSITS.MATURITY_DATE' | appTranslate }}</span>
                       <span class="value">{{ getMaturityDate() }}</span>
@@ -339,7 +312,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                       <span class="value">{{ getLinkedAccountNo() }}</span>
                     </div>
                   }
-                  @if (account()?.['transferInterestToSavings']) {
+                  @if (deposit()?.transferInterestToSavings) {
                     <div class="detail-item" data-testid="deposit-transfer-interest">
                       <span class="label">{{
                         'DEPOSITS.TRANSFER_INTEREST_TO_SAVINGS' | appTranslate
@@ -347,10 +320,10 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                       <span class="value">{{ 'COMMON.YES' | appTranslate }}</span>
                     </div>
                   }
-                  @if (account()?.['minRequiredOpeningBalance'] !== undefined) {
+                  @if (deposit()?.minRequiredOpeningBalance !== null) {
                     <div class="detail-item">
                       <span class="label">{{ 'SAVINGS.MIN_BALANCE_REQUIRED' | appTranslate }}</span>
-                      <span class="value">{{ account()?.['minRequiredOpeningBalance'] }}</span>
+                      <span class="value">{{ deposit()?.minRequiredOpeningBalance }}</span>
                     </div>
                   }
                 </ion-card-content>
@@ -498,7 +471,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
           <div class="tab-content">
             <ion-card class="table-card">
               <ion-card-content>
-                @if (chartSlabs().length > 0) {
+                @if (chartRows().length > 0) {
                   <table class="full-width-table" data-testid="deposit-interest-rate-chart">
                     <thead>
                       <tr>
@@ -513,10 +486,10 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                       </tr>
                     </thead>
                     <tbody>
-                      @for (slab of chartSlabs(); track $index) {
+                      @for (slab of chartRows(); track $index) {
                         <tr>
                           <td>
-                            {{ slab.fromPeriod }} - {{ slab.toPeriod }} {{ slab.periodType?.value }}
+                            {{ slab.fromPeriod }} - {{ slab.toPeriod }} {{ slab.periodTypeLabel }}
                           </td>
                           <td>
                             {{ slab.amountRangeFrom | number: '1.2-2' }} -
@@ -525,7 +498,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                           <td>{{ slab.annualInterestRate | number: '1.2-2' }} %</td>
                           <td>{{ slab.description }}</td>
                           <td>
-                            @if (slab.incentives?.length) {
+                            @if (slab.incentives.length) {
                               <ion-button
                                 fill="clear"
                                 size="small"
@@ -542,7 +515,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                             }
                           </td>
                         </tr>
-                        @if (expandedSlabIndex() === $index && slab.incentives?.length) {
+                        @if (expandedSlabIndex() === $index && slab.incentives.length) {
                           <tr>
                             <td colspan="5">
                               <h4>{{ 'INTEREST_RATE_CHARTS.INCENTIVES' | appTranslate }}</h4>
@@ -568,11 +541,11 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                                 <tbody>
                                   @for (incentive of slab.incentives; track $index) {
                                     <tr>
-                                      <td>{{ incentive.entityType?.value }}</td>
-                                      <td>{{ incentive.attributeName?.value }}</td>
-                                      <td>{{ incentive.conditionType?.value }}</td>
-                                      <td>{{ incentive.attributeValueDesc }}</td>
-                                      <td>{{ incentive.incentiveType?.value }}</td>
+                                      <td>{{ incentive.entityType }}</td>
+                                      <td>{{ incentive.attributeName }}</td>
+                                      <td>{{ incentive.conditionType }}</td>
+                                      <td>{{ incentive.attributeValue }}</td>
+                                      <td>{{ incentive.incentiveType }}</td>
                                       <td>{{ incentive.amount | number: '1.2-2' }}</td>
                                     </tr>
                                   }
@@ -748,16 +721,15 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
 
   accountId = 0;
   isRD = false;
-  readonly account = signal<Record<string, unknown> | null>(null);
   readonly transactions = signal<Record<string, unknown>[]>([]);
   readonly charges = signal<DepositAccountCharge[]>([]);
 
   /**
-   * The account as the adapter models it.
+   * The account, as the adapter models it — the whole of what this screen knows about it.
    *
-   * Held beside `account()` while the template is migrated off the payload: the figures the
-   * screen reasons about come from here, and the untyped record stays only for the bindings not
-   * yet converted. See `DepositAccount`.
+   * There used to be a second signal beside this one holding the payload itself, which the
+   * template read by string. That is how the heading came to bind `productName`, a field a
+   * deposit account does not send. See `DepositAccount`.
    */
   readonly deposit = signal<DepositAccount | null>(null);
 
@@ -775,7 +747,7 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * disabled rather than opening a dialog with an empty list.
    */
   readonly chargeOptions = signal<{ id?: number; name?: string }[]>([]);
-  readonly chartSlabs = signal<ChartSlab[]>([]);
+  readonly chartRows = signal<readonly DepositChartRow[]>([]);
   readonly expandedSlabIndex = signal<number | null>(null);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
@@ -814,14 +786,8 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
     this.deposits.get(this.depositType, this.accountId).subscribe({
       next: (account) => {
         this.deposit.set(account);
-        // The screen still binds most of its template through the payload — see `DepositAccount`
-        // on the migration debt this names.
-        this.account.set(account.raw);
         this.charges.set([...account.charges]);
-        this.chartSlabs.set(
-          ((account.raw['accountChart'] as { chartSlabs?: ChartSlab[] } | undefined)?.chartSlabs ??
-            []) as ChartSlab[],
-        );
+        this.chartRows.set(account.chartRows);
         this.hasError.set(false);
         this.isLoading.set(false);
         this.loadTransactions();
@@ -972,13 +938,11 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   }
 
   getStatusValue(): string {
-    const status = this.account()?.['status'] as Record<string, unknown>;
-    return (status?.['value'] as string) || '';
+    return this.deposit()?.status.value ?? '';
   }
 
   getCurrencySymbol(): string {
-    const currency = this.account()?.['currency'] as Record<string, unknown>;
-    return (currency?.['displaySymbol'] as string) || '';
+    return this.deposit()?.currencySymbol ?? '';
   }
 
   /**
@@ -994,22 +958,20 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * this component's shape, and a payload that does carry it should not be ignored.
    */
   getAccountBalance(): number | null {
-    const summary = this.account()?.['summary'] as Record<string, unknown> | undefined;
-    const balance = summary?.['accountBalance'] ?? this.account()?.['accountBalance'];
-    return balance != null ? Number(balance) : null;
+    return this.deposit()?.balance ?? null;
   }
 
   /** The figures that define a term deposit, each absent from the view before #764. */
   getDepositAmount(): number | null {
-    return this.numberField('depositAmount');
+    return this.deposit()?.depositAmount ?? null;
   }
 
   getMaturityAmount(): number | null {
-    return this.numberField('maturityAmount');
+    return this.deposit()?.maturityAmount ?? null;
   }
 
   getMaturityDate(): string {
-    return this.formatDate(this.account()?.['maturityDate']);
+    return this.formatDate(this.deposit()?.maturityDate);
   }
 
   /**
@@ -1020,37 +982,35 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * conversation with a customer.
    */
   getDepositTerm(): string {
-    const period = this.numberField('depositPeriod');
-    if (period === null) return '';
-    const frequency = this.account()?.['depositPeriodFrequency'] as
-      Record<string, unknown> | undefined;
-    const unit = (frequency?.['value'] as string) ?? '';
+    const period = this.deposit()?.depositPeriod;
+    if (period === null || period === undefined) return '';
+    const unit = this.deposit()?.depositPeriodUnit ?? '';
     return unit ? `${period} ${unit}` : String(period);
   }
 
   /** The savings account this deposit draws from, if one was linked. See the form for why. */
   getLinkedAccountNo(): string {
-    const linked = this.account()?.['linkedAccount'] as Record<string, unknown> | undefined;
-    return (linked?.['accountNo'] as string) ?? '';
-  }
-
-  private numberField(field: string): number | null {
-    const value = this.account()?.[field];
-    return value != null ? Number(value) : null;
+    return this.deposit()?.linkedAccountNo ?? '';
   }
 
   getActivationDate(): string {
-    const timeline = this.account()?.['timeline'] as Record<string, unknown>;
-    return this.formatDate(timeline?.['activatedOnDate']);
+    return this.formatDate(this.deposit()?.timeline.activatedOnDate);
   }
 
-  readonly clientId = computed(() => this.account()?.['clientId'] as number | undefined);
+  readonly clientId = computed(() => this.deposit()?.clientId ?? undefined);
 
-  formatDate(date: unknown): string {
-    if (Array.isArray(date)) {
-      return new Date(date[0], date[1] - 1, date[2]).toLocaleDateString();
-    }
-    return '-';
+  /**
+   * An ISO date as the browser's locale writes it, or `'-'`.
+   *
+   * The parts are read out and handed to the local-time constructor rather than to
+   * `new Date('2026-10-18')`, which ECMAScript reads as UTC midnight — west of Greenwich that
+   * renders as the day before.
+   */
+  formatDate(date: string | null | undefined): string {
+    if (!date) return '-';
+    const [year, month, day] = date.split('-').map(Number);
+    if (!year || !month || !day) return '-';
+    return new Date(year, month - 1, day).toLocaleDateString();
   }
 
   // --- Lifecycle ------------------------------------------------------------------------------
@@ -1060,14 +1020,9 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * savings, and the actions gate on those rather than on `status.value` — the value is the
    * server's English label and moves with its locale.
    */
-  private statusFlag(flag: string): boolean {
-    const status = this.account()?.['status'] as Record<string, unknown> | undefined;
-    return status?.[flag] === true;
-  }
-
-  readonly isPending = computed(() => this.statusFlag('submittedAndPendingApproval'));
-  readonly isApproved = computed(() => this.statusFlag('approved'));
-  readonly isActive = computed(() => this.statusFlag('active'));
+  readonly isPending = computed(() => this.deposit()?.status.submittedAndPendingApproval === true);
+  readonly isApproved = computed(() => this.deposit()?.status.approved === true);
+  readonly isActive = computed(() => this.deposit()?.status.active === true);
 
   /**
    * The date to send for a command, never earlier than the one the platform already stamped.
@@ -1083,24 +1038,17 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * dates it spells, and parsing them back into `Date` would reintroduce the timezone this is
    * here to keep out.
    */
-  private commandDateIso(floor: unknown): string {
+  private commandDateIso(floor: string | null): string {
     const today = toIsoDate(new Date());
-    const stamped = Array.isArray(floor) && floor.length >= 3 ? formatArrayDate(floor) : '-';
-    return stamped !== '-' && stamped > today ? stamped : today;
+    return floor !== null && floor > today ? floor : today;
   }
 
-  private commandDate(floor: unknown): string {
+  private commandDate(floor: string | null): string {
     return formatDateToFineract(this.commandDateIso(floor));
   }
 
-  /** A date the platform stamped on this account, by timeline key. */
-  private timelineDate(key: string): unknown {
-    const timeline = this.account()?.['timeline'] as Record<string, unknown> | undefined;
-    return timeline?.[key];
-  }
-
   /** `locale` and `dateFormat` belong with a date, and only with one — see `onUndoApproval`. */
-  private dated(field: string, floor: unknown): Record<string, unknown> {
+  private dated(field: string, floor: string | null): Record<string, unknown> {
     return {
       [field]: this.commandDate(floor),
       dateFormat: FINERACT_DATE_FORMAT,
@@ -1110,7 +1058,7 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
 
   onApprove(): void {
     this.confirmCommand('APPROVE', 'approve', () =>
-      this.dated('approvedOnDate', this.timelineDate('submittedOnDate')),
+      this.dated('approvedOnDate', this.deposit()?.timeline.submittedOnDate ?? null),
     );
   }
 
@@ -1118,20 +1066,20 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
     this.confirmCommand(
       'REJECT',
       'reject',
-      () => this.dated('rejectedOnDate', this.timelineDate('submittedOnDate')),
+      () => this.dated('rejectedOnDate', this.deposit()?.timeline.submittedOnDate ?? null),
       true,
     );
   }
 
   onWithdrawnByApplicant(): void {
     this.confirmCommand('WITHDRAWN_BY_CLIENT', 'withdrawnByApplicant', () =>
-      this.dated('withdrawnOnDate', this.timelineDate('submittedOnDate')),
+      this.dated('withdrawnOnDate', this.deposit()?.timeline.submittedOnDate ?? null),
     );
   }
 
   onActivate(): void {
     this.confirmCommand('ACTIVATE', 'activate', () =>
-      this.dated('activatedOnDate', this.timelineDate('approvedOnDate')),
+      this.dated('activatedOnDate', this.deposit()?.timeline.approvedOnDate ?? null),
     );
   }
 
@@ -1170,7 +1118,7 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   }
 
   private async closeAccount(premature: boolean): Promise<void> {
-    const activatedOn = this.timelineDate('activatedOnDate');
+    const activatedOn = this.deposit()?.timeline.activatedOnDate ?? null;
     // ISO for the dialog, which prices the closure; the command itself carries the Fineract
     // spelling of the same day.
     const closedOnIso = this.commandDateIso(activatedOn);

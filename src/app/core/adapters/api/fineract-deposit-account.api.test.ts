@@ -23,6 +23,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import {
   FineractDepositAccountApi,
+  mapChartRows,
   mapDepositAccount,
   mapRateSlabs,
 } from './fineract-deposit-account.api';
@@ -41,6 +42,7 @@ import {
  * | `savingsProductId`                     | absent; a deposit answers `depositProductId`      |
  * | template's `nominalAnnualInterestRate` | sent as `0`; the rate is in the chart's slabs     |
  * | template's `depositAmount`             | absent; it is on the *product*                    |
+ * | `productName`                          | absent; a deposit answers `depositProductName`    |
  *
  * The fixtures below are the real payloads. One that invented `accountBalance` would pass
  * against the code these replaced, which is the whole reason the boundary is worth having.
@@ -62,6 +64,24 @@ describe('mapDepositAccount', () => {
     transferInterestToSavings: true,
     summary: { accountBalance: 5000 },
     charges: [{ id: 3, name: 'Withdrawal Fee', amount: 5, amountOutstanding: 5 }],
+    // As measured: the product's name arrives under `depositProductName`, and `productName` —
+    // which the account view used to bind — is not a key of the response at all.
+    depositProductName: 'E2E FD 12m',
+    clientName: 'Dep Probe',
+    status: {
+      id: 300,
+      code: 'savingsAccountStatusType.active',
+      value: 'Active',
+      submittedAndPendingApproval: false,
+      approved: false,
+      active: true,
+    },
+    currency: { code: 'USD', displaySymbol: '$', decimalPlaces: 2 },
+    timeline: {
+      submittedOnDate: [2026, 10, 18],
+      approvedOnDate: [2026, 10, 18],
+      activatedOnDate: [2026, 10, 18],
+    },
   };
 
   it('reads the balance from summary, which is the only place it is', () => {
@@ -125,9 +145,133 @@ describe('mapDepositAccount', () => {
     expect(mapDepositAccount({ id: 7 }).charges).toEqual([]);
   });
 
-  it('keeps the payload for the bindings not yet migrated', () => {
-    // Named debt, not a convenience. See `DepositAccount`.
-    expect(mapDepositAccount(ACTIVE).raw).toBe(ACTIVE as unknown as Record<string, unknown>);
+  it('reads the product name from depositProductName, which is where it is', () => {
+    // The account view bound `productName` and so showed no heading on any deposit account.
+    // The payload has no such key — asserted, because that absence is the bug.
+    expect('productName' in ACTIVE).toBe(false);
+    expect(mapDepositAccount(ACTIVE).productName).toBe('E2E FD 12m');
+  });
+
+  it('answers an empty name rather than undefined, so a heading renders blank not "undefined"', () => {
+    expect(mapDepositAccount({ id: 7 }).productName).toBe('');
+    expect(mapDepositAccount({ id: 7 }).clientName).toBe('');
+  });
+
+  it('carries the status flags the actions gate on, and the label they do not', () => {
+    const status = mapDepositAccount(ACTIVE).status;
+    expect(status).toEqual({
+      value: 'Active',
+      submittedAndPendingApproval: false,
+      approved: false,
+      active: true,
+    });
+  });
+
+  it('reads an absent status as no flags set, rather than throwing on the screen', () => {
+    expect(mapDepositAccount({ id: 7 }).status.active).toBe(false);
+    expect(mapDepositAccount({ id: 7 }).status.value).toBe('');
+  });
+
+  it('converts every stamped date out of Fineract array form', () => {
+    // The commands are floored on these, and a floor in `[y, m, d]` form compares as an array.
+    expect(mapDepositAccount(ACTIVE).timeline).toEqual({
+      submittedOnDate: '2026-10-18',
+      approvedOnDate: '2026-10-18',
+      activatedOnDate: '2026-10-18',
+    });
+  });
+
+  it('answers null for a date the account has not reached yet', () => {
+    const pending = mapDepositAccount({ timeline: { submittedOnDate: [2026, 10, 18] } });
+    expect(pending.timeline.submittedOnDate).toBe('2026-10-18');
+    expect(pending.timeline.approvedOnDate).toBeNull();
+    expect(pending.timeline.activatedOnDate).toBeNull();
+  });
+
+  it('takes the display symbol, which is what the screens print beside a figure', () => {
+    expect(mapDepositAccount(ACTIVE).currencySymbol).toBe('$');
+    expect(mapDepositAccount({ id: 7 }).currencySymbol).toBe('');
+  });
+
+  it('answers null for minRequiredOpeningBalance, a savings field a deposit omits', () => {
+    // Measured: the key is absent from a term deposit response. Mapped to 0 it would render as
+    // a requirement of nothing rather than as not applicable.
+    expect('minRequiredOpeningBalance' in ACTIVE).toBe(false);
+    expect(mapDepositAccount(ACTIVE).minRequiredOpeningBalance).toBeNull();
+    expect(mapDepositAccount({ minRequiredOpeningBalance: 0 }).minRequiredOpeningBalance).toBe(0);
+  });
+});
+
+/**
+ * The chart tab's rows.
+ *
+ * A displayed slab carries more than a submitted one — the amount band, the description and the
+ * incentives, none of which the generated slab models declare. Flattened here so the tab prints
+ * labels rather than reaching through `periodType.value` in a template.
+ */
+describe('mapChartRows', () => {
+  /** One slab of `accountChart.chartSlabs`, as measured, with an incentive added. */
+  const SLAB = {
+    id: 51,
+    description: 'Base rate',
+    periodType: { id: 2, code: 'periodFrequencyType.months', value: 'Months' },
+    fromPeriod: 1,
+    toPeriod: 60,
+    annualInterestRate: 5,
+    amountRangeFrom: 0,
+    amountRangeTo: 10_000,
+    currency: { code: 'USD', displaySymbol: '$' },
+    incentives: [
+      {
+        entityType: { id: 2, value: 'Customer' },
+        attributeName: { id: 2, value: 'Gender' },
+        conditionType: { id: 2, value: 'Equals' },
+        attributeValueDesc: 'Female',
+        incentiveType: { id: 2, value: 'Rate' },
+        amount: 0.5,
+      },
+    ],
+  };
+
+  it('flattens a slab and its incentives down to the labels the tab prints', () => {
+    expect(mapChartRows([SLAB])).toEqual([
+      {
+        fromPeriod: 1,
+        toPeriod: 60,
+        periodTypeLabel: 'Months',
+        amountRangeFrom: 0,
+        amountRangeTo: 10_000,
+        annualInterestRate: 5,
+        description: 'Base rate',
+        incentives: [
+          {
+            entityType: 'Customer',
+            attributeName: 'Gender',
+            conditionType: 'Equals',
+            attributeValue: 'Female',
+            incentiveType: 'Rate',
+            amount: 0.5,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('keeps an absent amount band null, so it reads as blank rather than as zero to zero', () => {
+    const [row] = mapChartRows([{ fromPeriod: 1, toPeriod: 12, annualInterestRate: 4 }]);
+    expect(row.amountRangeFrom).toBeNull();
+    expect(row.amountRangeTo).toBeNull();
+    expect(row.incentives).toEqual([]);
+    expect(row.periodTypeLabel).toBe('');
+  });
+
+  it('answers an empty list for an account with no chart', () => {
+    expect(mapChartRows(undefined)).toEqual([]);
+    expect(mapDepositAccount({ id: 7 }).chartRows).toEqual([]);
+  });
+
+  it('reads the rows off the account read, which already asked for associations', () => {
+    expect(mapDepositAccount({ accountChart: { chartSlabs: [SLAB] } }).chartRows).toHaveLength(1);
   });
 });
 

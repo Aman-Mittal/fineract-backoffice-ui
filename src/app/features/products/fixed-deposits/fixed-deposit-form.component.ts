@@ -43,7 +43,6 @@ import {
   IonNote,
 } from '@ionic/angular/standalone';
 import {
-  formatArrayDate,
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -631,10 +630,9 @@ export class FixedDepositAccountFormComponent implements OnInit {
     if (!this.accountId) return;
     this.deposits.get(DEPOSIT_TYPE, this.accountId).subscribe({
       next: (account) => {
-        const raw = account.raw;
-        const timeline = raw['timeline'] as { submittedOnDate?: unknown } | undefined;
-        if (timeline?.submittedOnDate) {
-          this.submittedOnDate.set(formatArrayDate(timeline.submittedOnDate));
+        // Already ISO by the time it gets here, which is the form the date input wants.
+        if (account.timeline.submittedOnDate) {
+          this.submittedOnDate.set(account.timeline.submittedOnDate);
         }
         this.account.set({
           clientId: account.clientId ?? undefined,
@@ -643,11 +641,10 @@ export class FixedDepositAccountFormComponent implements OnInit {
           productId: account.productId ?? undefined,
           depositAmount: account.depositAmount ?? undefined,
           depositPeriod: account.depositPeriod ?? undefined,
-          depositPeriodFrequencyId:
-            (raw['depositPeriodFrequency'] as { id?: number } | undefined)?.id ??
-            DEFAULT_PERIOD_FREQUENCY,
+          depositPeriodFrequencyId: account.depositPeriodFrequencyId ?? DEFAULT_PERIOD_FREQUENCY,
           nominalAnnualInterestRate: account.nominalAnnualInterestRate ?? undefined,
-          maturityInstructionId: (raw['maturityInstruction'] as { id?: number } | undefined)?.id,
+          // `null` on every account measured — see `DepositAccount.maturityInstructionId`.
+          maturityInstructionId: account.maturityInstructionId ?? undefined,
           transferInterestToSavings: account.transferInterestToSavings,
         });
         // Options only: the account's own term and rate stand. See `loadProductOptions`.
