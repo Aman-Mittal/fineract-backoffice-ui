@@ -17,41 +17,48 @@
  * under the License.
  */
 
-import type { Mock } from 'vitest';
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositProductFormComponent } from './fixed-deposit-product-form.component';
-import {
-  FixedDepositProductService,
-  GetFixedDepositProductsProductIdResponse,
-  PostFixedDepositProductsResponse,
-} from '../../../api';
-import { of, throwError, Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
+import { DEPOSIT_PRODUCT_API } from '../../../core/adapters';
+import {
+  mapDepositProduct,
+  mapDepositProductTemplate,
+} from '../../../core/adapters/api/fineract-deposit-product.api';
+
+/**
+ * A fake {@link DepositProductApi}.
+ *
+ * The template and the product go through the adapter's own mappers, so the fixtures stay the
+ * payloads the platform sends while the component sees exactly what the adapter would hand it.
+ * The screen itself no longer knows what any of these operations is called — which is why this
+ * file no longer imports `src/app/api`.
+ */
+type FakeProducts = Record<string, ReturnType<typeof vi.fn>>;
 
 describe('FixedDepositProductFormComponent', () => {
   let component: FixedDepositProductFormComponent;
   let fixture: ComponentFixture<FixedDepositProductFormComponent>;
-  let productServiceSpy: SpyObj<FixedDepositProductService>;
+  let products: FakeProducts;
   let routerSpy: SpyObj<Router>;
 
   const PRODUCTS_FIXED_PATH = '/products/fixed';
   const API_ERROR = 'API Error';
 
   beforeEach(async () => {
-    productServiceSpy = createSpyObj([
-      'getFixeddepositproductsProductId',
-      'getFixeddepositproductsTemplate',
-      'postFixeddepositproducts',
-      'putFixeddepositproductsProductId',
-    ]);
-    // The accounting section reads its rule labels and account options from the template.
-    productServiceSpy.getFixeddepositproductsTemplate.mockReturnValue(of({}) as never);
-    // Stubbed even though this route carries no id: an unstubbed spy answers `undefined`, and a
-    // component that subscribes to it throws an unhandled error that lands on another file.
-    productServiceSpy.getFixeddepositproductsProductId.mockReturnValue(of({}) as never);
+    products = {
+      // The accounting section reads its rule labels and account options from the template.
+      template: vi.fn().mockReturnValue(of(mapDepositProductTemplate({}))),
+      // Stubbed even though this route carries no id: an unstubbed spy answers `undefined`, and
+      // a component that subscribes to it throws an unhandled error that lands on another file.
+      get: vi.fn().mockReturnValue(of(mapDepositProduct({}))),
+      create: vi.fn().mockReturnValue(of(undefined)),
+      update: vi.fn().mockReturnValue(of(undefined)),
+    };
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
@@ -59,7 +66,7 @@ describe('FixedDepositProductFormComponent', () => {
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        { provide: FixedDepositProductService, useValue: productServiceSpy },
+        { provide: DEPOSIT_PRODUCT_API, useValue: products },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
@@ -80,29 +87,30 @@ describe('FixedDepositProductFormComponent', () => {
   });
 
   it('should load product data in edit mode', () => {
-    const mockProduct = {
-      id: 1,
-      name: 'Fixed Deposit A',
-      shortName: 'FDA',
-      currency: { code: 'USD', decimalPlaces: 2 },
-      minDepositTerm: 6,
-      minDepositTermType: { id: 2 },
-    } as GetFixedDepositProductsProductIdResponse;
-    (productServiceSpy.getFixeddepositproductsProductId as Mock).mockReturnValue(of(mockProduct));
+    products['get'].mockReturnValue(
+      of(
+        mapDepositProduct({
+          id: 1,
+          name: 'Fixed Deposit A',
+          shortName: 'FDA',
+          currency: { code: 'USD', decimalPlaces: 2 },
+          minDepositTerm: 6,
+          minDepositTermType: { id: 2 },
+        }),
+      ),
+    );
     component.productId = 1;
     component.isEditMode.set(true);
 
     component.loadProductData();
 
-    expect(productServiceSpy.getFixeddepositproductsProductId).toHaveBeenCalledWith(1);
+    // By kind and id: which generated method that is, is the adapter's business.
+    expect(products['get']).toHaveBeenCalledWith('fixed', 1);
     expect(component.product()['name']).toBe('Fixed Deposit A');
     expect(component.product()['minDepositTerm']).toBe(6);
   });
 
   it('should create product on submit', () => {
-    (productServiceSpy.postFixeddepositproducts as Mock).mockReturnValue(
-      of({} as PostFixedDepositProductsResponse),
-    );
     component.product.set({
       name: 'New Product',
       shortName: 'NP',
@@ -112,14 +120,11 @@ describe('FixedDepositProductFormComponent', () => {
 
     component.onSubmit();
 
-    expect(productServiceSpy.postFixeddepositproducts).toHaveBeenCalled();
+    expect(products['create']).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith([PRODUCTS_FIXED_PATH]);
   });
 
   it('should update product on submit in edit mode', () => {
-    (productServiceSpy.putFixeddepositproductsProductId as Mock).mockReturnValue(
-      of({} as PostFixedDepositProductsResponse),
-    );
     component.productId = 123;
     component.isEditMode.set(true);
     component.product.set({
@@ -129,14 +134,12 @@ describe('FixedDepositProductFormComponent', () => {
 
     component.onSubmit();
 
-    expect(productServiceSpy.putFixeddepositproductsProductId).toHaveBeenCalled();
+    expect(products['update']).toHaveBeenCalledWith('fixed', 123, expect.any(Object));
     expect(routerSpy.navigate).toHaveBeenCalledWith([PRODUCTS_FIXED_PATH]);
   });
 
   it('should handle submission error', () => {
-    (productServiceSpy.postFixeddepositproducts as Mock).mockReturnValue(
-      throwError(() => new Error(API_ERROR)) as Observable<PostFixedDepositProductsResponse>,
-    );
+    products['create'].mockReturnValue(throwError(() => new Error(API_ERROR)));
     component.onSubmit();
     expect(component.isSaving()).toBe(false);
   });
@@ -159,7 +162,7 @@ describe('FixedDepositProductFormComponent', () => {
 describe('FixedDepositProductFormComponent interest rate chart', () => {
   let component: FixedDepositProductFormComponent;
   let fixture: ComponentFixture<FixedDepositProductFormComponent>;
-  let productServiceSpy: SpyObj<FixedDepositProductService>;
+  let products: FakeProducts;
 
   /** The product template, as the platform sends it. */
   const TEMPLATE = {
@@ -193,23 +196,19 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
     product: object = {},
   ): Promise<void> {
     TestBed.resetTestingModule();
-    productServiceSpy = createSpyObj([
-      'getFixeddepositproductsProductId',
-      'getFixeddepositproductsTemplate',
-      'postFixeddepositproducts',
-      'putFixeddepositproductsProductId',
-    ]);
-    productServiceSpy.getFixeddepositproductsTemplate.mockReturnValue(of(TEMPLATE) as never);
-    productServiceSpy.getFixeddepositproductsProductId.mockReturnValue(of(product) as never);
-    productServiceSpy.postFixeddepositproducts.mockReturnValue(of({}) as never);
-    productServiceSpy.putFixeddepositproductsProductId.mockReturnValue(of({}) as never);
+    products = {
+      template: vi.fn().mockReturnValue(of(mapDepositProductTemplate(TEMPLATE))),
+      get: vi.fn().mockReturnValue(of(mapDepositProduct(product))),
+      create: vi.fn().mockReturnValue(of(undefined)),
+      update: vi.fn().mockReturnValue(of(undefined)),
+    };
 
     await TestBed.configureTestingModule({
       imports: [FixedDepositProductFormComponent],
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        { provide: FixedDepositProductService, useValue: productServiceSpy },
+        { provide: DEPOSIT_PRODUCT_API, useValue: products },
         { provide: Router, useValue: createSpyObj<Router>(['navigate']) },
         { provide: ActivatedRoute, useValue: { paramMap: of(paramMap) } },
       ],
@@ -223,12 +222,15 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
 
   const CREATE = { get: () => null };
 
+  /** The charts on the body the create sent — `create(type, body)`. */
   function sentCharts(): Record<string, unknown>[] {
-    const payload = (productServiceSpy.postFixeddepositproducts as Mock).mock.calls[0][0] as Record<
-      string,
-      unknown
-    >;
+    const payload = products['create'].mock.calls[0][1] as Record<string, unknown>;
     return payload['charts'] as Record<string, unknown>[];
+  }
+
+  /** The body the update sent — `update(type, productId, body)`. */
+  function updatedBody(): Record<string, unknown> {
+    return products['update'].mock.calls[0][2] as Record<string, unknown>;
   }
 
   it('starts with one empty slab rather than a 5% one', async () => {
@@ -329,7 +331,7 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
           },
         ],
       },
-    } as unknown as GetFixedDepositProductsProductIdResponse;
+    };
 
     async function setupEdit(): Promise<void> {
       // The route carries the id, so `ngOnInit` puts the form in edit mode and loads the
@@ -349,14 +351,12 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
 
     it('round-trips the chart with its ids, which is what keeps the update from a 500', async () => {
       // A chart without its ids reads as a brand new one and the platform answers 500 rather
-      // than a validation message — the defect `chartFromResponse` was written for.
+      // than a validation message — the defect `chartFromProduct` was written for.
       await setupEdit();
 
       component.onSubmit();
 
-      const payload = (productServiceSpy.putFixeddepositproductsProductId as Mock).mock
-        .calls[0][1] as Record<string, unknown>;
-      const [chart] = payload['charts'] as Record<string, unknown>[];
+      const [chart] = updatedBody()['charts'] as Record<string, unknown>[];
       expect(chart['id']).toBe(9);
       const slabs = chart['chartSlabs'] as Record<string, unknown>[];
       expect(slabs[0]['id']).toBe(4);
@@ -370,12 +370,9 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
 
       component.onSubmit();
 
-      const payload = (productServiceSpy.putFixeddepositproductsProductId as Mock).mock
-        .calls[0][1] as Record<string, unknown>;
-      const slabs = (payload['charts'] as Record<string, unknown>[])[0]['chartSlabs'] as Record<
-        string,
-        unknown
-      >[];
+      const slabs = (updatedBody()['charts'] as Record<string, unknown>[])[0][
+        'chartSlabs'
+      ] as Record<string, unknown>[];
       expect(slabs[0]['annualInterestRate']).toBe(8.5);
       // Still the same chart and slab, so the platform treats it as a change rather than a new one.
       expect(slabs[0]['id']).toBe(4);

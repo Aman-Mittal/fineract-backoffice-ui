@@ -1342,26 +1342,8 @@
       "count": 1
     }
   },
-  "src/app/features/products/fixed-deposits/fixed-deposit-product-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/products/fixed-deposits/fixed-deposit-product-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/fixed-deposits/fixed-deposit-products-list.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/fixed-deposits/fixed-deposit-products-list.component.ts": {
-    "local/no-generated-api-import": {
       "count": 1
     }
   },
@@ -1562,15 +1544,7 @@
     }
   },
   "src/app/features/products/recurring-deposits/recurring-deposit-product-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
-      "count": 1
-    }
-  },
-  "src/app/features/products/recurring-deposits/recurring-deposit-products-list.component.ts": {
-    "local/no-generated-api-import": {
       "count": 1
     }
   },

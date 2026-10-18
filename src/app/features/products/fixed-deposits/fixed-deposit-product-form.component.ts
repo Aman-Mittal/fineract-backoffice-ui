@@ -20,7 +20,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
+import { DEPOSIT_PRODUCT_API, TranslatePipe } from '../../../core/adapters';
+import type { DepositType } from '../../../core/adapters';
 import {
   IonButton,
   IonCard,
@@ -36,12 +37,6 @@ import {
   IonTextarea,
   IonNote,
 } from '@ionic/angular/standalone';
-import {
-  FixedDepositProductService,
-  PostFixedDepositProductsRequest,
-  PutFixedDepositProductsProductIdRequest,
-  GetFixedDepositProductsProductIdResponse,
-} from '../../../api';
 import { ProductAccountingSectionComponent } from '../accounting/product-accounting-section.component';
 import {
   ACCOUNTING_RULE,
@@ -55,9 +50,9 @@ import {
   DepositChart,
   DepositChartSlab,
   chartForRequest,
-  chartFromResponse,
+  chartFromProduct,
   emptySlab,
-  slabsFromResponse,
+  slabsFromProduct,
 } from '../deposit-chart';
 import {
   ChartPeriodTypeOption,
@@ -67,6 +62,8 @@ import {
 const DEFAULT_CURRENCY = 'USD';
 const DEFAULT_LOCALE = 'en';
 const FIXED_PRODUCTS_PATH = '/products/fixed';
+/** Which kind of deposit product this form edits; the adapter serves both. */
+const DEPOSIT_TYPE: DepositType = 'fixed';
 
 @Component({
   selector: 'app-fixed-deposit-product-form',
@@ -371,7 +368,7 @@ const FIXED_PRODUCTS_PATH = '/products/fixed';
   ],
 })
 export class FixedDepositProductFormComponent implements OnInit {
-  private readonly productService = inject(FixedDepositProductService);
+  private readonly products = inject(DEPOSIT_PRODUCT_API);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -421,23 +418,14 @@ export class FixedDepositProductFormComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.productService.getFixeddepositproductsTemplate().subscribe((template) => {
-      const raw = template as unknown as Record<string, unknown>;
-      this.accountingMappingOptions.set(
-        (raw['accountingMappingOptions'] as GlAccountOptions) ?? {},
-      );
-      this.accountingRuleOptions.set(
-        Array.from((raw['accountingRuleOptions'] as { id?: number; value?: string }[]) ?? []),
-      );
-
-      const chartTemplate = raw['chartTemplate'] as Record<string, unknown> | undefined;
-      this.chartPeriodTypes.set(
-        Array.from((chartTemplate?.['periodTypes'] as ChartPeriodTypeOption[]) ?? []),
-      );
-      this.compoundingOptions.set(this.options(raw, 'interestCompoundingPeriodTypeOptions'));
-      this.postingOptions.set(this.options(raw, 'interestPostingPeriodTypeOptions'));
-      this.calculationOptions.set(this.options(raw, 'interestCalculationTypeOptions'));
-      this.daysInYearOptions.set(this.options(raw, 'interestCalculationDaysInYearTypeOptions'));
+    this.products.template(DEPOSIT_TYPE).subscribe((template) => {
+      this.accountingMappingOptions.set(template.accountingMappingOptions);
+      this.accountingRuleOptions.set([...template.accountingRuleOptions]);
+      this.chartPeriodTypes.set([...template.chartPeriodTypes]);
+      this.compoundingOptions.set([...template.interestCompoundingPeriodTypes]);
+      this.postingOptions.set([...template.interestPostingPeriodTypes]);
+      this.calculationOptions.set([...template.interestCalculationTypes]);
+      this.daysInYearOptions.set([...template.interestCalculationDaysInYearTypes]);
     });
 
     this.route.paramMap.subscribe((params) => {
@@ -462,41 +450,37 @@ export class FixedDepositProductFormComponent implements OnInit {
    */
   loadProductData() {
     if (!this.productId) return;
-    this.productService
-      .getFixeddepositproductsProductId(this.productId)
-      .subscribe((data: GetFixedDepositProductsProductIdResponse) => {
-        const raw = data as unknown as Record<string, unknown>;
-        this.product.set({
-          name: data.name,
-          shortName: data.shortName,
-          description: data.description,
-          currencyCode: data.currency?.code,
-          digitsAfterDecimal: data.currency?.decimalPlaces,
-          inMultiplesOf:
-            (raw['currency'] as { inMultiplesOf?: number } | undefined)?.inMultiplesOf ?? 0,
-          minDepositTerm: data.minDepositTerm,
-          minDepositTermTypeId: data.minDepositTermType?.id,
-          maxDepositTerm: data.maxDepositTerm,
-          maxDepositTermTypeId: (raw['maxDepositTermType'] as { id?: number } | undefined)?.id,
-          depositAmount: raw['depositAmount'],
-          minDepositAmount: raw['minDepositAmount'],
-          maxDepositAmount: raw['maxDepositAmount'],
-          interestCompoundingPeriodType: data.interestCompoundingPeriodType?.id,
-          interestPostingPeriodType: data.interestPostingPeriodType?.id,
-          interestCalculationType: data.interestCalculationType?.id,
-          interestCalculationDaysInYearType: data.interestCalculationDaysInYearType?.id,
-          preClosurePenalApplicable: raw['preClosurePenalApplicable'] ?? false,
-          accountingRule: (raw['accountingRule'] as { id?: number } | undefined)?.id ?? 1,
-        });
-        this.existingChart.set(chartFromResponse(raw['activeChart']));
-        // The product's own slabs, so an edit shows the rates it actually carries and can
-        // change them, rather than silently resending whatever it was given.
-        const slabs = slabsFromResponse(raw['activeChart']);
-        this.chartSlabs.set(slabs.length ? slabs : [emptySlab()]);
-        this.accountingMappings.set(
-          mappingsFromResponse(this.accountingFields, raw['accountingMappings'] as object),
-        );
+    this.products.get(DEPOSIT_TYPE, this.productId).subscribe((product) => {
+      this.product.set({
+        name: product.name,
+        shortName: product.shortName,
+        description: product.description,
+        currencyCode: product.currencyCode,
+        digitsAfterDecimal: product.decimalPlaces,
+        inMultiplesOf: product.inMultiplesOf ?? 0,
+        minDepositTerm: product.minDepositTerm,
+        minDepositTermTypeId: product.minDepositTermTypeId,
+        maxDepositTerm: product.maxDepositTerm,
+        maxDepositTermTypeId: product.maxDepositTermTypeId,
+        depositAmount: product.depositAmount,
+        minDepositAmount: product.minDepositAmount,
+        maxDepositAmount: product.maxDepositAmount,
+        interestCompoundingPeriodType: product.interestCompoundingPeriodTypeId,
+        interestPostingPeriodType: product.interestPostingPeriodTypeId,
+        interestCalculationType: product.interestCalculationTypeId,
+        interestCalculationDaysInYearType: product.interestCalculationDaysInYearTypeId,
+        preClosurePenalApplicable: product.preClosurePenalApplicable,
+        accountingRule: product.accountingRuleId ?? ACCOUNTING_RULE.NONE,
       });
+      this.existingChart.set(chartFromProduct(product.chart));
+      // The product's own slabs, so an edit shows the rates it actually carries and can
+      // change them, rather than silently resending whatever it was given.
+      const slabs = slabsFromProduct(product.chart);
+      this.chartSlabs.set(slabs.length ? slabs : [emptySlab()]);
+      this.accountingMappings.set(
+        mappingsFromResponse(this.accountingFields, product.accountingMappings ?? undefined),
+      );
+    });
   }
 
   /**
@@ -522,33 +506,19 @@ export class FixedDepositProductFormComponent implements OnInit {
     };
 
     if (this.isEditMode() && this.productId) {
-      this.productService
-        .putFixeddepositproductsProductId(
-          this.productId,
-          payload as PutFixedDepositProductsProductIdRequest,
-        )
-        .subscribe({
-          next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
-          error: () => this.isSaving.set(false),
-        });
+      this.products.update(DEPOSIT_TYPE, this.productId, payload).subscribe({
+        next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
+        error: () => this.isSaving.set(false),
+      });
     } else {
-      this.productService
-        .postFixeddepositproducts(payload as unknown as PostFixedDepositProductsRequest)
-        .subscribe({
-          next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
-          error: () => this.isSaving.set(false),
-        });
+      this.products.create(DEPOSIT_TYPE, payload).subscribe({
+        next: () => this.router.navigate([FIXED_PRODUCTS_PATH]),
+        error: () => this.isSaving.set(false),
+      });
     }
   }
 
   onCancel() {
     this.router.navigate([FIXED_PRODUCTS_PATH]);
-  }
-
-  private options(
-    template: Record<string, unknown>,
-    key: string,
-  ): { id?: number; value?: string }[] {
-    return Array.from((template[key] as { id?: number; value?: string }[]) ?? []);
   }
 }

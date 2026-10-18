@@ -19,15 +19,33 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '../../../core/adapters';
+import { DEPOSIT_PRODUCT_API, TranslatePipe } from '../../../core/adapters';
+import type { DepositProductSummary, DepositType } from '../../../core/adapters';
 import { DecimalPipe } from '@angular/common';
 import { of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { DataTableComponent, ColumnDef, CellTemplateDirective } from '../../../shared';
-import { RecurringDepositProductService, GetRecurringDepositProductsResponse } from '../../../api';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ButtonComponent } from '../../../ui/button/button.component';
 
+/** Which kind of deposit product this screen lists; the adapter serves both. */
+const DEPOSIT_TYPE: DepositType = 'recurring';
+
+/**
+ * The deposit products of one kind.
+ *
+ * ## No interest rate column
+ *
+ * There used to be one, bound to `nominalAnnualInterestRate`, and it read `0.00 %` against
+ * every product on the screen. The list endpoint answers that field as `0` for all of them —
+ * measured across 59 fixed and 3 recurring deposit products on a running Fineract, products
+ * whose charts pay 5% and 7% among them — and carries no chart to read the real figure from.
+ *
+ * A single rate is the wrong shape for the answer in any case: a deposit product prices by
+ * term, in bands, and the one number a column could hold would have to pick a band. So the list
+ * states the two figures the endpoint does answer — the deposit amount and the minimum term —
+ * and the rates stay where they are true, on the product\'s own page.
+ */
 @Component({
   selector: 'app-recurring-deposit-products-list',
   standalone: true,
@@ -53,8 +71,12 @@ import { ButtonComponent } from '../../../ui/button/button.component';
       [isLoading]="isLoading()"
       (create)="onCreate()"
     >
-      <ng-template appCellTemplate="nominalAnnualInterestRate" let-product>
-        {{ product.nominalAnnualInterestRate | number: '1.2-2' }}%
+      <ng-template appCellTemplate="depositAmount" let-product>
+        {{ product.depositAmount | number: '1.2-2' }}
+      </ng-template>
+
+      <ng-template appCellTemplate="minDepositTerm" let-product>
+        {{ product.minDepositTerm }} {{ product.minDepositTermUnit }}
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-product>
@@ -75,22 +97,19 @@ export class RecurringDepositProductsListComponent implements OnInit {
   /** True when the last load failed, so the table offers a retry instead of an empty list. */
   readonly hasError = signal(false);
 
-  private readonly productService = inject(RecurringDepositProductService);
+  private readonly depositProducts = inject(DEPOSIT_PRODUCT_API);
   private readonly router = inject(Router);
 
   columns: ColumnDef[] = [
     { key: 'name', label: 'COMMON.NAME', sortable: true },
     { key: 'shortName', label: 'PRODUCTS.SHORT_NAME', sortable: true },
-    { key: 'currency.code', label: 'PRODUCTS.CURRENCY', sortable: true },
-    {
-      key: 'nominalAnnualInterestRate',
-      label: 'PRODUCTS.NOMINAL_ANNUAL_INTEREST_RATE',
-      sortable: true,
-    },
+    { key: 'currencyCode', label: 'PRODUCTS.CURRENCY', sortable: true },
+    { key: 'depositAmount', label: 'DEPOSITS.DEPOSIT_AMOUNT', sortable: true },
+    { key: 'minDepositTerm', label: 'PRODUCTS.MIN_DEPOSIT_TERM', sortable: true },
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  readonly products = signal<GetRecurringDepositProductsResponse[]>([]);
+  readonly products = signal<DepositProductSummary[]>([]);
   readonly isLoading = signal(true);
 
   ngOnInit() {
@@ -99,8 +118,8 @@ export class RecurringDepositProductsListComponent implements OnInit {
 
   loadProducts() {
     this.isLoading.set(true);
-    this.productService
-      .getRecurringdepositproducts()
+    this.depositProducts
+      .list(DEPOSIT_TYPE)
       .pipe(
         tap(() => this.hasError.set(false)),
         catchError(() => {
@@ -118,7 +137,7 @@ export class RecurringDepositProductsListComponent implements OnInit {
     this.router.navigate(['/products/recurring/create']);
   }
 
-  onEdit(product: GetRecurringDepositProductsResponse) {
+  onEdit(product: DepositProductSummary) {
     this.router.navigate(['/products/recurring/edit', product.id]);
   }
 

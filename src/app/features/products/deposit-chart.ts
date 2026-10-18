@@ -22,6 +22,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../core/utils/date-formatter';
+import type { DepositProductChart } from '../../core/adapters';
 
 /**
  * The interest rate chart a fixed or recurring deposit product carries.
@@ -52,39 +53,31 @@ export interface DepositChartSlab {
 const PERIOD_TYPE_MONTHS = 2;
 
 /**
- * Turns the `activeChart` of a product response into something the update can send back.
+ * Turns a product's own chart into something the update can send back.
  *
  * The ids are the point. A chart without them reads as a brand new one, and the platform answers
  * `500 Internal Server Error` rather than a validation message — which is what made editing a
  * fixed deposit product impossible. Carried back with its ids, the same chart is a no-op.
+ *
+ * Takes the modelled chart rather than the payload: unwrapping `periodType.id` is a fact about
+ * the wire and belongs on the other side of the boundary, in `FineractDepositProductApi`. What
+ * is left here is the request envelope — the dates, the locale and the description the platform
+ * insists on — which is this file's business.
  */
-export function chartFromResponse(activeChart: unknown): DepositChart | null {
-  const chart = activeChart as
-    | {
-        id?: number;
-        chartSlabs?: {
-          id?: number;
-          periodType?: { id?: number };
-          fromPeriod?: number;
-          toPeriod?: number;
-          annualInterestRate?: number;
-          description?: string;
-        }[];
-      }
-    | undefined;
-  if (!chart?.chartSlabs?.length) return null;
+export function chartFromProduct(chart: DepositProductChart | null): DepositChart | null {
+  if (!chart?.slabs.length) return null;
 
   return {
-    id: chart.id,
+    id: chart.id ?? undefined,
     fromDate: formatDateToFineract(new Date()),
     dateFormat: FINERACT_DATE_FORMAT,
     locale: FINERACT_LOCALE,
-    chartSlabs: chart.chartSlabs.map((slab) => ({
-      id: slab.id,
-      periodType: slab.periodType?.id ?? PERIOD_TYPE_MONTHS,
-      fromPeriod: slab.fromPeriod,
-      toPeriod: slab.toPeriod,
-      annualInterestRate: slab.annualInterestRate,
+    chartSlabs: chart.slabs.map((slab) => ({
+      id: slab.id ?? undefined,
+      periodType: slab.periodTypeId ?? PERIOD_TYPE_MONTHS,
+      fromPeriod: slab.fromPeriod ?? undefined,
+      toPeriod: slab.toPeriod ?? undefined,
+      annualInterestRate: slab.annualInterestRate ?? undefined,
       // The platform rejects a slab with no description on the way back in.
       description: slab.description || 'Interest rate',
       locale: FINERACT_LOCALE,
@@ -110,8 +103,8 @@ export function emptySlab(): DepositChartSlab {
 }
 
 /** The slabs of a product's active chart, ready to edit. Empty for a product without one. */
-export function slabsFromResponse(activeChart: unknown): DepositChartSlab[] {
-  return chartFromResponse(activeChart)?.chartSlabs ?? [];
+export function slabsFromProduct(chart: DepositProductChart | null): DepositChartSlab[] {
+  return chartFromProduct(chart)?.chartSlabs ?? [];
 }
 
 /**
@@ -119,7 +112,7 @@ export function slabsFromResponse(activeChart: unknown): DepositChartSlab[] {
  *
  * `existingChart` carries the chart's own id on an update. Without it the platform reads the
  * chart as a brand new one and answers 500 rather than a validation message, which is the defect
- * `chartFromResponse` was written for; the slab ids ride along on the slabs themselves.
+ * `chartFromProduct` was written for; the slab ids ride along on the slabs themselves.
  *
  * A slab with no rate is dropped rather than sent as zero. Zero is a rate an institution might
  * mean, so it cannot double as "not filled in" — the form refuses to submit an empty one
