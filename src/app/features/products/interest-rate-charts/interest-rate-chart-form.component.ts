@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../core/adapters';
@@ -180,6 +181,12 @@ export class InterestRateChartFormComponent implements OnInit {
 
   private readonly chartService = inject(InterestRateChartService);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
 
   private readonly LIST_PATH = '/products/interest-rate-charts';
@@ -190,7 +197,7 @@ export class InterestRateChartFormComponent implements OnInit {
 
   readonly name = signal('');
   readonly description = signal('');
-  readonly fromDate = signal(toIsoDate(new Date()));
+  readonly fromDate = signal(this.platformDate.today());
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -212,7 +219,7 @@ export class InterestRateChartFormComponent implements OnInit {
       this.fromDate.set(
         data['fromDate']
           ? toIsoDate(new Date(formatArrayDate(data['fromDate'] as string)))
-          : toIsoDate(new Date()),
+          : this.platformDate.today(),
       );
     });
   }

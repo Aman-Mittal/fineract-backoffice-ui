@@ -26,6 +26,7 @@ import {
   computed,
   viewChildren,
 } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { I18N, TranslatePipe } from '../../../core/adapters';
 import { DecimalPipe } from '@angular/common';
@@ -59,7 +60,6 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
   formatDateToFineract,
-  toIsoDate,
 } from '../../../core/utils/date-formatter';
 import {
   WorkingCapitalLoansService,
@@ -1649,6 +1649,12 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
   private readonly wcOriginatorsService = inject(WorkingCapitalLoanOriginatorsService);
   private readonly originatorsService = inject(LoanOriginatorsService);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
   private readonly notifications = inject(NotificationService);
@@ -1958,7 +1964,7 @@ export class WcLoanViewComponent implements OnInit, OnDestroy {
     const transaction = this.selectedTransaction();
     this.correctionAmount.set(transaction?.transactionAmount);
     // Already `YYYY-MM-DD`, which is what the picker binds to.
-    this.correctionDate = transaction?.transactionDate ?? toIsoDate(new Date());
+    this.correctionDate = transaction?.transactionDate ?? this.platformDate.today();
     this.correction.set(command);
   }
 

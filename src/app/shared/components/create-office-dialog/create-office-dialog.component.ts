@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 
 import { FormsModule } from '@angular/forms';
 import {
@@ -34,7 +35,6 @@ import {
 } from '@ionic/angular/standalone';
 import { OFFICE_API, TranslatePipe } from '../../../core/adapters';
 import type { Office } from '../../../core/adapters';
-import { toIsoDate } from '../../../core/utils/date-formatter';
 
 /**
  * Dialog for inline creation of a branch office.
@@ -150,11 +150,17 @@ import { toIsoDate } from '../../../core/utils/date-formatter';
 })
 export class CreateOfficeDialogComponent implements OnInit {
   private readonly officeApi = inject(OFFICE_API);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly modalController = inject(ModalController);
 
   /** Head office by default, which is the only parent a first branch can have. */
   office: { name?: string; externalId?: string; parentId: number } = { parentId: 1 };
-  openingDate = toIsoDate(new Date());
+  openingDate = this.platformDate.today();
   readonly offices = signal<readonly Office[]>([]);
   readonly isSaving = signal(false);
 

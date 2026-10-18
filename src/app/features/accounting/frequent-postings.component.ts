@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -49,11 +50,7 @@ import {
 import { I18N, TranslatePipe } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
 import { HelpIconComponent } from '../../shared';
-import {
-  FINERACT_DATE_FORMAT,
-  formatDateToFineract,
-  toIsoDate,
-} from '../../core/utils/date-formatter';
+import { FINERACT_DATE_FORMAT, formatDateToFineract } from '../../core/utils/date-formatter';
 import { createPickersReady } from '../../shared/utils/pickers-ready';
 
 /**
@@ -277,6 +274,12 @@ export class FrequentPostingsComponent implements OnInit {
   private readonly paymentTypeService = inject(PaymentTypeService);
   private readonly notifications = inject(NotificationService);
   private readonly router = inject(Router);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly i18n = inject(I18N);
 
   readonly rules = signal<AccountingRuleData[]>([]);
@@ -287,7 +290,7 @@ export class FrequentPostingsComponent implements OnInit {
   ruleId: number | undefined;
   currencyCode: string | undefined;
   amount: number | null = null;
-  transactionDate: string = toIsoDate(new Date());
+  transactionDate: string = this.platformDate.today();
   paymentTypeId: number | undefined;
   comments = '';
 

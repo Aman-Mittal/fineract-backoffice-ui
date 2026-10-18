@@ -18,6 +18,12 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
+import {
+  FINERACT_DATE_FORMAT,
+  FINERACT_LOCALE,
+  formatDateToFineract,
+} from '../../../core/utils/date-formatter';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { I18N, TranslatePipe } from '../../../core/adapters';
@@ -190,6 +196,11 @@ interface SmsCampaign {
 export class SmsCampaignsListComponent implements OnInit {
   private readonly api = inject(DefaultService);
   private readonly router = inject(Router);
+  /**
+   * Today, as the platform reckons it — the date a command is stamped with. See
+   * `PlatformDateService`.
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18N);
 
@@ -223,24 +234,52 @@ export class SmsCampaignsListComponent implements OnInit {
     this.router.navigate(['/campaigns/sms', id, 'edit']);
   }
 
+  /**
+   * Activates a campaign.
+   *
+   * The command goes in the query and the date in the body, which is what the platform
+   * documents: `POST /smscampaigns/{id}?command=activate` with `activationDate`. This used to
+   * pass the string `'activate'` *as the body* and send no command at all — the spec typed that
+   * parameter as `SmsCampaignHandlerDto` and the mistake stopped compiling.
+   */
   activate(id: number): void {
-    this.api.postSmscampaignsCampaignId(id, 'activate').subscribe({
-      next: () => {
-        this.showSuccess();
-        this.loadCampaigns();
-      },
-      error: () => this.showError(),
-    });
+    this.api
+      .postSmscampaignsCampaignId(
+        id,
+        {
+          activationDate: formatDateToFineract(this.platformDate.today()),
+          dateFormat: FINERACT_DATE_FORMAT,
+          locale: FINERACT_LOCALE,
+        },
+        'activate',
+      )
+      .subscribe({
+        next: () => {
+          this.showSuccess();
+          this.loadCampaigns();
+        },
+        error: () => this.showError(),
+      });
   }
 
   deactivate(id: number): void {
-    this.api.postSmscampaignsCampaignId(id, 'deactivate').subscribe({
-      next: () => {
-        this.showSuccess();
-        this.loadCampaigns();
-      },
-      error: () => this.showError(),
-    });
+    this.api
+      .postSmscampaignsCampaignId(
+        id,
+        {
+          closureDate: formatDateToFineract(this.platformDate.today()),
+          dateFormat: FINERACT_DATE_FORMAT,
+          locale: FINERACT_LOCALE,
+        },
+        'close',
+      )
+      .subscribe({
+        next: () => {
+          this.showSuccess();
+          this.loadCampaigns();
+        },
+        error: () => this.showError(),
+      });
   }
 
   delete(id: number): void {

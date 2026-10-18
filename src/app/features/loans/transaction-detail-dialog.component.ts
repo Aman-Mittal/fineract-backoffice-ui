@@ -18,6 +18,7 @@
  */
 
 import { inject, input, signal, Component, OnInit } from '@angular/core';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { I18N, LOAN_TRANSACTION_API, TranslatePipe } from '../../core/adapters';
@@ -287,12 +288,18 @@ export class TransactionDetailDialogComponent implements OnInit {
   private readonly transactionApi = inject(LOAN_TRANSACTION_API);
   private readonly dialogService = inject(DialogService);
   private readonly i18n = inject(I18N);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
 
   readonly detail = signal<LoanTransaction | null>(null);
   readonly showAdjustForm = signal(false);
   readonly isSaving = signal(false);
 
-  readonly adjustDate = signal(toIsoDate(new Date()));
+  readonly adjustDate = signal(this.platformDate.today());
   readonly adjustAmount = signal(0);
   adjustNote = '';
 

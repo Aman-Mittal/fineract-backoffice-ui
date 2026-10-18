@@ -28,6 +28,7 @@ import {
 } from '@angular/core';
 import { from } from 'rxjs';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { I18N, TranslatePipe } from '../../core/adapters';
 import { DecimalPipe, NgClass } from '@angular/common';
 import {
@@ -885,6 +886,14 @@ export class SavingsAccountViewComponent implements OnInit, OnDestroy {
   private readonly savingsService = inject(SavingsAccountService);
   private readonly savingsTransactionsService = inject(SavingsAccountTransactionsService);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it.
+   *
+   * Every command below stamps a date, and Fineract refuses one in the future by its own
+   * reckoning — the tenant's timezone, or the business date when that feature is on. Taken from
+   * `new Date()`, these commands were refused outright whenever the browser ran ahead (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
   private readonly dialogService = inject(DialogService);
@@ -1065,7 +1074,7 @@ export class SavingsAccountViewComponent implements OnInit, OnDestroy {
     ).subscribe((confirmed) => {
       if (!confirmed) return;
       this.runCommand(command, {
-        [dateField]: formatDateToFineract(new Date()),
+        [dateField]: formatDateToFineract(this.platformDate.today()),
         dateFormat: FINERACT_DATE_FORMAT,
         locale: FINERACT_LOCALE,
       });
@@ -1094,7 +1103,7 @@ export class SavingsAccountViewComponent implements OnInit, OnDestroy {
         if (!result) return;
         this.runCommand('assignSavingsOfficer', {
           toSavingsOfficerId: result.toSavingsOfficerId,
-          assignmentDate: formatDateToFineract(new Date()),
+          assignmentDate: formatDateToFineract(this.platformDate.today()),
           dateFormat: FINERACT_DATE_FORMAT,
           locale: FINERACT_LOCALE,
         });
@@ -1128,7 +1137,7 @@ export class SavingsAccountViewComponent implements OnInit, OnDestroy {
           {
             transactionAmount: result.transactionAmount,
             reasonForBlock: result.reasonForBlock,
-            transactionDate: formatDateToFineract(new Date()),
+            transactionDate: formatDateToFineract(this.platformDate.today()),
             dateFormat: FINERACT_DATE_FORMAT,
             locale: FINERACT_LOCALE,
           } as never,

@@ -68,7 +68,6 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
-  toIsoDate,
 } from '../../core/utils/date-formatter';
 import { createPickersReady } from '../../shared/utils/pickers-ready';
 
@@ -608,8 +607,8 @@ export class LoanFormComponent implements OnInit {
    * and stops an edit form flashing empty defaults over a real loan.
    */
   readonly isModelReady = signal(false);
-  readonly submittedOnDate = signal(toIsoDate(new Date()));
-  readonly expectedDisbursementDate = signal(toIsoDate(new Date()));
+  readonly submittedOnDate = signal(this.platformDate.today());
+  readonly expectedDisbursementDate = signal(this.platformDate.today());
   repaymentsStartingFromDate: string | null = null;
   readonly products = signal<GetLoanProductsResponse[]>([]);
   readonly selectedProductDetails = signal<GetLoanProductsProductIdResponse | null>(null);

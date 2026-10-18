@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -441,6 +442,12 @@ export class JournalEntryFormComponent implements OnInit {
   private readonly officeService = inject(OfficesService);
   private readonly currencyService = inject(CurrencyService);
   private readonly router = inject(Router);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
 
   readonly offices = signal<GetOfficesResponse[]>([]);
   readonly currencies = signal<CurrencyData[]>([]);
@@ -453,7 +460,7 @@ export class JournalEntryFormComponent implements OnInit {
     referenceNumber: '',
   };
 
-  transactionDate = toIsoDate(new Date());
+  transactionDate = this.platformDate.today();
   debits: SingleDebitOrCreditEntryCommand[] = [{ glAccountId: undefined, amount: 0 }];
   credits: SingleDebitOrCreditEntryCommand[] = [{ glAccountId: undefined, amount: 0 }];
 

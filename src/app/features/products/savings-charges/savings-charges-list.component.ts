@@ -18,13 +18,13 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { I18N, TranslatePipe } from '../../../core/adapters';
 import { ColumnDef, CellTemplateDirective } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { DialogService } from '../../../core/services/dialog.service';
-import { toIsoDate } from '../../../core/utils/date-formatter';
 import { ButtonComponent } from '../../../ui/button/button.component';
 import {
   SavingsChargesService,
@@ -162,6 +162,12 @@ export type SavingsChargeRow = GetSavingsAccountsSavingsAccountIdChargesResponse
 export class SavingsChargesListComponent implements OnInit {
   private readonly savingsChargesService = inject(SavingsChargesService);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
   private readonly notifications = inject(NotificationService);
@@ -251,7 +257,7 @@ export class SavingsChargesListComponent implements OnInit {
           name: 'dueDate',
           label: this.i18n.translate('SAVINGS_CHARGES.DUE_DATE'),
           type: 'date',
-          value: toIsoDate(new Date()),
+          value: this.platformDate.today(),
         },
       ],
     });

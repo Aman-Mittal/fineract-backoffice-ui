@@ -20,11 +20,7 @@
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShareAccountsListComponent } from './share-accounts-list.component';
-import {
-  ShareAccountService,
-  GetAccountsTypeResponse,
-  GetAccountsTypeAccountIdResponse,
-} from '../../../api';
+import { ShareAccountService, GetAccountsTypeResponse, GetAccountsPageItems } from '../../../api';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -76,8 +72,13 @@ describe('ShareAccountsListComponent', () => {
   });
 
   it('should navigate to edit on onEditAccount', () => {
+    // Cast to the type the method takes. It used to borrow
+    // `GetAccountsTypeAccountIdResponse`, which the spec sync re-typed: that response's
+    // `accountNo` is now `string` — which is what Fineract sends, "000000026" — while the page
+    // item this method receives still declares `number`. The two models disagree upstream
+    // (#653), and the test was relying on them agreeing.
     const mockAccount = { id: 123 };
-    component.onEditAccount(mockAccount as unknown as GetAccountsTypeAccountIdResponse);
+    component.onEditAccount(mockAccount as GetAccountsPageItems);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/shares/edit', 123]);
   });
 

@@ -18,6 +18,7 @@
  */
 
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { TranslatePipe } from '../../core/adapters';
@@ -29,11 +30,7 @@ import {
   CollectionSheetRequest,
   PostCollectionSheetResponse,
 } from '../../api';
-import {
-  formatDateToFineract,
-  FINERACT_DATE_FORMAT,
-  toIsoDate,
-} from '../../core/utils/date-formatter';
+import { formatDateToFineract, FINERACT_DATE_FORMAT } from '../../core/utils/date-formatter';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -225,6 +222,12 @@ export class CollectionSheetComponent implements OnInit {
   readonly pickersReady = createPickersReady();
 
   private collectionSheetService = inject(CollectionSheetService);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private officesService = inject(OfficesService);
   private staffService = inject(StaffService);
   private notifications = inject(NotificationService);
@@ -232,7 +235,7 @@ export class CollectionSheetComponent implements OnInit {
   readonly generated = signal(false);
   readonly isLoading = signal(false);
   readonly collectionData = signal<PostCollectionSheetResponse | null>(null);
-  transactionDate = toIsoDate(new Date());
+  transactionDate = this.platformDate.today();
   staffId: number | null = null;
   request: CollectionSheetRequest = { locale: 'en' };
 

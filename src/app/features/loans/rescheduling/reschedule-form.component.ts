@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -328,6 +329,12 @@ export class RescheduleFormComponent implements OnInit {
   private readonly codeValuesService = inject(CodeValuesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
 
   loanId: number | null = null;
   readonly isSaving = signal(false);
@@ -338,7 +345,7 @@ export class RescheduleFormComponent implements OnInit {
     extraTerms: 0,
   };
   rescheduleFromDateString = '';
-  submittedOnDate = toIsoDate(new Date());
+  submittedOnDate = this.platformDate.today();
   adjustedDueDate: string | null = null;
   readonly reasons = signal<Record<string, unknown>[]>([]);
   readonly unpaidInstallments = signal<GetLoansLoanIdRepaymentPeriod[]>([]);

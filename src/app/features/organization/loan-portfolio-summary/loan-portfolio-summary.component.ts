@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import {
   IonButton,
@@ -43,7 +44,6 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
   formatDateToFineract,
-  toIsoDate,
 } from '../../../core/utils/date-formatter';
 import { AdHocSearchQueryData, LoanProductData, OfficeData, SearchAPIService } from '../../../api';
 import { ColumnDef, DataTableComponent, HelpIconComponent } from '../../../shared';
@@ -514,6 +514,12 @@ export class LoanPortfolioSummaryComponent implements OnInit {
   private readonly searchService = inject(SearchAPIService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18N);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
 
   readonly comparisonConditions: ComparisonCondition[] = ['between', '<=', '>=', '<', '>', '='];
 
@@ -522,8 +528,8 @@ export class LoanPortfolioSummaryComponent implements OnInit {
   readonly isSearching = signal(false);
   readonly results = signal<AdHocSearchQueryData[] | null>(null);
 
-  readonly fromDate = signal(toIsoDate(new Date()));
-  readonly toDate = signal(toIsoDate(new Date()));
+  readonly fromDate = signal(this.platformDate.today());
+  readonly toDate = signal(this.platformDate.today());
 
   filters: PortfolioFilters = defaultFilters();
 

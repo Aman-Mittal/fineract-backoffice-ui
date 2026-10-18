@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../core/adapters';
@@ -617,6 +618,12 @@ export class WcLoanActionFormComponent implements OnInit {
   private readonly productsService = inject(WorkingCapitalLoanProductsService);
   private readonly transactionsService = inject(WorkingCapitalLoanTransactionsService);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
 
   loanId = 0;
@@ -658,8 +665,8 @@ export class WcLoanActionFormComponent implements OnInit {
   expectedDisbursementDate: string | null = null;
   actualDisbursementDate: string | null = null;
   rejectedOnDate: string | null = null;
-  transactionDate: string | null = toIsoDate(new Date());
-  paymentRateEffectiveDate: string | null = toIsoDate(new Date());
+  transactionDate: string | null = this.platformDate.today();
+  paymentRateEffectiveDate: string | null = this.platformDate.today();
 
   get title(): string {
     const map: Record<string, string> = {

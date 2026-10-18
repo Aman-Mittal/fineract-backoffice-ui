@@ -18,11 +18,12 @@
  */
 
 import { Component, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { TranslatePipe } from '../../../core/adapters';
 import { CdkTableModule } from '@angular/cdk/table';
-import { formatDateToFineract, toIsoDate } from '../../../core/utils/date-formatter';
+import { formatDateToFineract } from '../../../core/utils/date-formatter';
 import {
   IonButton,
   IonCard,
@@ -212,10 +213,17 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   ],
 })
 export class LoansPointInTimeComponent {
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
+
   /** See `createPickersReady` — the date buttons must not outrun their pickers. */
   readonly pickersReady = createPickersReady();
 
-  searchDate = toIsoDate(new Date());
+  searchDate = this.platformDate.today();
   loanIdsInput = '';
   readonly results = signal<LoanPointInTimeData[]>([]);
   readonly isLoading = signal(false);

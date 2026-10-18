@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -270,6 +271,12 @@ export class OfficeFormComponent implements OnInit {
 
   private readonly officeApi = inject(OFFICE_API);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
 
   private readonly LIST_PATH = '/organization/offices';
@@ -281,7 +288,7 @@ export class OfficeFormComponent implements OnInit {
   readonly office = signal<{ name?: string; externalId?: string | null; parentId?: number | null }>(
     {},
   );
-  readonly openingDate = signal(toIsoDate(new Date()));
+  readonly openingDate = signal(this.platformDate.today());
   readonly offices = signal<readonly Office[]>([]);
 
   ngOnInit() {

@@ -18,6 +18,7 @@
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../core/adapters';
@@ -46,7 +47,6 @@ import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
-  toIsoDate,
 } from '../../../core/utils/date-formatter';
 import { DeferredDatetimeButtonComponent } from '../../../ui/deferred-datetime-button/deferred-datetime-button.component';
 
@@ -229,6 +229,12 @@ interface RatePeriodRow {
 export class FloatingRateFormComponent implements OnInit {
   private readonly floatingRatesService = inject(FloatingRatesService);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today, as the platform reckons it: the business date when one governs, and the platform's
+   * own clock otherwise. Fineract judges "the future" by that reckoning, so a date seeded from
+   * `new Date()` is refused whenever the browser runs ahead of it (#758).
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
 
   private readonly LIST_PATH = '/products/floating-rates';
@@ -268,7 +274,9 @@ export class FloatingRateFormComponent implements OnInit {
           const arr = p.fromDate as unknown as number[];
           return {
             fromDate:
-              Array.isArray(arr) && arr.length >= 3 ? formatArrayDate(arr) : toIsoDate(new Date()),
+              Array.isArray(arr) && arr.length >= 3
+                ? formatArrayDate(arr)
+                : this.platformDate.today(),
             interestRate: p.interestRate ?? null,
             isDifferentialToBaseLendingRate: !!p.isDifferentialToBaseLendingRate,
           };
@@ -282,16 +290,29 @@ export class FloatingRateFormComponent implements OnInit {
     return `periodfromDate-picker-${index}`;
   }
 
+  /**
+   * Adds a rate period.
+   *
+   * Through `update` with a new array, not `periods().push(...)`. Pushing mutates the array the
+   * signal already holds, so the signal's value never changes and nothing is notified: the new
+   * row reaches the screen only because this component runs with default change detection, which
+   * re-evaluates the `@for` on the next pass for its own reasons. That made the row's arrival a
+   * matter of timing — the e2e that adds two periods and counts the date pickers found one of
+   * them on a busy machine — and it would stop arriving at all under `OnPush` or without zones.
+   */
   addPeriod(): void {
-    this.periods().push({
-      fromDate: toIsoDate(new Date()),
-      interestRate: null,
-      isDifferentialToBaseLendingRate: false,
-    });
+    this.periods.update((periods) => [
+      ...periods,
+      {
+        fromDate: this.platformDate.today(),
+        interestRate: null,
+        isDifferentialToBaseLendingRate: false,
+      },
+    ]);
   }
 
   removePeriod(index: number): void {
-    this.periods().splice(index, 1);
+    this.periods.update((periods) => periods.filter((_, position) => position !== index));
   }
 
   onSubmit(): void {
