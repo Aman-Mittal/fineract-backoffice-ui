@@ -82,6 +82,23 @@ describe('FixedDepositAccountFormComponent', () => {
     },
   };
 
+  /**
+   * A template offering nothing.
+   *
+   * Every list present and empty, every scalar null — which is what the adapter returns, because
+   * it maps each one with a default. A double of `{}` is not a template the adapter can produce,
+   * and one caused an unhandled `chartSlabs.map` on an undefined array.
+   */
+  const EMPTY_TEMPLATE = {
+    minDepositTerm: null,
+    minDepositTermTypeId: null,
+    chartSlabs: [],
+    savingsAccounts: [],
+    maturityInstructions: [],
+    chargeOptions: [],
+    productOptions: [],
+  };
+
   /** The same, with two rate bands, the second open-ended. */
   const TIERED = {
     ...TEMPLATE,
@@ -136,34 +153,14 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should create', () => {
-    deposits['template'].mockReturnValue(
-      of({
-        minDepositTerm: null,
-        minDepositTermTypeId: null,
-        chartSlabs: [],
-        savingsAccounts: [],
-        maturityInstructions: [],
-        chargeOptions: [],
-        productOptions: [],
-      }),
-    );
+    deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
   it('should initialize with clientId from query parameters', () => {
     activatedRouteStub.queryParams = of({ clientId: '123' });
-    deposits['template'].mockReturnValue(
-      of({
-        minDepositTerm: null,
-        minDepositTermTypeId: null,
-        chartSlabs: [],
-        savingsAccounts: [],
-        maturityInstructions: [],
-        chargeOptions: [],
-        productOptions: [],
-      }),
-    );
+    deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
 
     component.ngOnInit();
 
@@ -184,17 +181,7 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should handle missing product options in template', () => {
-    deposits['template'].mockReturnValue(
-      of({
-        minDepositTerm: null,
-        minDepositTermTypeId: null,
-        chartSlabs: [],
-        savingsAccounts: [],
-        maturityInstructions: [],
-        chargeOptions: [],
-        productOptions: [],
-      }),
-    );
+    deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
 
     (component as unknown as Record<string, () => void>)['loadProducts']();
 
@@ -311,12 +298,7 @@ describe('FixedDepositAccountFormComponent', () => {
     });
 
     it('is not blanked by a template that states no term unit', () => {
-      deposits['template'].mockReturnValue(
-        of({
-          ...TEMPLATE,
-          minDepositTermType: undefined,
-        }),
-      );
+      deposits['template'].mockReturnValue(of({ ...TEMPLATE, minDepositTermTypeId: null }));
       component.account()['clientId'] = 1;
 
       component.onProductSelected(101);
@@ -326,8 +308,9 @@ describe('FixedDepositAccountFormComponent', () => {
 
     it('is not blanked by a template that states nothing at all', () => {
       // The degenerate case, and the one the old code hit on every product: every field it read
-      // was absent, so every assignment wrote `undefined`.
-      deposits['template'].mockReturnValue(of({}));
+      // was absent, so every assignment wrote `undefined`. Stated as the empty *model* — the
+      // adapter cannot answer `{}`, and a double that does throws on `chartSlabs.map`.
+      deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
       component.account()['clientId'] = 1;
 
       component.onProductSelected(101);
@@ -386,17 +369,7 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should submit application in create mode', () => {
-    deposits['template'].mockReturnValue(
-      of({
-        minDepositTerm: null,
-        minDepositTermTypeId: null,
-        chartSlabs: [],
-        savingsAccounts: [],
-        maturityInstructions: [],
-        chargeOptions: [],
-        productOptions: [],
-      }),
-    );
+    deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
     deposits['create'].mockReturnValue(of(undefined));
     fixture.detectChanges();
 

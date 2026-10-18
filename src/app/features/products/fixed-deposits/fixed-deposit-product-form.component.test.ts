@@ -49,6 +49,9 @@ describe('FixedDepositProductFormComponent', () => {
     ]);
     // The accounting section reads its rule labels and account options from the template.
     productServiceSpy.getFixeddepositproductsTemplate.mockReturnValue(of({}) as never);
+    // Stubbed even though this route carries no id: an unstubbed spy answers `undefined`, and a
+    // component that subscribes to it throws an unhandled error that lands on another file.
+    productServiceSpy.getFixeddepositproductsProductId.mockReturnValue(of({}) as never);
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
@@ -175,7 +178,20 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
     interestCalculationDaysInYearTypeOptions: [{ id: 365, value: '365 Days' }],
   };
 
-  async function setup(paramMap: { get: (key: string) => string | null }): Promise<void> {
+  /**
+   * @param product - what the product read answers with. Stubbed **before** the component is
+   *   created, because `ngOnInit` reads the route and loads the product itself: a spy stubbed
+   *   afterwards returns `undefined` for that first call, and the component subscribes to it.
+   *
+   *   That is not a hypothetical. It threw `Cannot read properties of undefined (reading
+   *   'subscribe')` as an *unhandled* error, which vitest attributes to whichever file is
+   *   running when it surfaces — so it failed `client-form.component.test.ts` instead, and only
+   *   in the timezone pass, where the timing differed. Two full-suite runs looked like flakes.
+   */
+  async function setup(
+    paramMap: { get: (key: string) => string | null },
+    product: object = {},
+  ): Promise<void> {
     TestBed.resetTestingModule();
     productServiceSpy = createSpyObj([
       'getFixeddepositproductsProductId',
@@ -184,6 +200,7 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
       'putFixeddepositproductsProductId',
     ]);
     productServiceSpy.getFixeddepositproductsTemplate.mockReturnValue(of(TEMPLATE) as never);
+    productServiceSpy.getFixeddepositproductsProductId.mockReturnValue(of(product) as never);
     productServiceSpy.postFixeddepositproducts.mockReturnValue(of({}) as never);
     productServiceSpy.putFixeddepositproductsProductId.mockReturnValue(of({}) as never);
 
@@ -315,11 +332,9 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
     } as unknown as GetFixedDepositProductsProductIdResponse;
 
     async function setupEdit(): Promise<void> {
-      await setup({ get: () => '1' });
-      (productServiceSpy.getFixeddepositproductsProductId as Mock).mockReturnValue(of(EXISTING));
-      component.productId = 1;
-      component.isEditMode.set(true);
-      component.loadProductData();
+      // The route carries the id, so `ngOnInit` puts the form in edit mode and loads the
+      // product. Nothing here repeats that by hand.
+      await setup({ get: () => '1' }, EXISTING);
       fixture.detectChanges();
       await fixture.whenStable();
     }
