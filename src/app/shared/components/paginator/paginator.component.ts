@@ -152,15 +152,10 @@ export class PaginatorComponent {
   readonly pageSizeOptions = input<number[]>([5, 10, 25, 100]);
 
   /**
-   * Set when `length` is a real, complete count rather than a value read off a paged Fineract
-   * response — e.g. the caller already holds the entire result set client-side (`localLogic` in
-   * {@link DataTableComponent}). Suppresses the "of many" sentinel below: there is nothing to
-   * hedge against when the count did not come from Fineract's pagination in the first place, and
-   * without this a small exact total that happens to be `k * pageSize + 1` (11 records at a page
-   * size of 10, or even a single record at the default page size of 10) was misread as the same
-   * "there's at least one more" signal a genuinely paged response uses.
+   * Counts are exact by default, including server-provided totalFilteredRecords.
+   * Set false only for an endpoint whose total is an offset + pageSize + 1 sentinel.
    */
-  readonly exactTotal = input(false);
+  readonly exactTotal = input(true);
 
   readonly page = output<PageEvent>();
 
@@ -191,7 +186,7 @@ export class PaginatorComponent {
   /**
    * Range label, e.g. `1 - 10 of 42`.
    *
-   * Fineract does not return a reliable total for every paged endpoint; when the reported
+   * When a caller opts into unknown-total mode, a reported
    * total is exactly one record past the current page it means "there is at least one more",
    * not "there are exactly this many". That case renders as "of many" rather than a number
    * the user would otherwise read as authoritative.

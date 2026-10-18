@@ -86,6 +86,20 @@ describe('AuditLogsListComponent', () => {
     component = fixture.componentInstance;
   });
 
+  it('keeps an unknown total for a full audit page', () => {
+    auditsServiceSpy.getAudits.mockReturnValue(
+      of({
+        pageItems: Array.from({ length: 10 }, (_, id) => ({ id, entityName: 'Client' })),
+        totalFilteredRecords: 10,
+      }) as unknown as Observable<never>,
+    );
+    fixture.detectChanges();
+
+    expect(component.totalRecords()).toBe(11);
+    const range = fixture.nativeElement.querySelector('[data-testid="paginator-range-label"]');
+    expect(range.textContent.trim()).toBe('1 - 10 of many');
+  });
+
   it('should create and load audit logs on init', () => {
     fixture.detectChanges();
 

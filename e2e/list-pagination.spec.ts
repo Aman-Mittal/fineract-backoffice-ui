@@ -123,6 +123,49 @@ const LAST = 3;
 const expectPagerDisabled = (page: Page, index: number, disabled: boolean) =>
   expect(pagerButton(page, index)).toHaveJSProperty('disabled', disabled);
 
+test.describe('Server total modes', () => {
+  for (const total of [1, 11, 21]) {
+    test(`shows an exact loan count of ${total} without opting in`, async ({ page }) => {
+      await login(page);
+      await page.route(/\/api\/v1\/loans(?:\?|$)/, async (route) => {
+        const offset = Number(new URL(route.request().url()).searchParams.get('offset') ?? 0);
+        await route.fulfill({
+          json: {
+            totalFilteredRecords: total,
+            pageItems: Array.from({ length: Math.min(PAGE_SIZE, total - offset) }, (_, index) => ({
+              id: offset + index + 1,
+              accountNo: `LOAN-${offset + index + 1}`,
+              clientName: 'Synthetic Client',
+              loanProductName: 'Synthetic Loan',
+              status: { id: 300, value: 'Active', active: true },
+            })),
+          },
+        });
+      });
+      await page.goto('/loans');
+      await expect(range(page)).toHaveText(`1 - ${Math.min(total, PAGE_SIZE)} of ${total}`);
+      if (total > PAGE_SIZE) await pagerButton(page, LAST).click();
+      await expect(range(page)).toHaveText(`${total} - ${total} of ${total}`);
+      await expectPagerDisabled(page, NEXT, true);
+    });
+  }
+
+  test('keeps the unknown total for a full audit page', async ({ page }) => {
+    await login(page);
+    await page.route('**/api/v1/audits**', (route) =>
+      route.fulfill({
+        json: {
+          totalFilteredRecords: 10,
+          pageItems: Array.from({ length: 10 }, (_, id) => ({ id, entityName: 'Client' })),
+        },
+      }),
+    );
+    await page.goto('/security/audits');
+    await expect(range(page)).toHaveText('1 - 10 of many');
+    await expectPagerDisabled(page, NEXT, false);
+  });
+});
+
 test.describe('List pagination', () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
