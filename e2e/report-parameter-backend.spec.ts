@@ -26,6 +26,7 @@
  * bug, where the UI silently omitted a declared parameter and Fineract returned the wrong scope.
  */
 
+import type { Page, Response } from '@playwright/test';
 import { test, expect, recordingTimeout } from './fixtures';
 import { login } from './utils/fineract-login';
 import { ionSelect, ionSelectValue, isIonSelectDisabled } from './utils/ionic-locators';
@@ -99,6 +100,7 @@ test.describe('Dynamic report parameters against Fineract', () => {
       });
       await page.getByTestId('run-report').click();
       const response = await reportResponse;
+      const payload = await readReportPayload(page, response);
 
       // The table must render — that is the half of this the user sees.
       await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 20000 });
@@ -108,7 +110,6 @@ test.describe('Dynamic report parameters against Fineract', () => {
       // instance that is not torn down between runs, so a client seeded moments ago sits past
       // the last page a test could turn to. What this spec is about is which rows the parameter
       // brought back, and the response says that without a ceiling.
-      const payload = (await response.json()) as { data?: { row?: unknown[] }[] };
       const returned = (payload.data ?? []).map((entry) => (entry.row ?? []).join(' '));
       expect(returned.join(' ')).toContain(expectedClientName);
       return returned;
@@ -130,6 +131,29 @@ test.describe('Dynamic report parameters against Fineract', () => {
     expect(branchRows).not.toEqual(headOfficeRows);
   });
 });
+
+interface ReportPayload {
+  data?: { row?: unknown[] }[];
+}
+
+/**
+ * Reads a run-report response body, replaying the request if the browser has already dropped it.
+ *
+ * Chromium keeps response bodies in a bounded buffer, and Head Office's Client Listing grows with
+ * every run on a shared instance, so by the time it is read the body can be gone
+ * (`Network.getResponseBody: No data found for resource`). The replay carries the same URL and
+ * headers, so it asks Fineract the identical question.
+ */
+async function readReportPayload(page: Page, response: Response): Promise<ReportPayload> {
+  try {
+    return (await response.json()) as ReportPayload;
+  } catch {
+    const request = response.request();
+    const replay = await page.request.get(request.url(), { headers: await request.allHeaders() });
+    expect(replay.ok()).toBe(true);
+    return (await replay.json()) as ReportPayload;
+  }
+}
 
 test.describe('Cascading report parameters against Fineract', () => {
   /**

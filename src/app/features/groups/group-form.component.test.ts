@@ -25,6 +25,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
+import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
 
 describe('GroupFormComponent', () => {
   let component: GroupFormComponent;
@@ -32,8 +33,12 @@ describe('GroupFormComponent', () => {
   let groupsServiceSpy: SpyObj<GroupsService>;
   let officesServiceSpy: SpyObj<OfficesService>;
   let routerSpy: SpyObj<Router>;
+  let overlay: FakeOverlayAdapter;
 
   beforeEach(async () => {
+    const fakes = provideFakeAdapters();
+    overlay = fakes.overlay;
+
     groupsServiceSpy = createSpyObj(['getGroupsGroupId', 'postGroups', 'putGroupsGroupId']);
     officesServiceSpy = createSpyObj(['getOffices']);
     routerSpy = createSpyObj(['navigate']);
@@ -41,6 +46,7 @@ describe('GroupFormComponent', () => {
     await TestBed.configureTestingModule({
       imports: [GroupFormComponent],
       providers: [
+        ...fakes.providers,
         ...provideTranslateTesting(),
         provideNoopAnimations(),
         { provide: GroupsService, useValue: groupsServiceSpy },
@@ -77,7 +83,7 @@ describe('GroupFormComponent', () => {
     component.activationDate = testDate;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    groupsServiceSpy.postGroups.mockReturnValue(of({}) as any);
+    groupsServiceSpy.postGroups.mockReturnValue(of({ groupId: 55 }) as any);
 
     component.onSubmit();
 
@@ -92,7 +98,8 @@ describe('GroupFormComponent', () => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(groupsServiceSpy.postGroups).toHaveBeenCalledWith(expectedPayload as any);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/groups']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/groups/view', 55]);
+    expect(overlay.lastToast?.message).toBe('GROUPS.CREATE_SUCCESS');
   });
 
   it('should handle error on submit', () => {

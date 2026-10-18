@@ -113,7 +113,7 @@ describe('SavingsAccountTransactionFormComponent', () => {
 
     component.onSubmit();
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/savings-accounts']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/savings-accounts/view', 7]);
   });
 
   it('cancel navigates back without submitting', () => {
@@ -121,7 +121,7 @@ describe('SavingsAccountTransactionFormComponent', () => {
 
     component.onCancel();
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/savings-accounts']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/savings-accounts/view', 7]);
     expect(transactionSpy.postSavingsaccountsSavingsIdTransactions).not.toHaveBeenCalled();
   });
 });

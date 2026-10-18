@@ -112,7 +112,7 @@ async function createClient(page: Page): Promise<string> {
   await page.getByRole('textbox', { name: 'Last Name' }).fill('Borrower');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page).toHaveURL(/\/clients$/, { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/clients\/view\/\d+$/, { timeout: 20_000 });
   return `${firstName} Borrower`;
 }
 
@@ -173,7 +173,7 @@ async function bookLoanApplication(
   const created = await captureJson<{ loanId: number }>(page, /\/loans$/, 'POST', () =>
     page.getByRole('button', { name: 'Save' }).click(),
   );
-  await expect(page).toHaveURL(/\/loans$/, { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/loans\/view\/\d+$/, { timeout: 20_000 });
   return created.loanId;
 }
 
@@ -306,7 +306,7 @@ test.describe('a loan taken through four separated duties, every account built i
       timeout: 20_000,
     });
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL(/\/loans$/, { timeout: 20_000 });
+    await expect(page).toHaveURL(`/loans/view/${loanId}`, { timeout: 20_000 });
 
     // The point of driving it to completion rather than stopping at the form: a gate that
     // admits the right user but a form that cannot submit would pass a narrower assertion.
@@ -402,7 +402,7 @@ test.describe('a loan taken through four separated duties, every account built i
     });
     await page.locator('input[name="transactionAmount"]').fill('100');
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL(/\/loans$/, { timeout: 20_000 });
+    await expect(page).toHaveURL(`/loans/view/${loanId}`, { timeout: 20_000 });
 
     // The transaction landed, which a route assertion alone would not show.
     await page.goto(`/loans/view/${loanId}`);

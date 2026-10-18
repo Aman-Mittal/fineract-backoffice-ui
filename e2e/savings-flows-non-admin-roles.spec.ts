@@ -94,7 +94,7 @@ async function createClient(page: Page): Promise<string> {
   await page.getByRole('textbox', { name: 'Last Name' }).fill('Saver');
   await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page).toHaveURL(/\/clients$/, { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/clients\/view\/\d+$/, { timeout: 20_000 });
   return `${firstName} Saver`;
 }
 
@@ -144,7 +144,7 @@ async function bookApplication(
   const created = await captureJson<{ savingsId: number }>(page, /\/savingsaccounts$/, 'POST', () =>
     page.getByRole('button', { name: 'Save' }).click(),
   );
-  await expect(page).toHaveURL(/\/products\/savings-accounts$/, { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/products\/savings-accounts\/view\/\d+$/, { timeout: 20_000 });
   return created.savingsId;
 }
 
@@ -219,11 +219,7 @@ test.describe('a savings account taken through four separated duties, every acco
 
     await page.getByRole('button', { name: 'Save' }).click();
 
-    // The savings action form returns to the **list**, not to the account — unlike the loan
-    // approve form, which comes back to the loan. So the view has to be reopened before the new
-    // status can be read.
-    await expect(page).toHaveURL(/\/products\/savings-accounts$/, { timeout: 20_000 });
-    await page.goto(VIEW(savingsId));
+    await expect(page).toHaveURL(VIEW(savingsId), { timeout: 20_000 });
     await expect(page.getByText('Approved', { exact: true })).toBeVisible({ timeout: 20_000 });
 
     // Approval and activation are separate duties at the platform, so the approver must not be
@@ -239,8 +235,7 @@ test.describe('a savings account taken through four separated duties, every acco
     await expectOffered(activate);
     await activate.click();
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL(/\/products\/savings-accounts$/, { timeout: 20_000 });
-    await page.goto(VIEW(savingsId));
+    await expect(page).toHaveURL(VIEW(savingsId), { timeout: 20_000 });
     await expect(page.getByText('Active', { exact: true })).toBeVisible({ timeout: 20_000 });
 
     await expectRefused(page.getByTestId('savings-deposit-action'));

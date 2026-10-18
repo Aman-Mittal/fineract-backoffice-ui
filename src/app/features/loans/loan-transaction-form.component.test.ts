@@ -44,6 +44,7 @@ describe('LoanTransactionFormComponent charge refund', () => {
   let transactionsSpy: SpyObj<LoanTransactionsService>;
   let paymentTypesSpy: SpyObj<PaymentTypeService>;
   let routerSpy: SpyObj<Router>;
+  let notificationsSpy: SpyObj<NotificationService>;
 
   async function setup(
     charges: Record<string, unknown>[] = [PAID_CHARGE],
@@ -56,6 +57,7 @@ describe('LoanTransactionFormComponent charge refund', () => {
     ]);
     paymentTypesSpy = createSpyObj(['getPaymenttypes']);
     routerSpy = createSpyObj(['navigate']);
+    notificationsSpy = createSpyObj<NotificationService>(['success', 'error']);
 
     loansSpy.getLoansLoanId.mockReturnValue(
       of({
@@ -80,10 +82,7 @@ describe('LoanTransactionFormComponent charge refund', () => {
         { provide: LoansService, useValue: loansSpy },
         { provide: LoanTransactionsService, useValue: transactionsSpy },
         { provide: PaymentTypeService, useValue: paymentTypesSpy },
-        {
-          provide: NotificationService,
-          useValue: createSpyObj<NotificationService>(['success', 'error']),
-        },
+        { provide: NotificationService, useValue: notificationsSpy },
         { provide: DialogService, useValue: createSpyObj<DialogService>(['confirm']) },
         { provide: Router, useValue: routerSpy },
         {
@@ -193,6 +192,16 @@ describe('LoanTransactionFormComponent charge refund', () => {
     );
   });
 
+  it('returns to the loan view with a success toast after posting', async () => {
+    await setup();
+    component.transaction.paymentTypeId = 1;
+
+    component.onSubmit();
+
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/loans/view', LOAN_ID]);
+    expect(notificationsSpy.success).toHaveBeenCalledWith('LOANS.TRANSACTION_SUCCESS');
+  });
+
   it('does not offer a date that Fineract would replace with its business date', async () => {
     await setup();
 
@@ -226,6 +235,7 @@ describe('LoanTransactionFormComponent deferred income and schedule undos', () =
   let transactionsSpy: SpyObj<LoanTransactionsService>;
   let dialogSpy: SpyObj<DialogService>;
   let notificationsSpy: SpyObj<NotificationService>;
+  let routerSpy: SpyObj<Router>;
 
   async function setup(type: string): Promise<void> {
     const loansSpy = createSpyObj<LoansService>(['getLoansLoanId', 'postLoansLoanId']);
@@ -236,6 +246,7 @@ describe('LoanTransactionFormComponent deferred income and schedule undos', () =
     const paymentTypesSpy = createSpyObj<PaymentTypeService>(['getPaymenttypes']);
     dialogSpy = createSpyObj<DialogService>(['confirm']);
     notificationsSpy = createSpyObj<NotificationService>(['success', 'error']);
+    routerSpy = createSpyObj<Router>(['navigate']);
 
     loansSpy.getLoansLoanId.mockReturnValue(
       of({ id: LOAN_ID, accountNo: 'L000456', clientName: 'Jane Smith', charges: [] }) as never,
@@ -258,7 +269,7 @@ describe('LoanTransactionFormComponent deferred income and schedule undos', () =
         { provide: PaymentTypeService, useValue: paymentTypesSpy },
         { provide: NotificationService, useValue: notificationsSpy },
         { provide: DialogService, useValue: dialogSpy },
-        { provide: Router, useValue: createSpyObj<Router>(['navigate']) },
+        { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ loanId: String(LOAN_ID), type }), snapshot: { data: {} } },
@@ -364,4 +375,14 @@ describe('LoanTransactionFormComponent deferred income and schedule undos', () =
       expect(dialogSpy.confirm).not.toHaveBeenCalled();
     },
   );
+
+  it('returns to the loan view with a success toast after posting buyDownFee', async () => {
+    await setup('buyDownFee');
+    component.transaction.transactionAmount = 400;
+
+    await component.onSubmit();
+
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/loans/view', LOAN_ID]);
+    expect(notificationsSpy.success).toHaveBeenCalledWith('LOANS.TRANSACTION_SUCCESS');
+  });
 });

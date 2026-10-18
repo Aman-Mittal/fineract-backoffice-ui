@@ -22,6 +22,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../core/adapters';
+import { I18N } from '../../core/adapters';
+import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   IonButton,
@@ -313,6 +315,8 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifications = inject(NotificationService);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   accountId = 0;
   readonly command = signal('');
@@ -378,12 +382,20 @@ export class SavingsAccountTransactionFormComponent implements OnInit {
         this.command(),
       )
       .subscribe({
-        next: () => this.router.navigate(['/products/savings-accounts']),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('SAVINGS.TRANSACTION_SUCCESS'),
+            recordRoute: (id) => ['/products/savings-accounts/view', id],
+            recordId: this.accountId,
+          });
+        },
         error: () => this.isSaving.set(false),
       });
   }
 
   onCancel(): void {
-    this.router.navigate(['/products/savings-accounts']);
+    void this.router.navigate(['/products/savings-accounts/view', this.accountId]);
   }
 }

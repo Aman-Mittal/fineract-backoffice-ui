@@ -18,6 +18,7 @@
  */
 
 import { mockClientTextSearch } from './utils/client-search-mock';
+import { URL_CLIENT_VIEW } from './utils/post-mutation-urls';
 import { test, expect, Page } from './fixtures';
 
 const TEST_USER = 'mifos';
@@ -33,7 +34,8 @@ const URL_CLIENTS_CREATE = '/clients/create';
 const SELECT_LEGAL_FORM = 'ion-select[name="legalFormId"]';
 const SELECT_OFFICE = 'ion-select[name="officeId"]';
 const OPTION = 'ion-alert [role="radio"], ion-popover [role="radio"]';
-const ROUTE_CLIENT_2001 = '**/api/v1/clients/2001**';
+/** GET /clients/2001 only — not /accounts or other sub-resources (see client-accounts.spec.ts). */
+const ROUTE_CLIENT_2001 = /\/api\/v1\/clients\/2001(?:\?.*)?$/;
 const URL_CLIENT_2001 = '/clients/view/2001';
 const ARIA_SELECTED = 'aria-selected';
 const SEARCH_INPUT_LOCATOR = 'input[placeholder="Type to search..."]';
@@ -128,6 +130,42 @@ async function loginAndGoToDashboard(page: Page) {
   await expect(page).toHaveURL('/dashboard');
 }
 
+const createdClientDetails = new Map<number, Record<string, unknown>>();
+
+function seededClientDetail(id: number, seeded: unknown[]): Record<string, unknown> | undefined {
+  const created = createdClientDetails.get(id);
+  if (created) {
+    return created;
+  }
+  const match = seeded.find((c) => (c as { id?: number }).id === id);
+  return match ? (match as Record<string, unknown>) : undefined;
+}
+
+/** Mocks the client detail GET and accounts GET used by `app-client-view`. */
+async function mockClientViewApis(
+  page: Page,
+  client: typeof ACTIVE_CLIENT | typeof NEW_CLIENT | typeof CLOSED_CLIENT,
+): Promise<void> {
+  await page.route('**/api/v1/clients/*/accounts**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ loanAccounts: [], savingsAccounts: [] }),
+    });
+  });
+  await page.route(new RegExp(`/api/v1/clients/${client.id}(?:\\?.*)?$`), async (route) => {
+    if (route.request().method() !== 'GET') {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(client),
+    });
+  });
+}
+
 async function setupClientMocks(page: Page, clients: unknown[] = []) {
   await mockClientTextSearch(page, clients);
   const body =
@@ -136,6 +174,35 @@ async function setupClientMocks(page: Page, clients: unknown[] = []) {
       : EMPTY_RESPONSE;
   await page.route(/\/api\/v1\/clients(\?|$)/, async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body });
+  });
+  await page.route(/\/api\/v1\/clients\/(\d+)(\?.*)?$/, async (route) => {
+    if (route.request().method() !== 'GET') {
+      await route.continue();
+      return;
+    }
+    const id = Number(
+      route
+        .request()
+        .url()
+        .match(/clients\/(\d+)/)?.[1],
+    );
+    const detail = seededClientDetail(id, clients);
+    if (!detail) {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(detail),
+    });
+  });
+  await page.route('**/api/v1/clients/*/accounts**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ loanAccounts: [], savingsAccounts: [] }),
+    });
   });
   await page.route('**/api/v1/clients', async (route) => {
     if (route.request().method() === 'POST') {
@@ -148,10 +215,11 @@ async function setupClientMocks(page: Page, clients: unknown[] = []) {
         lastname: postData.lastname,
         officeId: postData.officeId,
         officeName: HEAD_OFFICE,
-        status: { id: 100, value: 'Pending' },
+        status: { id: 300, value: 'Active' },
         legalFormId: postData.legalFormId,
-        active: false,
+        active: postData.active !== false,
       };
+      createdClientDetails.set(created.id, created);
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -217,7 +285,7 @@ test.describe('Client CRUD Workflow', () => {
 
     /* submit the form */
     await page.getByRole('button', { name: BTN_SAVE }).click();
-    await expect(page).toHaveURL('/clients');
+    await expect(page).toHaveURL(URL_CLIENT_VIEW);
   });
 
   test('should complete full client creation flow — Entity', async ({ page }) => {
@@ -267,15 +335,8 @@ test.describe('Client CRUD Workflow', () => {
   });
 
   test('should disable office and legal form in edit mode', async ({ page }) => {
-    /* mock a single client GET */
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ACTIVE_CLIENT),
-      });
-    });
     await setupClientMocks(page, [ACTIVE_CLIENT]);
+    await mockClientViewApis(page, ACTIVE_CLIENT);
 
     /* navigate to client view then edit */
     await page.goto('/clients/edit/2001');
@@ -297,32 +358,29 @@ test.describe('Client View & Status Transitions', () => {
   });
 
   test('should display client view with correct details', async ({ page }) => {
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ACTIVE_CLIENT),
-      });
-    });
     await setupClientMocks(page, [ACTIVE_CLIENT]);
+    await mockClientViewApis(page, ACTIVE_CLIENT);
 
+    const clientLoaded = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        ROUTE_CLIENT_2001.test(response.url()) &&
+        response.ok(),
+    );
     await page.goto(URL_CLIENT_2001);
+    await clientLoaded;
+
     // The trail comes from the route titles, so it names the screen; the client is in the heading.
     const breadcrumb = page.getByRole('navigation', { name: 'Breadcrumb' });
     await expect(breadcrumb).toContainText('Clients');
     await expect(breadcrumb).toContainText('Client Details');
-    await expect(page.locator('h2')).toContainText('Test User');
-    await expect(page.getByText('#000000001')).toBeVisible();
+    const header = page.locator('app-client-view .title-details');
+    await expect(header.locator('h2')).toContainText('Test User');
+    await expect(header.locator('.account-no')).toHaveText('#000000001');
   });
 
   test('should show actions menu for pending client (status 100)', async ({ page }) => {
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(NEW_CLIENT),
-      });
-    });
+    await mockClientViewApis(page, NEW_CLIENT);
     await page.goto(URL_CLIENT_2001);
 
     /* open actions menu */
@@ -334,13 +392,7 @@ test.describe('Client View & Status Transitions', () => {
   });
 
   test('should show actions menu for active client (status 300)', async ({ page }) => {
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ACTIVE_CLIENT),
-      });
-    });
+    await mockClientViewApis(page, ACTIVE_CLIENT);
     await page.goto(URL_CLIENT_2001);
 
     await page.getByRole('button', { name: /Actions/i }).click();
@@ -348,13 +400,7 @@ test.describe('Client View & Status Transitions', () => {
   });
 
   test('should show actions menu for closed client (status 600)', async ({ page }) => {
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(CLOSED_CLIENT),
-      });
-    });
+    await mockClientViewApis(page, CLOSED_CLIENT);
     await page.goto(URL_CLIENT_2001);
 
     await page.getByRole('button', { name: /Actions/i }).click();
@@ -362,13 +408,7 @@ test.describe('Client View & Status Transitions', () => {
   });
 
   test('should show New Account menu for active client', async ({ page }) => {
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ACTIVE_CLIENT),
-      });
-    });
+    await mockClientViewApis(page, ACTIVE_CLIENT);
     await page.goto(URL_CLIENT_2001);
 
     await page.getByRole('button', { name: /New Account/i }).click();
@@ -379,14 +419,8 @@ test.describe('Client View & Status Transitions', () => {
   });
 
   test('should navigate from client view to client list via breadcrumb', async ({ page }) => {
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ACTIVE_CLIENT),
-      });
-    });
     await setupClientMocks(page, [ACTIVE_CLIENT]);
+    await mockClientViewApis(page, ACTIVE_CLIENT);
 
     await page.goto(URL_CLIENT_2001);
     await page.locator('.breadcrumb a').first().click();
@@ -394,13 +428,7 @@ test.describe('Client View & Status Transitions', () => {
   });
 
   test('should navigate back from client view', async ({ page }) => {
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ACTIVE_CLIENT),
-      });
-    });
+    await mockClientViewApis(page, ACTIVE_CLIENT);
     await page.goto(URL_CLIENT_2001);
 
     await page.getByRole('button', { name: /Back/i }).click();
@@ -415,13 +443,7 @@ test.describe('Client View & Status Transitions', () => {
 test.describe('Client View Tabs', () => {
   test('should display all expected tabs on client view', async ({ page }) => {
     await loginAndGoToDashboard(page);
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ACTIVE_CLIENT),
-      });
-    });
+    await mockClientViewApis(page, ACTIVE_CLIENT);
     await page.route('**/api/v1/clientidentifiers**', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: EMPTY_ARRAY });
     });
@@ -451,13 +473,7 @@ test.describe('Client View Tabs', () => {
 
   test('should switch between client view tabs', async ({ page }) => {
     await loginAndGoToDashboard(page);
-    await page.route(ROUTE_CLIENT_2001, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ACTIVE_CLIENT),
-      });
-    });
+    await mockClientViewApis(page, ACTIVE_CLIENT);
     await page.route('**/api/v1/clientidentifiers**', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: EMPTY_ARRAY });
     });

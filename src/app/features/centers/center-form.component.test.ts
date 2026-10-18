@@ -25,6 +25,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
 
 describe('CenterFormComponent', () => {
   let component: CenterFormComponent;
@@ -32,8 +33,11 @@ describe('CenterFormComponent', () => {
   let centersServiceSpy: SpyObj<CentersService>;
   let officesServiceSpy: SpyObj<OfficesService>;
   let routerSpy: SpyObj<Router>;
+  let overlay: FakeOverlayAdapter;
 
   beforeEach(async () => {
+    const fakes = provideFakeAdapters();
+    overlay = fakes.overlay;
     centersServiceSpy = createSpyObj(['getCentersCenterId', 'postCenters', 'putCentersCenterId']);
     officesServiceSpy = createSpyObj(['getOffices']);
     routerSpy = createSpyObj(['navigate']);
@@ -41,6 +45,7 @@ describe('CenterFormComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CenterFormComponent],
       providers: [
+        ...fakes.providers,
         ...provideTranslateTesting(),
         provideNoopAnimations(),
         { provide: CentersService, useValue: centersServiceSpy },
@@ -77,7 +82,7 @@ describe('CenterFormComponent', () => {
     component.activationDate = testDate;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    centersServiceSpy.postCenters.mockReturnValue(of({}) as any);
+    centersServiceSpy.postCenters.mockReturnValue(of({ resourceId: 12 }) as any);
 
     component.onSubmit();
 
@@ -92,7 +97,8 @@ describe('CenterFormComponent', () => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(centersServiceSpy.postCenters).toHaveBeenCalledWith(expectedPayload as any);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/centers']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/centers/view', 12]);
+    expect(overlay.lastToast?.message).toBe('CENTERS.CREATE_SUCCESS');
   });
 
   it('should handle error on submit', () => {

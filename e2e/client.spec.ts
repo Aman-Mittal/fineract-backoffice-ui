@@ -105,6 +105,42 @@ test.describe('Client Management', () => {
 
     await mockClientTextSearch(page, createdClients);
 
+    await page.route(/\/api\/v1\/clients\/(\d+)(\?.*)?$/, async (route) => {
+      if (route.request().method() !== 'GET') {
+        await route.continue();
+        return;
+      }
+      const id = Number(
+        route
+          .request()
+          .url()
+          .match(/clients\/(\d+)/)?.[1],
+      );
+      const client = createdClients.find((c) => c.id === id);
+      if (!client) {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ...client,
+          officeId: 1,
+          legalFormId: 1,
+          active: true,
+        }),
+      });
+    });
+
+    await page.route('**/api/v1/clients/*/accounts**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ loanAccounts: [], savingsAccounts: [] }),
+      });
+    });
+
     // Intercept Clients List GET
     await page.route('**/api/v1/clients?**', async (route) => {
       await route.fulfill({
@@ -160,11 +196,7 @@ test.describe('Client Management', () => {
     // Step 3 — Contact Details (all optional): submit straight away.
     await page.getByRole('button', { name: 'Save' }).click();
 
-    // Verify redirection to list and presence of new client
-    await expect(page).toHaveURL('/clients');
-    await page.locator('input[placeholder="Type to search..."]').fill(firstName);
-
-    // Wait for local filtering if any, or just check row
-    await expect(page.locator('table')).toContainText(firstName);
+    await expect(page).toHaveURL(/\/clients\/view\/\d+/);
+    await expect(page.locator('app-client-view')).toContainText(firstName);
   });
 });

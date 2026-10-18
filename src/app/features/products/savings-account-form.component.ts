@@ -23,6 +23,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../core/adapters';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
+import { I18N } from '../../core/adapters';
+import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
@@ -249,6 +251,8 @@ export class SavingsAccountFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifications = inject(NotificationService);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   private readonly LIST_PATH = '/products/savings-accounts';
 
@@ -335,12 +339,29 @@ export class SavingsAccountFormComponent implements OnInit {
       this.savingsService
         .putSavingsaccountsAccountId(this.accountId, payload as Record<string, unknown>)
         .subscribe({
-          next: () => this.router.navigate([this.LIST_PATH]),
+          next: (response) => {
+            this.isSaving.set(false);
+            this.mutationOutcome.complete({
+              response,
+              successMessage: this.i18n.translate('SAVINGS.UPDATE_SUCCESS'),
+              recordRoute: (id) => ['/products/savings-accounts/view', id],
+              recordId: this.accountId ?? undefined,
+              fallbackRoute: [this.LIST_PATH],
+            });
+          },
           error: () => this.isSaving.set(false),
         });
     } else {
       this.savingsService.postSavingsaccounts(payload as PostSavingsAccountsRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('SAVINGS.CREATE_SUCCESS'),
+            recordRoute: (id) => ['/products/savings-accounts/view', id],
+            fallbackRoute: [this.LIST_PATH],
+          });
+        },
         error: () => this.isSaving.set(false),
       });
     }

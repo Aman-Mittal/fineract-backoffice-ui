@@ -21,7 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../core/adapters';
+import { I18N, TranslatePipe } from '../../core/adapters';
+import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
 import {
   LoansService,
@@ -581,6 +582,8 @@ export class LoanFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notifications = inject(NotificationService);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   private readonly LIST_PATH = '/loans';
 
@@ -803,12 +806,29 @@ export class LoanFormComponent implements OnInit {
       this.loansService
         .putLoansLoanId(this.loanId, this.loan() as PutLoansLoanIdRequest)
         .subscribe({
-          next: () => this.router.navigate([this.LIST_PATH]),
+          next: (response) => {
+            this.isSaving.set(false);
+            this.mutationOutcome.complete({
+              response,
+              successMessage: this.i18n.translate('LOANS.UPDATE_SUCCESS'),
+              recordRoute: (id) => ['/loans/view', id],
+              recordId: this.loanId ?? undefined,
+              fallbackRoute: [this.LIST_PATH],
+            });
+          },
           error: () => this.isSaving.set(false),
         });
     } else {
       this.loansService.postLoans(this.loan()).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('LOANS.CREATE_SUCCESS'),
+            recordRoute: (id) => ['/loans/view', id],
+            fallbackRoute: [this.LIST_PATH],
+          });
+        },
         error: () => this.isSaving.set(false),
       });
     }

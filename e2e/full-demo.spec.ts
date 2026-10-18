@@ -235,7 +235,7 @@ test.describe('Full feature demo recording', () => {
     await page.getByRole('textbox', { name: 'Last Name' }).fill('Tester');
     await page.getByRole('button', { name: 'Next' }).click();
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL(/\/clients$/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/clients\/view\/\d+$/, { timeout: 15000 });
     await beat(page);
 
     // 7. Create the loan application
@@ -291,7 +291,7 @@ test.describe('Full feature demo recording', () => {
     await page.getByRole('button', { name: 'Disburse' }).click();
     await expect(page).toHaveURL(new RegExp(`/loans/${loanId}/transactions/disburse$`));
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
+    await expect(page).toHaveURL(new RegExp(`/loans/view/${loanId}$`), { timeout: 15000 });
 
     // 9. Loan view: schedule type badge on the account itself
     await page.goto(`/loans/view/${loanId}`);
@@ -368,7 +368,7 @@ test.describe('Full feature demo recording', () => {
     // so there is nothing to fill — only the amount needs setting.
     await page.locator('input[name="transactionAmount"]').fill('100');
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
+    await expect(page).toHaveURL(new RegExp(`/loans/view/${loanId}$`), { timeout: 15000 });
 
     await page.goto(`/loans/view/${loanId}`);
     await selectTab(page, 'Transactions');

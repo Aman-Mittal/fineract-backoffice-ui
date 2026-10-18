@@ -25,15 +25,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
+import { FakeOverlayAdapter, provideFakeAdapters } from '../../../testing/adapters';
 
 describe('RecurringDepositTransactionFormComponent', () => {
   let component: RecurringDepositTransactionFormComponent;
   let fixture: ComponentFixture<RecurringDepositTransactionFormComponent>;
   let serviceSpy: SpyObj<RecurringDepositAccountTransactionsService>;
   let routerSpy: SpyObj<Router>;
+  let overlay: FakeOverlayAdapter;
   let commandParam: 'deposit' | 'withdrawal';
 
   beforeEach(async () => {
+    const fakes = provideFakeAdapters();
+    overlay = fakes.overlay;
     commandParam = 'deposit';
     serviceSpy = createSpyObj([
       'getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate',
@@ -49,6 +53,7 @@ describe('RecurringDepositTransactionFormComponent', () => {
     await TestBed.configureTestingModule({
       imports: [RecurringDepositTransactionFormComponent],
       providers: [
+        ...fakes.providers,
         ...provideTranslateTesting(),
         { provide: RecurringDepositAccountTransactionsService, useValue: serviceSpy },
         { provide: Router, useValue: routerSpy },
@@ -83,7 +88,7 @@ describe('RecurringDepositTransactionFormComponent', () => {
     expect(component.paymentTypeOptions()).toHaveLength(2);
   });
 
-  it('should post a deposit and navigate to the transactions list', () => {
+  it('should post a deposit and navigate to the account view', () => {
     createComponent();
     serviceSpy.postRecurringdepositaccountsRecurringDepositAccountIdTransactions.mockReturnValue(
       of({}) as unknown as ReturnType<
@@ -100,11 +105,8 @@ describe('RecurringDepositTransactionFormComponent', () => {
       expect.objectContaining({ transactionAmount: 500, paymentTypeId: 1 }),
       'deposit',
     );
-    expect(routerSpy.navigate).toHaveBeenCalledWith([
-      '/products/recurring-deposits',
-      1,
-      'transactions',
-    ]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/recurring-deposits/view', 1]);
+    expect(overlay.lastToast?.message).toBe('SAVINGS.TRANSACTION_SUCCESS');
   });
 
   it('should post a withdrawal command from the route', () => {

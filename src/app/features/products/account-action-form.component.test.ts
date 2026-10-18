@@ -33,10 +33,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
+import { FakeOverlayAdapter, provideFakeAdapters } from '../../testing/adapters';
 
 describe('AccountActionFormComponent', () => {
-  const SAVINGS_PATH = '/products/savings-accounts';
-  const LOAN_PATH_PREFIX = '/loans/view/';
+  const SAVINGS_VIEW = '/products/savings-accounts/view';
+  const LOAN_VIEW = '/loans/view';
 
   let component: AccountActionFormComponent;
   let fixture: ComponentFixture<AccountActionFormComponent>;
@@ -49,10 +50,13 @@ describe('AccountActionFormComponent', () => {
   let chargesSpy: SpyObj<ChargesService>;
   let loanChargesSpy: SpyObj<LoanChargesService>;
   let routerSpy: SpyObj<Router>;
+  let overlay: FakeOverlayAdapter;
 
   let routeParams: Record<string, string>;
 
   beforeEach(async () => {
+    const fakes = provideFakeAdapters();
+    overlay = fakes.overlay;
     routeParams = {
       ['accountId']: '123',
       ['accountType']: 'loan',
@@ -114,6 +118,7 @@ describe('AccountActionFormComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AccountActionFormComponent],
       providers: [
+        ...fakes.providers,
         ...provideTranslateTesting(),
         { provide: SavingsAccountService, useValue: savingsSpy },
         { provide: FixedDepositAccountService, useValue: fixedSpy },
@@ -162,19 +167,19 @@ describe('AccountActionFormComponent', () => {
     createComponent();
     component.accountType.set('savings');
     component.onCancel();
-    expect(routerSpy.navigate).toHaveBeenCalledWith([SAVINGS_PATH]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([SAVINGS_VIEW, 123]);
 
     component.accountType.set('fixed');
     component.onCancel();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed-deposits']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed-deposits/view', 123]);
 
     component.accountType.set('recurring');
     component.onCancel();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/recurring-deposits']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/recurring-deposits/view', 123]);
 
     component.accountType.set('loan');
     component.onCancel();
-    expect(routerSpy.navigate).toHaveBeenCalledWith([`${LOAN_PATH_PREFIX}123`]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([LOAN_VIEW, 123]);
 
     component.accountType.set('unknown');
     component.onCancel();
@@ -190,7 +195,8 @@ describe('AccountActionFormComponent', () => {
     component.onSubmit();
 
     expect(loansSpy.postLoansLoanId).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith([`${LOAN_PATH_PREFIX}123`]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([LOAN_VIEW, 123]);
+    expect(overlay.lastToast?.message).toBe('LOANS.ACTION_SUCCESS');
   });
 
   it('should submit disburse loan action successfully', () => {
@@ -250,7 +256,8 @@ describe('AccountActionFormComponent', () => {
 
     component.onSubmit();
     expect(savingsSpy.postSavingsaccountsAccountId).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith([SAVINGS_PATH]);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([SAVINGS_VIEW, 123]);
+    expect(overlay.lastToast?.message).toBe('SAVINGS.ACTION_SUCCESS');
   });
 
   it('should submit fixed deposit approve action successfully', () => {
@@ -265,7 +272,8 @@ describe('AccountActionFormComponent', () => {
 
     component.onSubmit();
     expect(fixedSpy.postFixeddepositaccountsAccountId).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed-deposits']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed-deposits/view', 123]);
+    expect(overlay.lastToast?.message).toBe('SAVINGS.ACTION_SUCCESS');
   });
 
   it('should submit recurring deposit approve action successfully', () => {
@@ -280,7 +288,8 @@ describe('AccountActionFormComponent', () => {
 
     component.onSubmit();
     expect(recurringSpy.postRecurringdepositaccountsAccountId).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/recurring-deposits']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/recurring-deposits/view', 123]);
+    expect(overlay.lastToast?.message).toBe('SAVINGS.ACTION_SUCCESS');
   });
 
   it('should handle API errors and toggle isSaving flag', () => {

@@ -99,7 +99,7 @@ test.describe('Loan account lifecycle actions', () => {
     await expect(dialog.locator('h2')).toContainText('Write Off');
     await dialog.getByRole('button', { name: 'Confirm' }).click();
 
-    await expect(page).toHaveURL(/\/loans$/, { timeout: 15000 });
+    await expect(page).toHaveURL(new RegExp(`/loans/view/${loanId}$`), { timeout: 15000 });
     await page.goto(`/loans/view/${loanId}`);
     await expect(page.getByText('Active', { exact: true })).toHaveCount(0);
   });

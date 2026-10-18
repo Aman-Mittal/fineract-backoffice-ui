@@ -21,7 +21,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../core/adapters';
+import { I18N, TranslatePipe } from '../../core/adapters';
+import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
 import {
   IonButton,
   IonCard,
@@ -241,6 +242,8 @@ export class GroupFormComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   private readonly DATE_FORMAT = 'yyyy-MM-dd';
   private readonly LIST_PATH = '/groups';
@@ -322,7 +325,16 @@ export class GroupFormComponent implements OnInit {
         name: this.group().name,
       };
       this.groupsService.putGroupsGroupId(this.groupId, payload).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('GROUPS.UPDATE_SUCCESS'),
+            recordRoute: (id) => ['/groups/view', id],
+            recordId: this.groupId ?? undefined,
+            fallbackRoute: [this.LIST_PATH],
+          });
+        },
         error: () => this.isSaving.set(false),
       });
     } else {
@@ -337,7 +349,15 @@ export class GroupFormComponent implements OnInit {
       };
 
       this.groupsService.postGroups(payload as PostGroupsRequest).subscribe({
-        next: () => this.router.navigate([this.LIST_PATH]),
+        next: (response) => {
+          this.isSaving.set(false);
+          this.mutationOutcome.complete({
+            response,
+            successMessage: this.i18n.translate('GROUPS.CREATE_SUCCESS'),
+            recordRoute: (id) => ['/groups/view', id],
+            fallbackRoute: [this.LIST_PATH],
+          });
+        },
         error: () => this.isSaving.set(false),
       });
     }
