@@ -362,6 +362,23 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
       expect(slabs[0]['id']).toBe(4);
     });
 
+    it('omits a field the product does not state, instead of sending it as null', async () => {
+      // This product has no maximum term — neither does any product the create form makes,
+      // because it does not ask for one. The model states that absence as `null`, and a null
+      // here is refused outright: "The parameter `maxDepositTermTypeId` must be one of
+      // [ 0, 1, 2, 3 ]", measured against a running Fineract. So the form puts absence back the
+      // way the platform reads it, which is not at all. See `absent`.
+      await setupEdit();
+
+      component.onSubmit();
+
+      const body = updatedBody();
+      expect(body['maxDepositTermTypeId']).toBeUndefined();
+      expect(body['maxDepositAmount']).toBeUndefined();
+      // And therefore off the wire entirely, which is what the platform needs.
+      expect(JSON.parse(JSON.stringify(body))).not.toHaveProperty('maxDepositTermTypeId');
+    });
+
     it('sends an edited rate, not the one it was given', async () => {
       await setupEdit();
       component.chartSlabs.update((slabs) =>

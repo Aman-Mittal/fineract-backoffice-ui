@@ -54,6 +54,7 @@ import {
   emptySlab,
   slabsFromProduct,
 } from '../deposit-chart';
+import { absent } from '../deposit-product-fields';
 import {
   ChartPeriodTypeOption,
   DepositChartEditorComponent,
@@ -438,21 +439,21 @@ export class RecurringDepositProductFormComponent implements OnInit {
         shortName: product.shortName,
         description: product.description,
         currencyCode: product.currencyCode,
-        digitsAfterDecimal: product.decimalPlaces,
+        digitsAfterDecimal: absent(product.decimalPlaces),
         inMultiplesOf: product.inMultiplesOf ?? 0,
         // `null` on every product measured: the platform does not report the recurrence it was
         // created with. The defaults below stand in — see `DepositProduct.recurringFrequency`.
         recurringFrequency: product.recurringFrequency ?? DEFAULT_RECURRING_FREQUENCY,
         recurringFrequencyType: product.recurringFrequencyTypeId ?? DEFAULT_RECURRING_UNIT,
-        minDepositTerm: product.minDepositTerm,
-        minDepositTermTypeId: product.minDepositTermTypeId,
-        depositAmount: product.depositAmount,
-        minDepositAmount: product.minDepositAmount,
-        maxDepositAmount: product.maxDepositAmount,
-        interestCompoundingPeriodType: product.interestCompoundingPeriodTypeId,
-        interestPostingPeriodType: product.interestPostingPeriodTypeId,
-        interestCalculationType: product.interestCalculationTypeId,
-        interestCalculationDaysInYearType: product.interestCalculationDaysInYearTypeId,
+        minDepositTerm: absent(product.minDepositTerm),
+        minDepositTermTypeId: absent(product.minDepositTermTypeId),
+        depositAmount: absent(product.depositAmount),
+        minDepositAmount: absent(product.minDepositAmount),
+        maxDepositAmount: absent(product.maxDepositAmount),
+        interestCompoundingPeriodType: absent(product.interestCompoundingPeriodTypeId),
+        interestPostingPeriodType: absent(product.interestPostingPeriodTypeId),
+        interestCalculationType: absent(product.interestCalculationTypeId),
+        interestCalculationDaysInYearType: absent(product.interestCalculationDaysInYearTypeId),
         preClosurePenalApplicable: product.preClosurePenalApplicable,
         accountingRule: product.accountingRuleId ?? ACCOUNTING_RULE.NONE,
       });
