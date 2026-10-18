@@ -17,12 +17,14 @@
  * under the License.
  */
 
+import { HttpContext } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { BusinessDateManagementService, GlobalConfigurationService } from '../../../api';
 import { FineractBusinessDateApi } from './fineract-business-date.api';
+import { RETRY, SKIP_ERROR_TOAST } from '../../http/http-context';
 
 describe('FineractBusinessDateApi', () => {
   let serviceMock: {
@@ -56,15 +58,25 @@ describe('FineractBusinessDateApi', () => {
    * `business.date.is.not.enabled`.
    */
   describe('isBusinessDateEnabled', () => {
-    it('reads the tenant setting by name', async () => {
+    it('reads the tenant setting by name, quietly and without retrying', async () => {
       const enabled = await new Promise((resolve) =>
         api.isBusinessDateEnabled().subscribe(resolve),
       );
 
-      expect(configurationsMock.getConfigurationsNameName).toHaveBeenCalledWith(
-        'enable-business-date',
-      );
+      const call = configurationsMock.getConfigurationsNameName.mock.lastCall as [
+        string,
+        unknown,
+        unknown,
+        { context: HttpContext },
+      ];
+      const options = call[3];
+      expect(call[0]).toBe('enable-business-date');
       expect(enabled).toBe(true);
+
+      // Asked on behalf of a date default, with a safe answer when it fails: three retries and
+      // an error toast for a tenant setting is noise on every screen that seeds a date.
+      expect(options.context.get(SKIP_ERROR_TOAST)).toBe(true);
+      expect(options.context.get(RETRY)).toBe(0);
     });
 
     it('answers false for a disabled setting', async () => {

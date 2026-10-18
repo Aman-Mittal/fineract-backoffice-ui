@@ -20,6 +20,7 @@
 import { Injectable, inject } from '@angular/core';
 import { catchError, map } from 'rxjs/operators';
 import { of, type Observable } from 'rxjs';
+import { skipErrorToast, withRetry } from '../../http/http-context';
 
 import { BusinessDateManagementService, GlobalConfigurationService } from '../../../api';
 import type { BusinessDateApi, BusinessDateEntry } from './business-date.api';
@@ -46,20 +47,29 @@ export class FineractBusinessDateApi implements BusinessDateApi {
    * and the caller's fallback — the platform's own clock — is the safer of the two answers.
    */
   isBusinessDateEnabled(): Observable<boolean> {
-    return this.configurations.getConfigurationsNameName(BUSINESS_DATE_SETTING).pipe(
-      map((setting) => (setting as { enabled?: boolean }).enabled === true),
-      catchError(() => of(false)),
-    );
+    return this.configurations
+      .getConfigurationsNameName(BUSINESS_DATE_SETTING, 'body', false, {
+        // Neither retried nor toasted. It is asked on behalf of a date default, it has a safe
+        // answer when it fails, and the user did not ask for it — three retries and a toast for
+        // a tenant setting is noise on every screen that seeds a date.
+        context: skipErrorToast(withRetry(0)),
+      })
+      .pipe(
+        map((setting) => (setting as { enabled?: boolean }).enabled === true),
+        catchError(() => of(false)),
+      );
   }
 
   getBusinessDates(): Observable<readonly BusinessDateEntry[]> {
-    return this.businessDateService.getBusinessdate().pipe(
-      map((dates) =>
-        (dates || []).map((d) => ({
-          type: d.type ?? '',
-          date: d.date ?? null,
-        })),
-      ),
-    );
+    return this.businessDateService
+      .getBusinessdate('body', false, { context: skipErrorToast(withRetry(0)) })
+      .pipe(
+        map((dates) =>
+          (dates || []).map((d) => ({
+            type: d.type ?? '',
+            date: d.date ?? null,
+          })),
+        ),
+      );
   }
 }

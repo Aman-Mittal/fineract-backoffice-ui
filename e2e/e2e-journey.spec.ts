@@ -134,9 +134,14 @@ async function mockDashboardCounts(page: Page) {
   });
 }
 
-// The header leaves out the business date when the instance has none (GET /businessdate
-// answers []), so the header checks below need one to be configured.
+// The header leaves out the business date when none *governs*: the app asks
+// `GET /configurations/name/enable-business-date` before trusting `GET /businessdate`, because
+// those rows persist after the feature is switched off and stop being maintained (#758). Both
+// have to be answered for the header checks below.
 async function mockBusinessDate(page: Page) {
+  await page.route('**/api/v1/configurations/name/enable-business-date**', async (route) => {
+    await route.fulfill({ json: { name: 'enable-business-date', enabled: true } });
+  });
   await page.route('**/api/v1/businessdate**', async (route) => {
     await route.fulfill({ json: [{ type: 'BUSINESS_DATE', date: [2026, 10, 2] }] });
   });

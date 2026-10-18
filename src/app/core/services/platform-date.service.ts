@@ -81,6 +81,7 @@ export class PlatformDateService {
 
   /** Resolved once and shared, so five screens asking do not make five requests. */
   private resolution$: Observable<string> | null = null;
+  private enabled$: Observable<boolean> | null = null;
   private resolvedAt = 0;
 
   /**
@@ -159,7 +160,14 @@ export class PlatformDateService {
     if (!api) {
       return of(this.today());
     }
-    this.resolution$ ??= api.isBusinessDateEnabled().pipe(
+    // The flag is tenant configuration and does not move during a session, so it is asked once
+    // however many times the date itself is re-read.
+    this.enabled$ ??= api.isBusinessDateEnabled().pipe(
+      catchError(() => of(false)),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+
+    this.resolution$ ??= this.enabled$.pipe(
       switchMap((enabled) => (enabled ? this.readBusinessDate() : of(null))),
       tap((businessDate) => this._businessDate.set(businessDate)),
       map(() => this.today()),
@@ -190,6 +198,7 @@ export class PlatformDateService {
    */
   refresh(): void {
     this.resolution$ = null;
+    this.enabled$ = null;
   }
 
   /**

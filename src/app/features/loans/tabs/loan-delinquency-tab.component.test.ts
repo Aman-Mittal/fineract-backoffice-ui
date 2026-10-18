@@ -47,6 +47,21 @@ const ENDED = { active: false, pausePeriodStart: [2026, 8, 1], pausePeriodEnd: [
 const IN_EFFECT = { active: true, pausePeriodStart: [2026, 9, 28], pausePeriodEnd: [2026, 10, 15] };
 const BUSINESS_DATE = [{ type: 'BUSINESS_DATE', date: [2026, 10, 1] }];
 
+/**
+ * A pause that is in effect *now* by the clock, for the cases where no business date governs.
+ *
+ * The fixtures above are dated around the mocked business date; this one has to straddle the
+ * real today, because that is the date the tab falls back to.
+ */
+function pauseCoveringToday(): Record<string, unknown> {
+  const from = new Date();
+  from.setDate(from.getDate() - 2);
+  const to = new Date();
+  to.setDate(to.getDate() + 2);
+  const parts = (date: Date) => [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+  return { active: true, pausePeriodStart: parts(from), pausePeriodEnd: parts(to) };
+}
+
 describe('LoanDelinquencyTabComponent', () => {
   let fixture: ComponentFixture<LoanDelinquencyTabComponent>;
   let component: LoanDelinquencyTabComponent;
@@ -229,11 +244,14 @@ describe('LoanDelinquencyTabComponent', () => {
       expect(button(RESUME_BUTTON)).toBeNull();
     });
 
-    it('still offers pause, but not resume, when the business date could not be read', async () => {
-      await setup({ businessDate: 'fails' });
+    it('still offers both actions when the business date could not be read', async () => {
+      // The tab dates by the platform's today, which is the business date when one governs and
+      // the platform's clock when none does. Withholding Resume from a tenant that is not using
+      // the business-date feature would take the action away from most of them.
+      await setup({ businessDate: 'fails', periods: [ENDED, pauseCoveringToday()] });
 
       expect(button(PAUSE_BUTTON)).not.toBeNull();
-      expect(button(RESUME_BUTTON)).toBeNull();
+      expect(button(RESUME_BUTTON)).not.toBeNull();
       // Its failure is not the tables' failure.
       expect(component.hasError()).toBe(false);
     });
@@ -296,14 +314,15 @@ describe('LoanDelinquencyTabComponent', () => {
       expect(component.isActing()).toBe(false);
     });
 
-    it('opens the dialog with no start when the business date is not known', async () => {
+    it('opens the dialog at the platform clock when no business date governs', async () => {
       await setup({ businessDate: 'fails' });
       dialogs.open.mockResolvedValue(undefined);
 
       await component.onPause();
 
+      // A real date, not `undefined`: the dialog's bound is "today as the platform sees it".
       expect(dialogs.open).toHaveBeenCalledWith(expect.any(Function), {
-        data: { businessDate: undefined },
+        data: { businessDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) },
       });
     });
   });
@@ -341,13 +360,20 @@ describe('LoanDelinquencyTabComponent', () => {
       expect(changed).not.toHaveBeenCalled();
     });
 
-    it('does not ask, or send, without a business date to date it by', async () => {
-      await setup({ businessDate: 'fails' });
+    it('dates a resume by the platform clock when no business date governs', async () => {
+      await setup({ businessDate: 'fails', periods: [ENDED, pauseCoveringToday()] });
+      dialogs.confirm.mockResolvedValue(true);
 
       await component.onResume();
 
-      expect(dialogs.confirm).not.toHaveBeenCalled();
-      expect(loansService.postLoansLoanIdDelinquencyActions).not.toHaveBeenCalled();
+      expect(dialogs.confirm).toHaveBeenCalled();
+      const [, body] = loansService.postLoansLoanIdDelinquencyActions.mock.lastCall as [
+        number,
+        { action: string; startDate: string },
+      ];
+      expect(body.action).toBe('resume');
+      // Fineract's `dd MMMM yyyy`, so a real date reached the platform rather than nothing.
+      expect(body.startDate).toMatch(/^\d{2} \w+ \d{4}$/);
     });
   });
 });

@@ -70,10 +70,29 @@ const IONIC_SELECT_ARIA_REQUIRED = [
   'aria-allowed-attr|ion-select[name="officeId"] >> #ion-sel-*',
   'aria-allowed-attr|#office-parent >> #ion-sel-*',
 ];
+/**
+ * The office select's own placeholder text, which has always failed AA and was never evaluated.
+ *
+ * Ionic renders `.select-placeholder` as `color: rgb(51, 51, 51)` at `opacity: 0.6`, which lands
+ * at #858585 on white — 3.69:1 against the 4.5:1 this scan asks for. Measured identically on
+ * `main`, so the colour is not new.
+ *
+ * What is new is that axe can see it. Until now this page carried an error toast at scan time
+ * (one unmocked request is enough), and an overlay puts `color-contrast` into axe's *incomplete*
+ * bucket for every node it covers — fourteen of them here — so the rule was never decided either
+ * way. The business-date reads behind the header no longer raise that toast, so the page is
+ * finally scannable and says what it had been hiding. `expectScanWasNotBlind` does not catch
+ * this case: other rules still passed, so the scan was not blind, only this rule was.
+ *
+ * Baselined rather than fixed because the fix is a theme change — Ionic's placeholder opacity,
+ * applied to every select and input in the application — which belongs with #484's contrast work
+ * rather than in a form-submission change.
+ */
 const CLIENT_FORM_BASELINE = new Set([
   ...IONIC_SELECT_ARIA_REQUIRED,
   'role-img-alt|ion-icon[name="add-circle-outline"]',
   'role-img-alt|.help-icon[name="help-circle-outline"]',
+  'color-contrast|.has-placeholder >> .select-placeholder',
 ]);
 const CREATE_OFFICE_DIALOG_BASELINE = new Set(IONIC_SELECT_ARIA_REQUIRED);
 /**

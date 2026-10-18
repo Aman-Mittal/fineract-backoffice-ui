@@ -241,13 +241,22 @@ export class LoanDelinquencyTabComponent implements OnInit {
   /** A pause or resume request is in flight; both buttons wait for it. */
   readonly isActing = signal(false);
 
-  /** The platform's business date as `YYYY-MM-DD`, once known. */
-  readonly businessDate = signal<string | undefined>(undefined);
+  /**
+   * The date this tab treats as now, `YYYY-MM-DD`: the business date when one governs, and the
+   * platform's own clock otherwise.
+   *
+   * Both halves matter. A resume has to be dated a day the platform accepts as current, and the
+   * stored business date is not that day on a tenant with the feature switched off — those rows
+   * persist and stop being maintained (#758). Equally, withholding Resume from such a tenant
+   * because it has no business date would remove the action from everyone not using the feature,
+   * which is most of them.
+   */
+  readonly platformToday = signal<string | undefined>(undefined);
 
   /** Pause periods ride along on the summary rather than being a resource of their own. */
   readonly pausePeriods = computed(() => this.summary()?.delinquencyPausePeriods ?? []);
 
-  readonly resumable = computed(() => canResume(this.pausePeriods(), this.businessDate()));
+  readonly resumable = computed(() => canResume(this.pausePeriods(), this.platformToday()));
 
   tagColumns: ColumnDef[] = [
     { key: 'classification', label: 'LOANS.CLASSIFICATION' },
@@ -278,12 +287,10 @@ export class LoanDelinquencyTabComponent implements OnInit {
    * without a date the tab simply does not offer Resume.
    */
   private loadBusinessDate(): void {
-    // Through `PlatformDateService`: it asks whether the feature is on before trusting the
-    // stored rows, which persist and go stale once it is switched off (#758). Resume is offered
-    // only when a business date actually governs, so `null` is the right answer for a tenant
-    // without the feature rather than a date to pause against.
+    // Through `PlatformDateService`, which answers the business date when one governs and the
+    // platform's clock when none does — see `platformToday`.
     this.platformDate.resolveToday().subscribe({
-      next: () => this.businessDate.set(this.platformDate.getBusinessDate() ?? undefined),
+      next: (today) => this.platformToday.set(today),
       error: () => undefined,
     });
   }
@@ -293,7 +300,9 @@ export class LoanDelinquencyTabComponent implements OnInit {
       await import('./loan-delinquency-pause-dialog.component');
     const period = await this.dialogs.open<LoanDelinquencyPauseResult>(
       LoanDelinquencyPauseDialogComponent,
-      { data: { businessDate: this.businessDate() } },
+      // The dialog's field is still called `businessDate`: it is the bound it enforces, and on a
+      // tenant using the feature that is exactly what this is.
+      { data: { businessDate: this.platformToday() } },
     );
     if (!period) return;
 
@@ -308,7 +317,7 @@ export class LoanDelinquencyTabComponent implements OnInit {
   }
 
   async onResume(): Promise<void> {
-    const businessDate = this.businessDate();
+    const businessDate = this.platformToday();
     if (!businessDate) return;
 
     const confirmed = await this.dialogs.confirm({
