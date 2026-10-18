@@ -1000,17 +1000,28 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   readonly clientId = computed(() => this.deposit()?.clientId ?? undefined);
 
   /**
-   * An ISO date as the browser's locale writes it, or `'-'`.
+   * A date as the browser's locale writes it, or `'-'`.
+   *
+   * Takes both forms this screen holds, because it has both: the account's own dates arrive as
+   * ISO strings from the adapter, while a transaction row is still an unmodelled payload record
+   * and carries Fineract's `[year, month, day]` — see {@link DepositAccountApi.transactions} for
+   * why that one is deliberate. Narrowing this to the ISO form alone threw `date.split is not a
+   * function` once per transaction row, which emptied the row and took its actions with it.
    *
    * The parts are read out and handed to the local-time constructor rather than to
    * `new Date('2026-10-18')`, which ECMAScript reads as UTC midnight — west of Greenwich that
    * renders as the day before.
    */
-  formatDate(date: string | null | undefined): string {
-    if (!date) return '-';
-    const [year, month, day] = date.split('-').map(Number);
+  formatDate(date: unknown): string {
+    const [year, month, day] = this.dateParts(date);
     if (!year || !month || !day) return '-';
     return new Date(year, month - 1, day).toLocaleDateString();
+  }
+
+  private dateParts(date: unknown): number[] {
+    if (Array.isArray(date)) return date.map(Number);
+    if (typeof date === 'string') return date.split('-').map(Number);
+    return [];
   }
 
   // --- Lifecycle ------------------------------------------------------------------------------
