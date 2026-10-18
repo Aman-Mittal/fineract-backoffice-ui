@@ -39,6 +39,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { correlationIdInterceptor } from './core/interceptors/correlation-id.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { idempotencyInterceptor } from './core/interceptors/idempotency.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { retryInterceptor } from './core/interceptors/retry.interceptor';
 import { GlobalErrorHandler } from './core/errors/global-error-handler';
@@ -103,6 +104,10 @@ export const appConfig: ApplicationConfig = {
         authInterceptor,
         errorInterceptor,
         loadingInterceptor,
+        // After `loadingInterceptor` so a collapsed double submit counts as the one request it
+        // becomes, and before `retryInterceptor` so a retried attempt carries the same
+        // idempotency key as the attempt it repeats.
+        idempotencyInterceptor,
         retryInterceptor,
       ]),
     ),
