@@ -41,6 +41,16 @@ export default defineConfig({
      * once per file, not per test, so a higher ceiling costs nothing on the passing path.
      */
     testTimeout: 30_000,
+    /**
+     * The same ceiling for hooks, because that is where the cost above is usually paid: a suite
+     * that creates its component in `beforeEach` compiles it there, not in the test body. Vitest
+     * leaves `hookTimeout` at 10s, which `client-form.component.test.ts` and
+     * `wc-loan-product-form.component.test.ts` exceed whenever the machine is busy — a wizard
+     * built from several dozen Ionic components, timing out in a hook that is itself
+     * synchronous. The failure names an unrelated test and reads like a flake in whatever file
+     * the suite happened to be running.
+     */
+    hookTimeout: 30_000,
     server: {
       deps: {
         inline: [/@ionic\/angular/, /@ionic\/core/],
