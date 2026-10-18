@@ -62,9 +62,9 @@ test.describe('Date defaults come from the platform, not the browser', () => {
     // No date is touched. Before the fix this submitted the browser's tomorrow and the platform
     // refused it; the form stayed put with a toast naming an ISO date.
     await page.getByRole('button', { name: /^save$/i }).click();
-    // `$` matters: `/clients/create` also matches `/clients`, so a form that never
-    // submitted would pass a looser assertion.
-    await expect(page).toHaveURL(/\/clients$/, { timeout: 20000 });
+    // The created client's own page (#798). A refused save stays on `/clients/create`, which
+    // this does not match — the id segment is what rules that out.
+    await expect(page).toHaveURL(/\/clients\/view\/\d+$/, { timeout: 20000 });
 
     // The platform holding the record is the assertion — a navigation alone could mean a toast
     // was missed.

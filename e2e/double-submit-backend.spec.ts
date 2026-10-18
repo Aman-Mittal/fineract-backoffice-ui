@@ -81,7 +81,10 @@ test.describe('A double-click submits once', () => {
       async () => {
         // One double-click, as a cashier makes it — not two deliberate submissions.
         await page.getByRole('button', { name: /^save$/i }).dblclick();
-        await expect(page).toHaveURL(/\/loans$/, { timeout: 20000 });
+        // A save returns to the record it affected (#798), so this is the loan, not the list.
+        await expect(page).toHaveURL(new RegExp(`/loans/view/${loan.loanId}$`), {
+          timeout: 20000,
+        });
       },
     );
 
@@ -111,9 +114,9 @@ test.describe('A double-click submits once', () => {
 
     const posts = await countingPosts(page, /\/clients(\?|$)/, async () => {
       await page.getByRole('button', { name: /^save$/i }).dblclick();
-      // `$` matters: `/clients/create` also matches `/clients`, so a form that never
-      // submitted would pass a looser assertion.
-      await expect(page).toHaveURL(/\/clients$/, { timeout: 20000 });
+      // The created client's own page (#798). A form that never submitted stays on
+      // `/clients/create`, which this does not match — the id segment is what rules that out.
+      await expect(page).toHaveURL(/\/clients\/view\/\d+$/, { timeout: 20000 });
     });
 
     expect(posts).toBe(1);
