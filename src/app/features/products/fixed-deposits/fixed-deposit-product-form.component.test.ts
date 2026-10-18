@@ -375,8 +375,9 @@ describe('FixedDepositProductFormComponent interest rate chart', () => {
       const body = updatedBody();
       expect(body['maxDepositTermTypeId']).toBeUndefined();
       expect(body['maxDepositAmount']).toBeUndefined();
-      // And therefore off the wire entirely, which is what the platform needs.
-      expect(JSON.parse(JSON.stringify(body))).not.toHaveProperty('maxDepositTermTypeId');
+      // And therefore off the wire entirely, which is what the platform needs: `undefined` is
+      // dropped by serialisation where `null` would travel and be refused.
+      expect(JSON.stringify(body)).not.toContain('maxDepositTermTypeId');
     });
 
     it('sends an edited rate, not the one it was given', async () => {
