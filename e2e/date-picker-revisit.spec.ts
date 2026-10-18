@@ -160,10 +160,20 @@ test.describe('Date pickers on revisited forms', () => {
         await page.getByRole('button', { name: 'Add Period', exact: true }).click();
       },
       expectUniquePickerIds: true,
+      // One picker per period row, and the form starts with none — so two rows, two pickers.
+      expectedPickerCount: 2,
     },
   ];
 
-  for (const { name, listUrl, createButton, createRole, prepare, expectUniquePickerIds } of cases) {
+  for (const {
+    name,
+    listUrl,
+    createButton,
+    createRole,
+    prepare,
+    expectUniquePickerIds,
+    expectedPickerCount = 0,
+  } of cases) {
     test(`${name} form keeps its pickers usable on every visit`, async ({ page }) => {
       const pickerErrors: string[] = [];
       page.on('console', (message) => {
@@ -184,10 +194,15 @@ test.describe('Date pickers on revisited forms', () => {
           .toBe(0);
 
         if (expectUniquePickerIds) {
+          // Waited for, not read once: `prepare` has just added rows, and reading the ids in the
+          // same breath asserts against whatever had rendered by then. On a busy machine that was
+          // one picker, which looked like the unique-id defect this case exists to catch.
+          await expect(page.locator('ion-datetime-button')).toHaveCount(expectedPickerCount);
+
           const ids = await page
             .locator('ion-datetime-button')
             .evaluateAll((buttons) => buttons.map((button) => button.getAttribute('datetime')));
-          expect(ids.length).toBeGreaterThan(1);
+          // A shared id would bind every button to the first picker — the point of the case.
           expect(new Set(ids).size).toBe(ids.length);
         }
 

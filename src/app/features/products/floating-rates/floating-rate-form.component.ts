@@ -282,16 +282,29 @@ export class FloatingRateFormComponent implements OnInit {
     return `periodfromDate-picker-${index}`;
   }
 
+  /**
+   * Adds a rate period.
+   *
+   * Through `update` with a new array, not `periods().push(...)`. Pushing mutates the array the
+   * signal already holds, so the signal's value never changes and nothing is notified: the new
+   * row reaches the screen only because this component runs with default change detection, which
+   * re-evaluates the `@for` on the next pass for its own reasons. That made the row's arrival a
+   * matter of timing — the e2e that adds two periods and counts the date pickers found one of
+   * them on a busy machine — and it would stop arriving at all under `OnPush` or without zones.
+   */
   addPeriod(): void {
-    this.periods().push({
-      fromDate: toIsoDate(new Date()),
-      interestRate: null,
-      isDifferentialToBaseLendingRate: false,
-    });
+    this.periods.update((periods) => [
+      ...periods,
+      {
+        fromDate: toIsoDate(new Date()),
+        interestRate: null,
+        isDifferentialToBaseLendingRate: false,
+      },
+    ]);
   }
 
   removePeriod(index: number): void {
-    this.periods().splice(index, 1);
+    this.periods.update((periods) => periods.filter((_, position) => position !== index));
   }
 
   onSubmit(): void {
