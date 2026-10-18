@@ -134,7 +134,8 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                     [attr.aria-label]="'COMMON.PRODUCT' | appTranslate"
                     interface="popover"
                     name="productId"
-                    [(ngModel)]="account().productId"
+                    [ngModel]="account().productId"
+                    (ngModelChange)="onProductChanged($event)"
                     required
                     [disabled]="isEditMode()"
                   >
@@ -186,8 +187,9 @@ import { createPickersReady } from '../../shared/utils/pickers-ready';
                   [attr.aria-label]="'COMMON.INTEREST_RATE' | appTranslate"
                   type="number"
                   name="nominalAnnualInterestRate"
+                  data-testid="savings-interest-rate"
                   [ngModel]="interestRate()"
-                  (ngModelChange)="interestRate.set($event)"
+                  (ngModelChange)="onInterestRateChanged($event)"
                 ></ion-input>
               </ion-item>
             </div>
@@ -261,8 +263,15 @@ export class SavingsAccountFormComponent implements OnInit {
   readonly isSaving = signal(false);
 
   readonly account = signal<PostSavingsAccountsRequest>({});
-  /** Interest rate bound separately as it's missing from model */
-  readonly interestRate = signal(0);
+  /**
+   * The account's interest rate, bound separately because the generated request model omits it.
+   *
+   * `null` means "not stated", and is what the form starts at — not `0`. Fineract reads a rate
+   * in the request as an **account-level override** of the product's, so a form that always sent
+   * `nominalAnnualInterestRate: 0` opened every savings account at 0% however the product was
+   * configured. That is issue #761, and the depositor only finds out at interest posting.
+   */
+  readonly interestRate = signal<number | null>(null);
   readonly submittedOnDate = signal(toIsoDate(new Date()));
   readonly products = signal<GetSavingsProductsResponse[]>([]);
 
@@ -299,9 +308,40 @@ export class SavingsAccountFormComponent implements OnInit {
     this.productService.getSavingsproducts().subscribe({
       next: (data: GetSavingsProductsResponse[]) => {
         this.products.set(data || []);
+        // The product may have been chosen before its list arrived — a client-scoped route
+        // carries `clientId`, and nothing stops the user picking a product first either.
+        this.prefillRateFromProduct(this.account().productId);
       },
       error: () => this.notifications.error('Operation failed. Please try again.'),
     });
+  }
+
+  /**
+   * Chooses a product, and takes its interest rate with it.
+   *
+   * The rate comes out of the product list this form has already loaded: `GET /savingsproducts`
+   * carries each product's `nominalAnnualInterestRate` — measured, a product configured at 3.75%
+   * reports 3.75 there — so no extra request is needed. (The *deposit* product lists are the
+   * opposite case, reporting `0` for every product because a term deposit's rate lives in its
+   * chart; see `DepositProductSummary`.)
+   */
+  onProductChanged(productId: number | undefined): void {
+    this.account.update((account) => ({ ...account, productId }));
+    this.prefillRateFromProduct(productId);
+  }
+
+  /** A rate the user types stands, including a deliberate 0%, which is a rate an institution may mean. */
+  onInterestRateChanged(value: unknown): void {
+    this.interestRate.set(
+      value === '' || value === null || value === undefined ? null : Number(value),
+    );
+  }
+
+  private prefillRateFromProduct(productId: number | undefined): void {
+    if (productId === undefined || productId === null) return;
+    const product = this.products().find((candidate) => candidate.id === productId);
+    if (!product) return;
+    this.interestRate.set(product.nominalAnnualInterestRate ?? null);
   }
 
   private loadAccountData(): void {
@@ -316,7 +356,9 @@ export class SavingsAccountFormComponent implements OnInit {
           clientId: data.clientId,
           productId: data.savingsProductId,
         });
-        this.interestRate.set(data.nominalAnnualInterestRate || 0);
+        // `?? null`, not `|| 0`: an account deliberately opened at 0% must stay at 0% when it
+        // is edited, and an account with no override must not acquire one.
+        this.interestRate.set(data.nominalAnnualInterestRate ?? null);
       },
       error: () => this.notifications.error('Operation failed. Please try again.'),
     });
@@ -329,10 +371,15 @@ export class SavingsAccountFormComponent implements OnInit {
     this.account().dateFormat = FINERACT_DATE_FORMAT;
     this.account().locale = FINERACT_LOCALE;
 
-    // Cast to Record to add missing properties to the payload
+    // Cast to Record to add missing properties to the payload.
+    //
+    // The rate is sent only when there is one. Fineract treats it as an account-level override,
+    // so omitting it is how the account is opened at the product's own rate — and sending `0`
+    // because the form had no value is how every account came to earn nothing (#761).
+    const rate = this.interestRate();
     const payload: Record<string, unknown> = {
       ...this.account(),
-      nominalAnnualInterestRate: this.interestRate(),
+      ...(rate === null ? {} : { nominalAnnualInterestRate: rate }),
     };
 
     if (this.isEditMode() && this.accountId) {

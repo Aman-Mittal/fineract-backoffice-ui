@@ -1067,7 +1067,9 @@
     "INTEREST_CALC_DAYS_IN_YEAR": "Interest Calculation Day-in-Year",
     "TIMELINE_AND_BALANCE": "Timeline & Balance",
     "ACTIVATED_ON_DATE": "Activated On Date",
-    "FIELD_OFFICER": "Field Officer"
+    "FIELD_OFFICER": "Field Officer",
+    "LOAD_FAILED": "This savings account could not be loaded.",
+    "NOT_FOUND": "This savings account doesn't exist, or you don't have permission to view it."
   },
   "USERS": {
     "CREATE": "Create User",
@@ -3075,6 +3077,8 @@
     "FUND_FROM_SAVINGS_WARNING": "Activating this deposit will transfer the deposit amount out of the chosen savings account. Activation is refused if that account does not hold enough.",
     "NO_TRANSFER_TARGETS": "This client has no savings account to transfer the proceeds to.",
     "REINVEST_NOTE": "This deposit will be closed and a new one opened for the maturity amount, awaiting approval.",
-    "TRANSFER_DESCRIPTION": "Deposit maturity proceeds"
+    "TRANSFER_DESCRIPTION": "Deposit maturity proceeds",
+    "LOAD_FAILED": "This deposit account could not be loaded.",
+    "NOT_FOUND": "This deposit account doesn't exist, or you don't have permission to view it."
   }
 }
