@@ -42,6 +42,7 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { idempotencyInterceptor } from './core/interceptors/idempotency.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { retryInterceptor } from './core/interceptors/retry.interceptor';
+import { serverClockInterceptor } from './core/interceptors/server-clock.interceptor';
 import { GlobalErrorHandler } from './core/errors/global-error-handler';
 import { ConfigService } from './core/services/config.service';
 import { BrandingService } from './core/services/branding.service';
@@ -108,6 +109,8 @@ export const appConfig: ApplicationConfig = {
         // becomes, and before `retryInterceptor` so a retried attempt carries the same
         // idempotency key as the attempt it repeats.
         idempotencyInterceptor,
+        // Last, so it sees the response of every attempt rather than only the first.
+        serverClockInterceptor,
         retryInterceptor,
       ]),
     ),

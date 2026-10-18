@@ -18,10 +18,10 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { map } from 'rxjs/operators';
-import type { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { of, type Observable } from 'rxjs';
 
-import { BusinessDateManagementService } from '../../../api';
+import { BusinessDateManagementService, GlobalConfigurationService } from '../../../api';
 import type { BusinessDateApi, BusinessDateEntry } from './business-date.api';
 
 /**
@@ -30,9 +30,27 @@ import type { BusinessDateApi, BusinessDateEntry } from './business-date.api';
  * One of the few places allowed to import `src/app/api` — see ADR 0006 and the `files` override
  * in `eslint.config.js`.
  */
+/** The tenant setting that decides whether the business date governs anything. */
+const BUSINESS_DATE_SETTING = 'enable-business-date';
+
 @Injectable({ providedIn: 'root' })
 export class FineractBusinessDateApi implements BusinessDateApi {
   private readonly businessDateService = inject(BusinessDateManagementService);
+  private readonly configurations = inject(GlobalConfigurationService);
+
+  /**
+   * Whether the business-date feature is on.
+   *
+   * `GET /configurations/name/enable-business-date`. A failure answers `false` rather than
+   * propagating: not being able to read the setting is not evidence that a stored date governs,
+   * and the caller's fallback — the platform's own clock — is the safer of the two answers.
+   */
+  isBusinessDateEnabled(): Observable<boolean> {
+    return this.configurations.getConfigurationsNameName(BUSINESS_DATE_SETTING).pipe(
+      map((setting) => (setting as { enabled?: boolean }).enabled === true),
+      catchError(() => of(false)),
+    );
+  }
 
   getBusinessDates(): Observable<readonly BusinessDateEntry[]> {
     return this.businessDateService.getBusinessdate().pipe(

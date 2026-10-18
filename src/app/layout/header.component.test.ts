@@ -28,7 +28,8 @@ import { ViewportService } from '../core/services/viewport.service';
 import { EMPTY, of } from 'rxjs';
 import { WritableSignal, signal } from '@angular/core';
 import { provideTranslateTesting } from '../testing/i18n-testing';
-import { BusinessDateManagementService } from '../api';
+import { BUSINESS_DATE_API } from '../core/adapters/api/business-date.api';
+import { PlatformDateService } from '../core/services/platform-date.service';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -67,8 +68,14 @@ describe('HeaderComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: NavigationConfigService, useValue: navigationConfigSpy },
         {
-          provide: BusinessDateManagementService,
-          useValue: { getBusinessdate: () => of(businessDates) },
+          // Through the adapter token, because the header no longer reads `/businessdate`
+          // itself: `PlatformDateService` asks whether the feature is on first, since the rows
+          // persist and go stale once it is switched off (#758).
+          provide: BUSINESS_DATE_API,
+          useValue: {
+            getBusinessDates: () => of(businessDates),
+            isBusinessDateEnabled: () => of(businessDates.length > 0),
+          },
         },
         { provide: Router, useValue: routerSpy },
         { provide: ViewportService, useValue: { isMobile } },
@@ -93,6 +100,9 @@ describe('HeaderComponent', () => {
 
   it('shows the business date when the instance has one', () => {
     businessDates = [{ type: 'BUSINESS_DATE', date: [2026, 10, 2] }];
+    // The platform date is resolved once and shared, and the harness above already created a
+    // header — so the new stub only takes effect once that resolution is discarded.
+    TestBed.inject(PlatformDateService).refresh();
     fixture = TestBed.createComponent(HeaderComponent);
     fixture.detectChanges();
 

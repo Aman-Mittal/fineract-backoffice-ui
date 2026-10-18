@@ -25,7 +25,9 @@ import {
   ClientActionDialogComponent,
   ClientActionDialogData,
 } from './client-action-dialog.component';
-import { CodesService, CodeValuesService, BusinessDateManagementService } from '../../api';
+import { CodesService, CodeValuesService } from '../../api';
+import { BUSINESS_DATE_API, BusinessDateApi } from '../../core/adapters/api/business-date.api';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
 
@@ -35,7 +37,7 @@ describe('ClientActionDialogComponent', () => {
   let modalControllerSpy: SpyObj<ModalController>;
   let codesServiceSpy: SpyObj<CodesService>;
   let codeValuesServiceSpy: SpyObj<CodeValuesService>;
-  let businessDateServiceSpy: SpyObj<BusinessDateManagementService>;
+  let businessDateApiSpy: SpyObj<BusinessDateApi>;
 
   const defaultDialogData: ClientActionDialogData = {
     title: 'Activate Client',
@@ -47,7 +49,7 @@ describe('ClientActionDialogComponent', () => {
     modalControllerSpy = createSpyObj<ModalController>(['dismiss']);
     codesServiceSpy = createSpyObj(['getCodesNameCodeName']);
     codeValuesServiceSpy = createSpyObj(['getCodesCodeIdCodevalues']);
-    businessDateServiceSpy = createSpyObj(['getBusinessdate']);
+    businessDateApiSpy = createSpyObj(['getBusinessDates', 'isBusinessDateEnabled']);
 
     TestBed.configureTestingModule({
       imports: [ClientActionDialogComponent],
@@ -57,11 +59,12 @@ describe('ClientActionDialogComponent', () => {
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: CodesService, useValue: codesServiceSpy },
         { provide: CodeValuesService, useValue: codeValuesServiceSpy },
-        { provide: BusinessDateManagementService, useValue: businessDateServiceSpy },
+        { provide: BUSINESS_DATE_API, useValue: businessDateApiSpy },
       ],
     }).compileComponents();
 
-    businessDateServiceSpy.getBusinessdate.mockReturnValue(of([]) as unknown as Observable<never>);
+    businessDateApiSpy.getBusinessDates.mockReturnValue(of([]));
+    businessDateApiSpy.isBusinessDateEnabled.mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(ClientActionDialogComponent);
     component = fixture.componentInstance;
@@ -102,9 +105,13 @@ describe('ClientActionDialogComponent', () => {
     });
 
     it('should use the business date for the action date and maximum', () => {
-      businessDateServiceSpy.getBusinessdate.mockReturnValue(
+      businessDateApiSpy.isBusinessDateEnabled.mockReturnValue(of(true));
+      businessDateApiSpy.getBusinessDates.mockReturnValue(
         of([{ type: 'BUSINESS_DATE', date: [2026, 1, 5] }]) as unknown as Observable<never>,
       );
+      // The resolution is cached and shared; the harness already resolved it as a tenant
+      // without the feature, so this stub applies only after that is discarded.
+      TestBed.inject(PlatformDateService).refresh();
 
       component.ngOnInit();
 

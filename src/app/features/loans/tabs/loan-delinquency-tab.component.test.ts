@@ -24,7 +24,8 @@ import { of, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
 
 import { LoanDelinquencyTabComponent } from './loan-delinquency-tab.component';
-import { BusinessDateManagementService, LoansService } from '../../../api';
+import { LoansService } from '../../../api';
+import { BUSINESS_DATE_API, BusinessDateApi } from '../../../core/adapters/api/business-date.api';
 import { AuthService } from '../../../core/services/auth.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -50,7 +51,7 @@ describe('LoanDelinquencyTabComponent', () => {
   let fixture: ComponentFixture<LoanDelinquencyTabComponent>;
   let component: LoanDelinquencyTabComponent;
   let loansService: SpyObj<LoansService>;
-  let businessDates: SpyObj<BusinessDateManagementService>;
+  let businessDates: SpyObj<BusinessDateApi>;
   let dialogs: SpyObj<DialogService>;
   let notifications: SpyObj<NotificationService>;
   let changed: Mock<() => void>;
@@ -88,8 +89,9 @@ describe('LoanDelinquencyTabComponent', () => {
     }
     loansService.postLoansLoanIdDelinquencyActions.mockReturnValue(of({ resourceId: 9 }) as never);
 
-    businessDates = createSpyObj(['getBusinessdate']);
-    businessDates.getBusinessdate.mockReturnValue(
+    businessDates = createSpyObj(['getBusinessDates', 'isBusinessDateEnabled']);
+    businessDates.isBusinessDateEnabled.mockReturnValue(of(true));
+    businessDates.getBusinessDates.mockReturnValue(
       (options.businessDate === 'fails'
         ? throwError(() => new Error('down'))
         : of(BUSINESS_DATE)) as never,
@@ -113,7 +115,7 @@ describe('LoanDelinquencyTabComponent', () => {
         ...adapters.providers,
         provideTestConfig({ rbacEnabled: true }),
         { provide: LoansService, useValue: loansService },
-        { provide: BusinessDateManagementService, useValue: businessDates },
+        { provide: BUSINESS_DATE_API, useValue: businessDates },
         { provide: DialogService, useValue: dialogs },
         { provide: NotificationService, useValue: notifications },
         { provide: AuthService, useValue: auth },

@@ -20,6 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { DEPOSIT_ACCOUNT_API, TranslatePipe } from '../../../core/adapters';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
@@ -423,6 +424,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
   /** Activated route for editing */
   private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly route = inject(ActivatedRoute);
+  private readonly platformDate = inject(PlatformDateService);
 
   /** Path for redirection */
   private readonly LIST_PATH = '/products/fixed-deposits';
@@ -462,6 +464,7 @@ export class FixedDepositAccountFormComponent implements OnInit {
    * Component initialization.
    */
   ngOnInit(): void {
+    this.seedPlatformDates();
     this.route.queryParams.subscribe((params) => {
       const clientId = params['clientId'];
       if (clientId) {
@@ -479,6 +482,22 @@ export class FixedDepositAccountFormComponent implements OnInit {
         this.isEditMode.set(true);
         this.loadAccountData();
       }
+    });
+  }
+
+  /**
+   * Seeds the date defaults from the platform, not the browser.
+   *
+   * Fineract judges "the future" by its own reckoning — the tenant's timezone, or the business
+   * date when that feature is on — so a default taken from `new Date()` is refused whenever the
+   * browser is ahead of it (#758). Only on create: an edit loads the record's own dates and must
+   * not have them overwritten.
+   */
+  private seedPlatformDates(): void {
+    if (this.isEditMode()) return;
+    this.platformDate.resolveToday().subscribe((today) => {
+      if (this.isEditMode()) return;
+      this.submittedOnDate.set(today);
     });
   }
 

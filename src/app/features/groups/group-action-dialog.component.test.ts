@@ -23,7 +23,8 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
 import { GroupActionDialogComponent, GroupActionDialogData } from './group-action-dialog.component';
-import { BusinessDateManagementService, GroupsService } from '../../api';
+import { GroupsService } from '../../api';
+import { BUSINESS_DATE_API, BusinessDateApi } from '../../core/adapters/api/business-date.api';
 import { provideFakeAdapters } from '../../testing/adapters';
 import { toIsoDate } from '../../core/utils/date-formatter';
 
@@ -41,7 +42,7 @@ const ACTIVATE: GroupActionDialogData['title'] = 'GROUPS.ACTIVATE';
 describe('GroupActionDialogComponent', () => {
   let fixture: ComponentFixture<GroupActionDialogComponent>;
   let component: GroupActionDialogComponent;
-  let businessDateService: SpyObj<BusinessDateManagementService>;
+  let businessDateService: SpyObj<BusinessDateApi>;
 
   /** A date relative to the browser's today, as the ISO string the dialog compares. */
   function offsetFromToday(days: number): string {
@@ -56,8 +57,9 @@ describe('GroupActionDialogComponent', () => {
   }
 
   async function setup(data: GroupActionDialogData, businessDate?: number[]): Promise<void> {
-    businessDateService = createSpyObj(['getBusinessdate']);
-    businessDateService.getBusinessdate.mockReturnValue(
+    businessDateService = createSpyObj(['getBusinessDates', 'isBusinessDateEnabled']);
+    businessDateService.isBusinessDateEnabled.mockReturnValue(of(true));
+    businessDateService.getBusinessDates.mockReturnValue(
       of(businessDate ? [{ type: 'BUSINESS_DATE', date: businessDate }] : []) as never,
     );
 
@@ -69,7 +71,7 @@ describe('GroupActionDialogComponent', () => {
       providers: [
         provideNoopAnimations(),
         ...provideFakeAdapters().providers,
-        { provide: BusinessDateManagementService, useValue: businessDateService },
+        { provide: BUSINESS_DATE_API, useValue: businessDateService },
         { provide: GroupsService, useValue: groupsService },
       ],
     }).compileComponents();

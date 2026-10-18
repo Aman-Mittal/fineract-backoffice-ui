@@ -18,6 +18,7 @@
  */
 
 import { createSpyObj, SpyObj } from '../../testing/mocks';
+import { BUSINESS_DATE_API } from '../../core/adapters';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientFormComponent } from './client-form.component';
 import { ClientService, OfficesService } from '../../api';
@@ -261,6 +262,16 @@ describe('ClientFormComponent', () => {
       await TestBed.configureTestingModule({
         imports: [ClientFormComponent],
         providers: [
+          {
+            // A tenant without the business-date feature: `PlatformDateService` then seeds this
+            // form's dates from the platform's clock and asks the backend nothing. Without it the
+            // service reaches the generated client, and the request would need answering here.
+            provide: BUSINESS_DATE_API,
+            useValue: {
+              getBusinessDates: () => of([]),
+              isBusinessDateEnabled: () => of(false),
+            },
+          },
           ...provideTranslateTesting(),
           { provide: ClientService, useValue: clientServiceSpy },
           { provide: OfficesService, useValue: officesServiceSpy },

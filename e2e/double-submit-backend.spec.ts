@@ -111,7 +111,9 @@ test.describe('A double-click submits once', () => {
 
     const posts = await countingPosts(page, /\/clients(\?|$)/, async () => {
       await page.getByRole('button', { name: /^save$/i }).dblclick();
-      await expect(page).toHaveURL(/\/clients/, { timeout: 20000 });
+      // `$` matters: `/clients/create` also matches `/clients`, so a form that never
+      // submitted would pass a looser assertion.
+      await expect(page).toHaveURL(/\/clients$/, { timeout: 20000 });
     });
 
     expect(posts).toBe(1);

@@ -20,6 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../core/adapters';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
@@ -252,6 +253,7 @@ export class SavingsAccountFormComponent implements OnInit {
   private readonly productService = inject(SavingsProductService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly platformDate = inject(PlatformDateService);
   private readonly notifications = inject(NotificationService);
   private readonly mutationOutcome = inject(MutationOutcomeService);
   private readonly i18n = inject(I18N);
@@ -276,6 +278,7 @@ export class SavingsAccountFormComponent implements OnInit {
   readonly products = signal<GetSavingsProductsResponse[]>([]);
 
   ngOnInit(): void {
+    this.seedPlatformDates();
     this.loadProducts();
 
     // Check for clientId in query params for pre-population
@@ -293,6 +296,22 @@ export class SavingsAccountFormComponent implements OnInit {
         this.isEditMode.set(true);
         this.loadAccountData();
       }
+    });
+  }
+
+  /**
+   * Seeds the date defaults from the platform, not the browser.
+   *
+   * Fineract judges "the future" by its own reckoning — the tenant's timezone, or the business
+   * date when that feature is on — so a default taken from `new Date()` is refused whenever the
+   * browser is ahead of it (#758). Only on create: an edit loads the record's own dates and must
+   * not have them overwritten.
+   */
+  private seedPlatformDates(): void {
+    if (this.isEditMode()) return;
+    this.platformDate.resolveToday().subscribe((today) => {
+      if (this.isEditMode()) return;
+      this.submittedOnDate.set(today);
     });
   }
 

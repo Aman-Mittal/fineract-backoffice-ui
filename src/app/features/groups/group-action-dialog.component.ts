@@ -30,7 +30,8 @@ import {
   IonSelectOption,
 } from '@ionic/angular/standalone';
 
-import { BusinessDateManagementService, GroupsService } from '../../api';
+import { GroupsService } from '../../api';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { OVERLAY, TranslatePipe } from '../../core/adapters';
 import { toIsoDate } from '../../core/utils/date-formatter';
 
@@ -167,7 +168,7 @@ export interface GroupActionResult {
 export class GroupActionDialogComponent implements OnInit {
   private readonly overlay = inject(OVERLAY);
   private readonly groupsService = inject(GroupsService);
-  private readonly businessDateService = inject(BusinessDateManagementService);
+  private readonly platformDate = inject(PlatformDateService);
 
   readonly data = input.required<GroupActionDialogData>();
 
@@ -223,12 +224,10 @@ export class GroupActionDialogComponent implements OnInit {
    * message names the constraint rather than the field, so the picker enforces it instead.
    */
   private loadBusinessDate(): void {
-    this.businessDateService.getBusinessdate().subscribe({
-      next: (dates) => {
-        const businessDate = dates.find((entry) => entry.type === 'BUSINESS_DATE');
-        const parts = businessDate?.date as unknown as number[] | undefined;
-        if (parts?.length) {
-          const iso = toIsoDate(new Date(parts[0], parts[1] - 1, parts[2]));
+    this.platformDate.resolveToday().subscribe({
+      next: () => {
+        const iso = this.platformDate.getBusinessDate();
+        if (iso) {
           const min = this.minDate();
           // A business date earlier than the floor would leave the picker with a range it
           // cannot satisfy. The floor wins, because it is the constraint the command itself
@@ -240,8 +239,9 @@ export class GroupActionDialogComponent implements OnInit {
           }
         }
       },
-      // A tenant with the business-date module off answers 403 here. Today's date is the
-      // right fallback, and the command itself still validates server-side.
+      // `PlatformDateService` answers `null` for a tenant with the feature off — including when
+      // a stale row is still stored — so there is nothing to bound the picker with, and the
+      // command still validates server-side.
       error: () => undefined,
     });
   }

@@ -29,12 +29,8 @@ import {
   HasPermissionDirective,
 } from '../../../shared';
 import { I18N, TranslatePipe } from '../../../core/adapters';
-import {
-  BusinessDateManagementService,
-  GetLoansLoanIdDelinquencySummary,
-  LoansService,
-} from '../../../api';
-import { skipErrorToast } from '../../../core/http/http-context';
+import { GetLoansLoanIdDelinquencySummary, LoansService } from '../../../api';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
@@ -233,7 +229,7 @@ export class LoanDelinquencyTabComponent implements OnInit {
   readonly changed = output<void>();
 
   private readonly loansService = inject(LoansService);
-  private readonly businessDateService = inject(BusinessDateManagementService);
+  private readonly platformDate = inject(PlatformDateService);
   private readonly dialogs = inject(DialogService);
   private readonly notifications = inject(NotificationService);
   private readonly i18n = inject(I18N);
@@ -282,15 +278,14 @@ export class LoanDelinquencyTabComponent implements OnInit {
    * without a date the tab simply does not offer Resume.
    */
   private loadBusinessDate(): void {
-    this.businessDateService
-      .getBusinessdate('body', false, { context: skipErrorToast() })
-      .subscribe({
-        next: (dates) => {
-          const business = dates.find(({ type }) => type === 'BUSINESS_DATE');
-          this.businessDate.set(toIsoDay(business?.date) || undefined);
-        },
-        error: () => undefined,
-      });
+    // Through `PlatformDateService`: it asks whether the feature is on before trusting the
+    // stored rows, which persist and go stale once it is switched off (#758). Resume is offered
+    // only when a business date actually governs, so `null` is the right answer for a tenant
+    // without the feature rather than a date to pause against.
+    this.platformDate.resolveToday().subscribe({
+      next: () => this.businessDate.set(this.platformDate.getBusinessDate() ?? undefined),
+      error: () => undefined,
+    });
   }
 
   async onPause(): Promise<void> {

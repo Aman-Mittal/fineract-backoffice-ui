@@ -2714,11 +2714,6 @@
       "count": 1
     }
   },
-  "src/app/layout/header.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/layout/header.component.ts": {
     "local/no-generated-api-import": {
       "count": 1

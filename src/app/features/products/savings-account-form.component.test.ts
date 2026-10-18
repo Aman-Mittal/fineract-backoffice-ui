@@ -27,6 +27,17 @@ import { of } from 'rxjs';
 import { SavingsAccountFormComponent } from './savings-account-form.component';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
+import { BUSINESS_DATE_API } from '../../core/adapters';
+
+/**
+ * A tenant without the business-date feature, so `PlatformDateService` resolves today from the
+ * platform's clock and makes no request of its own — these cases are about the rate, and an
+ * unflushed configuration read would fail them for an unrelated reason.
+ */
+const NO_BUSINESS_DATE = {
+  provide: BUSINESS_DATE_API,
+  useValue: { getBusinessDates: () => of([]), isBusinessDateEnabled: () => of(false) },
+};
 
 /**
  * #761. Every savings account opened through this form earned 0%.
@@ -64,6 +75,7 @@ describe('SavingsAccountFormComponent interest rate', () => {
         ...provideTranslateTesting(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        NO_BUSINESS_DATE,
         { provide: Router, useValue: { navigate: () => undefined, url: '' } },
         {
           provide: ActivatedRoute,
@@ -156,6 +168,7 @@ describe('SavingsAccountFormComponent interest rate', () => {
         ...provideTranslateTesting(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        NO_BUSINESS_DATE,
         { provide: Router, useValue: { navigate: () => undefined, url: '' } },
         {
           provide: ActivatedRoute,

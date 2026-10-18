@@ -62,7 +62,8 @@ import { buildBreadcrumbs } from './breadcrumb';
 /** The shipped mark, used when the deployment names none of its own. */
 const DEFAULT_LOGO = 'favicon.png';
 import { ThemeService } from '../core/services/theme.service';
-import { SearchAPIService, GetSearchResponse, BusinessDateManagementService } from '../api';
+import { SearchAPIService, GetSearchResponse } from '../api';
+import { PlatformDateService } from '../core/services/platform-date.service';
 import {
   NavigationConfigService,
   NavSearchResult,
@@ -79,6 +80,20 @@ type HeaderSearchResult =
  * Contains the branding logo, application title, current user information,
  * language selector, and the global logout action.
  */
+/**
+ * An ISO date as the browser's locale writes it.
+ *
+ * Read through its parts rather than handed to `new Date('2026-10-17')`, which ECMAScript reads
+ * as UTC midnight — west of Greenwich that renders as the day before, which is precisely the
+ * off-by-one this label is being fixed for.
+ */
+function localeDate(iso: string | null): string | null {
+  if (!iso) return null;
+  const [year, month, day] = iso.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day).toLocaleDateString();
+}
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -702,7 +717,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly injector = inject(Injector);
   private readonly searchService = inject(SearchAPIService);
   private readonly navigationConfig = inject(NavigationConfigService);
-  private readonly businessDateService = inject(BusinessDateManagementService);
+  private readonly platformDate = inject(PlatformDateService);
   private readonly branding = inject(BrandingService);
   protected readonly viewport = inject(ViewportService);
 
@@ -788,14 +803,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private loadSystemInfo() {
-    this.businessDateService.getBusinessdate().subscribe({
-      next: (dates) => {
-        const bd = dates.find((d) => d.type === 'BUSINESS_DATE');
-        if (bd && bd.date) {
-          const d = bd.date as unknown as number[];
-          this.businessDate.set(new Date(d[0], d[1] - 1, d[2]).toLocaleDateString());
-        }
-      },
+    // Through `PlatformDateService`, which asks whether the feature is on before trusting the
+    // stored rows. They persist after it is switched off and stop being maintained — measured, a
+    // tenant with the feature disabled still reported `BUSINESS_DATE 2026-10-17` on the 18th —
+    // so this label used to announce a date that governed nothing, a day behind the truth.
+    this.platformDate.resolveToday().subscribe(() => {
+      this.businessDate.set(localeDate(this.platformDate.getBusinessDate()));
     });
 
     const updateTime = () => {

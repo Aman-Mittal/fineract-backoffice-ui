@@ -20,6 +20,7 @@
 import { Component, OnInit, afterNextRender, computed, inject, signal } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
+import { PlatformDateService } from '../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { HelpIconComponent, StepperComponent } from '../../shared';
 import { TranslatePipe } from '../../core/adapters';
@@ -603,6 +604,7 @@ export class ClientFormComponent implements OnInit {
   private readonly officesService = inject(OfficesService);
   private readonly dialogService = inject(DialogService);
   private readonly route = inject(ActivatedRoute);
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
   private readonly mutationOutcome = inject(MutationOutcomeService);
   private readonly i18n = inject(I18N);
@@ -656,6 +658,7 @@ export class ClientFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.seedPlatformDates();
     this.loadOffices();
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -664,6 +667,24 @@ export class ClientFormComponent implements OnInit {
         this.isEditMode.set(true);
         this.loadClientData();
       }
+    });
+  }
+
+  /**
+   * Seeds the date defaults from the platform, not the browser.
+   *
+   * Fineract judges "the future" by its own reckoning — the tenant's timezone, or the business
+   * date when that feature is on — so a default taken from `new Date()` is refused whenever the
+   * browser is ahead: `error.msg.clients.submittedOnDate.in.the.future` on this form, and a
+   * `403` reading like a permission problem on the loan one (#758). Only on create: an edit
+   * loads the record's own dates and must not have them overwritten.
+   */
+  private seedPlatformDates(): void {
+    if (this.isEditMode()) return;
+    this.platformDate.resolveToday().subscribe((today) => {
+      if (this.isEditMode()) return;
+      this.submittedOnDate.set(today);
+      this.activationDate.set(today);
     });
   }
 

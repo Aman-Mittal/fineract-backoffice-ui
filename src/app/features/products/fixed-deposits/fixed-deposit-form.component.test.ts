@@ -20,7 +20,7 @@
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositAccountFormComponent } from './fixed-deposit-form.component';
-import { DEPOSIT_ACCOUNT_API } from '../../../core/adapters';
+import { BUSINESS_DATE_API, DEPOSIT_ACCOUNT_API } from '../../../core/adapters';
 import { mapDepositAccount } from '../../../core/adapters/api/fineract-deposit-account.api';
 import { Observable, of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -142,6 +142,16 @@ describe('FixedDepositAccountFormComponent', () => {
     await TestBed.configureTestingModule({
       imports: [FixedDepositAccountFormComponent],
       providers: [
+        {
+          // A tenant without the business-date feature: `PlatformDateService` then seeds this
+          // form's dates from the platform's clock and asks the backend nothing. Without it the
+          // service reaches the generated client, and the request would need answering here.
+          provide: BUSINESS_DATE_API,
+          useValue: {
+            getBusinessDates: () => of([]),
+            isBusinessDateEnabled: () => of(false),
+          },
+        },
         ...provideTranslateTesting(),
         provideNoopAnimations(),
         { provide: DEPOSIT_ACCOUNT_API, useValue: deposits },
