@@ -21,6 +21,7 @@ import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositAccountFormComponent } from './fixed-deposit-form.component';
 import { DEPOSIT_ACCOUNT_API } from '../../../core/adapters';
+import { mapDepositAccount } from '../../../core/adapters/api/fineract-deposit-account.api';
 import { Observable, of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -61,26 +62,27 @@ describe('FixedDepositAccountFormComponent', () => {
   };
 
   /** An existing account, as the adapter reports one for the edit path. */
-  const ACCOUNT = {
+  /**
+   * An account as the adapter answers one.
+   *
+   * Written as the payload Fineract sends and put through the adapter's own mapper, rather than
+   * hand-built in model shape: a hand-built double drifts from what the adapter can actually
+   * produce, and one of those — a template of `{}` — is what hid an unhandled error here before.
+   */
+  const ACCOUNT = mapDepositAccount({
     id: 123,
     accountNo: '000000123',
     clientId: 1,
-    productId: 101,
-    balance: 5000,
+    depositProductId: 101,
     depositAmount: 5000,
     depositPeriod: 12,
-    depositPeriodUnit: 'Months',
+    depositPeriodFrequency: { id: 2, value: 'Months' },
     maturityAmount: 5350,
-    maturityDate: '2027-10-17',
+    maturityDate: [2027, 10, 17],
     nominalAnnualInterestRate: 7,
-    linkedAccountNo: null,
-    transferInterestToSavings: false,
-    charges: [],
-    raw: {
-      timeline: { submittedOnDate: [2026, 10, 17] },
-      depositPeriodFrequency: { id: 2, value: 'Months' },
-    },
-  };
+    summary: { accountBalance: 5000 },
+    timeline: { submittedOnDate: [2026, 10, 17] },
+  });
 
   /**
    * A template offering nothing.
@@ -330,21 +332,21 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should load existing account data in edit mode', () => {
-    // Model-shaped: the adapter has already resolved which of the two product-id names the
-    // payload used, which is what left the product unselected on every edit before.
     deposits['get'].mockReturnValue(
-      of({
-        ...ACCOUNT,
-        clientId: 1,
-        productId: 101,
-        depositAmount: 1000,
-        depositPeriod: 6,
-        nominalAnnualInterestRate: 4.5,
-        raw: {
+      of(
+        mapDepositAccount({
+          id: 123,
+          clientId: 1,
+          // The adapter resolves which of the two product-id names the payload used, which is
+          // what left the product unselected on every edit before.
+          depositProductId: 101,
+          depositAmount: 1000,
+          depositPeriod: 6,
+          depositPeriodFrequency: { id: 2, value: 'Months' },
+          nominalAnnualInterestRate: 4.5,
           timeline: { submittedOnDate: [2026, 6, 11] },
-          depositPeriodFrequency: { id: 2 },
-        },
-      }),
+        }),
+      ),
     );
     component.accountId = 123;
     component.isEditMode.set(true);

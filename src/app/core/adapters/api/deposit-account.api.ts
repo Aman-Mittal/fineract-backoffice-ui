@@ -43,22 +43,23 @@ export type DepositType = 'fixed' | 'recurring';
  * | `savingsProductId`                     | absent; a deposit answers `depositProductId`      |
  * | template's `nominalAnnualInterestRate` | sent as `0`; the rate is in the chart's slabs     |
  * | template's `depositAmount`             | absent; it is on the *product*                    |
+ * | `productName`                          | absent; a deposit answers `depositProductName`    |
  *
- * All four were measured against a running Fineract. Stated here, they are stated once, and the
+ * All five were measured against a running Fineract. Stated here, they are stated once, and the
  * next screen to read a deposit cannot get them wrong — which is what ADR 0006's boundary is
  * for.
  *
- * ## `raw`
- *
- * The deposit account view still binds most of its template through an untyped record, so the
- * mapped account carries the payload with it. That is migration debt, named rather than hidden:
- * the next pass over that screen replaces each `raw['field']` binding with a field above, and
- * `raw` goes. Nothing new should read it.
+ * The last one is what the untyped `raw` record this model used to carry was hiding: the account
+ * view read `raw['productName']`, which a deposit account does not send, so the heading of every
+ * fixed and recurring deposit account was blank. Nothing here is read by string any more.
  */
 export interface DepositAccount {
   readonly id: number;
   readonly accountNo: string;
   readonly clientId: number | null;
+  /** `depositProductName`, not `productName` — see the table above. */
+  readonly productName: string;
+  readonly clientName: string;
   /** `depositProductId` on a deposit account; `savingsProductId` is the savings response's name. */
   readonly productId: number | null;
   /** `summary.accountBalance`. `null` when the payload states none, never 0 — see below. */
@@ -67,6 +68,18 @@ export interface DepositAccount {
   readonly depositPeriod: number | null;
   /** The unit the period is in ("Months"), from `depositPeriodFrequency`. */
   readonly depositPeriodUnit: string | null;
+  /** That unit's id, which is what an update has to send back. */
+  readonly depositPeriodFrequencyId: number | null;
+  /**
+   * What happens at maturity, as an id.
+   *
+   * `null` on every account measured: the platform was not observed to echo
+   * `maturityInstruction` on `GET /{type}depositaccounts/{id}`, even with `associations=all`, so
+   * the edit form falls back to the template's default rather than showing the agreed
+   * instruction. Mapped rather than assumed absent, so the day the platform does send it the
+   * form picks it up.
+   */
+  readonly maturityInstructionId: number | null;
   readonly maturityAmount: number | null;
   /** ISO `YYYY-MM-DD`, converted from Fineract's `[year, month, day]`. */
   readonly maturityDate: string | null;
@@ -83,13 +96,78 @@ export interface DepositAccount {
    */
   readonly charges: readonly DepositAccountCharge[];
   /**
-   * The payload, for bindings not yet migrated off it. Migration debt — see the class note.
+   * This account's own rate chart, as the interest-rate-chart tab displays it.
    *
-   * The interest-rate-chart tab still reads `accountChart.chartSlabs` through this, because it
-   * displays more of a slab than {@link DepositRateSlab} carries — incentives, amount bands and
-   * the period type's label. That richer display shape is the next thing to model.
+   * A richer shape than {@link DepositRateSlab}, which carries only what a *request* needs:
+   * a displayed slab also has the period type's label, the amount band it applies to, its
+   * description and its incentives. Present for the same reason `charges` is — the account is
+   * read with `associations=all`.
    */
-  readonly raw: Record<string, unknown>;
+  readonly chartRows: readonly DepositChartRow[];
+  readonly status: DepositAccountStatus;
+  /** The currency's display symbol ("$"), which is what the screens print beside a figure. */
+  readonly currencySymbol: string;
+  /** A savings field, absent on a term deposit; `null` rather than 0 when it is. */
+  readonly minRequiredOpeningBalance: number | null;
+  readonly timeline: DepositAccountTimeline;
+}
+
+/**
+ * A deposit account's state.
+ *
+ * The flags, not `value`, are what the screens gate actions on: `value` is the platform's own
+ * English label and moves with its locale, while the booleans beside it do not.
+ */
+export interface DepositAccountStatus {
+  /** The platform's label, for display only. */
+  readonly value: string;
+  readonly submittedAndPendingApproval: boolean;
+  readonly approved: boolean;
+  readonly active: boolean;
+}
+
+/**
+ * The dates the platform itself stamped on this account, as ISO `YYYY-MM-DD`.
+ *
+ * A command's date is validated against these — an approval cannot precede submission, an
+ * activation cannot precede approval — so the screens send the later of the stamped date and
+ * today rather than trusting the browser's clock. See `commandDateIso` on the account view.
+ */
+export interface DepositAccountTimeline {
+  readonly submittedOnDate: string | null;
+  readonly approvedOnDate: string | null;
+  readonly activatedOnDate: string | null;
+}
+
+/**
+ * One row of a deposit account's interest rate chart, flattened for display.
+ *
+ * The generated `GetFixedDepositAccountsChartSlabs`/`GetRecurringDepositAccountsChartSlabs`
+ * models describe only `annualInterestRate`, `currency`, `fromPeriod`, `id`, `periodType` and
+ * `toPeriod`. The amount band, description and incentives the real response carries are in
+ * neither, so this is modelled from what was measured on the wire rather than forced through an
+ * incomplete type — issue #653's class of problem.
+ */
+export interface DepositChartRow {
+  readonly fromPeriod: number | null;
+  readonly toPeriod: number | null;
+  /** The period type's label ("Months"); the id is not displayed. */
+  readonly periodTypeLabel: string;
+  readonly amountRangeFrom: number | null;
+  readonly amountRangeTo: number | null;
+  readonly annualInterestRate: number | null;
+  readonly description: string;
+  readonly incentives: readonly DepositChartIncentive[];
+}
+
+/** One incentive under a chart row, with each of its enums flattened to its label. */
+export interface DepositChartIncentive {
+  readonly entityType: string;
+  readonly attributeName: string;
+  readonly conditionType: string;
+  readonly attributeValue: string;
+  readonly incentiveType: string;
+  readonly amount: number | null;
 }
 
 /** A charge on a deposit account, as the charges tab shows one. */

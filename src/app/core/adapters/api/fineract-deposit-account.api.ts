@@ -39,6 +39,8 @@ import type {
   DepositAccountTemplate,
   DepositChargeOption,
   DepositChargeRequest,
+  DepositChartIncentive,
+  DepositChartRow,
   DepositClosureTemplate,
   DepositEnumOption,
   DepositRateSlab,
@@ -62,6 +64,21 @@ interface SlabPayload {
   readonly fromPeriod?: number;
   readonly toPeriod?: number;
   readonly annualInterestRate?: number;
+  /** Displayed, not submitted — see {@link DepositChartRow}. */
+  readonly amountRangeFrom?: number;
+  readonly amountRangeTo?: number;
+  readonly description?: string;
+  readonly incentives?: IncentivePayload[];
+}
+
+/** An incentive under a slab, every enum of it wrapped. */
+interface IncentivePayload {
+  readonly entityType?: EnumPayload;
+  readonly attributeName?: EnumPayload;
+  readonly conditionType?: EnumPayload;
+  readonly attributeValueDesc?: string;
+  readonly incentiveType?: EnumPayload;
+  readonly amount?: number;
 }
 
 /** The parts of a deposit account payload this adapter reads. */
@@ -79,6 +96,7 @@ interface AccountPayload {
   readonly depositAmount?: number;
   readonly depositPeriod?: number;
   readonly depositPeriodFrequency?: EnumPayload;
+  readonly maturityInstruction?: EnumPayload;
   readonly maturityAmount?: number;
   readonly maturityDate?: string | number[];
   readonly nominalAnnualInterestRate?: number;
@@ -90,6 +108,29 @@ interface AccountPayload {
     amount?: number;
     amountOutstanding?: number;
   }[];
+  /** What a deposit account calls its product's name; `productName` is the savings spelling. */
+  readonly depositProductName?: string;
+  readonly clientName?: string;
+  readonly status?: StatusPayload;
+  readonly currency?: { readonly displaySymbol?: string };
+  readonly minRequiredOpeningBalance?: number;
+  readonly timeline?: TimelinePayload;
+  readonly accountChart?: { readonly chartSlabs?: SlabPayload[] };
+}
+
+/** Fineract reports a deposit's state as booleans beside the id, exactly as it does for savings. */
+interface StatusPayload {
+  readonly value?: string;
+  readonly submittedAndPendingApproval?: boolean;
+  readonly approved?: boolean;
+  readonly active?: boolean;
+}
+
+/** The dates the platform stamped, each in the `[year, month, day]` form it sends. */
+interface TimelinePayload {
+  readonly submittedOnDate?: string | number[];
+  readonly approvedOnDate?: string | number[];
+  readonly activatedOnDate?: string | number[];
 }
 
 /** The parts of an account template this adapter reads. */
@@ -118,10 +159,12 @@ interface ClosureTemplatePayload {
  *
  * - the balance is `summary.accountBalance`; the top level carries none
  * - the product is `depositProductId`; `savingsProductId` is the savings response's name
+ * - the product's *name* is `depositProductName`, which is why the view's heading was blank
  *
  * The balance maps to `null` rather than 0 when neither is present. A zero balance and an
  * unknown one are different facts, and reporting the second as the first is how a wrong figure
- * gets quoted to a customer.
+ * gets quoted to a customer. `minRequiredOpeningBalance` is `null` for the same reason: it is a
+ * savings field that a term deposit does not send at all.
  */
 export function mapDepositAccount(payload: AccountPayload): DepositAccount {
   const balance = payload.summary?.accountBalance ?? payload.accountBalance;
@@ -135,6 +178,8 @@ export function mapDepositAccount(payload: AccountPayload): DepositAccount {
     depositAmount: payload.depositAmount ?? null,
     depositPeriod: payload.depositPeriod ?? null,
     depositPeriodUnit: payload.depositPeriodFrequency?.value ?? null,
+    depositPeriodFrequencyId: payload.depositPeriodFrequency?.id ?? null,
+    maturityInstructionId: payload.maturityInstruction?.id ?? null,
     maturityAmount: payload.maturityAmount ?? null,
     maturityDate: toIsoFineractDate(payload.maturityDate),
     nominalAnnualInterestRate: payload.nominalAnnualInterestRate ?? null,
@@ -146,7 +191,53 @@ export function mapDepositAccount(payload: AccountPayload): DepositAccount {
       amount: charge.amount ?? null,
       amountOutstanding: charge.amountOutstanding ?? null,
     })),
-    raw: payload as unknown as Record<string, unknown>,
+    productName: payload.depositProductName ?? '',
+    clientName: payload.clientName ?? '',
+    chartRows: mapChartRows(payload.accountChart?.chartSlabs),
+    status: {
+      value: payload.status?.value ?? '',
+      submittedAndPendingApproval: payload.status?.submittedAndPendingApproval === true,
+      approved: payload.status?.approved === true,
+      active: payload.status?.active === true,
+    },
+    currencySymbol: payload.currency?.displaySymbol ?? '',
+    minRequiredOpeningBalance: payload.minRequiredOpeningBalance ?? null,
+    timeline: {
+      submittedOnDate: toIsoFineractDate(payload.timeline?.submittedOnDate),
+      approvedOnDate: toIsoFineractDate(payload.timeline?.approvedOnDate),
+      activatedOnDate: toIsoFineractDate(payload.timeline?.activatedOnDate),
+    },
+  };
+}
+
+/**
+ * Flattens a chart's slabs into display rows. Exported for its own test.
+ *
+ * Every enum becomes its label, because that is all the tab renders — and a row whose amount
+ * band is absent keeps `null` rather than 0, so "no band" reads as blank instead of as a band
+ * from nothing to nothing.
+ */
+export function mapChartRows(slabs: readonly SlabPayload[] | undefined): DepositChartRow[] {
+  return (slabs ?? []).map((slab) => ({
+    fromPeriod: slab.fromPeriod ?? null,
+    toPeriod: slab.toPeriod ?? null,
+    periodTypeLabel: slab.periodType?.value ?? '',
+    amountRangeFrom: slab.amountRangeFrom ?? null,
+    amountRangeTo: slab.amountRangeTo ?? null,
+    annualInterestRate: slab.annualInterestRate ?? null,
+    description: slab.description ?? '',
+    incentives: (slab.incentives ?? []).map(mapIncentive),
+  }));
+}
+
+function mapIncentive(incentive: IncentivePayload): DepositChartIncentive {
+  return {
+    entityType: incentive.entityType?.value ?? '',
+    attributeName: incentive.attributeName?.value ?? '',
+    conditionType: incentive.conditionType?.value ?? '',
+    attributeValue: incentive.attributeValueDesc ?? '',
+    incentiveType: incentive.incentiveType?.value ?? '',
+    amount: incentive.amount ?? null,
   };
 }
 

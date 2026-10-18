@@ -27,6 +27,8 @@ import { of, throwError } from 'rxjs';
 
 import { DepositAccountViewComponent } from './deposit-account-view.component';
 import { DEPOSIT_ACCOUNT_API } from '../../core/adapters';
+import type { DepositAccount } from '../../core/adapters';
+import { mapDepositAccount } from '../../core/adapters/api/fineract-deposit-account.api';
 import { DialogService } from '../../core/services/dialog.service';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
@@ -66,35 +68,19 @@ describe('DepositAccountViewComponent', () => {
   };
 
   /**
-   * The payload mapped the way the adapter maps it.
+   * The payload, mapped by the adapter's own mapper.
    *
-   * These tests give the fake adapter a payload and let this stand in for the mapping, so they
-   * exercise the same field positions the real adapter resolves — `summary.accountBalance`,
-   * `depositProductId` — without restating them. `fineract-deposit-account.api.test.ts` is where
-   * the mapping itself is pinned.
+   * Every fixture below is a real `GET /{type}depositaccounts/{id}` payload, and this puts it
+   * through `mapDepositAccount` rather than through a copy of it written for the test. The copy
+   * that used to stand here was a second statement of where each field lives — the very thing
+   * the model exists to state once — and a fixture restated wrongly is how three of these
+   * screens came to have passing tests over a broken read.
+   *
+   * `fineract-deposit-account.api.test.ts` pins the mapping itself; this stops the component
+   * being exercised against a shape the adapter never produces.
    */
-  function mapped(payload: object): Record<string, unknown> {
-    const raw = payload as Record<string, unknown>;
-    const summary = raw['summary'] as { accountBalance?: number } | undefined;
-    const frequency = raw['depositPeriodFrequency'] as { value?: string } | undefined;
-    const linked = raw['linkedAccount'] as { accountNo?: string } | undefined;
-    return {
-      id: (raw['id'] as number) ?? 0,
-      accountNo: (raw['accountNo'] as string) ?? '',
-      clientId: (raw['clientId'] as number) ?? null,
-      productId: (raw['depositProductId'] ?? raw['savingsProductId'] ?? null) as number | null,
-      balance: (summary?.accountBalance ?? raw['accountBalance'] ?? null) as number | null,
-      depositAmount: (raw['depositAmount'] ?? null) as number | null,
-      depositPeriod: (raw['depositPeriod'] ?? null) as number | null,
-      depositPeriodUnit: frequency?.value ?? null,
-      maturityAmount: (raw['maturityAmount'] ?? null) as number | null,
-      maturityDate: raw['maturityDate'] === undefined ? null : '2027-10-17',
-      nominalAnnualInterestRate: (raw['nominalAnnualInterestRate'] ?? null) as number | null,
-      linkedAccountNo: linked?.accountNo ?? null,
-      transferInterestToSavings: raw['transferInterestToSavings'] === true,
-      charges: (raw['charges'] ?? []) as unknown[],
-      raw,
-    };
+  function mapped(payload: object): DepositAccount {
+    return mapDepositAccount(payload);
   }
 
   function account(status: object, timeline: object = SUBMITTED_TIMELINE): object {
@@ -163,7 +149,6 @@ describe('DepositAccountViewComponent', () => {
     // is, is asking for the right deposit type. `fineract-deposit-account.api.test.ts` pins the
     // names on the other side of the boundary.
     expect(deposits['get']).toHaveBeenCalledWith('fixed', 7);
-    expect(component.account()).toBeTruthy();
     expect(component.deposit()).toBeTruthy();
   });
 
@@ -397,6 +382,21 @@ describe('DepositAccountViewComponent', () => {
       expect(deposits['transactionCommand']).not.toHaveBeenCalled();
     });
 
+    it('formats a row date, which still arrives in Fineract array form', async () => {
+      await setup(account(ACTIVE), [{ ...deposit, date: [2026, 10, 18] }]);
+
+      // The account's own dates reach this screen as ISO strings, because the adapter converts
+      // them. A transaction row does not — it is an unmodelled payload record, deliberately, so
+      // the table keeps formatting what the platform sent. A formatter that took only the ISO
+      // form threw `date.split is not a function` once per row, which rendered the row empty
+      // and took its undo button with it.
+      expect(component.formatDate([2026, 10, 18])).not.toBe('-');
+      expect(component.formatDate('2027-10-17')).not.toBe('-');
+      expect(component.formatDate(undefined)).toBe('-');
+      expect(component.formatDate('')).toBe('-');
+      expect(component.formatDate('not a date')).toBe('-');
+    });
+
     it('leaves the account on screen when the transaction read fails', async () => {
       await setup(account(ACTIVE));
       deposits['transactions'].mockReturnValue(throwError(() => new Error('unavailable')) as never);
@@ -405,7 +405,7 @@ describe('DepositAccountViewComponent', () => {
 
       expect(component.transactions()).toEqual([]);
       expect(component.hasError()).toBe(false);
-      expect(component.account()).toBeTruthy();
+      expect(component.deposit()).toBeTruthy();
     });
   });
 
@@ -507,16 +507,36 @@ describe('DepositAccountViewComponent', () => {
       ],
     };
 
-    it('reads the chart slabs off the same account read as the charges', async () => {
-      // Still read through the payload rather than a model: this tab displays more of a slab
-      // than `DepositRateSlab` carries — incentives, amount bands, the period label — and that
-      // richer shape is named as the next thing to model on `DepositAccount.raw`.
+    it('reads the chart rows off the same account read as the charges', async () => {
       await setup({
         ...account({ id: 300, value: 'Active', active: true }),
         accountChart: { chartSlabs: [SLAB] },
       });
 
-      expect(component.chartSlabs()).toEqual([SLAB] as never);
+      // Flattened by the adapter: every enum down to the label the tab actually prints, which
+      // is what `DepositChartRow` is for. The nested `periodType.value` the template used to
+      // reach through is no longer the screen's business.
+      expect(component.chartRows()).toEqual([
+        {
+          fromPeriod: 0,
+          toPeriod: 6,
+          periodTypeLabel: 'Months',
+          amountRangeFrom: 0,
+          amountRangeTo: 10_000,
+          annualInterestRate: 5,
+          description: 'Base rate',
+          incentives: [
+            {
+              entityType: 'Client',
+              attributeName: 'Gender',
+              conditionType: 'Equals',
+              attributeValue: 'Female',
+              incentiveType: 'Rate',
+              amount: 0.5,
+            },
+          ],
+        },
+      ]);
     });
 
     it('toggles a slab open and closed rather than opening every slab at once', async () => {
@@ -543,7 +563,7 @@ describe('DepositAccountViewComponent', () => {
 
       component.loadData();
 
-      expect(component.chartSlabs()).toEqual([]);
+      expect(component.chartRows()).toEqual([]);
       // The account read failing *is* an error for this screen, unlike the separate reads.
       expect(component.hasError()).toBe(true);
     });
