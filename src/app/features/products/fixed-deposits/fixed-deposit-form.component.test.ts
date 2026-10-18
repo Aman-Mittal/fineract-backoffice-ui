@@ -17,17 +17,10 @@
  * under the License.
  */
 
-import type { Mock } from 'vitest';
 import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FixedDepositAccountFormComponent } from './fixed-deposit-form.component';
-import {
-  FixedDepositAccountService,
-  GetFixedDepositAccountsTemplateResponse,
-  GetFixedDepositAccountsAccountIdResponse,
-  PostFixedDepositAccountsResponse,
-  GetFixedDepositAccountsProductOptions,
-} from '../../../api';
+import { DEPOSIT_ACCOUNT_API } from '../../../core/adapters';
 import { Observable, of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,23 +31,106 @@ const SUBMITTED_ON = '2026-06-11';
 describe('FixedDepositAccountFormComponent', () => {
   let component: FixedDepositAccountFormComponent;
   let fixture: ComponentFixture<FixedDepositAccountFormComponent>;
-  let fixedDepositServiceSpy: SpyObj<FixedDepositAccountService>;
+  let deposits: Record<string, ReturnType<typeof vi.fn>>;
   let routerSpy: SpyObj<Router>;
   let activatedRouteStub: {
     queryParams: Observable<Record<string, unknown>>;
     paramMap: Observable<{ get: (key: string) => string | null }>;
   };
 
+  /**
+   * The template as the adapter reports it.
+   *
+   * Model-shaped, not payload-shaped. What the payload does — no `depositAmount`, no
+   * `depositPeriod`, and `nominalAnnualInterestRate: 0` on a product whose chart pays 7% — is
+   * pinned in `fineract-deposit-account.api.test.ts`, which is where that knowledge now lives.
+   * Note what this model has no field for: a rate. There is nowhere for the template's zero to
+   * come through, which is the point of the boundary.
+   */
+  const TEMPLATE = {
+    minDepositTerm: 12,
+    minDepositTermTypeId: 2,
+    chartSlabs: [{ periodTypeId: 2, fromPeriod: 1, toPeriod: 12, annualInterestRate: 7 }],
+    savingsAccounts: [{ id: 5, accountNo: '000000005' }],
+    maturityInstructions: [
+      { id: 100, value: 'Withdraw Deposit' },
+      { id: 200, value: 'Transfer to Savings' },
+    ],
+    chargeOptions: [],
+    productOptions: [{ id: 101, name: 'FD' }],
+  };
+
+  /** An existing account, as the adapter reports one for the edit path. */
+  const ACCOUNT = {
+    id: 123,
+    accountNo: '000000123',
+    clientId: 1,
+    productId: 101,
+    balance: 5000,
+    depositAmount: 5000,
+    depositPeriod: 12,
+    depositPeriodUnit: 'Months',
+    maturityAmount: 5350,
+    maturityDate: '2027-10-17',
+    nominalAnnualInterestRate: 7,
+    linkedAccountNo: null,
+    transferInterestToSavings: false,
+    charges: [],
+    raw: {
+      timeline: { submittedOnDate: [2026, 10, 17] },
+      depositPeriodFrequency: { id: 2, value: 'Months' },
+    },
+  };
+
+  /**
+   * A template offering nothing.
+   *
+   * Every list present and empty, every scalar null — which is what the adapter returns, because
+   * it maps each one with a default. A double of `{}` is not a template the adapter can produce,
+   * and one caused an unhandled `chartSlabs.map` on an undefined array.
+   */
+  const EMPTY_TEMPLATE = {
+    minDepositTerm: null,
+    minDepositTermTypeId: null,
+    chartSlabs: [],
+    savingsAccounts: [],
+    maturityInstructions: [],
+    chargeOptions: [],
+    productOptions: [],
+  };
+
+  /** The same, with two rate bands, the second open-ended. */
+  const TIERED = {
+    ...TEMPLATE,
+    minDepositTerm: 6,
+    chartSlabs: [
+      { periodTypeId: 2, fromPeriod: 1, toPeriod: 11, annualInterestRate: 5 },
+      { periodTypeId: 2, fromPeriod: 12, toPeriod: null, annualInterestRate: 9 },
+    ],
+  };
+
   const FIXED_DEPOSITS_PATH = '/products/fixed-deposits';
   const API_ERROR = 'API Error';
 
   beforeEach(async () => {
-    fixedDepositServiceSpy = createSpyObj([
-      'getFixeddepositaccountsTemplate',
-      'getFixeddepositaccountsAccountId',
-      'postFixeddepositaccounts',
-      'putFixeddepositaccountsAccountId',
-    ]);
+    // One fake adapter in place of two generated services. The form no longer knows what
+    // Fineract calls these operations, nor where in a payload each field sits.
+    deposits = {
+      get: vi.fn().mockReturnValue(of(ACCOUNT)),
+      transactions: vi.fn().mockReturnValue(of([])),
+      template: vi.fn().mockReturnValue(of(TEMPLATE)),
+      productDepositAmount: vi.fn().mockReturnValue(of(1000)),
+      closureTemplate: vi
+        .fn()
+        .mockReturnValue(of({ options: [], transferTargets: [], defaultTransferTargetId: null })),
+      prematureAmount: vi.fn().mockReturnValue(of(null)),
+      create: vi.fn().mockReturnValue(of(undefined)),
+      update: vi.fn().mockReturnValue(of(undefined)),
+      command: vi.fn().mockReturnValue(of(undefined)),
+      transactionCommand: vi.fn().mockReturnValue(of(undefined)),
+      addCharge: vi.fn().mockReturnValue(of(undefined)),
+    };
+
     routerSpy = createSpyObj(['navigate']);
     activatedRouteStub = {
       queryParams: of({}),
@@ -66,7 +142,7 @@ describe('FixedDepositAccountFormComponent', () => {
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        { provide: FixedDepositAccountService, useValue: fixedDepositServiceSpy },
+        { provide: DEPOSIT_ACCOUNT_API, useValue: deposits },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
       ],
@@ -77,82 +153,175 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should create', () => {
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
-      of({} as GetFixedDepositAccountsTemplateResponse),
-    );
+    deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
   it('should initialize with clientId from query parameters', () => {
     activatedRouteStub.queryParams = of({ clientId: '123' });
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
-      of({} as GetFixedDepositAccountsTemplateResponse),
-    );
+    deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
 
     component.ngOnInit();
 
     expect(component.account()['clientId']).toBe(123);
-    expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(123);
+    expect(deposits['template']).toHaveBeenCalledWith('fixed', 123);
   });
 
   it('should load product options on client selection', () => {
-    const productOptions = new Set<GetFixedDepositAccountsProductOptions>([
-      { id: 1, name: 'Product 1' } as GetFixedDepositAccountsProductOptions,
-    ]);
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
-      of({
-        productOptions,
-      } as GetFixedDepositAccountsTemplateResponse),
+    deposits['template'].mockReturnValue(
+      of({ ...TEMPLATE, productOptions: [{ id: 1, name: 'Product 1' }] }),
     );
 
     component.onClientSelected(456);
 
     expect(component.account()['clientId']).toBe(456);
-    expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(456);
+    expect(deposits['template']).toHaveBeenCalledWith('fixed', 456);
     expect(component.products()).toHaveLength(1);
   });
 
   it('should handle missing product options in template', () => {
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
-      of({} as GetFixedDepositAccountsTemplateResponse),
-    );
+    deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
 
     (component as unknown as Record<string, () => void>)['loadProducts']();
 
     expect(component.products()).toEqual([]);
   });
 
-  it('should load product defaults when a product is selected', () => {
-    const mockTemplate = {
-      depositAmount: 5000,
-      depositPeriod: 12,
-      depositPeriodFrequency: { id: 2 },
-      nominalAnnualInterestRate: 5.5,
-    };
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
-      of(mockTemplate as unknown as GetFixedDepositAccountsTemplateResponse),
-    );
+  /**
+   * #766. Choosing a product filled nothing in, and the original test was part of why it
+   * shipped: its fixture invented a template shape the platform does not send.
+   *
+   * It cannot invent one now. The adapter's model has no `depositAmount`, no
+   * `depositPeriodFrequency` and no rate field at all, so there is nothing here for a wrong
+   * guess about the wire to hide in. What the payload really does — and that its
+   * `nominalAnnualInterestRate` is 0 on a product paying 7% — is pinned in
+   * `fineract-deposit-account.api.test.ts`.
+   */
+  it('fills the term, its unit and the rate the adapter reported', () => {
+    deposits['template'].mockReturnValue(of(TEMPLATE));
     component.account()['clientId'] = 1;
 
     component.onProductSelected(101);
 
-    expect(fixedDepositServiceSpy.getFixeddepositaccountsTemplate).toHaveBeenCalledWith(
-      1,
-      undefined,
-      101,
-    );
-    expect(component.account()['depositAmount']).toBe(5000);
+    expect(deposits['template']).toHaveBeenCalledWith('fixed', 1, 101);
     expect(component.account()['depositPeriod']).toBe(12);
     expect(component.account()['depositPeriodFrequencyId']).toBe(2);
-    expect(component.account()['nominalAnnualInterestRate']).toBe(5.5);
+    // From the chart, not from the template's own zero.
+    expect(component.account()['nominalAnnualInterestRate']).toBe(7);
+  });
+
+  it('takes the deposit amount from the product, which is the only place it is', () => {
+    // `productOptions` on the template lists `{id, name, withHoldTax}` and nothing else, so
+    // there is no avoiding the second request.
+    deposits['template'].mockReturnValue(of(TEMPLATE));
+    component.account()['clientId'] = 1;
+
+    component.onProductSelected(101);
+
+    expect(deposits['productDepositAmount']).toHaveBeenCalledWith('fixed', 101);
+    expect(component.account()['depositAmount']).toBe(1000);
+  });
+
+  it('recomputes the rate when the term moves to another slab', () => {
+    // A tiered product pays differently for 6 and 24 months. A rate left at the first slab's
+    // would disagree with the product, which is the defect #761 reports for savings.
+    deposits['template'].mockReturnValue(of(TIERED));
+    component.account()['clientId'] = 1;
+    component.onProductSelected(101);
+
+    expect(component.account()['nominalAnnualInterestRate']).toBe(5);
+
+    component.account.update((account) => ({ ...account, depositPeriod: 24 }));
+    component.onTermChanged();
+
+    expect(component.account()['nominalAnnualInterestRate']).toBe(9);
+  });
+
+  it('treats an open-ended last band as covering any longer term', () => {
+    // A tiered chart's final slab usually has no `toPeriod`, which is how "12 months and over"
+    // is written. Reading that as a bounded range would leave long deposits with no rate.
+    deposits['template'].mockReturnValue(of(TIERED));
+    component.account()['clientId'] = 1;
+    component.onProductSelected(101);
+
+    component.account.update((account) => ({ ...account, depositPeriod: 999 }));
+    component.onTermChanged();
+
+    expect(component.account()['nominalAnnualInterestRate']).toBe(9);
+  });
+
+  it('leaves the rate alone when no slab covers the term at all', () => {
+    // Better a rate the user can see and correct than a blank the platform will refuse.
+    deposits['template'].mockReturnValue(
+      of({
+        ...TEMPLATE,
+        minDepositTerm: 6,
+        chartSlabs: [{ periodTypeId: 2, fromPeriod: 1, toPeriod: 11, annualInterestRate: 5 }],
+      }),
+    );
+    component.account()['clientId'] = 1;
+    component.onProductSelected(101);
+
+    component.account.update((account) => ({ ...account, depositPeriod: 999 }));
+    component.onTermChanged();
+
+    expect(component.account()['nominalAnnualInterestRate']).toBe(5);
+  });
+
+  it('notifies readers of the prefill instead of mutating the model in place', () => {
+    // The old prefill assigned to `account()`'s properties, which changes the object without
+    // telling anything that reads the signal — so a resolved field could still fail to render.
+    deposits['template'].mockReturnValue(of(TEMPLATE));
+    component.account()['clientId'] = 1;
+    const before = component.account();
+
+    component.onProductSelected(101);
+
+    expect(component.account()).not.toBe(before);
+  });
+
+  describe('the frequency that went invalid after choosing a product', () => {
+    /*
+     * #766's second half: "Frequency shows a preselected value, but the form control is invalid
+     * until the user opens the select and picks Months again", with Save disabled and nothing
+     * saying why.
+     *
+     * The cause was the prefill, not the select. The account template carries no
+     * `depositPeriodFrequency`, so the old code assigned `undefined` to the model property that
+     * `[(ngModel)]` is bound to. That emptied the control — failing its `required` validator —
+     * while the Ionic select went on displaying Months. It only showed up *after* choosing a
+     * product, which is why the issue's reproduction hits it at step 4 rather than step 1.
+     */
+    it('starts valid, with months selected', () => {
+      expect(component.account()['depositPeriodFrequencyId']).toBe(2);
+    });
+
+    it('is not blanked by a template that states no term unit', () => {
+      deposits['template'].mockReturnValue(of({ ...TEMPLATE, minDepositTermTypeId: null }));
+      component.account()['clientId'] = 1;
+
+      component.onProductSelected(101);
+
+      expect(component.account()['depositPeriodFrequencyId']).toBe(2);
+    });
+
+    it('is not blanked by a template that states nothing at all', () => {
+      // The degenerate case, and the one the old code hit on every product: every field it read
+      // was absent, so every assignment wrote `undefined`. Stated as the empty *model* — the
+      // adapter cannot answer `{}`, and a double that does throws on `chartSlabs.map`.
+      deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
+      component.account()['clientId'] = 1;
+
+      component.onProductSelected(101);
+
+      expect(component.account()['depositPeriodFrequencyId']).toBe(2);
+    });
   });
 
   it('should handle error when loading product defaults', () => {
     vi.spyOn(console, 'error');
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
-      throwError(() => new Error(API_ERROR)),
-    );
+    deposits['template'].mockReturnValue(throwError(() => new Error(API_ERROR)));
     component.account()['clientId'] = 1;
 
     component.onProductSelected(101);
@@ -161,26 +330,28 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should load existing account data in edit mode', () => {
-    const mockAccount = {
-      clientId: 1,
-      savingsProductId: 101,
-      depositAmount: 1000,
-      depositPeriod: 6,
-      depositPeriodFrequency: { id: 2 },
-      nominalAnnualInterestRate: 4.5,
-      timeline: {
-        submittedOnDate: [2026, 6, 11] as unknown as string,
-      },
-    };
-    (fixedDepositServiceSpy.getFixeddepositaccountsAccountId as Mock).mockReturnValue(
-      of(mockAccount as unknown as GetFixedDepositAccountsAccountIdResponse),
+    // Model-shaped: the adapter has already resolved which of the two product-id names the
+    // payload used, which is what left the product unselected on every edit before.
+    deposits['get'].mockReturnValue(
+      of({
+        ...ACCOUNT,
+        clientId: 1,
+        productId: 101,
+        depositAmount: 1000,
+        depositPeriod: 6,
+        nominalAnnualInterestRate: 4.5,
+        raw: {
+          timeline: { submittedOnDate: [2026, 6, 11] },
+          depositPeriodFrequency: { id: 2 },
+        },
+      }),
     );
     component.accountId = 123;
     component.isEditMode.set(true);
 
     (component as unknown as Record<string, () => void>)['loadAccountData']();
 
-    expect(fixedDepositServiceSpy.getFixeddepositaccountsAccountId).toHaveBeenCalledWith(123);
+    expect(deposits['get']).toHaveBeenCalledWith('fixed', 123);
     expect(component.account()['clientId']).toBe(1);
     expect(component.account()['productId']).toBe(101);
     expect(component.account()['nominalAnnualInterestRate']).toBe(4.5);
@@ -189,9 +360,7 @@ describe('FixedDepositAccountFormComponent', () => {
 
   it('should handle error when loading account data', () => {
     vi.spyOn(console, 'error');
-    (fixedDepositServiceSpy.getFixeddepositaccountsAccountId as Mock).mockReturnValue(
-      throwError(() => new Error(API_ERROR)),
-    );
+    deposits['get'].mockReturnValue(throwError(() => new Error(API_ERROR)));
     component.accountId = 123;
 
     (component as unknown as Record<string, () => void>)['loadAccountData']();
@@ -200,12 +369,8 @@ describe('FixedDepositAccountFormComponent', () => {
   });
 
   it('should submit application in create mode', () => {
-    (fixedDepositServiceSpy.getFixeddepositaccountsTemplate as Mock).mockReturnValue(
-      of({} as GetFixedDepositAccountsTemplateResponse),
-    );
-    (fixedDepositServiceSpy.postFixeddepositaccounts as Mock).mockReturnValue(
-      of({} as PostFixedDepositAccountsResponse),
-    );
+    deposits['template'].mockReturnValue(of(EMPTY_TEMPLATE));
+    deposits['create'].mockReturnValue(of(undefined));
     fixture.detectChanges();
 
     component.account.set({
@@ -220,14 +385,12 @@ describe('FixedDepositAccountFormComponent', () => {
 
     component.onSubmit();
 
-    expect(fixedDepositServiceSpy.postFixeddepositaccounts).toHaveBeenCalled();
+    expect(deposits['create']).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith([FIXED_DEPOSITS_PATH]);
   });
 
   it('should update application in edit mode', () => {
-    (fixedDepositServiceSpy.putFixeddepositaccountsAccountId as Mock).mockReturnValue(
-      of({} as PostFixedDepositAccountsResponse),
-    );
+    deposits['update'].mockReturnValue(of(undefined));
     component.accountId = 123;
     component.isEditMode.set(true);
     component.account.set({
@@ -240,17 +403,12 @@ describe('FixedDepositAccountFormComponent', () => {
 
     component.onSubmit();
 
-    expect(fixedDepositServiceSpy.putFixeddepositaccountsAccountId).toHaveBeenCalledWith(
-      123,
-      expect.any(Object),
-    );
+    expect(deposits['update']).toHaveBeenCalledWith('fixed', 123, expect.any(Object));
     expect(routerSpy.navigate).toHaveBeenCalledWith([FIXED_DEPOSITS_PATH]);
   });
 
   it('should handle submission error', () => {
-    (fixedDepositServiceSpy.postFixeddepositaccounts as Mock).mockReturnValue(
-      throwError(() => new Error(API_ERROR)),
-    );
+    deposits['create'].mockReturnValue(throwError(() => new Error(API_ERROR)));
     component.onSubmit();
     expect(component.isSaving()).toBe(false);
   });
@@ -278,5 +436,101 @@ describe('FixedDepositAccountFormComponent', () => {
   it('should return null if clientId is missing', () => {
     component.account()['clientId'] = undefined;
     expect(component.getClientId()).toBeNull();
+  });
+
+  /**
+   * #783's half of this form: what happens at maturity, and which savings account funds the
+   * deposit.
+   *
+   * The second one is where the issue was wrong about the platform, and getting it wrong in the
+   * UI would move a customer's money. #783 describes `linkAccountId` as "the customer's savings
+   * account" for the maturity payout. It is not: activation **debits** the linked account by the
+   * deposit amount. Measured — a savings account holding 20,000 went to 15,000 when a 5,000
+   * deposit linked to it was activated, and an unfunded linked account makes activation fail
+   * with 403 "Insufficient account balance." The payout target is `transferToSavingsId`, which
+   * goes with the maturity instruction.
+   */
+  describe('maturity instruction and funding account', () => {
+    beforeEach(() => {
+      deposits['template'].mockReturnValue(of(TEMPLATE));
+      component.account()['clientId'] = 1;
+      component.onProductSelected(101);
+    });
+
+    it('offers the instructions and savings accounts the template returned', () => {
+      expect(component.maturityInstructions().map((option) => option.id)).toEqual([100, 200]);
+      expect(component.savingsAccounts().map((savings) => savings.accountNo)).toEqual([
+        '000000005',
+      ]);
+    });
+
+    it('asks for a transfer target only when the instruction is to transfer', () => {
+      component.account.update((account) => ({ ...account, maturityInstructionId: 100 }));
+      expect(component.transfersAtMaturity()).toBe(false);
+
+      component.account.update((account) => ({ ...account, maturityInstructionId: 200 }));
+      expect(component.transfersAtMaturity()).toBe(true);
+    });
+
+    it('sends the instruction, the transfer target and the funding account on create', () => {
+      component.account.update((account) => ({
+        ...account,
+        depositAmount: 5000,
+        depositPeriod: 12,
+        maturityInstructionId: 200,
+        transferToSavingsId: 5,
+        linkAccountId: 5,
+        transferInterestToSavings: true,
+      }));
+      deposits['create'].mockReturnValue(of({}));
+
+      component.onSubmit();
+
+      const payload = deposits['create'].mock.calls[0][1] as Record<string, unknown>;
+      expect(payload['maturityInstructionId']).toBe(200);
+      expect(payload['transferToSavingsId']).toBe(5);
+      expect(payload['linkAccountId']).toBe(5);
+      expect(payload['transferInterestToSavings']).toBe(true);
+    });
+
+    it('carries them through an update, which names its fields one by one', () => {
+      // The update builds an explicit payload, so a field not named here is a field the update
+      // silently drops — the same trap the product form documents.
+      component.accountId = 7;
+      component.isEditMode.set(true);
+      component.account.update((account) => ({
+        ...account,
+        depositAmount: 5000,
+        depositPeriod: 12,
+        maturityInstructionId: 200,
+        transferToSavingsId: 5,
+        linkAccountId: 5,
+      }));
+      deposits['update'].mockReturnValue(of({}));
+
+      component.onSubmit();
+
+      const payload = deposits['update'].mock.calls[0][2] as Record<string, unknown>;
+      expect(payload['maturityInstructionId']).toBe(200);
+      expect(payload['transferToSavingsId']).toBe(5);
+      expect(payload['linkAccountId']).toBe(5);
+    });
+
+    it('omits the transfer target when the instruction is not to transfer', () => {
+      // Sending one with instruction 100 describes a transfer that is not going to happen.
+      component.accountId = 7;
+      component.isEditMode.set(true);
+      component.account.update((account) => ({
+        ...account,
+        maturityInstructionId: 100,
+        transferToSavingsId: 5,
+      }));
+      deposits['update'].mockReturnValue(of({}));
+
+      component.onSubmit();
+
+      const payload = deposits['update'].mock.calls[0][2] as Record<string, unknown>;
+      expect(payload['transferToSavingsId']).toBeUndefined();
+    });
   });
 });

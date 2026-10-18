@@ -1304,23 +1304,12 @@
       "count": 1
     }
   },
-  "src/app/features/products/deposit-account-view.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 2
-    }
-  },
   "src/app/features/products/deposit-account-view.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 2
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
   },
   "src/app/features/products/deposit-closure-dialog.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
@@ -1348,15 +1337,7 @@
       "count": 1
     }
   },
-  "src/app/features/products/fixed-deposits/fixed-deposit-form.component.test.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    }
-  },
   "src/app/features/products/fixed-deposits/fixed-deposit-form.component.ts": {
-    "local/no-generated-api-import": {
-      "count": 1
-    },
     "local/no-vendor-ui-import": {
       "count": 1
     }
