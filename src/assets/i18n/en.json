@@ -1080,7 +1080,20 @@
     "REPEAT_PASSWORD": "Repeat Password",
     "ROLES": "Roles",
     "PASSWORD_NEVER_EXPIRES": "Password Never Expires",
-    "SEND_PASSWORD_TO_EMAIL": "Send Password To Email"
+    "SEND_PASSWORD_TO_EMAIL": "Send Password To Email",
+    "PASSWORD_POLICY": "Password policy",
+    "PASSWORD_RULES_UNMET": "This password must still:",
+    "PASSWORDS_DO_NOT_MATCH": "The two passwords do not match",
+    "PASSWORD_RULES": {
+      "LENGTH": "be {{min}} to {{max}} characters long",
+      "UPPERCASE": "include an uppercase letter",
+      "LOWERCASE": "include a lowercase letter",
+      "DIGIT": "include a digit",
+      "SPECIAL": "include a special character",
+      "NO_SPACE": "contain no spaces",
+      "NO_REPEAT": "repeat no character twice in a row"
+    },
+    "CONFIRM_DELETE": "Delete the account \"{{username}}\"? The user will no longer be able to sign in."
   },
   "ORGANIZATION": {
     "STAFF": "Staff",
@@ -1217,7 +1230,12 @@
     "IMPACT_NAV_LOST": "Screens this role loses",
     "IMPACT_NAV_UNCHANGED": "No screen appears or disappears from the sidebar — these permissions gate actions within screens the role already reaches.",
     "CONFIRM_PERMISSIONS_TITLE": "Apply permission changes",
-    "CONFIRM_PERMISSIONS_MESSAGE": "Save these permissions for the role “{{name}}”? Everyone holding it is affected the next time they sign in, and no one is told."
+    "CONFIRM_PERMISSIONS_MESSAGE": "Save these permissions for the role “{{name}}”? Everyone holding it is affected the next time they sign in, and no one is told.",
+    "DISABLE": "Disable",
+    "ENABLE": "Enable",
+    "CONFIRM_DISABLE": "Disable the role \"{{name}}\"? It stays as it is, and stops being offered for new users.",
+    "CONFIRM_ENABLE": "Enable the role \"{{name}}\"? It can be assigned to users again.",
+    "CONFIRM_DELETE": "Delete the role \"{{name}}\"? This cannot be undone, and the platform refuses while any user still holds it."
   },
   "HELP": {
     "SEARCH_DESC": "Use this field to search or filter the table records.",
