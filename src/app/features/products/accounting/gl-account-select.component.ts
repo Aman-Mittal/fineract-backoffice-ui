@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Component, computed, input, model } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, computed, inject, input, model } from '@angular/core';
+import { ControlContainer, FormsModule } from '@angular/forms';
 import { IonItem, IonLabel, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 
 import { TranslatePipe } from '../../../core/adapters';
@@ -38,6 +38,18 @@ import { GlAccountOption } from './product-accounting.model';
 @Component({
   selector: 'app-gl-account-select',
   standalone: true,
+  /**
+   * Lets this control join the form it sits in — see the same block on
+   * `ProductAccountingSectionComponent`, which hosts this one and needs it for the same reason:
+   * `NgModel` stops looking for its `ControlContainer` at the component boundary, so without
+   * this the `required` below is never seen by the form and Angular logs NG01354 per slot.
+   */
+  viewProviders: [
+    {
+      provide: ControlContainer,
+      useFactory: () => inject(ControlContainer, { optional: true, skipSelf: true }),
+    },
+  ],
   imports: [FormsModule, TranslatePipe, IonItem, IonLabel, IonSelect, IonSelectOption],
   template: `
     <ion-item fill="outline" class="form-item">

@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { Component, computed, input, model } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, computed, inject, input, model } from '@angular/core';
+import { ControlContainer, FormsModule } from '@angular/forms';
 import {
   IonCol,
   IonGrid,
@@ -90,6 +90,29 @@ const GROUP_ORDER: readonly GlAccountType[] = ['asset', 'liability', 'equity', '
 @Component({
   selector: 'app-product-accounting-section',
   standalone: true,
+  /**
+   * Lets the controls in this template join the parent form.
+   *
+   * `NgModel` resolves its `ControlContainer` with `@Host()`, which stops at the component
+   * boundary — so a control inside a child component's template cannot reach the `ngForm` it
+   * visually sits in, and Angular says so with NG01354 on every render. The console noise was
+   * the small half of it: the `required` flags below never reached the parent form either, so
+   * Save stayed enabled with mandatory GL slots empty, and the platform refused the product (or
+   * worse, took it unaccounted — issue #288).
+   *
+   * Resolved through a factory rather than `useExisting: NgForm`, so the component still renders
+   * outside a form: `skipSelf` looks past this component's own injector and `optional` answers
+   * `null` when there is no form above it, which is what `NgModel` expects of an absent
+   * container. A disabled control — a slot whose account class the tenant has none of — is
+   * excluded from validity by Angular, so an empty one cannot deadlock the form.
+   */
+  viewProviders: [
+    {
+      provide: ControlContainer,
+      useFactory: () => inject(ControlContainer, { optional: true, skipSelf: true }),
+    },
+  ],
+
   imports: [
     FormsModule,
     TranslatePipe,
