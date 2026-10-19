@@ -17,24 +17,69 @@
  * under the License.
  */
 
-import type { Mock } from 'vitest';
-import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FixedDepositAccountsListComponent } from './fixed-deposits-list.component';
-import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../../../api';
+import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Router } from '@angular/router';
+
+import { FixedDepositAccountsListComponent } from './fixed-deposits-list.component';
+import { DEPOSIT_ACCOUNT_API } from '../../../core/adapters';
+import { mapDepositAccount } from '../../../core/adapters/api/fineract-deposit-account.api';
+import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
+
+/**
+ * Two rows as `GET /fixeddepositaccounts` really answers them, measured against a running
+ * Fineract: the list sends the whole account payload minus its associations, so the product is
+ * `depositProductName`, the currency is an object, and the status carries booleans beside its
+ * English label.
+ *
+ * Put through the adapter's own mapper rather than hand-shaped here, so this spec cannot pass
+ * over a shape the adapter never produces.
+ */
+const PENDING_ACCOUNT = {
+  id: 1,
+  accountNo: '000000001',
+  clientId: 9,
+  clientName: 'Tester',
+  depositProductId: 1,
+  depositProductName: 'FD 12 months',
+  depositAmount: 1000,
+  maturityAmount: 1065,
+  currency: { code: 'USD', displaySymbol: '$' },
+  status: {
+    id: 100,
+    code: 'savingsAccountStatusType.submittedAndPendingApproval',
+    value: 'Submitted and pending approval',
+    submittedAndPendingApproval: true,
+    approved: false,
+    active: false,
+  },
+};
+
+const ACTIVE_ACCOUNT = {
+  ...PENDING_ACCOUNT,
+  id: 2,
+  accountNo: '000000002',
+  status: {
+    id: 300,
+    code: 'savingsAccountStatusType.active',
+    value: 'Active',
+    submittedAndPendingApproval: false,
+    approved: false,
+    active: true,
+  },
+};
 
 describe('FixedDepositAccountsListComponent', () => {
   let component: FixedDepositAccountsListComponent;
   let fixture: ComponentFixture<FixedDepositAccountsListComponent>;
-  let fixedDepositServiceSpy: SpyObj<FixedDepositAccountService>;
+  let deposits: Record<string, ReturnType<typeof vi.fn>>;
   let routerSpy: SpyObj<Router>;
 
-  beforeEach(async () => {
-    fixedDepositServiceSpy = createSpyObj(['getFixeddepositaccounts']);
+  async function setup(payloads: object[] = [PENDING_ACCOUNT]): Promise<void> {
+    TestBed.resetTestingModule();
+    deposits = { list: vi.fn().mockReturnValue(of(payloads.map(mapDepositAccount))) };
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
@@ -42,61 +87,81 @@ describe('FixedDepositAccountsListComponent', () => {
       providers: [
         ...provideTranslateTesting(),
         provideNoopAnimations(),
-        { provide: FixedDepositAccountService, useValue: fixedDepositServiceSpy },
+        { provide: DEPOSIT_ACCOUNT_API, useValue: deposits },
         { provide: Router, useValue: routerSpy },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FixedDepositAccountsListComponent);
     component = fixture.componentInstance;
-  });
-
-  it('should create', () => {
-    (fixedDepositServiceSpy.getFixeddepositaccounts as Mock).mockReturnValue(
-      of([] as GetFixedDepositAccountsResponse[]),
-    );
     fixture.detectChanges();
-    expect(component).toBeTruthy();
-  });
+  }
 
-  it('should load accounts on initialization', () => {
-    const mockAccounts = [
-      { id: 1, accountNo: 1001, clientName: 'John Doe' } as GetFixedDepositAccountsResponse,
-    ];
-    (fixedDepositServiceSpy.getFixeddepositaccounts as Mock).mockReturnValue(of(mockAccounts));
+  it('asks the adapter for the fixed deposit accounts', async () => {
+    await setup();
 
-    fixture.detectChanges();
-
-    expect(fixedDepositServiceSpy.getFixeddepositaccounts).toHaveBeenCalled();
+    expect(deposits['list']).toHaveBeenCalledWith('fixed');
     expect(component.accounts()).toHaveLength(1);
-    expect(component.accounts()[0].accountNo).toBe(1001);
+    expect(component.accounts()[0].accountNo).toBe('000000001');
   });
 
-  it('should handle error when loading accounts', () => {
-    vi.spyOn(console, 'error');
-    (fixedDepositServiceSpy.getFixeddepositaccounts as Mock).mockReturnValue(
-      throwError(() => new Error('API Error')),
-    );
+  it('shows the product and the client the payload really names', async () => {
+    await setup();
 
-    fixture.detectChanges();
-
-    expect(console.error).toHaveBeenCalled();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Tester');
+    expect(component.accounts()[0].productName).toBe('FD 12 months');
   });
 
-  it('should navigate to create account form', () => {
+  it('offers Approve on a pending account', async () => {
+    await setup([PENDING_ACCOUNT]);
+
+    expect(approveButtons()).toHaveLength(1);
+  });
+
+  it('withholds Approve on an account the platform would refuse it for', async () => {
+    await setup([ACTIVE_ACCOUNT]);
+
+    expect(approveButtons()).toHaveLength(0);
+  });
+
+  it('empties the list when the read fails', async () => {
+    await setup();
+    deposits['list'].mockReturnValue(throwError(() => new Error('API Error')));
+
+    fixture.componentInstance.ngOnInit();
+
+    expect(component.accounts()).toEqual([]);
+  });
+
+  it('navigates to the create form', async () => {
+    await setup();
+
     component.onCreateAccount();
+
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed-deposits/create']);
   });
 
-  it('should navigate to edit account form', () => {
-    const mockAccount = { id: 123 } as GetFixedDepositAccountsResponse;
-    component.onEditAccount(mockAccount);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed-deposits/edit', 123]);
+  it('navigates to the edit form and to the approve action', async () => {
+    await setup();
+    const [account] = component.accounts();
+
+    component.onEditAccount(account);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed-deposits/edit', 1]);
+
+    component.onApprove(account);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed/1/action/approve']);
   });
 
-  it('should navigate to approve account action', () => {
-    const mockAccount = { id: 456 } as GetFixedDepositAccountsResponse;
-    component.onApprove(mockAccount);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/fixed/456/action/approve']);
-  });
+  /**
+   * The row's Approve action, found by its accessible name.
+   *
+   * The translation under test returns the key, so the name is the key — which is also what
+   * every label-scoped locator in the e2e suite matches on.
+   */
+  function approveButtons(): Element[] {
+    return Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('[aria-label="LOANS.APPROVE"]'),
+    );
+  }
 });

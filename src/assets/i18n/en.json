@@ -2357,7 +2357,7 @@
     "DATE": "Date",
     "AMOUNT": "Amount",
     "TYPE": "Type",
-    "REASON": "Reason"
+    "LOAN": "Loan"
   },
   "PROVISIONING_CATEGORIES": {
     "CREATE": "Create Provisioning Category",

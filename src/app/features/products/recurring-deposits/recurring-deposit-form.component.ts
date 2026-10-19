@@ -22,7 +22,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
 import { ClientSearchComponent } from '../../../shared/components/client-search/client-search.component';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -45,14 +44,11 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
-  RecurringDepositAccountService,
-  GetRecurringDepositAccountsTemplateResponse,
-  GetRecurringDepositAccountsAccountIdResponse,
-  GetRecurringProductOptions,
-  PostRecurringDepositAccountsRequest,
-} from '../../../api';
+  DEPOSIT_ACCOUNT_API,
+  TranslatePipe,
+  type DepositProductOption,
+} from '../../../core/adapters';
 import {
-  formatArrayDate,
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
@@ -144,10 +140,8 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                     required
                     [disabled]="isEditMode()"
                   >
-                    @for (product of products(); track product['id']) {
-                      <ion-select-option [value]="product['id']">{{
-                        product['name']
-                      }}</ion-select-option>
+                    @for (product of products(); track product.id) {
+                      <ion-select-option [value]="product.id">{{ product.name }}</ion-select-option>
                     }
                     <hr class="divider" />
                     <ion-select-option (click)="onCreateProduct()">
@@ -373,8 +367,8 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   /** See `createPickersReady` — the date buttons must not outrun their pickers. */
   readonly pickersReady = createPickersReady();
 
-  /** Service for term deposit operations */
-  private readonly rdService = inject(RecurringDepositAccountService);
+  /** Term deposit operations, behind the adapter boundary — see ADR 0006. */
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   /** Router for post-op navigation */
   private readonly router = inject(Router);
   /** Activated route for editing */
@@ -402,7 +396,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   /** Submitted date for template binding */
   readonly submittedOnDate = signal(this.platformDate.today());
   /** Available products list */
-  readonly products = signal<GetRecurringProductOptions[]>([]);
+  readonly products = signal<DepositProductOption[]>([]);
 
   /**
    * Component initialization.
@@ -460,14 +454,8 @@ export class RecurringDepositAccountFormComponent implements OnInit {
    * Fetches the list of eligible recurring deposit products for the client.
    */
   private loadProducts(clientId?: number): void {
-    this.rdService.getRecurringdepositaccountsTemplate(clientId).subscribe({
-      next: (template: GetRecurringDepositAccountsTemplateResponse) => {
-        if (template && template.productOptions) {
-          this.products.set(Array.from(template.productOptions));
-        } else {
-          this.products.set([]);
-        }
-      },
+    this.deposits.template('recurring', clientId).subscribe({
+      next: (template) => this.products.set([...template.productOptions]),
       error: () => {
         this.notifications.error('Operation failed. Please try again.');
         this.products.set([]);
@@ -487,20 +475,27 @@ export class RecurringDepositAccountFormComponent implements OnInit {
   /**
    * Loads existing account data for editing.
    */
+  /**
+   * Loads existing account data for editing.
+   *
+   * The product used to be read as `savingsProductId`, which a *deposit* account does not send —
+   * it answers `depositProductId` — so an edit opened with no product selected and a save
+   * dropped it. The adapter's model states that position once, which is what ADR 0006's
+   * boundary is for.
+   */
   private loadAccountData(): void {
     if (!this.accountId) return;
-    this.rdService.getRecurringdepositaccountsAccountId(this.accountId).subscribe({
-      next: (data: GetRecurringDepositAccountsAccountIdResponse) => {
-        const dateArray = data.timeline?.submittedOnDate as unknown as number[];
-        if (dateArray) {
-          this.submittedOnDate.set(formatArrayDate(dateArray));
+    this.deposits.get('recurring', this.accountId).subscribe({
+      next: (account) => {
+        if (account.timeline.submittedOnDate) {
+          this.submittedOnDate.set(account.timeline.submittedOnDate);
         }
         this.account.set({
-          clientId: data.clientId,
-          productId: data.savingsProductId,
-          mandatoryRecommendedDepositAmount: data.mandatoryRecommendedDepositAmount,
-          depositPeriod: data.depositPeriod,
-          depositPeriodFrequencyId: data.depositPeriodFrequency?.id,
+          clientId: account.clientId,
+          productId: account.productId,
+          mandatoryRecommendedDepositAmount: account.recurringDepositAmount,
+          depositPeriod: account.depositPeriod,
+          depositPeriodFrequencyId: account.depositPeriodFrequencyId,
         });
       },
       error: () => this.notifications.error('Operation failed. Please try again.'),
@@ -526,7 +521,7 @@ export class RecurringDepositAccountFormComponent implements OnInit {
         dateFormat: FINERACT_DATE_FORMAT,
       };
 
-      this.rdService.putRecurringdepositaccountsAccountId(this.accountId, payload).subscribe({
+      this.deposits.update('recurring', this.accountId, payload).subscribe({
         next: () => this.router.navigate([this.LIST_PATH]),
         error: () => this.isSaving.set(false),
       });
@@ -548,12 +543,10 @@ export class RecurringDepositAccountFormComponent implements OnInit {
         }
       }
 
-      this.rdService
-        .postRecurringdepositaccounts(payload as PostRecurringDepositAccountsRequest)
-        .subscribe({
-          next: () => this.router.navigate([this.LIST_PATH]),
-          error: () => this.isSaving.set(false),
-        });
+      this.deposits.create('recurring', payload).subscribe({
+        next: () => this.router.navigate([this.LIST_PATH]),
+        error: () => this.isSaving.set(false),
+      });
     }
   }
 

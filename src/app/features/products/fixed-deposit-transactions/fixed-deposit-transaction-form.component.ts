@@ -21,7 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { I18N, TranslatePipe } from '../../../core/adapters';
 import { MutationOutcomeService } from '../../../core/services/mutation-outcome.service';
 import {
   IonButton,
@@ -40,45 +39,17 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
-  FixedDepositAccountTransactionsService,
-  PostFixedDepositAccountsFixedDepositAccountIdTransactionsRequest,
-} from '../../../api';
+  DEPOSIT_ACCOUNT_API,
+  I18N,
+  TranslatePipe,
+  type DepositPaymentType,
+} from '../../../core/adapters';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
-
-/**
- * One payment-type option as the transactions template actually returns it.
- *
- * The generated model types `paymentTypeOptions` as `Array<number>`, which the platform does not
- * honour — it answers with objects carrying `id` and `name`. Binding a select to the raw element
- * therefore renders `[object Object]` and posts an object as `paymentTypeId`. This local shape is
- * what the wire really carries; remove it when the upstream document describes the field.
- */
-interface PaymentTypeOption {
-  id: number;
-  name: string;
-}
-
-/** The transaction template, whose response the document types only as `string`. */
-interface TransactionTemplate {
-  paymentTypeOptions?: PaymentTypeOption[];
-}
-
-/**
- * The deposit payload.
- *
- * `PostFixedDepositAccountsFixedDepositAccountIdTransactionsRequest` carries `transactionDate`,
- * `transactionAmount`, `note`, `dateFormat` and `locale` but not `paymentTypeId`, which the
- * platform does accept — it echoes it back under `changes` on a successful post. The field is
- * added here rather than dropped, so the teller's choice of payment channel reaches the ledger.
- */
-type DepositRequest = PostFixedDepositAccountsFixedDepositAccountIdTransactionsRequest & {
-  paymentTypeId?: number;
-};
 
 /**
  * Deposit form for a single fixed deposit account. The account id is read from the route.
@@ -219,7 +190,7 @@ export class FixedDepositTransactionFormComponent implements OnInit {
   /** See `createPickersReady` — the date buttons must not outrun their pickers. */
   readonly pickersReady = createPickersReady();
 
-  private readonly transactionsService = inject(FixedDepositAccountTransactionsService);
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly route = inject(ActivatedRoute);
   /**
    * Today, as the platform reckons it: the business date when one governs, and the platform's
@@ -237,33 +208,28 @@ export class FixedDepositTransactionFormComponent implements OnInit {
   transactionDate = this.platformDate.today();
   transactionAmount: number | null = null;
   paymentTypeId: number | null = null;
-  readonly paymentTypeOptions = signal<PaymentTypeOption[]>([]);
+  readonly paymentTypeOptions = signal<DepositPaymentType[]>([]);
 
   ngOnInit(): void {
     this.accountId = Number(this.route.snapshot.paramMap.get('accountId'));
-    this.transactionsService
-      .getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate(this.accountId)
-      .subscribe((template) => {
-        // Typed `string` by the document, JSON on the wire — see `TransactionTemplate`.
-        const options = (template as unknown as TransactionTemplate).paymentTypeOptions;
-        this.paymentTypeOptions.set(options ?? []);
-      });
+    this.deposits.transactionTemplate('fixed', this.accountId, 'deposit').subscribe({
+      next: (template) => this.paymentTypeOptions.set([...template.paymentTypes]),
+      error: () => this.paymentTypeOptions.set([]),
+    });
   }
 
   /**
    * Posts the deposit.
    *
-   * The argument order is the trap here. The recurring-deposit twin is
-   * `(accountId, request, command)`, but this operation is generated as
-   * `(accountId, command, body)` — `command` second, and the body typed `string` because the
-   * document describes it as free-form. Mirroring the twin's call would bind the request object
-   * to `command` and still compile. The request is built against the typed model and serialised
-   * once, which keeps the shape checked and satisfies the generated signature; `HttpClient`
-   * forwards a string body verbatim rather than re-encoding it.
+   * `paymentTypeId` is sent although the documented request does not name it: the platform
+   * accepts it and echoes it back under `changes`, measured against a running Fineract, so the
+   * teller's choice of payment channel reaches the ledger. How the request is carried — this
+   * operation's body is typed `string` and its arguments are in a different order from the
+   * recurring twin's — is the adapter's business now.
    */
   onSubmit(): void {
     this.isSaving.set(true);
-    const request: DepositRequest = {
+    const request: Record<string, unknown> = {
       transactionDate: formatDateToFineract(this.transactionDate),
       transactionAmount: this.transactionAmount ?? undefined,
       paymentTypeId: this.paymentTypeId ?? undefined,
@@ -271,24 +237,18 @@ export class FixedDepositTransactionFormComponent implements OnInit {
       locale: FINERACT_LOCALE,
     };
 
-    this.transactionsService
-      .postFixeddepositaccountsFixedDepositAccountIdTransactions(
-        this.accountId,
-        'deposit',
-        JSON.stringify(request),
-      )
-      .subscribe({
-        next: (response) => {
-          this.isSaving.set(false);
-          this.mutationOutcome.complete({
-            response,
-            successMessage: this.i18n.translate('SAVINGS.TRANSACTION_SUCCESS'),
-            recordRoute: (id) => ['/products/fixed-deposits/view', id],
-            recordId: this.accountId,
-          });
-        },
-        error: () => this.isSaving.set(false),
-      });
+    this.deposits.postTransaction('fixed', this.accountId, 'deposit', request).subscribe({
+      next: (response) => {
+        this.isSaving.set(false);
+        this.mutationOutcome.complete({
+          response,
+          successMessage: this.i18n.translate('SAVINGS.TRANSACTION_SUCCESS'),
+          recordRoute: (id) => ['/products/fixed-deposits/view', id],
+          recordId: this.accountId,
+        });
+      },
+      error: () => this.isSaving.set(false),
+    });
   }
 
   onCancel(): void {

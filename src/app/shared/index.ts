@@ -30,6 +30,7 @@ export * from './components/client-search/client-search.component';
 export * from './directives/has-permission.directive';
 export * from './directives/requires-permission.directive';
 export * from './pipes/permission-summary.pipe';
+export * from './pipes/iso-date.pipe';
 export * from './components/guidance-tour/guidance-tour.component';
 export * from './components/entity-notes/entity-notes.component';
 export * from './components/entity-documents/entity-documents.component';

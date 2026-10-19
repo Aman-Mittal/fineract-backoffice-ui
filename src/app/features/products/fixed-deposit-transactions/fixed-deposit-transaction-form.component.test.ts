@@ -24,39 +24,28 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
 
 import { FixedDepositTransactionFormComponent } from './fixed-deposit-transaction-form.component';
-import { FixedDepositAccountTransactionsService } from '../../../api';
+import { DEPOSIT_ACCOUNT_API } from '../../../core/adapters';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 
 describe('FixedDepositTransactionFormComponent', () => {
   let component: FixedDepositTransactionFormComponent;
   let fixture: ComponentFixture<FixedDepositTransactionFormComponent>;
-  let serviceSpy: SpyObj<FixedDepositAccountTransactionsService>;
+  let deposits: Record<string, ReturnType<typeof vi.fn>>;
   let routerSpy: SpyObj<Router>;
 
-  type PostReturn = ReturnType<
-    FixedDepositAccountTransactionsService['postFixeddepositaccountsFixedDepositAccountIdTransactions']
-  >;
-  type TemplateReturn = ReturnType<
-    FixedDepositAccountTransactionsService['getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate']
-  >;
-
   beforeEach(async () => {
-    serviceSpy = createSpyObj([
-      'getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate',
-      'postFixeddepositaccountsFixedDepositAccountIdTransactions',
-    ]);
-    serviceSpy.getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate.mockReturnValue(
-      of({
-        paymentTypeOptions: [
-          { id: 1, name: 'Money Transfer' },
-          { id: 2, name: 'Cash' },
-        ],
-      }) as unknown as TemplateReturn,
-    );
-    serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.mockReturnValue(
-      of({}) as unknown as PostReturn,
-    );
+    deposits = {
+      transactionTemplate: vi.fn().mockReturnValue(
+        of({
+          paymentTypes: [
+            { id: 1, name: 'Money Transfer' },
+            { id: 2, name: 'Cash' },
+          ],
+        }),
+      ),
+      postTransaction: vi.fn().mockReturnValue(of({ resourceId: 307 })),
+    };
     routerSpy = createSpyObj(['navigate']);
 
     await TestBed.configureTestingModule({
@@ -65,7 +54,7 @@ describe('FixedDepositTransactionFormComponent', () => {
         provideNoopAnimations(),
         provideIonicTesting(),
         ...provideTranslateTesting(),
-        { provide: FixedDepositAccountTransactionsService, useValue: serviceSpy },
+        { provide: DEPOSIT_ACCOUNT_API, useValue: deposits },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
@@ -79,35 +68,37 @@ describe('FixedDepositTransactionFormComponent', () => {
     fixture.detectChanges();
   });
 
-  it('reads the payment types the template actually returns', () => {
-    expect(
-      serviceSpy.getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate,
-    ).toHaveBeenCalledWith(7);
-    // The generated model types these as `Array<number>`; the platform sends objects. Rendering
-    // the raw element would put `[object Object]` in the select.
+  it('asks for the deposit template of this account', () => {
+    expect(deposits['transactionTemplate']).toHaveBeenCalledWith('fixed', 7, 'deposit');
     expect(component.paymentTypeOptions()).toEqual([
       { id: 1, name: 'Money Transfer' },
       { id: 2, name: 'Cash' },
     ]);
   });
 
+  it('renders each payment channel by name, not as an object', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Money Transfer');
+    expect(text).not.toContain('[object Object]');
+  });
+
   /**
-   * The argument order is the whole point of this assertion. The recurring-deposit twin is
-   * `(accountId, request, command)` and this operation is `(accountId, command, body)`; a call
-   * copied from the twin binds the request object to `command` and still compiles.
+   * `paymentTypeId` is not in the documented request and the platform accepts it anyway —
+   * measured, it comes back under `changes` — so dropping it would quietly lose the teller's
+   * choice of payment channel. How the request is carried is the adapter's business; this only
+   * pins what the screen sends.
    */
-  it('posts with the command second and a serialised body third', () => {
+  it('sends the date, the amount and the chosen payment channel', () => {
     component.transactionAmount = 500;
     component.paymentTypeId = 2;
     component.transactionDate = '2026-08-09';
 
     component.onSubmit();
 
-    const args =
-      serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.mock.lastCall!;
-    expect(args[0]).toBe(7);
-    expect(args[1]).toBe('deposit');
-    expect(JSON.parse(args[2] as string)).toEqual(
+    expect(deposits['postTransaction']).toHaveBeenCalledWith(
+      'fixed',
+      7,
+      'deposit',
       expect.objectContaining({
         transactionAmount: 500,
         paymentTypeId: 2,
@@ -125,14 +116,20 @@ describe('FixedDepositTransactionFormComponent', () => {
   });
 
   it('re-enables the form when the post fails', () => {
-    serviceSpy.postFixeddepositaccountsFixedDepositAccountIdTransactions.mockReturnValue(
-      throwError(() => new Error('rejected')) as unknown as PostReturn,
-    );
+    deposits['postTransaction'].mockReturnValue(throwError(() => new Error('rejected')));
     component.transactionAmount = 100;
 
     component.onSubmit();
 
     expect(component.isSaving()).toBe(false);
     expect(routerSpy.navigate).not.toHaveBeenCalled();
+  });
+
+  it('shows no payment channels when the template read fails', async () => {
+    deposits['transactionTemplate'].mockReturnValue(throwError(() => new Error('failed')));
+
+    component.ngOnInit();
+
+    expect(component.paymentTypeOptions()).toEqual([]);
   });
 });

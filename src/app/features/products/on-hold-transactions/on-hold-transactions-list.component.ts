@@ -19,13 +19,10 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ColumnDef, CellTemplateDirective } from '../../../shared';
+import { DecimalPipe } from '@angular/common';
+import { ColumnDef, CellTemplateDirective, IsoDatePipe } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
-import {
-  DepositAccountOnHoldFundTransactionsService,
-  DepositAccountOnHoldTransactionData,
-  GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse,
-} from '../../../api';
+import { DEPOSIT_ACCOUNT_API, type SavingsOnHoldTransaction } from '../../../core/adapters';
 
 /**
  * Read-only list of on-hold fund transactions for a single savings account. The savings id is
@@ -35,7 +32,7 @@ import {
 @Component({
   selector: 'app-on-hold-transactions-list',
   standalone: true,
-  imports: [DataTableComponent, CellTemplateDirective],
+  imports: [DataTableComponent, CellTemplateDirective, IsoDatePipe, DecimalPipe],
   template: `
     <app-data-table
       title="ON_HOLD_TRANSACTIONS.TITLE"
@@ -45,34 +42,39 @@ import {
       [totalRecords]="transactions().length"
       [localLogic]="true"
     >
-      <ng-template appCellTemplate="transactionDate" let-row>
-        {{ row.transactionDate }}
+      <ng-template appCellTemplate="date" let-row>
+        {{ row.date | appIsoDate }}
       </ng-template>
       <ng-template appCellTemplate="amount" let-row>
-        {{ row.amount }}
+        {{ row.amount | number: '1.2-2' }}
       </ng-template>
-      <ng-template appCellTemplate="transactionType" let-row>
-        {{ row.transactionType?.value }}
+      <ng-template appCellTemplate="typeLabel" let-row>
+        {{ row.typeLabel }}
       </ng-template>
-      <ng-template appCellTemplate="reason" let-row>
-        {{ row.loanClientName }}
+      <!--
+        The loan the funds are held for, which is what one of these rows is about. The column
+        used to render loanClientName, a field this response does not carry, so it was blank on
+        every row — see the SavingsOnHoldTransaction model.
+      -->
+      <ng-template appCellTemplate="loanId" let-row>
+        {{ row.loanId ?? '—' }}
       </ng-template>
     </app-data-table>
   `,
 })
 export class OnHoldTransactionsListComponent implements OnInit {
-  private readonly transactionsService = inject(DepositAccountOnHoldFundTransactionsService);
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly route = inject(ActivatedRoute);
 
   readonly columns: ColumnDef[] = [
-    { key: 'transactionDate', label: 'ON_HOLD_TRANSACTIONS.DATE', sortable: true },
+    { key: 'date', label: 'ON_HOLD_TRANSACTIONS.DATE', sortable: true },
     { key: 'amount', label: 'ON_HOLD_TRANSACTIONS.AMOUNT', sortable: true },
-    { key: 'transactionType', label: 'ON_HOLD_TRANSACTIONS.TYPE', sortable: false },
-    { key: 'reason', label: 'ON_HOLD_TRANSACTIONS.REASON', sortable: false },
+    { key: 'typeLabel', label: 'ON_HOLD_TRANSACTIONS.TYPE', sortable: false },
+    { key: 'loanId', label: 'ON_HOLD_TRANSACTIONS.LOAN', sortable: false },
   ];
 
   savingsId!: number;
-  readonly transactions = signal<DepositAccountOnHoldTransactionData[]>([]);
+  readonly transactions = signal<SavingsOnHoldTransaction[]>([]);
 
   ngOnInit(): void {
     this.savingsId = Number(this.route.snapshot.paramMap.get('savingsId'));
@@ -80,15 +82,9 @@ export class OnHoldTransactionsListComponent implements OnInit {
   }
 
   load(): void {
-    this.transactionsService
-      .getSavingsaccountsSavingsIdOnholdtransactions(this.savingsId)
-      .subscribe({
-        next: (data: GetSavingsAccountsSavingsAccountIdOnHoldTransactionsResponse) => {
-          this.transactions.set(data?.pageItems ?? []);
-        },
-        error: (err: unknown) => {
-          console.error('Failed to load on-hold transactions', err);
-        },
-      });
+    this.deposits.onHoldTransactions(this.savingsId).subscribe({
+      next: (transactions) => this.transactions.set(transactions),
+      error: () => this.transactions.set([]),
+    });
   }
 }

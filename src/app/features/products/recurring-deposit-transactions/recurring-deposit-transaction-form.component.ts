@@ -21,7 +21,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { I18N, TranslatePipe } from '../../../core/adapters';
 import { MutationOutcomeService } from '../../../core/services/mutation-outcome.service';
 import {
   IonButton,
@@ -40,9 +39,11 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import {
-  RecurringDepositAccountTransactionsService,
-  PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest,
-} from '../../../api';
+  DEPOSIT_ACCOUNT_API,
+  I18N,
+  TranslatePipe,
+  type DepositPaymentType,
+} from '../../../core/adapters';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -135,8 +136,8 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                 name="paymentTypeId"
                 [(ngModel)]="paymentTypeId"
               >
-                @for (opt of paymentTypeOptions(); track opt) {
-                  <ion-select-option [value]="opt">{{ opt }}</ion-select-option>
+                @for (opt of paymentTypeOptions(); track opt.id) {
+                  <ion-select-option [value]="opt.id">{{ opt.name }}</ion-select-option>
                 }
               </ion-select>
             </ion-item>
@@ -182,7 +183,7 @@ export class RecurringDepositTransactionFormComponent implements OnInit {
   /** See `createPickersReady` — the date buttons must not outrun their pickers. */
   readonly pickersReady = createPickersReady();
 
-  private readonly transactionsService = inject(RecurringDepositAccountTransactionsService);
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly route = inject(ActivatedRoute);
   /**
    * Today, as the platform reckons it: the business date when one governs, and the platform's
@@ -201,22 +202,23 @@ export class RecurringDepositTransactionFormComponent implements OnInit {
   transactionDate = this.platformDate.today();
   transactionAmount: number | null = null;
   paymentTypeId: number | null = null;
-  readonly paymentTypeOptions = signal<number[]>([]);
+  readonly paymentTypeOptions = signal<DepositPaymentType[]>([]);
 
   ngOnInit(): void {
     this.accountId = Number(this.route.snapshot.paramMap.get('accountId'));
     const command = this.route.snapshot.paramMap.get('command');
     this.command.set(command === 'withdrawal' ? 'withdrawal' : 'deposit');
-    this.transactionsService
-      .getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate(this.accountId)
-      .subscribe((tpl) => {
-        this.paymentTypeOptions.set(tpl.paymentTypeOptions ?? []);
-      });
+    // The command is part of this request, not an optional extra: measured, the recurring
+    // template answers 400 without it, which left this list empty on every load.
+    this.deposits.transactionTemplate('recurring', this.accountId, this.command()).subscribe({
+      next: (template) => this.paymentTypeOptions.set([...template.paymentTypes]),
+      error: () => this.paymentTypeOptions.set([]),
+    });
   }
 
   onSubmit(): void {
     this.isSaving.set(true);
-    const request: PostRecurringDepositAccountsRecurringDepositAccountIdTransactionsRequest = {
+    const request: Record<string, unknown> = {
       transactionDate: formatDateToFineract(this.transactionDate),
       transactionAmount: this.transactionAmount ?? undefined,
       paymentTypeId: this.paymentTypeId ?? undefined,
@@ -224,24 +226,18 @@ export class RecurringDepositTransactionFormComponent implements OnInit {
       locale: FINERACT_LOCALE,
     };
 
-    this.transactionsService
-      .postRecurringdepositaccountsRecurringDepositAccountIdTransactions(
-        this.accountId,
-        request,
-        this.command(),
-      )
-      .subscribe({
-        next: (response) => {
-          this.isSaving.set(false);
-          this.mutationOutcome.complete({
-            response,
-            successMessage: this.i18n.translate('SAVINGS.TRANSACTION_SUCCESS'),
-            recordRoute: (id) => ['/products/recurring-deposits/view', id],
-            recordId: this.accountId,
-          });
-        },
-        error: () => this.isSaving.set(false),
-      });
+    this.deposits.postTransaction('recurring', this.accountId, this.command(), request).subscribe({
+      next: (response) => {
+        this.isSaving.set(false);
+        this.mutationOutcome.complete({
+          response,
+          successMessage: this.i18n.translate('SAVINGS.TRANSACTION_SUCCESS'),
+          recordRoute: (id) => ['/products/recurring-deposits/view', id],
+          recordId: this.accountId,
+        });
+      },
+      error: () => this.isSaving.set(false),
+    });
   }
 
   onCancel(): void {

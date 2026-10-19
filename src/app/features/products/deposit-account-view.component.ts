@@ -41,6 +41,7 @@ import type {
   DepositAccount,
   DepositAccountCharge,
   DepositChartRow,
+  DepositTransaction,
   DepositType,
 } from '../../core/adapters';
 import { NotificationService } from '../../core/services/notification.service';
@@ -385,7 +386,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                 </ng-container>
                 <ng-container cdkColumnDef="type">
                   <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.TYPE' | appTranslate }}</th>
-                  <td cdk-cell *cdkCellDef="let tx">{{ tx.transactionType?.value }}</td>
+                  <td cdk-cell *cdkCellDef="let tx">{{ tx.typeLabel }}</td>
                 </ng-container>
                 <ng-container cdkColumnDef="amount">
                   <th cdk-header-cell *cdkHeaderCellDef>{{ 'COMMON.AMOUNT' | appTranslate }}</th>
@@ -397,7 +398,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                         'reversed-amount': tx.reversed,
                       }"
                     >
-                      {{ tx.currency?.displaySymbol }} {{ tx.amount | number: '1.2-2' }}
+                      {{ tx.currencySymbol }} {{ tx.amount | number: '1.2-2' }}
                     </span>
                   </td>
                 </ng-container>
@@ -406,7 +407,7 @@ export type DepositTab = (typeof DEPOSIT_TAB)[keyof typeof DEPOSIT_TAB];
                     {{ 'COMMON.RUNNING_BALANCE' | appTranslate }}
                   </th>
                   <td cdk-cell *cdkCellDef="let tx">
-                    {{ tx.currency?.displaySymbol }} {{ tx.runningBalance || 0 | number: '1.2-2' }}
+                    {{ tx.currencySymbol }} {{ tx.runningBalance || 0 | number: '1.2-2' }}
                   </td>
                 </ng-container>
                 <ng-container cdkColumnDef="actions">
@@ -755,7 +756,7 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
 
   accountId = 0;
   isRD = false;
-  readonly transactions = signal<Record<string, unknown>[]>([]);
+  readonly transactions = signal<DepositTransaction[]>([]);
   readonly charges = signal<DepositAccountCharge[]>([]);
 
   /**
@@ -949,8 +950,8 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * nothing useful. Offering the action anyway would mean a button that reports success and
    * changes nothing, so the screen is stricter than the server: only a live entry is offered.
    */
-  canUndo(transaction: Record<string, unknown>): boolean {
-    return this.isActive() && !transaction['reversed'];
+  canUndo(transaction: DepositTransaction): boolean {
+    return this.isActive() && !transaction.reversed;
   }
 
   /**
@@ -960,8 +961,8 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
    * renders it struck through — an undone transaction that vanished would take the audit trail
    * with it.
    */
-  onUndoTransaction(transaction: Record<string, unknown>): void {
-    const transactionId = Number(transaction['id']);
+  onUndoTransaction(transaction: DepositTransaction): void {
+    const transactionId = transaction.id;
     void this.dialogService
       .confirm({
         title: this.i18n.translate('ACTIONS.UNDO_TRANSACTION'),
@@ -1047,26 +1048,20 @@ export class DepositAccountViewComponent implements OnInit, OnDestroy {
   /**
    * A date as the browser's locale writes it, or `'-'`.
    *
-   * Takes both forms this screen holds, because it has both: the account's own dates arrive as
-   * ISO strings from the adapter, while a transaction row is still an unmodelled payload record
-   * and carries Fineract's `[year, month, day]` — see {@link DepositAccountApi.transactions} for
-   * why that one is deliberate. Narrowing this to the ISO form alone threw `date.split is not a
-   * function` once per transaction row, which emptied the row and took its actions with it.
+   * Every date this screen holds is now ISO `YYYY-MM-DD`: the account's own dates always were,
+   * and a transaction row's is since the adapter started modelling them. It used to also accept
+   * Fineract's `[year, month, day]`, because the rows arrived as raw payload records — narrowing
+   * it then threw `date.split is not a function` once per row, which emptied the row and took
+   * its actions with it.
    *
    * The parts are read out and handed to the local-time constructor rather than to
    * `new Date('2026-10-18')`, which ECMAScript reads as UTC midnight — west of Greenwich that
    * renders as the day before.
    */
-  formatDate(date: unknown): string {
-    const [year, month, day] = this.dateParts(date);
+  formatDate(date: string | null | undefined): string {
+    const [year, month, day] = (date ?? '').split('-').map(Number);
     if (!year || !month || !day) return '-';
     return new Date(year, month - 1, day).toLocaleDateString();
-  }
-
-  private dateParts(date: unknown): number[] {
-    if (Array.isArray(date)) return date.map(Number);
-    if (typeof date === 'string') return date.split('-').map(Number);
-    return [];
   }
 
   // --- Lifecycle ------------------------------------------------------------------------------

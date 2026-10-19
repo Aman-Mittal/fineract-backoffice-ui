@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslatePipe } from '../../../core/adapters';
 import { CurrencyPipe } from '@angular/common';
 import {
   DataTableComponent,
@@ -28,7 +27,7 @@ import {
   CellTemplateDirective,
   StatusBadgeComponent,
 } from '../../../shared';
-import { FixedDepositAccountService, GetFixedDepositAccountsResponse } from '../../../api';
+import { DEPOSIT_ACCOUNT_API, TranslatePipe, type DepositAccount } from '../../../core/adapters';
 import { ButtonComponent } from '../../../ui/button/button.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -58,11 +57,11 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       (create)="onCreateAccount()"
     >
       <ng-template appCellTemplate="depositAmount" let-account>
-        {{ account.depositAmount | currency: account.currency?.code }}
+        {{ account.depositAmount | currency: account.currencyCode }}
       </ng-template>
 
       <ng-template appCellTemplate="maturityAmount" let-account>
-        {{ account.maturityAmount | currency: account.currency?.code }}
+        {{ account.maturityAmount | currency: account.currencyCode }}
       </ng-template>
 
       <ng-template appCellTemplate="status" let-account>
@@ -70,7 +69,12 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-account>
-        @if (account.status?.value === 'Submitted and pending approval') {
+        <!--
+          Gated on the status flag, not on a comparison of status.value against the English
+          string "Submitted and pending approval". That label moves with the platform's locale;
+          the booleans beside it do not. See the DepositAccountStatus model.
+        -->
+        @if (account.status.submittedAndPendingApproval) {
           <app-button
             type="button"
             emphasis="quiet"
@@ -94,7 +98,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   `,
 })
 export class FixedDepositAccountsListComponent implements OnInit {
-  private readonly fixedDepositService = inject(FixedDepositAccountService);
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly router = inject(Router);
 
   readonly columns: ColumnDef[] = [
@@ -106,20 +110,16 @@ export class FixedDepositAccountsListComponent implements OnInit {
     { key: 'actions', label: 'COMMON.ACTIONS', sortable: false },
   ];
 
-  readonly accounts = signal<GetFixedDepositAccountsResponse[]>([]);
+  readonly accounts = signal<DepositAccount[]>([]);
 
   ngOnInit(): void {
     this.loadAccounts();
   }
 
   private loadAccounts(): void {
-    this.fixedDepositService.getFixeddepositaccounts().subscribe({
-      next: (data: GetFixedDepositAccountsResponse[]) => {
-        this.accounts.set(data || []);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load fixed deposit accounts', err);
-      },
+    this.deposits.list('fixed').subscribe({
+      next: (accounts) => this.accounts.set(accounts),
+      error: () => this.accounts.set([]),
     });
   }
 
@@ -127,11 +127,11 @@ export class FixedDepositAccountsListComponent implements OnInit {
     this.router.navigate(['/products/fixed-deposits/create']);
   }
 
-  onEditAccount(account: GetFixedDepositAccountsResponse): void {
+  onEditAccount(account: DepositAccount): void {
     this.router.navigate(['/products/fixed-deposits/edit', account.id]);
   }
 
-  onApprove(account: GetFixedDepositAccountsResponse): void {
+  onApprove(account: DepositAccount): void {
     this.router.navigate([`/products/fixed/${account.id}/action/approve`]);
   }
 }

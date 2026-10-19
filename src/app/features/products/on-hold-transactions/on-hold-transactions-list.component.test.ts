@@ -17,70 +17,100 @@
  * under the License.
  */
 
-import { createSpyObj, SpyObj } from '../../../testing/mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { OnHoldTransactionsListComponent } from './on-hold-transactions-list.component';
-import { DepositAccountOnHoldFundTransactionsService } from '../../../api';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+
+import { OnHoldTransactionsListComponent } from './on-hold-transactions-list.component';
+import { DEPOSIT_ACCOUNT_API } from '../../../core/adapters';
+import { mapOnHoldTransaction } from '../../../core/adapters/api/fineract-deposit-account.api';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
+
+/**
+ * One row as `GET /savingsaccounts/{id}/onholdtransactions` really answers it, measured against
+ * a running Fineract with a hold in place.
+ *
+ * Note what is *not* here: `loanClientName`, which this screen rendered in its "reason" column.
+ * The response carries `savingsClientName`, `savingsAccountNo` and `loanId` instead, so that
+ * column was blank on every row — and the fixture that used to stand here invented the field,
+ * which is why its test passed anyway.
+ */
+const HOLD_ROW = {
+  id: 1,
+  amount: 50,
+  transactionType: { id: 1, code: 'deposutAccountOnHoldTransactionType.hold', value: 'hold' },
+  transactionDate: [2026, 10, 19],
+  reversed: false,
+  savingsId: 112,
+  savingsAccountNo: '000000112',
+  savingsClientName: 'Tester',
+  loanId: 0,
+};
 
 describe('OnHoldTransactionsListComponent', () => {
   let component: OnHoldTransactionsListComponent;
   let fixture: ComponentFixture<OnHoldTransactionsListComponent>;
-  let serviceSpy: SpyObj<DepositAccountOnHoldFundTransactionsService>;
+  let deposits: Record<string, ReturnType<typeof vi.fn>>;
 
-  beforeEach(async () => {
-    serviceSpy = createSpyObj(['getSavingsaccountsSavingsIdOnholdtransactions']);
-    serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions.mockReturnValue(
-      of({
-        pageItems: [
-          {
-            id: 1,
-            transactionDate: '01 January 2024',
-            amount: 250,
-            transactionType: { value: 'Hold' },
-            loanClientName: 'John Doe',
-          },
-        ],
-        totalFilteredRecords: 1,
-      }) as unknown as ReturnType<
-        DepositAccountOnHoldFundTransactionsService['getSavingsaccountsSavingsIdOnholdtransactions']
-      >,
-    );
+  async function setup(rows: object[] = [HOLD_ROW]): Promise<void> {
+    TestBed.resetTestingModule();
+    deposits = {
+      onHoldTransactions: vi.fn().mockReturnValue(of(rows.map(mapOnHoldTransaction))),
+    };
 
     await TestBed.configureTestingModule({
       imports: [OnHoldTransactionsListComponent],
       providers: [
         ...provideTranslateTesting(),
-        { provide: DepositAccountOnHoldFundTransactionsService, useValue: serviceSpy },
+        provideNoopAnimations(),
+        { provide: DEPOSIT_ACCOUNT_API, useValue: deposits },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ savingsId: '1' }) } },
+          useValue: { snapshot: { paramMap: convertToParamMap({ savingsId: '112' }) } },
         },
-        provideNoopAnimations(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OnHoldTransactionsListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }
 
-  it('should load on-hold transactions from the paged envelope on init', () => {
-    expect(component).toBeTruthy();
-    expect(serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions).toHaveBeenCalledWith(1);
+  it('asks the adapter for the holds on this savings account', async () => {
+    await setup();
+
+    expect(deposits['onHoldTransactions']).toHaveBeenCalledWith(112);
     expect(component.transactions()).toHaveLength(1);
-    expect(component.transactions()[0].loanClientName).toBe('John Doe');
   });
 
-  it('should fall back to an empty list when the envelope carries no pageItems', () => {
-    serviceSpy.getSavingsaccountsSavingsIdOnholdtransactions.mockReturnValue(
-      of({ totalFilteredRecords: 0 }) as unknown as ReturnType<
-        DepositAccountOnHoldFundTransactionsService['getSavingsaccountsSavingsIdOnholdtransactions']
-      >,
-    );
+  it('renders the date as a date and the type as its label', async () => {
+    await setup();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('hold');
+    expect(text).not.toContain('deposutAccountOnHoldTransactionType');
+    expect(text).not.toContain('2026,10,19');
+    expect(component.transactions()[0].date).toBe('2026-10-19');
+  });
+
+  it('reads no loan as no loan rather than as loan 0', async () => {
+    await setup();
+
+    expect(component.transactions()[0].loanId).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('—');
+  });
+
+  it('carries the loan a guarantee holds the funds for', async () => {
+    await setup([{ ...HOLD_ROW, loanId: 88 }]);
+
+    expect(component.transactions()[0].loanId).toBe(88);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('88');
+  });
+
+  it('empties the list when the read fails', async () => {
+    await setup();
+    deposits['onHoldTransactions'].mockReturnValue(throwError(() => new Error('failed')));
 
     component.load();
 
