@@ -588,10 +588,12 @@
     "postRescheduleloans"
   ],
   "RolesService": [
+    "deleteRolesRoleId",
     "getRoles",
     "getRolesRoleId",
     "getRolesRoleIdPermissions",
     "postRoles",
+    "postRolesRoleId",
     "putRolesRoleId",
     "putRolesRoleIdPermissions"
   ],
@@ -714,6 +716,7 @@
     "putTenantsTenantIdOidcConfig"
   ],
   "UsersService": [
+    "deleteUsersUserId",
     "getUsers",
     "getUsersDownloadtemplate",
     "getUsersTemplate",
