@@ -28,7 +28,10 @@ import { of, throwError } from 'rxjs';
 import { DepositAccountViewComponent } from './deposit-account-view.component';
 import { DEPOSIT_ACCOUNT_API } from '../../core/adapters';
 import type { DepositAccount } from '../../core/adapters';
-import { mapDepositAccount } from '../../core/adapters/api/fineract-deposit-account.api';
+import {
+  mapDepositAccount,
+  mapDepositTransaction,
+} from '../../core/adapters/api/fineract-deposit-account.api';
 import { DialogService } from '../../core/services/dialog.service';
 import { provideIonicTesting } from '../../testing/ionic-testing';
 import { provideTranslateTesting } from '../../testing/i18n-testing';
@@ -99,7 +102,7 @@ describe('DepositAccountViewComponent', () => {
     // the reason this file no longer imports `src/app/api` at all.
     deposits = {
       get: vi.fn().mockReturnValue(of(mapped(data))),
-      transactions: vi.fn().mockReturnValue(of(transactions as Record<string, unknown>[])),
+      transactions: vi.fn().mockReturnValue(of(transactions.map(mapDepositTransaction))),
       template: vi.fn().mockReturnValue(of(EMPTY_TEMPLATE)),
       productDepositAmount: vi.fn().mockReturnValue(of(null)),
       closureTemplate: vi.fn().mockReturnValue(of(EMPTY_CLOSURE_TEMPLATE)),
@@ -337,8 +340,21 @@ describe('DepositAccountViewComponent', () => {
 
   describe('transactions', () => {
     const ACTIVE = { id: 300, value: 'Active', active: true };
-    const deposit = { id: 11, amount: 500, reversed: false, entryType: 'CREDIT' };
-    const reversedDeposit = { id: 12, amount: 300, reversed: true, entryType: 'CREDIT' };
+    /**
+     * Rows as the platform sends them: the date is `[year, month, day]` and the type carries a
+     * dotted code beside its label. The component sees them through the adapter's mapper, which
+     * is what `setup` applies — so `deposit` below is the payload and `mapped` is the model.
+     */
+    const deposit = {
+      id: 11,
+      amount: 500,
+      reversed: false,
+      entryType: 'CREDIT',
+      date: [2026, 10, 17],
+      transactionType: { code: 'savingsAccountTransactionType.deposit', value: 'Deposit' },
+      currency: { displaySymbol: '$' },
+    };
+    const reversedDeposit = { ...deposit, id: 12, amount: 300, reversed: true };
 
     it('reads a fixed deposit list from its own endpoint, not from the account', async () => {
       await setup(account(ACTIVE), [deposit]);
@@ -350,20 +366,20 @@ describe('DepositAccountViewComponent', () => {
     it('offers undo on a live row and not on a reversed one', async () => {
       await setup(account(ACTIVE), [deposit, reversedDeposit]);
 
-      expect(component.canUndo(deposit)).toBe(true);
-      expect(component.canUndo(reversedDeposit)).toBe(false);
+      expect(component.canUndo(mapDepositTransaction(deposit))).toBe(true);
+      expect(component.canUndo(mapDepositTransaction(reversedDeposit))).toBe(false);
     });
 
     it('withholds undo entirely once the account is no longer active', async () => {
       await setup(account(PENDING), [deposit]);
 
-      expect(component.canUndo(deposit)).toBe(false);
+      expect(component.canUndo(mapDepositTransaction(deposit))).toBe(false);
     });
 
     it('undoes through the transaction endpoint and re-reads the account', async () => {
       await setup(account(ACTIVE), [deposit]);
 
-      component.onUndoTransaction(deposit);
+      component.onUndoTransaction(mapDepositTransaction(deposit));
       await fixture.whenStable();
 
       // (type, accountId, transactionId, command)
@@ -376,25 +392,34 @@ describe('DepositAccountViewComponent', () => {
       await setup(account(ACTIVE), [deposit]);
       dialogService.confirm.mockResolvedValue(false);
 
-      component.onUndoTransaction(deposit);
+      component.onUndoTransaction(mapDepositTransaction(deposit));
       await fixture.whenStable();
 
       expect(deposits['transactionCommand']).not.toHaveBeenCalled();
     });
 
-    it('formats a row date, which still arrives in Fineract array form', async () => {
+    it('formats a row date, which the adapter now converts to ISO', async () => {
       await setup(account(ACTIVE), [{ ...deposit, date: [2026, 10, 18] }]);
 
-      // The account's own dates reach this screen as ISO strings, because the adapter converts
-      // them. A transaction row does not — it is an unmodelled payload record, deliberately, so
-      // the table keeps formatting what the platform sent. A formatter that took only the ISO
-      // form threw `date.split is not a function` once per row, which rendered the row empty
-      // and took its undo button with it.
-      expect(component.formatDate([2026, 10, 18])).not.toBe('-');
+      // Every date this screen holds is ISO: the account's own always were, and a transaction
+      // row's is since the adapter started modelling the rows. The row still renders as a date
+      // rather than as "2026,10,18", which is what the two transaction lists used to print.
+      expect(component.transactions()[0].date).toBe('2026-10-18');
+      expect(component.formatDate('2026-10-18')).not.toBe('-');
       expect(component.formatDate('2027-10-17')).not.toBe('-');
       expect(component.formatDate(undefined)).toBe('-');
       expect(component.formatDate('')).toBe('-');
       expect(component.formatDate('not a date')).toBe('-');
+    });
+
+    it('shows the type label rather than the dotted code the payload carries', async () => {
+      await setup(account(ACTIVE), [deposit]);
+      component.activeTab.set('transactions');
+      fixture.detectChanges();
+
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(text).toContain('Deposit');
+      expect(text).not.toContain('savingsAccountTransactionType');
     });
 
     it('leaves the account on screen when the transaction read fails', async () => {

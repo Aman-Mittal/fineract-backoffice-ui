@@ -20,7 +20,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { TranslatePipe } from '../../../core/adapters';
 import { CurrencyPipe } from '@angular/common';
 import {
   DataTableComponent,
@@ -28,7 +27,7 @@ import {
   CellTemplateDirective,
   StatusBadgeComponent,
 } from '../../../shared';
-import { RecurringDepositAccountService, GetRecurringDepositAccountsResponse } from '../../../api';
+import { DEPOSIT_ACCOUNT_API, TranslatePipe, type DepositAccount } from '../../../core/adapters';
 import { ButtonComponent } from '../../../ui/button/button.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -64,7 +63,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       (create)="onCreateAccount()"
     >
       <ng-template appCellTemplate="recurringDepositAmount" let-account>
-        {{ account.recurringDepositAmount | currency: account.currency?.code }}
+        {{ account.recurringDepositAmount | currency: account.currencyCode }}
       </ng-template>
 
       <ng-template appCellTemplate="status" let-account>
@@ -72,7 +71,12 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
       </ng-template>
 
       <ng-template appCellTemplate="actions" let-account>
-        @if (account.status?.value === 'Submitted and pending approval') {
+        <!--
+          Gated on the status flag, not on a comparison of status.value against the English
+          string "Submitted and pending approval". That label moves with the platform's locale;
+          the booleans beside it do not. See the DepositAccountStatus model.
+        -->
+        @if (account.status.submittedAndPendingApproval) {
           <app-button
             type="button"
             emphasis="quiet"
@@ -96,8 +100,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
   `,
 })
 export class RecurringDepositsListComponent implements OnInit {
-  /** Service for RD account management */
-  private readonly rdService = inject(RecurringDepositAccountService);
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   /** Router for navigation */
   private readonly router = inject(Router);
 
@@ -111,7 +114,7 @@ export class RecurringDepositsListComponent implements OnInit {
   ];
 
   /** List of retrieved accounts */
-  readonly accounts = signal<GetRecurringDepositAccountsResponse[]>([]);
+  readonly accounts = signal<DepositAccount[]>([]);
 
   /**
    * Component initialization.
@@ -124,13 +127,9 @@ export class RecurringDepositsListComponent implements OnInit {
    * Fetches RD accounts from the API.
    */
   private loadAccounts(): void {
-    this.rdService.getRecurringdepositaccounts().subscribe({
-      next: (data: GetRecurringDepositAccountsResponse[]) => {
-        this.accounts.set(data || []);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load recurring deposit accounts', err);
-      },
+    this.deposits.list('recurring').subscribe({
+      next: (accounts) => this.accounts.set(accounts),
+      error: () => this.accounts.set([]),
     });
   }
 
@@ -146,11 +145,11 @@ export class RecurringDepositsListComponent implements OnInit {
    *
    * @param account - The RD account entity.
    */
-  onEditAccount(account: GetRecurringDepositAccountsResponse): void {
+  onEditAccount(account: DepositAccount): void {
     this.router.navigate(['/products/recurring-deposits/edit', account.id]);
   }
 
-  onApprove(account: GetRecurringDepositAccountsResponse): void {
+  onApprove(account: DepositAccount): void {
     this.router.navigate([`/products/recurring/${account.id}/action/approve`]);
   }
 }

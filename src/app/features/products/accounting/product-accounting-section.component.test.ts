@@ -17,7 +17,9 @@
  * under the License.
  */
 
+import { Component, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, NgForm } from '@angular/forms';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { ProductAccountingSectionComponent } from './product-accounting-section.component';
@@ -275,5 +277,80 @@ describe('share product accounting', () => {
 
     expect(mappingsForRule(SHARE_ACCOUNTING_FIELDS, ACCOUNTING_RULE.CASH, chosen)).toEqual(chosen);
     expect(mappingsForRule(SHARE_ACCOUNTING_FIELDS, ACCOUNTING_RULE.NONE, chosen)).toEqual({});
+  });
+});
+
+/**
+ * The section inside a form, which is how every product form uses it.
+ *
+ * `NgModel` looks for its `ControlContainer` with `@Host()`, so a control declared in a child
+ * component's template cannot reach the `ngForm` it visually sits in — Angular logs NG01354 and
+ * the control is simply not registered. That had two consequences worth a test each: the
+ * console filled with NG01354 on every product form, and `required` on a mandatory GL slot
+ * never reached the form, so Save stayed enabled with the slot empty.
+ */
+@Component({
+  standalone: true,
+  imports: [FormsModule, ProductAccountingSectionComponent],
+  template: `
+    <form #hostForm="ngForm">
+      <app-product-accounting-section
+        [fields]="fields"
+        [accountOptions]="options"
+        [(accountingRule)]="rule"
+        [(mappings)]="mappings"
+      ></app-product-accounting-section>
+    </form>
+  `,
+})
+class FormHostComponent {
+  readonly form = viewChild.required<NgForm>('hostForm');
+  fields = LOAN_ACCOUNTING_FIELDS;
+  options = OPTIONS;
+  rule: number = ACCOUNTING_RULE.CASH;
+  mappings: Record<string, number | undefined> = {};
+}
+
+describe('ProductAccountingSectionComponent in a form', () => {
+  let host: ComponentFixture<FormHostComponent>;
+  /** Kept only to keep the run quiet; what the fix does is asserted structurally below. */
+  let errors: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await TestBed.configureTestingModule({
+      imports: [FormHostComponent],
+      providers: [provideNoopAnimations(), ...provideFakeAdapters().providers],
+    }).compileComponents();
+
+    host = TestBed.createComponent(FormHostComponent);
+    host.detectChanges();
+    await host.whenStable();
+  });
+
+  afterEach(() => errors.mockRestore());
+
+  it('registers the rule and every mapping slot with the parent form', () => {
+    const controls = host.componentInstance.form().controls;
+
+    expect(Object.keys(controls)).toContain('accountingRule');
+    for (const key of CASH_KEYS) {
+      expect(Object.keys(controls)).toContain(key);
+    }
+  });
+
+  it('holds the form invalid while a required slot is empty, and releases it when filled', async () => {
+    expect(host.componentInstance.form().invalid).toBe(true);
+
+    const controls = host.componentInstance.form().controls;
+    for (const key of CASH_KEYS) {
+      controls[key].setValue(1);
+    }
+    host.detectChanges();
+    await host.whenStable();
+
+    expect(host.componentInstance.form().invalid).toBe(false);
   });
 });

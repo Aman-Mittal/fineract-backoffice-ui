@@ -25,6 +25,8 @@ import {
   FineractDepositAccountApi,
   mapChartRows,
   mapDepositAccount,
+  mapDepositTransaction,
+  mapOnHoldTransaction,
   mapRateSlabs,
 } from './fineract-deposit-account.api';
 
@@ -305,6 +307,89 @@ describe('mapRateSlabs', () => {
   });
 });
 
+/**
+ * The transaction rows, where two screens printed the wire instead of the fact.
+ *
+ * Both fixtures are real rows from `GET /fixeddepositaccounts/{id}/transactions`, measured
+ * against a running Fineract.
+ */
+describe('mapDepositTransaction', () => {
+  const PAY_CHARGE = {
+    id: 209,
+    transactionType: {
+      id: 7,
+      code: 'savingsAccountTransactionType.payCharge',
+      value: 'Pay Charge',
+      feeDeduction: true,
+    },
+    entryType: 'DEBIT',
+    accountId: 41,
+    accountNo: '000000041',
+    date: [2026, 10, 18],
+    currency: { code: 'USD', displaySymbol: '$' },
+    amount: 25,
+    runningBalance: 975,
+    reversed: false,
+  };
+
+  it('converts the date out of Fineract array form', () => {
+    expect(mapDepositTransaction(PAY_CHARGE).date).toBe('2026-10-18');
+  });
+
+  it('takes the type label, not the dotted code the lists used to print', () => {
+    expect(mapDepositTransaction(PAY_CHARGE).typeLabel).toBe('Pay Charge');
+  });
+
+  it('keeps the entry type the platform states, which is what colours a row', () => {
+    expect(mapDepositTransaction(PAY_CHARGE).entryType).toBe('DEBIT');
+  });
+
+  it('answers null for an absent amount rather than zero', () => {
+    expect(mapDepositTransaction({ id: 1 }).amount).toBeNull();
+    expect(mapDepositTransaction({ id: 1 }).runningBalance).toBeNull();
+  });
+
+  it('reads an absent reversal flag as not reversed', () => {
+    expect(mapDepositTransaction({ id: 1 }).reversed).toBe(false);
+  });
+});
+
+/**
+ * The on-hold rows.
+ *
+ * Measured with a hold in place: the response carries `savingsClientName`, `savingsAccountNo`
+ * and `loanId` — and not `loanClientName`, which the screen rendered, so its "reason" column
+ * was blank on every row.
+ */
+describe('mapOnHoldTransaction', () => {
+  const HOLD = {
+    id: 1,
+    amount: 50,
+    transactionType: { id: 1, code: 'deposutAccountOnHoldTransactionType.hold', value: 'hold' },
+    transactionDate: [2026, 10, 19],
+    reversed: false,
+    savingsId: 112,
+    savingsAccountNo: '000000112',
+    savingsClientName: 'Dep Probe',
+    loanId: 0,
+  };
+
+  it('converts the date out of Fineract array form', () => {
+    expect(mapOnHoldTransaction(HOLD).date).toBe('2026-10-19');
+  });
+
+  it('reads loanId 0 as no loan, because 0 is not a loan', () => {
+    expect(mapOnHoldTransaction(HOLD).loanId).toBeNull();
+    expect(mapOnHoldTransaction({ ...HOLD, loanId: 88 }).loanId).toBe(88);
+  });
+
+  it('takes the client name the response really carries', () => {
+    expect(mapOnHoldTransaction(HOLD).clientName).toBe('Dep Probe');
+    // And the field the screen used to read is not a key of the response at all.
+    expect((HOLD as { loanClientName?: string }).loanClientName).toBeUndefined();
+  });
+});
+
 describe('FineractDepositAccountApi', () => {
   let api: FineractDepositAccountApi;
   let http: HttpTestingController;
@@ -501,6 +586,200 @@ describe('FineractDepositAccountApi', () => {
       locale: 'en',
     });
     request.flush({});
+  });
+
+  /**
+   * The list, which answers the same payload the account read does.
+   *
+   * Measured: `GET /{type}depositaccounts` carries every field of the single-account response
+   * except its associations, so one mapper serves both — which is what gives a list row its
+   * status flags and its `depositProductName`.
+   */
+  it('reads the fixed deposit list and maps it like an account', () => {
+    let accounts: { productName: string; status: { submittedAndPendingApproval: boolean } }[] = [];
+    api.list('fixed').subscribe((value) => (accounts = value));
+
+    http
+      .expectOne(
+        (candidate) =>
+          candidate.method === 'GET' && candidate.url.endsWith('/v1/fixeddepositaccounts'),
+      )
+      .flush([
+        {
+          id: 1,
+          depositProductName: 'FD 12m',
+          status: { value: 'Submitted and pending approval', submittedAndPendingApproval: true },
+        },
+      ]);
+
+    expect(accounts[0].productName).toBe('FD 12m');
+    expect(accounts[0].status.submittedAndPendingApproval).toBe(true);
+  });
+
+  it('reads the recurring deposit list from its own resource', () => {
+    let accounts: { recurringDepositAmount: number | null }[] = [];
+    api.list('recurring').subscribe((value) => (accounts = value));
+
+    http
+      .expectOne(
+        (candidate) =>
+          candidate.method === 'GET' && candidate.url.endsWith('/v1/recurringdepositaccounts'),
+      )
+      .flush([{ id: 1, mandatoryRecommendedDepositAmount: 500 }]);
+
+    // `recurringDepositAmount`, which the list rendered, is not sent at all — see the model.
+    expect(accounts[0].recurringDepositAmount).toBe(500);
+  });
+
+  it('answers an empty list rather than undefined', () => {
+    let accounts: unknown = undefined;
+    api.list('fixed').subscribe((value) => (accounts = value));
+
+    http.expectOne((candidate) => candidate.url.endsWith('/v1/fixeddepositaccounts')).flush(null);
+
+    expect(accounts).toEqual([]);
+  });
+
+  /**
+   * The transaction template, where the two types disagree about the command.
+   *
+   * Measured, the recurring path answers `400 error.msg.query.parameter.value.unsupported`
+   * without `?command=`, which left the recurring form's payment-type list empty on every load.
+   */
+  it('sends the command when asking for a recurring transaction template', () => {
+    api.transactionTemplate('recurring', 7, 'withdrawal').subscribe();
+
+    const request = http.expectOne((candidate) =>
+      candidate.url.endsWith('/v1/recurringdepositaccounts/7/transactions/template'),
+    );
+    expect(request.request.params.get('command')).toBe('withdrawal');
+    request.flush({ paymentTypeOptions: [{ id: 1, name: 'Money Transfer' }] });
+  });
+
+  it('flattens the payment channels the template really sends', () => {
+    let template: { paymentTypes: readonly { id: number; name: string }[] } | undefined;
+    api.transactionTemplate('fixed', 7, 'deposit').subscribe((value) => (template = value));
+
+    http
+      .expectOne((candidate) =>
+        candidate.url.endsWith('/v1/fixeddepositaccounts/7/transactions/template'),
+      )
+      // As measured — objects, although the generated model types this `Array<number>`.
+      .flush({
+        paymentTypeOptions: [
+          { id: 1, name: 'Money Transfer', isCashPayment: false },
+          { id: 2, name: 'Cash', isCashPayment: true },
+        ],
+      });
+
+    expect(template?.paymentTypes).toEqual([
+      { id: 1, name: 'Money Transfer' },
+      { id: 2, name: 'Cash' },
+    ]);
+  });
+
+  it('answers no payment channels when the template carries none', () => {
+    let template: { paymentTypes: readonly unknown[] } | undefined;
+    api.transactionTemplate('fixed', 7, 'deposit').subscribe((value) => (template = value));
+
+    http.expectOne((candidate) => candidate.url.includes('transactions/template')).flush({});
+
+    expect(template?.paymentTypes).toEqual([]);
+  });
+
+  /**
+   * The post, whose two generated methods take their arguments in different orders — the trap
+   * this boundary exists to hold. A call copied from one to the other binds the request object
+   * to `command` and still compiles.
+   */
+  it('posts a fixed deposit transaction with the command in the query and a string body', () => {
+    api
+      .postTransaction('fixed', 7, 'deposit', { transactionAmount: 500, paymentTypeId: 2 })
+      .subscribe();
+
+    const request = http.expectOne(
+      (candidate) =>
+        candidate.method === 'POST' &&
+        candidate.url.endsWith('/v1/fixeddepositaccounts/7/transactions'),
+    );
+    expect(request.request.params.get('command')).toBe('deposit');
+    expect(JSON.parse(request.request.body as string)).toEqual({
+      transactionAmount: 500,
+      paymentTypeId: 2,
+    });
+    request.flush({ resourceId: 307 });
+  });
+
+  it('posts a recurring deposit transaction with the body as an object', () => {
+    api.postTransaction('recurring', 7, 'withdrawal', { transactionAmount: 500 }).subscribe();
+
+    const request = http.expectOne(
+      (candidate) =>
+        candidate.method === 'POST' &&
+        candidate.url.endsWith('/v1/recurringdepositaccounts/7/transactions'),
+    );
+    expect(request.request.params.get('command')).toBe('withdrawal');
+    expect(request.request.body).toEqual({ transactionAmount: 500 });
+    request.flush({ resourceId: 308 });
+  });
+
+  it('hands the post response back, which is what finds the new resource id', () => {
+    let response: unknown;
+    api.postTransaction('recurring', 7, 'deposit', {}).subscribe((value) => (response = value));
+
+    http.expectOne((candidate) => candidate.method === 'POST').flush({ resourceId: 308 });
+
+    expect(response).toEqual({ resourceId: 308 });
+  });
+
+  /**
+   * The template read, where absent and zero are not the same thing.
+   *
+   * Measured, `?clientId=0` answers `404` "Client not found with valuer 0" while omitting the
+   * parameter serves the generic template with every product listed — so a caller that sent
+   * `clientId ?? 0` before a client was chosen got no products at all.
+   */
+  it('omits clientId entirely when there is no client yet', () => {
+    api.template('fixed').subscribe();
+
+    const request = http.expectOne((candidate) =>
+      candidate.url.endsWith('/v1/fixeddepositaccounts/template'),
+    );
+    expect(request.request.params.has('clientId')).toBe(false);
+    request.flush({ productOptions: [{ id: 1, name: 'FD 12m' }] });
+  });
+
+  it('reads the on-hold funds of a savings account out of its paged envelope', () => {
+    let holds: { loanId: number | null; date: string | null }[] = [];
+    api.onHoldTransactions(112).subscribe((value) => (holds = value));
+
+    http
+      .expectOne(
+        (candidate) =>
+          candidate.method === 'GET' &&
+          candidate.url.endsWith('/v1/savingsaccounts/112/onholdtransactions'),
+      )
+      .flush({
+        totalFilteredRecords: 1,
+        pageItems: [{ id: 1, transactionDate: [2026, 10, 19], loanId: 88 }],
+      });
+
+    expect(holds).toHaveLength(1);
+    expect(holds[0].date).toBe('2026-10-19');
+    expect(holds[0].loanId).toBe(88);
+  });
+
+  it('answers an empty hold list when the envelope carries no items', () => {
+    let holds: unknown = undefined;
+    api.onHoldTransactions(112).subscribe((value) => (holds = value));
+
+    http
+      .expectOne((candidate) => candidate.url.includes('onholdtransactions'))
+      .flush({
+        totalFilteredRecords: 0,
+      });
+
+    expect(holds).toEqual([]);
   });
 
   it('prices a premature closure without changing anything', () => {

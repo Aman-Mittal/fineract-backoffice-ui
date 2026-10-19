@@ -19,12 +19,10 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ColumnDef, CellTemplateDirective } from '../../../shared';
+import { DecimalPipe } from '@angular/common';
+import { ColumnDef, CellTemplateDirective, IsoDatePipe } from '../../../shared';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
-import {
-  FixedDepositAccountTransactionsService,
-  GetFixedDepositAccountsAccountIdTransactionsResponse,
-} from '../../../api';
+import { DEPOSIT_ACCOUNT_API, type DepositTransaction } from '../../../core/adapters';
 
 /**
  * Read-only list of transactions for a single fixed deposit account. The account id is read
@@ -34,7 +32,7 @@ import {
 @Component({
   selector: 'app-fixed-deposit-transactions-list',
   standalone: true,
-  imports: [DataTableComponent, CellTemplateDirective],
+  imports: [DataTableComponent, CellTemplateDirective, IsoDatePipe, DecimalPipe],
   template: `
     <app-data-table
       title="FIXED_DEPOSIT_TRANSACTIONS.TITLE"
@@ -45,19 +43,23 @@ import {
       [localLogic]="true"
     >
       <ng-template appCellTemplate="date" let-row>
-        {{ row.date }}
+        {{ row.date | appIsoDate }}
       </ng-template>
       <ng-template appCellTemplate="amount" let-row>
-        {{ row.amount }}
+        {{ row.currencySymbol }} {{ row.amount | number: '1.2-2' }}
       </ng-template>
+      <!--
+        The type's label, not its code. This used to render transactionType.code, so a row
+        read "savingsAccountTransactionType.payCharge" instead of "Pay Charge".
+      -->
       <ng-template appCellTemplate="transactionType" let-row>
-        {{ row.transactionType?.code }}
+        {{ row.typeLabel }}
       </ng-template>
     </app-data-table>
   `,
 })
 export class FixedDepositTransactionsListComponent implements OnInit {
-  private readonly transactionsService = inject(FixedDepositAccountTransactionsService);
+  private readonly deposits = inject(DEPOSIT_ACCOUNT_API);
   private readonly route = inject(ActivatedRoute);
 
   readonly columns: ColumnDef[] = [
@@ -67,7 +69,7 @@ export class FixedDepositTransactionsListComponent implements OnInit {
   ];
 
   accountId!: number;
-  readonly transactions = signal<GetFixedDepositAccountsAccountIdTransactionsResponse[]>([]);
+  readonly transactions = signal<DepositTransaction[]>([]);
 
   ngOnInit(): void {
     this.accountId = Number(this.route.snapshot.paramMap.get('accountId'));
@@ -75,15 +77,9 @@ export class FixedDepositTransactionsListComponent implements OnInit {
   }
 
   load(): void {
-    this.transactionsService
-      .getFixeddepositaccountsFixedDepositAccountIdTransactions(this.accountId)
-      .subscribe({
-        next: (data: GetFixedDepositAccountsAccountIdTransactionsResponse[]) => {
-          this.transactions.set(data || []);
-        },
-        error: (err: unknown) => {
-          console.error('Failed to load fixed deposit transactions', err);
-        },
-      });
+    this.deposits.transactions('fixed', this.accountId).subscribe({
+      next: (transactions) => this.transactions.set(transactions),
+      error: () => this.transactions.set([]),
+    });
   }
 }

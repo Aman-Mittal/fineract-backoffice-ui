@@ -508,7 +508,9 @@ export class FixedDepositAccountFormComponent implements OnInit {
    * Fetches the list of eligible fixed deposit products for the client.
    */
   private loadProducts(clientId?: number): void {
-    this.deposits.template(DEPOSIT_TYPE, clientId ?? 0).subscribe({
+    // No client yet means no `clientId` at all, not `clientId=0`: the platform answers 404 to
+    // the latter, which left this product list empty whenever the screen was opened without one.
+    this.deposits.template(DEPOSIT_TYPE, clientId).subscribe({
       next: (template) => this.products.set([...template.productOptions]),
       error: (err: unknown) => {
         console.error('Failed to load eligible products', err);

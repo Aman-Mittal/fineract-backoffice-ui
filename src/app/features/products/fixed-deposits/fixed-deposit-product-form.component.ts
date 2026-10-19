@@ -19,6 +19,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { DEPOSIT_PRODUCT_API, TranslatePipe } from '../../../core/adapters';
 import type { DepositType } from '../../../core/adapters';
@@ -371,6 +372,13 @@ const DEPOSIT_TYPE: DepositType = 'fixed';
 export class FixedDepositProductFormComponent implements OnInit {
   private readonly products = inject(DEPOSIT_PRODUCT_API);
   private readonly route = inject(ActivatedRoute);
+  /**
+   * Today as the platform reckons it, for the chart's `fromDate`.
+   *
+   * The browser's clock is the wrong clock here: with a business date in force Fineract
+   * refuses a chart dated in its future, which is #758's class of defect.
+   */
+  private readonly platformDate = inject(PlatformDateService);
   private readonly router = inject(Router);
 
   protected readonly DEFAULT_CURRENCY = DEFAULT_CURRENCY;
@@ -473,7 +481,7 @@ export class FixedDepositProductFormComponent implements OnInit {
         preClosurePenalApplicable: product.preClosurePenalApplicable,
         accountingRule: product.accountingRuleId ?? ACCOUNTING_RULE.NONE,
       });
-      this.existingChart.set(chartFromProduct(product.chart));
+      this.existingChart.set(chartFromProduct(product.chart, this.platformDate.today()));
       // The product's own slabs, so an edit shows the rates it actually carries and can
       // change them, rather than silently resending whatever it was given.
       const slabs = slabsFromProduct(product.chart);
@@ -503,7 +511,7 @@ export class FixedDepositProductFormComponent implements OnInit {
         (this.product()['accountingRule'] as number) ?? ACCOUNTING_RULE.NONE,
         this.accountingMappings(),
       ),
-      charts: [chartForRequest(this.chartSlabs(), this.existingChart())],
+      charts: [chartForRequest(this.chartSlabs(), this.platformDate.today(), this.existingChart())],
     };
 
     if (this.isEditMode() && this.productId) {

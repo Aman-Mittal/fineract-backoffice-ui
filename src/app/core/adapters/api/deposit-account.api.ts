@@ -65,6 +65,15 @@ export interface DepositAccount {
   /** `summary.accountBalance`. `null` when the payload states none, never 0 — see below. */
   readonly balance: number | null;
   readonly depositAmount: number | null;
+  /**
+   * What a recurring deposit collects each period.
+   *
+   * `mandatoryRecommendedDepositAmount` on the wire. The recurring-deposit list rendered
+   * `recurringDepositAmount`, which — measured against a running Fineract — the response does
+   * not carry at all, so its Amount column was empty on every row. `null` on a fixed deposit,
+   * which collects once.
+   */
+  readonly recurringDepositAmount: number | null;
   readonly depositPeriod: number | null;
   /** The unit the period is in ("Months"), from `depositPeriodFrequency`. */
   readonly depositPeriodUnit: string | null;
@@ -107,6 +116,8 @@ export interface DepositAccount {
   readonly status: DepositAccountStatus;
   /** The currency's display symbol ("$"), which is what the screens print beside a figure. */
   readonly currencySymbol: string;
+  /** The ISO code ("USD"), which is what Angular's `CurrencyPipe` takes. */
+  readonly currencyCode: string;
   /** A savings field, absent on a term deposit; `null` rather than 0 when it is. */
   readonly minRequiredOpeningBalance: number | null;
   readonly timeline: DepositAccountTimeline;
@@ -254,6 +265,85 @@ export interface DepositChargeRequest {
 }
 
 /**
+ * One transaction on a deposit account, as the lists and the account view show one.
+ *
+ * Modelled rather than passed through, which is a change from what this adapter first did. Two
+ * screens rendered the payload directly and both printed the wire rather than the fact:
+ * `date` is Fineract's `[year, month, day]`, so the transactions list showed "2026,10,18", and
+ * the type was read as `transactionType.code`, so the same row's type showed
+ * "savingsAccountTransactionType.payCharge". Both measured against a running Fineract.
+ *
+ * `entryType` stays the platform's own `'DEBIT'`/`'CREDIT'` string: the screens colour a row by
+ * it, and inventing a boolean here would only move the comparison.
+ */
+export interface DepositTransaction {
+  readonly id: number;
+  /** ISO `YYYY-MM-DD`, converted from `[year, month, day]`. */
+  readonly date: string | null;
+  readonly amount: number | null;
+  /** `transactionType.value` — "Pay Charge", not `savingsAccountTransactionType.payCharge`. */
+  readonly typeLabel: string;
+  /** `'DEBIT'` or `'CREDIT'`, as the payload states it. */
+  readonly entryType: string;
+  readonly runningBalance: number | null;
+  readonly reversed: boolean;
+  /** The row's own currency symbol; a transaction carries its account's currency. */
+  readonly currencySymbol: string;
+}
+
+/** Which transaction is being posted. A fixed deposit accepts only the first. */
+export type DepositTransactionCommand = 'deposit' | 'withdrawal';
+
+/**
+ * What posting a transaction offers.
+ *
+ * Only the payment channels, because that is the one field the forms ask for that the tenant
+ * defines. The rest of the template is a blank transaction.
+ */
+export interface DepositTransactionTemplate {
+  readonly paymentTypes: readonly DepositPaymentType[];
+}
+
+/**
+ * A payment channel the tenant has defined.
+ *
+ * The generated models type `paymentTypeOptions` as `Array<number>`, which the platform does not
+ * honour — measured, it answers objects carrying `id` and `name`. Bound to the raw element, a
+ * select renders `[object Object]` and posts an object as `paymentTypeId`, which is what the
+ * recurring-deposit form did. Stated here, both forms get the shape that is really on the wire.
+ */
+export interface DepositPaymentType {
+  readonly id: number;
+  readonly name: string;
+}
+
+/**
+ * One on-hold fund transaction of a savings account.
+ *
+ * A savings concern rather than a deposit one, on this port for the same reason
+ * {@link DepositAccountApi.addCharge} is: the screen that shows them lives in this module, and
+ * `GET /savingsaccounts/{id}/onholdtransactions` is the only endpoint that serves it.
+ *
+ * `loanId` is what the rows are *for*: these holds are created as a side effect of a loan
+ * guarantee, not by a teller. The screen used to show `loanClientName`, which measured against a
+ * running Fineract is not a field of this response at all — so its "reason" column was blank on
+ * every row. What the response does carry is `savingsClientName`, `savingsAccountNo` and
+ * `loanId`.
+ */
+export interface SavingsOnHoldTransaction {
+  readonly id: number;
+  /** ISO `YYYY-MM-DD`, converted from `[year, month, day]`. */
+  readonly date: string | null;
+  readonly amount: number | null;
+  /** `transactionType.value` — "hold" or "release". */
+  readonly typeLabel: string;
+  readonly reversed: boolean;
+  /** `null` rather than 0 when the payload states no loan. */
+  readonly loanId: number | null;
+  readonly clientName: string;
+}
+
+/**
  * Term deposit accounts, stated as application operations.
  *
  * One token for both kinds. Every method takes the {@link DepositType} rather than there being
@@ -265,20 +355,63 @@ export interface DepositAccountApi {
   get(type: DepositType, accountId: number): Observable<DepositAccount>;
 
   /**
-   * The account's transactions.
+   * Every account of this kind, for the list screens.
    *
-   * Returned as payload records rather than a model, which is the one unmodelled return here and
-   * is deliberate: the transactions table formats Fineract's `[year, month, day]` dates itself,
-   * so converting them in the adapter would change what the table renders. The *request* is
-   * what this hides, and it is worth hiding — the two deposit types disagree about it, which the
-   * implementation documents.
+   * Measured, `GET /{type}depositaccounts` answers the same account payload `get` does, minus
+   * the associations — so a list row is a {@link DepositAccount} with no charges and no chart
+   * rather than a shape of its own. That is what lets the list screens gate their actions on
+   * `status.submittedAndPendingApproval` instead of comparing `status.value` against the English
+   * string "Submitted and pending approval", which is what they used to do.
    */
-  transactions(type: DepositType, accountId: number): Observable<Record<string, unknown>[]>;
+  list(type: DepositType): Observable<DepositAccount[]>;
 
-  /** What opening an account under this product offers. */
+  /** The account's transactions, with their dates converted and their types labelled. */
+  transactions(type: DepositType, accountId: number): Observable<DepositTransaction[]>;
+
+  /**
+   * What posting a transaction offers.
+   *
+   * Takes the command because the two deposit types disagree about whether it is optional:
+   * measured, `GET /recurringdepositaccounts/{id}/transactions/template` answers `400`
+   * `error.msg.query.parameter.value.unsupported` without one, while the fixed-deposit path
+   * serves the template either way. The recurring-deposit form omitted it, so its payment-type
+   * list was empty on every load.
+   */
+  transactionTemplate(
+    type: DepositType,
+    accountId: number,
+    command: DepositTransactionCommand,
+  ): Observable<DepositTransactionTemplate>;
+
+  /**
+   * Posts a deposit or a withdrawal.
+   *
+   * Returns the platform's response rather than `void`: the forms hand it to
+   * `MutationOutcomeService`, which reads the new resource id out of it and recognises a
+   * maker-checker hold.
+   *
+   * The two generated methods for this disagree in a way that compiles either way — one takes
+   * `(accountId, command, body)` and the other `(accountId, body, command)` — which is exactly
+   * the kind of wire detail this boundary exists to hold.
+   */
+  postTransaction(
+    type: DepositType,
+    accountId: number,
+    command: DepositTransactionCommand,
+    body: Record<string, unknown>,
+  ): Observable<unknown>;
+
+  /**
+   * What opening an account under this product offers.
+   *
+   * `clientId` is optional, and absent is not the same as 0: measured, `?clientId=0` answers
+   * `404` "Client not found with valuer 0", while omitting it serves the generic template with
+   * every product listed. A caller that passed `clientId ?? 0` to list the products before a
+   * client was chosen therefore got no products at all.
+   */
   template(
     type: DepositType,
-    clientId: number,
+    clientId?: number,
     productId?: number,
   ): Observable<DepositAccountTemplate>;
 
@@ -340,6 +473,9 @@ export interface DepositAccountApi {
    * only endpoint the platform exposes for charging one — there is no deposit-specific path.
    */
   addCharge(accountId: number, charge: DepositChargeRequest): Observable<void>;
+
+  /** A savings account's on-hold fund transactions — see {@link SavingsOnHoldTransaction}. */
+  onHoldTransactions(savingsId: number): Observable<SavingsOnHoldTransaction[]>;
 }
 
 /**

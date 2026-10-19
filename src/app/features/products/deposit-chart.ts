@@ -63,26 +63,40 @@ const PERIOD_TYPE_MONTHS = 2;
  * the wire and belongs on the other side of the boundary, in `FineractDepositProductApi`. What
  * is left here is the request envelope — the dates, the locale and the description the platform
  * insists on — which is this file's business.
+ *
+ * `today` — ISO `YYYY-MM-DD`, as `PlatformDateService.today()` gives it — is passed in rather
+ * than read from `new Date()`. This module has no injector, so it cannot reach that service
+ * itself, and the browser's clock is the wrong clock: Fineract judges a chart's `fromDate`
+ * against the business date when one governs, and refuses one in its future (#758). A required
+ * parameter is what stops the next caller from forgetting that.
  */
-export function chartFromProduct(chart: DepositProductChart | null): DepositChart | null {
+export function chartFromProduct(
+  chart: DepositProductChart | null,
+  today: string,
+): DepositChart | null {
   if (!chart?.slabs.length) return null;
 
   return {
     id: chart.id ?? undefined,
-    fromDate: formatDateToFineract(new Date()),
+    fromDate: formatDateToFineract(today),
     dateFormat: FINERACT_DATE_FORMAT,
     locale: FINERACT_LOCALE,
-    chartSlabs: chart.slabs.map((slab) => ({
-      id: slab.id ?? undefined,
-      periodType: slab.periodTypeId ?? PERIOD_TYPE_MONTHS,
-      fromPeriod: slab.fromPeriod ?? undefined,
-      toPeriod: slab.toPeriod ?? undefined,
-      annualInterestRate: slab.annualInterestRate ?? undefined,
-      // The platform rejects a slab with no description on the way back in.
-      description: slab.description || 'Interest rate',
-      locale: FINERACT_LOCALE,
-    })),
+    chartSlabs: slabsOf(chart),
   };
+}
+
+/** The slab mapping both {@link chartFromProduct} and {@link slabsFromProduct} do. */
+function slabsOf(chart: DepositProductChart): DepositChartSlab[] {
+  return chart.slabs.map((slab) => ({
+    id: slab.id ?? undefined,
+    periodType: slab.periodTypeId ?? PERIOD_TYPE_MONTHS,
+    fromPeriod: slab.fromPeriod ?? undefined,
+    toPeriod: slab.toPeriod ?? undefined,
+    annualInterestRate: slab.annualInterestRate ?? undefined,
+    // The platform rejects a slab with no description on the way back in.
+    description: slab.description || 'Interest rate',
+    locale: FINERACT_LOCALE,
+  }));
 }
 
 /**
@@ -102,9 +116,13 @@ export function emptySlab(): DepositChartSlab {
   };
 }
 
-/** The slabs of a product's active chart, ready to edit. Empty for a product without one. */
+/**
+ * The slabs of a product's active chart, ready to edit. Empty for a product without one.
+ *
+ * Takes no date: only the chart envelope carries one, and the editor edits the slabs.
+ */
 export function slabsFromProduct(chart: DepositProductChart | null): DepositChartSlab[] {
-  return chartFromProduct(chart)?.chartSlabs ?? [];
+  return chart?.slabs.length ? slabsOf(chart) : [];
 }
 
 /**
@@ -120,11 +138,12 @@ export function slabsFromProduct(chart: DepositProductChart | null): DepositChar
  */
 export function chartForRequest(
   slabs: readonly DepositChartSlab[],
+  today: string,
   existingChart: DepositChart | null = null,
 ): DepositChart {
   return {
     id: existingChart?.id,
-    fromDate: existingChart?.fromDate ?? formatDateToFineract(new Date()),
+    fromDate: existingChart?.fromDate ?? formatDateToFineract(today),
     dateFormat: FINERACT_DATE_FORMAT,
     locale: FINERACT_LOCALE,
     chartSlabs: slabs

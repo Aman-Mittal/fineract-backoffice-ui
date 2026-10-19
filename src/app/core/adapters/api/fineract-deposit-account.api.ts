@@ -24,6 +24,7 @@ import type { Observable } from 'rxjs';
 
 import {
   BASE_PATH,
+  DepositAccountOnHoldFundTransactionsService,
   FixedDepositAccountService,
   FixedDepositAccountTransactionsService,
   RecurringDepositAccountTransactionsService,
@@ -43,9 +44,14 @@ import type {
   DepositChartRow,
   DepositClosureTemplate,
   DepositEnumOption,
+  DepositPaymentType,
   DepositRateSlab,
   DepositSavingsAccount,
+  DepositTransaction,
+  DepositTransactionCommand,
+  DepositTransactionTemplate,
   DepositType,
+  SavingsOnHoldTransaction,
 } from './deposit-account.api';
 
 /** Fineract's wire format for the dates this adapter sends. */
@@ -94,6 +100,8 @@ interface AccountPayload {
   readonly accountBalance?: number;
   readonly summary?: { readonly accountBalance?: number };
   readonly depositAmount?: number;
+  /** What a recurring deposit collects each period; `recurringDepositAmount` is not sent. */
+  readonly mandatoryRecommendedDepositAmount?: number;
   readonly depositPeriod?: number;
   readonly depositPeriodFrequency?: EnumPayload;
   readonly maturityInstruction?: EnumPayload;
@@ -112,7 +120,7 @@ interface AccountPayload {
   readonly depositProductName?: string;
   readonly clientName?: string;
   readonly status?: StatusPayload;
-  readonly currency?: { readonly displaySymbol?: string };
+  readonly currency?: { readonly displaySymbol?: string; readonly code?: string };
   readonly minRequiredOpeningBalance?: number;
   readonly timeline?: TimelinePayload;
   readonly accountChart?: { readonly chartSlabs?: SlabPayload[] };
@@ -151,6 +159,34 @@ interface ClosureTemplatePayload {
   readonly transferToSavingsId?: number;
 }
 
+/** The parts of a transaction payload this adapter reads. */
+interface TransactionPayload {
+  readonly id?: number;
+  readonly date?: string | number[];
+  readonly amount?: number;
+  readonly transactionType?: { readonly value?: string };
+  readonly entryType?: string;
+  readonly runningBalance?: number;
+  readonly reversed?: boolean;
+  readonly currency?: { readonly displaySymbol?: string };
+}
+
+/** The parts of a transaction template this adapter reads — see {@link DepositPaymentType}. */
+interface TransactionTemplatePayload {
+  readonly paymentTypeOptions?: { id?: number; name?: string }[];
+}
+
+/** One on-hold fund transaction, as `GET /savingsaccounts/{id}/onholdtransactions` sends it. */
+interface OnHoldPayload {
+  readonly id?: number;
+  readonly transactionDate?: string | number[];
+  readonly amount?: number;
+  readonly transactionType?: { readonly value?: string };
+  readonly reversed?: boolean;
+  readonly loanId?: number;
+  readonly savingsClientName?: string;
+}
+
 /**
  * Maps one deposit account payload onto the application model.
  *
@@ -176,6 +212,7 @@ export function mapDepositAccount(payload: AccountPayload): DepositAccount {
     productId: payload.depositProductId ?? payload.savingsProductId ?? null,
     balance: balance ?? null,
     depositAmount: payload.depositAmount ?? null,
+    recurringDepositAmount: payload.mandatoryRecommendedDepositAmount ?? null,
     depositPeriod: payload.depositPeriod ?? null,
     depositPeriodUnit: payload.depositPeriodFrequency?.value ?? null,
     depositPeriodFrequencyId: payload.depositPeriodFrequency?.id ?? null,
@@ -201,6 +238,7 @@ export function mapDepositAccount(payload: AccountPayload): DepositAccount {
       active: payload.status?.active === true,
     },
     currencySymbol: payload.currency?.displaySymbol ?? '',
+    currencyCode: payload.currency?.code ?? '',
     minRequiredOpeningBalance: payload.minRequiredOpeningBalance ?? null,
     timeline: {
       submittedOnDate: toIsoFineractDate(payload.timeline?.submittedOnDate),
@@ -242,6 +280,46 @@ function mapIncentive(incentive: IncentivePayload): DepositChartIncentive {
 }
 
 /** Flattens a rate chart's slabs out of their enum wrappers. Exported for its own test. */
+/**
+ * Maps one transaction payload. Exported for its own test.
+ *
+ * The date and the type label are the point — see {@link DepositTransaction} for the two
+ * screens that printed the wire instead.
+ */
+export function mapDepositTransaction(payload: TransactionPayload): DepositTransaction {
+  return {
+    id: payload.id ?? 0,
+    date: toIsoFineractDate(payload.date),
+    amount: payload.amount ?? null,
+    typeLabel: payload.transactionType?.value ?? '',
+    entryType: payload.entryType ?? '',
+    runningBalance: payload.runningBalance ?? null,
+    reversed: payload.reversed === true,
+    currencySymbol: payload.currency?.displaySymbol ?? '',
+  };
+}
+
+/** Maps one on-hold fund transaction. Exported for its own test. */
+export function mapOnHoldTransaction(payload: OnHoldPayload): SavingsOnHoldTransaction {
+  return {
+    id: payload.id ?? 0,
+    date: toIsoFineractDate(payload.transactionDate),
+    amount: payload.amount ?? null,
+    typeLabel: payload.transactionType?.value ?? '',
+    reversed: payload.reversed === true,
+    // Measured, a hold with no loan behind it reports `loanId: 0`, which is not a loan.
+    loanId: payload.loanId || null,
+    clientName: payload.savingsClientName ?? '',
+  };
+}
+
+/** Flattens the payment channels a transaction template offers. */
+function mapPaymentTypes(
+  options: readonly { id?: number; name?: string }[] | undefined,
+): DepositPaymentType[] {
+  return (options ?? []).map((option) => ({ id: option.id ?? 0, name: option.name ?? '' }));
+}
+
 export function mapRateSlabs(slabs: readonly SlabPayload[] | undefined): DepositRateSlab[] {
   return (slabs ?? []).map((slab) => ({
     periodTypeId: slab.periodType?.id ?? null,
@@ -290,6 +368,7 @@ export class FineractDepositAccountApi implements DepositAccountApi {
   private readonly fixedProducts = inject(FixedDepositProductService);
   private readonly recurringProducts = inject(RecurringDepositProductService);
   private readonly savingsCharges = inject(SavingsChargesService);
+  private readonly onHoldFunds = inject(DepositAccountOnHoldFundTransactionsService);
   private readonly http = inject(HttpClient);
   /**
    * The API root, for the one request that cannot go through the generated client.
@@ -312,6 +391,24 @@ export class FineractDepositAccountApi implements DepositAccountApi {
    * The screens used to hand-build these URLs themselves, in four places. Behind the boundary it
    * is one, with the reason written down, which is what ADR 0003 asks of a workaround.
    */
+  /**
+   * Every account of this kind.
+   *
+   * Mapped through {@link mapDepositAccount}, because measured against a running Fineract the
+   * list answers the same payload `get` does without its associations: the charges and the chart
+   * come back empty and every other field is in the same place. One mapper for both is also what
+   * keeps a list row's status flags and its product name right.
+   */
+  list(type: DepositType): Observable<DepositAccount[]> {
+    const request$: Observable<unknown> =
+      type === 'recurring'
+        ? this.recurringAccounts.getRecurringdepositaccounts()
+        : this.fixedAccounts.getFixeddepositaccounts();
+    return request$.pipe(
+      map((accounts) => ((accounts ?? []) as AccountPayload[]).map(mapDepositAccount)),
+    );
+  }
+
   get(type: DepositType, accountId: number): Observable<DepositAccount> {
     const resource = type === 'recurring' ? 'recurringdepositaccounts' : 'fixeddepositaccounts';
     return this.http
@@ -336,24 +433,87 @@ export class FineractDepositAccountApi implements DepositAccountApi {
    * This divergence used to sit in the account view. It is a fact about the platform, not about
    * that screen, which is why it belongs here.
    */
-  transactions(type: DepositType, accountId: number): Observable<Record<string, unknown>[]> {
+  transactions(type: DepositType, accountId: number): Observable<DepositTransaction[]> {
     if (type === 'recurring') {
       return this.http
         .get<{
-          transactions?: Record<string, unknown>[];
+          transactions?: TransactionPayload[];
         }>(`${this.basePath}/v1/recurringdepositaccounts/${accountId}`, {
           params: { associations: 'transactions' },
         })
-        .pipe(map((account) => account.transactions ?? []));
+        .pipe(map((account) => (account.transactions ?? []).map(mapDepositTransaction)));
     }
     return this.fixedTransactions
       .getFixeddepositaccountsFixedDepositAccountIdTransactions(accountId)
-      .pipe(map((list) => (list ?? []) as unknown as Record<string, unknown>[]));
+      .pipe(
+        map((list) => ((list ?? []) as unknown as TransactionPayload[]).map(mapDepositTransaction)),
+      );
+  }
+
+  /**
+   * What posting a transaction offers.
+   *
+   * `command` is sent to both paths even though only the recurring one needs it — measured, that
+   * path answers `400` without it. Sending it to the fixed path as well costs nothing and keeps
+   * the two calls the same shape.
+   *
+   * Both responses are typed `string` by the upstream document and are JSON on the wire, which
+   * is why each is cast once here rather than at the two forms that used to do it.
+   */
+  transactionTemplate(
+    type: DepositType,
+    accountId: number,
+    command: DepositTransactionCommand,
+  ): Observable<DepositTransactionTemplate> {
+    const request$: Observable<unknown> =
+      type === 'recurring'
+        ? this.recurringTransactions.getRecurringdepositaccountsRecurringDepositAccountIdTransactionsTemplate(
+            accountId,
+            command,
+          )
+        : this.fixedTransactions.getFixeddepositaccountsFixedDepositAccountIdTransactionsTemplate(
+            accountId,
+          );
+    return request$.pipe(
+      map((template) => ({
+        paymentTypes: mapPaymentTypes(
+          (template as TransactionTemplatePayload | undefined)?.paymentTypeOptions,
+        ),
+      })),
+    );
+  }
+
+  /**
+   * Posts a deposit or a withdrawal.
+   *
+   * The argument order is the trap. The recurring twin is `(accountId, body, command)` while the
+   * fixed one is `(accountId, command, body)` with the body typed `string`, because the document
+   * describes that request as free-form — so mirroring one call in the other place binds the
+   * request object to `command` and still compiles. The fixed path is handed the serialised body,
+   * which `HttpClient` forwards verbatim.
+   */
+  postTransaction(
+    type: DepositType,
+    accountId: number,
+    command: DepositTransactionCommand,
+    body: Record<string, unknown>,
+  ): Observable<unknown> {
+    return type === 'recurring'
+      ? this.recurringTransactions.postRecurringdepositaccountsRecurringDepositAccountIdTransactions(
+          accountId,
+          body,
+          command,
+        )
+      : this.fixedTransactions.postFixeddepositaccountsFixedDepositAccountIdTransactions(
+          accountId,
+          command,
+          JSON.stringify(body),
+        );
   }
 
   template(
     type: DepositType,
-    clientId: number,
+    clientId?: number,
     productId?: number,
   ): Observable<DepositAccountTemplate> {
     const request$ =
@@ -478,6 +638,12 @@ export class FineractDepositAccountApi implements DepositAccountApi {
         locale: LOCALE,
       })
       .pipe(map(() => undefined));
+  }
+
+  onHoldTransactions(savingsId: number): Observable<SavingsOnHoldTransaction[]> {
+    return this.onHoldFunds
+      .getSavingsaccountsSavingsIdOnholdtransactions(savingsId)
+      .pipe(map((page) => ((page?.pageItems ?? []) as OnHoldPayload[]).map(mapOnHoldTransaction)));
   }
 
   private post(
