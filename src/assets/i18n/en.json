@@ -9,7 +9,8 @@
       "select": "Select Language",
       "en": "English",
       "hi": "Hindi",
-      "ko": "Korean"
+      "ko": "Korean",
+      "fr": "French"
     }
   },
   "nav": {
