@@ -61,6 +61,9 @@ import { HelpIconComponent } from '../../shared/components/help-icon/help-icon.c
             <option value="ko" [selected]="i18n.currentLang() === 'ko'">
               {{ 'app.language.ko' | appTranslate }}
             </option>
+            <option value="fr" [selected]="i18n.currentLang() === 'fr'">
+              {{ 'app.language.fr' | appTranslate }}
+            </option>
           </select>
         </div>
         <div class="login-header">

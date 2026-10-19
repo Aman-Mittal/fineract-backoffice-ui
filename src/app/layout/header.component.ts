@@ -312,6 +312,9 @@ function localeDate(iso: string | null): string | null {
         <option value="ko" [selected]="i18n.currentLang() === 'ko'">
           {{ 'app.language.ko' | appTranslate }}
         </option>
+        <option value="fr" [selected]="i18n.currentLang() === 'fr'">
+          {{ 'app.language.fr' | appTranslate }}
+        </option>
       </select>
 
       <button class="logout-btn" (click)="logout()" [attr.aria-label]="'app.logout' | appTranslate">

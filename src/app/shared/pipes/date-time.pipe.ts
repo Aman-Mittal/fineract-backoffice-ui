@@ -59,6 +59,7 @@ export class DateTimePipe implements PipeTransform {
       en: 'en-US',
       hi: 'hi-IN',
       ko: 'ko-KR',
+      fr: 'fr-FR',
     };
     return map[lang] || lang || 'en-US';
   }

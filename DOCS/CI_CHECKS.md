@@ -158,6 +158,25 @@ baseline with `npm run i18n:check -- --update` when a catalogue legitimately shr
 
 `npm run i18n:check -- --unused` lists orphaned keys.
 
+#### Money-term glossary for translators
+
+Fineract has several verbs that are close in everyday speech and different in the ledger.
+Translate each to a distinct term, and never fold two of them into one. The French catalogue
+(`fr.json`) uses:
+
+| English    | French               | Meaning                                                          |
+| ---------- | -------------------- | ---------------------------------------------------------------- |
+| Cancel     | Annuler              | Abandon a screen or dialog. Never a ledger action.               |
+| Undo       | Défaire              | Withdraw a state change, such as an approval or a rejection.     |
+| Reverse    | Contre-passer        | Post an opposite entry; the original stays on the account.       |
+| Waive      | Exonérer             | Forgive a charge or interest that was due.                       |
+| Write off  | Passer en perte      | Remove an uncollectable loan balance from the books.             |
+| Charge off | Passer en non-valeur | Classify a loan as uncollectable under the product's accounting. |
+| Chargeback | Rétrofacturation     | A payment taken back through the payment network.                |
+
+Use the same distinctions when adding a language, and keep placeholders such as `{{amount}}`
+unchanged.
+
 `PHRASES` exists because `data-table.component.ts` renders every column header as
 `col.label | translate`, which makes `ColumnDef.label` a translation key by contract
 while its type stays `string`. Eight components filled it with English — `label:
