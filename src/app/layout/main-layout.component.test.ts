@@ -86,6 +86,25 @@ describe('MainLayoutComponent', () => {
     expect(compiled.querySelector('app-sidebar')).toBeTruthy();
   });
 
+  describe('skip link', () => {
+    it('is the first focusable element in the shell', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const first = compiled.querySelector('a[href], button, input, [tabindex="0"]');
+      expect(first?.classList.contains('skip-link')).toBe(true);
+      expect(first?.getAttribute('href')).toBe('#main-content');
+    });
+
+    it('moves focus to main instead of following the link', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+      compiled.querySelector('.skip-link')!.dispatchEvent(click);
+
+      expect(click.defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(compiled.querySelector('main#main-content'));
+    });
+  });
+
   describe('global keyboard shortcuts', () => {
     it('navigates to the bound route on a shortcut keydown', () => {
       const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate');
