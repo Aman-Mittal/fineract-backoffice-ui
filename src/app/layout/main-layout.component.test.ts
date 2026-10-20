@@ -23,10 +23,13 @@ import { MainLayoutComponent } from './main-layout.component';
 import { AuthService, UserSession } from '../core/services/auth.service';
 import { GuidanceService } from '../core/services/guidance.service';
 import { Router, RouterModule } from '@angular/router';
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { provideTranslateTesting } from '../testing/i18n-testing';
 import { BusinessDateManagementService } from '../api';
 import { of } from 'rxjs';
+
+@Component({ selector: 'app-test-page', standalone: true, template: '<h1>Page</h1>' })
+class TestPageComponent {}
 
 function keydown(overrides: Partial<KeyboardEvent> & { target: EventTarget }): KeyboardEvent {
   return {
@@ -102,6 +105,50 @@ describe('MainLayoutComponent', () => {
 
       expect(click.defaultPrevented).toBe(true);
       expect(document.activeElement).toBe(compiled.querySelector('main#main-content'));
+    });
+  });
+
+  describe('focus on a change of page', () => {
+    let router: Router;
+    let main: HTMLElement;
+    let outside: HTMLButtonElement;
+
+    beforeEach(async () => {
+      router = TestBed.inject(Router);
+      router.resetConfig([
+        { path: 'first', component: TestPageComponent },
+        { path: 'second', component: TestPageComponent },
+      ]);
+      main = (fixture.nativeElement as HTMLElement).querySelector('main')!;
+      outside = document.createElement('button');
+      document.body.append(outside);
+
+      await router.navigateByUrl('/first');
+      outside.focus();
+    });
+
+    afterEach(() => outside.remove());
+
+    it('moves focus to main when the path changes', async () => {
+      await router.navigateByUrl('/second');
+
+      expect(document.activeElement).toBe(main);
+    });
+
+    it('leaves focus where it is when only the query string changes', async () => {
+      await router.navigateByUrl('/first?page=2');
+
+      expect(document.activeElement).toBe(outside);
+    });
+
+    it('does not take focus from an element already inside main', async () => {
+      const inside = document.createElement('button');
+      main.append(inside);
+      inside.focus();
+
+      await router.navigateByUrl('/second');
+
+      expect(document.activeElement).toBe(inside);
     });
   });
 

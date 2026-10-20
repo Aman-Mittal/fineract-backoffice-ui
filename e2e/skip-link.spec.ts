@@ -18,8 +18,8 @@
  */
 
 /**
- * The skip link, which lets a keyboard user reach the content without tabbing through the header
- * and every sidebar link first (WCAG 2.4.1, #746).
+ * The skip link and the focus move on a change of page, which together let a keyboard user reach
+ * the content without tabbing through the header and every sidebar link first (WCAG 2.4.1, #746).
  */
 
 import { test, expect } from './fixtures';
@@ -86,4 +86,13 @@ test('the first Tab stop is the skip link, and Enter lands in main without navig
   await page.keyboard.press('Enter');
   await expect(page.locator('main#main-content')).toBeFocused();
   await expect(page).toHaveURL('/dashboard');
+});
+
+test('a change of page moves focus into main', async ({ page }) => {
+  await page.keyboard.press('Alt+C');
+  await expect(page).toHaveURL('/clients/create');
+
+  await expect
+    .poll(() => page.evaluate(() => !!document.activeElement?.closest('main')))
+    .toBe(true);
 });

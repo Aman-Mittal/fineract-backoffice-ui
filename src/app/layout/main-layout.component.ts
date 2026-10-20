@@ -18,7 +18,9 @@
  */
 
 import { Component, ElementRef, HostListener, inject, viewChild } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { filter } from 'rxjs';
 import { IonProgressBar } from '@ionic/angular/standalone';
 import { HeaderComponent } from './header.component';
 import { SidebarComponent } from './sidebar.component';
@@ -170,6 +172,28 @@ export class MainLayoutComponent {
   private readonly guidanceService = inject(GuidanceService);
   private readonly router = inject(Router);
   private readonly main = viewChild.required<ElementRef<HTMLElement>>('main');
+
+  constructor() {
+    // A change of page moves focus to the new content. Without it, focus stays on the sidebar
+    // link that was activated, or drops to the top of the document when the control that had it
+    // was destroyed, and either way the next Tab starts in the navigation again.
+    //
+    // Only when the path changes. A query-string change is the same page updating its own state
+    // (a paginator, a filter), and taking focus off the control that did it would be a bug. The
+    // first navigation is skipped too: on a fresh load focus is already at the top of the
+    // document, where the skip link is the first stop.
+    let previousPath: string | null = null;
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe((event) => {
+        const path = event.urlAfterRedirects.split(/[?#]/, 1)[0];
+        if (previousPath !== null && path !== previousPath) this.focusMain();
+        previousPath = path;
+      });
+  }
 
   /**
    * The skip link's target is handled here rather than left to the browser. With `<base href>`
