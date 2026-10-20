@@ -1081,7 +1081,20 @@
     "REPEAT_PASSWORD": "Répéter le mot de passe",
     "ROLES": "Rôles",
     "PASSWORD_NEVER_EXPIRES": "Le mot de passe n'expire jamais",
-    "SEND_PASSWORD_TO_EMAIL": "Envoyer le mot de passe par e-mail"
+    "SEND_PASSWORD_TO_EMAIL": "Envoyer le mot de passe par e-mail",
+    "PASSWORD_POLICY": "Politique de mot de passe",
+    "PASSWORD_RULES_UNMET": "Ce mot de passe doit encore :",
+    "PASSWORDS_DO_NOT_MATCH": "Les deux mots de passe ne correspondent pas",
+    "PASSWORD_RULES": {
+      "LENGTH": "comporter de {{min}} à {{max}} caractères",
+      "UPPERCASE": "comporter une lettre majuscule",
+      "LOWERCASE": "comporter une lettre minuscule",
+      "DIGIT": "comporter un chiffre",
+      "SPECIAL": "comporter un caractère spécial",
+      "NO_SPACE": "ne contenir aucun espace",
+      "NO_REPEAT": "ne répéter aucun caractère deux fois de suite"
+    },
+    "CONFIRM_DELETE": "Supprimer le compte « {{username}} » ? L’utilisateur ne pourra plus se connecter."
   },
   "ORGANIZATION": {
     "STAFF": "Personnel",
@@ -1218,7 +1231,12 @@
     "IMPACT_NAV_LOST": "Écrans que ce rôle perd",
     "IMPACT_NAV_UNCHANGED": "Aucun écran n'apparaît ni ne disparaît du menu latéral : ces autorisations encadrent des actions au sein d'écrans déjà accessibles au rôle.",
     "CONFIRM_PERMISSIONS_TITLE": "Appliquer les modifications d'autorisations",
-    "CONFIRM_PERMISSIONS_MESSAGE": "Enregistrer ces autorisations pour le rôle « {{name}} » ? Toutes les personnes qui le détiennent seront concernées à leur prochaine connexion, sans en être informées."
+    "CONFIRM_PERMISSIONS_MESSAGE": "Enregistrer ces autorisations pour le rôle « {{name}} » ? Toutes les personnes qui le détiennent seront concernées à leur prochaine connexion, sans en être informées.",
+    "DISABLE": "Désactiver",
+    "ENABLE": "Activer",
+    "CONFIRM_DISABLE": "Désactiver le rôle « {{name}} » ? Il reste en l’état et cesse d’être proposé pour les nouveaux utilisateurs.",
+    "CONFIRM_ENABLE": "Activer le rôle « {{name}} » ? Il pourra de nouveau être attribué à des utilisateurs.",
+    "CONFIRM_DELETE": "Supprimer le rôle « {{name}} » ? Cette action est irréversible, et la plateforme la refuse tant qu’un utilisateur le détient."
   },
   "HELP": {
     "SEARCH_DESC": "Utilisez ce champ pour rechercher ou filtrer les enregistrements du tableau.",
@@ -2358,7 +2376,7 @@
     "DATE": "Date",
     "AMOUNT": "Montant",
     "TYPE": "Type",
-    "REASON": "Motif"
+    "LOAN": "Prêt"
   },
   "PROVISIONING_CATEGORIES": {
     "CREATE": "Créer une catégorie de provisionnement",
