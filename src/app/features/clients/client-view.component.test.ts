@@ -120,6 +120,7 @@ describe('ClientViewComponent', () => {
         lastname: 'Doe',
         officeName: 'Head Office',
         activationDate: [2026, 5, 30] as any,
+        timeline: { submittedOnDate: [2026, 5, 1] } as any,
       }) as any,
     );
 
@@ -159,6 +160,19 @@ describe('ClientViewComponent', () => {
     expect(clientServiceSpy.getClientsClientIdAccounts).toHaveBeenCalledWith(123);
     expect(component.client()?.displayName).toBe('John Doe');
     expect(component.loadError()).toBeNull();
+  });
+
+  it('shows the activation and submitted dates as dates, without a time or time zone', () => {
+    fixture.detectChanges();
+
+    const valueFor = (label: string) =>
+      Array.from(fixture.nativeElement.querySelectorAll('.detail-item') as NodeListOf<Element>)
+        .find((el) => el.querySelector('.label')?.textContent?.includes(label))
+        ?.querySelector('.value')
+        ?.textContent?.trim();
+
+    expect(valueFor('COMMON.ACTIVATION_DATE')).toBe(new Date(2026, 4, 30).toLocaleDateString());
+    expect(valueFor('CLIENTS.TIMELINE_SUBMITTED')).toBe(new Date(2026, 4, 1).toLocaleDateString());
   });
 
   describe('failed load', () => {
