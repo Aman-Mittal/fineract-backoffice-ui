@@ -5,6 +5,7 @@
     "shortTitle": "Fineract",
     "welcome": "Bienvenue dans Fineract Backoffice UI !",
     "logout": "Déconnexion",
+    "skipToMain": "Aller au contenu principal",
     "language": {
       "select": "Choisir la langue",
       "en": "Anglais",

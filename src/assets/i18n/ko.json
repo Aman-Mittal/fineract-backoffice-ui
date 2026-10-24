@@ -4,6 +4,7 @@
     "title": "Fineract 백오피스 UI",
     "welcome": "Fineract 백오피스 UI에 오신 것을 환영합니다!",
     "logout": "로그아웃",
+    "skipToMain": "본문으로 건너뛰기",
     "language": {
       "select": "언어 선택",
       "en": "영어 (English)",

@@ -39,7 +39,7 @@ import {
   PostClientsClientIdRequest,
   ShareAccountService,
 } from '../../api';
-import { StatusBadgeComponent, LoadErrorComponent } from '../../shared';
+import { StatusBadgeComponent, LoadErrorComponent, IsoDatePipe } from '../../shared';
 import { RequiresPermissionDirective } from '../../shared/directives/requires-permission.directive';
 import { createPermissionCheck } from '../../shared/utils/permission-check';
 import { skipErrorToast } from '../../core/http/http-context';
@@ -70,7 +70,6 @@ import { ClientFamilyMembersListComponent } from './tabs/client-family-members-l
 import { ClientNotesListComponent } from './tabs/client-notes-list.component';
 import { ClientDocumentsListComponent } from './tabs/client-documents-list.component';
 import { ClientStandingInstructionsTabComponent } from './tabs/client-standing-instructions-tab.component';
-import { DateTimePipe } from '../../shared/pipes/date-time.pipe';
 import { EntityDatatablesComponent } from '../../shared/components/entity-datatables/entity-datatables.component';
 import { CdkTableModule } from '@angular/cdk/table';
 import { DialogService } from '../../core/services/dialog.service';
@@ -182,7 +181,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
     IonList,
     IonItem,
     TooltipDirective,
-    DateTimePipe,
+    IsoDatePipe,
   ],
   template: `
     <div class="view-container">
@@ -581,12 +580,12 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                     </div>
                     <div class="detail-item">
                       <span class="label">{{ 'COMMON.ACTIVATION_DATE' | appTranslate }}</span>
-                      <span class="value">{{ this.client()?.activationDate | dateTime }}</span>
+                      <span class="value">{{ this.client()?.activationDate | appIsoDate }}</span>
                     </div>
                     <div class="detail-item">
                       <span class="label">{{ 'CLIENTS.TIMELINE_SUBMITTED' | appTranslate }}</span>
                       <span class="value">{{
-                        this.client()?.timeline?.submittedOnDate | dateTime
+                        this.client()?.timeline?.submittedOnDate | appIsoDate
                       }}</span>
                     </div>
                   </ion-card-content>
