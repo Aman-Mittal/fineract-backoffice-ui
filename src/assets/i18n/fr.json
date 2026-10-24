@@ -684,6 +684,8 @@
       "CLOSE_AS_RESCHEDULED": "Clôturer comme rééchelonné",
       "DISBURSE_TO_SAVINGS": "Décaisser vers l'épargne",
       "CHARGEBACK": "Rétrofacturation",
+      "CHARGEBACK_REPAYMENT": "Rétrofacturer le remboursement",
+      "VIEW_TRANSACTION": "Voir l'opération",
       "UNASSIGN_LOAN_OFFICER": "Retirer l'agent de crédit",
       "UNDO_LAST_DISBURSAL": "Défaire le dernier décaissement",
       "REVISE_APPROVED_AMOUNT": "Réviser le montant approuvé",

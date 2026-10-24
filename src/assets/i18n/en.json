@@ -684,6 +684,8 @@
       "CLOSE_AS_RESCHEDULED": "Close as Rescheduled",
       "DISBURSE_TO_SAVINGS": "Disburse to Savings",
       "CHARGEBACK": "Chargeback",
+      "CHARGEBACK_REPAYMENT": "Charge Back Repayment",
+      "VIEW_TRANSACTION": "View Transaction",
       "UNASSIGN_LOAN_OFFICER": "Unassign Loan Officer",
       "UNDO_LAST_DISBURSAL": "Undo Last Disbursal",
       "REVISE_APPROVED_AMOUNT": "Revise Approved Amount",

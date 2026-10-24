@@ -1365,8 +1365,8 @@ export function toEditableDate(value: unknown): string {
                           fill="clear"
                           [attr.data-testid]="'loan-transaction-view-' + tx.id"
                           (click)="onViewTransaction(tx)"
-                          [attr.aria-label]="'COMMON.VIEW' | appTranslate"
-                          [appTooltip]="'COMMON.VIEW' | appTranslate"
+                          [attr.aria-label]="'LOANS.ACTIONS.VIEW_TRANSACTION' | appTranslate"
+                          [appTooltip]="'LOANS.ACTIONS.VIEW_TRANSACTION' | appTranslate"
                         >
                           <ion-icon name="eye-outline"></ion-icon>
                         </ion-button>
@@ -1377,10 +1377,12 @@ export function toEditableDate(value: unknown): string {
                             appRequiresPermission="CHARGEBACK_LOAN"
                             [attr.data-testid]="'loan-chargeback-' + tx.id"
                             (click)="onChargeback(tx)"
-                            [attr.aria-label]="'LOANS.ACTIONS.CHARGEBACK' | appTranslate"
-                            [appTooltip]="'LOANS.ACTIONS.CHARGEBACK' | appTranslate"
+                            [attr.aria-label]="'LOANS.ACTIONS.CHARGEBACK_REPAYMENT' | appTranslate"
+                            [appTooltip]="'LOANS.ACTIONS.CHARGEBACK_REPAYMENT' | appTranslate"
                           >
-                            <ion-icon name="arrow-undo-outline"></ion-icon>
+                            <!-- Not an undo arrow: a chargeback posts a new transaction, it does
+                                 not reverse this one. Reversal is Adjust Transaction, under View. -->
+                            <ion-icon name="swap-horizontal-outline"></ion-icon>
                           </ion-button>
                         }
                       </td>
