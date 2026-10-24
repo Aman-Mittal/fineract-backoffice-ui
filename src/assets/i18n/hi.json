@@ -1404,6 +1404,8 @@
     "CONFIRM_DELETE": "खाता \"{{username}}\" हटाएँ? उपयोगकर्ता फिर साइन इन नहीं कर पाएगा।"
   },
   "LOANS": {
+    "REPAYMENT_START_DATE_NOT_SET": "सेट नहीं है",
+    "CLEAR_REPAYMENT_START_DATE": "पुनर्भुगतान की आरंभ तिथि साफ़ करें",
     "ACCOUNT_NO": "खाता संख्या",
     "REPAYMENT_EVERY": "प्रत्येक भुगतान",
     "LOAN_OFFICER": "ऋण अधिकारी",

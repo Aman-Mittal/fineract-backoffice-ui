@@ -1,4 +1,8 @@
 {
+  "LOANS": {
+    "REPAYMENT_START_DATE_NOT_SET": "설정되지 않음",
+    "CLEAR_REPAYMENT_START_DATE": "상환 시작일 지우기"
+  },
   "license": "Apache-2.0",
   "app": {
     "title": "Fineract 백오피스 UI",
