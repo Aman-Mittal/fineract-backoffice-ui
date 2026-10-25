@@ -193,6 +193,13 @@ describe('ClientFormComponent', () => {
       );
     });
 
+    it('describes editing client details rather than the clients list', () => {
+      component.isEditMode.set(true);
+      fixture.detectChanges();
+      const help = fixture.nativeElement.querySelector('app-help-icon [data-testid="help-icon"]');
+      expect(help.getAttribute('aria-label')).toContain('HELP.EDIT_CLIENT_DESC');
+    });
+
     it('does not offer a create-only clear action while editing an existing DOB', () => {
       component.isEditMode.set(true);
       component.dateOfBirth.set('1990-01-05');

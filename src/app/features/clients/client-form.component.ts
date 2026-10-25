@@ -102,9 +102,7 @@ import {
                 : ('CLIENTS.CREATE_CLIENT' | appTranslate)
             }}
             <app-help-icon
-              [helpTextKey]="
-                isEditMode() ? 'HELP.CLIENTS_CONTRACTS_DESC' : 'HELP.CREATE_CLIENT_DESC'
-              "
+              [helpTextKey]="isEditMode() ? 'HELP.EDIT_CLIENT_DESC' : 'HELP.CREATE_CLIENT_DESC'"
             ></app-help-icon>
           </ion-card-title>
         </ion-card-header>

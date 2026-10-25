@@ -1242,6 +1242,7 @@
     "CONFIRM_DELETE": "Supprimer le rôle « {{name}} » ? Cette action est irréversible, et la plateforme la refuse tant qu’un utilisateur le détient."
   },
   "HELP": {
+    "EDIT_CLIENT_DESC": "Modifiez les informations de ce client.",
     "CREATE_CLIENT_DESC": "Créez un client en choisissant son type et son agence, puis en saisissant ses informations.",
     "SEARCH_DESC": "Utilisez ce champ pour rechercher ou filtrer les enregistrements du tableau.",
     "CLIENTS_CONTRACTS_DESC": "Consultez et gérez tous les clients enregistrés et leurs contrats.",

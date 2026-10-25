@@ -46,6 +46,7 @@ import {
   FINERACT_DATE_FORMAT,
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
+import { ButtonComponent } from '../../../ui/button/button.component';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
 
 @Component({
@@ -53,6 +54,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   standalone: true,
   imports: [
     FormsModule,
+    ButtonComponent,
     TranslatePipe,
     IonCard,
     IonCardHeader,
@@ -247,7 +249,13 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                       'CLIENTS.DATE_OF_BIRTH' | appTranslate
                     }}</ion-label>
                     @if (pickersReady()) {
-                      <ion-datetime-button datetime="family-dob-picker"></ion-datetime-button>
+                      <ion-datetime-button datetime="family-dob-picker">
+                        @if (!isEditMode && !createDateOfBirth()) {
+                          <span slot="date-target">{{
+                            'CLIENTS.DATE_OF_BIRTH_NOT_SET' | appTranslate
+                          }}</span>
+                        }
+                      </ion-datetime-button>
                     }
                     <ion-modal [keepContentsMounted]="true">
                       <ng-template>
@@ -255,10 +263,24 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                           id="family-dob-picker"
                           data-testid="family-dob-picker"
                           presentation="date"
+                          [value]="isEditMode ? undefined : createDateOfBirth()"
                           (ionChange)="onDobChange($event)"
                         ></ion-datetime>
                       </ng-template>
                     </ion-modal>
+                    @if (!isEditMode && createDateOfBirth()) {
+                      <app-button
+                        type="button"
+                        intent="neutral"
+                        emphasis="quiet"
+                        size="small"
+                        id="clear-family-date-of-birth"
+                        data-testid="clear-family-date-of-birth"
+                        (click)="clearCreateDateOfBirth()"
+                      >
+                        {{ 'CLIENTS.CLEAR_DATE_OF_BIRTH' | appTranslate }}
+                      </app-button>
+                    }
                   </ion-item>
                 </ion-col>
                 <ion-col size="12" size-md="6">
@@ -336,10 +358,19 @@ export class ClientFamilyMemberFormComponent implements OnInit {
   readonly professionOptions = signal<CodeValueData[]>([]);
 
   dateOfBirth?: Date;
+  readonly createDateOfBirth = signal<string | null>(null);
+
+  clearCreateDateOfBirth(): void {
+    this.dateOfBirth = undefined;
+    this.createDateOfBirth.set(null);
+  }
 
   onDobChange(event: CustomEvent): void {
     if (event.detail.value) {
       this.dateOfBirth = new Date(event.detail.value as string);
+      if (!this.isEditMode) {
+        this.createDateOfBirth.set(event.detail.value as string);
+      }
     }
   }
 
