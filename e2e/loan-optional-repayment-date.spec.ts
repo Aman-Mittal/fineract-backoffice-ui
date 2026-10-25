@@ -53,6 +53,11 @@ async function signIn(page: Page): Promise<void> {
     });
   });
 
+  // Dashboard summaries are outside this journey; keep every request synthetic.
+  await page.route(/\/api\/v1\/(clients|loans|savingsaccounts)\?/, (route) =>
+    route.fulfill({ json: { pageItems: [], totalFilteredRecords: 0 } }),
+  );
+
   await page.goto('/login');
   await page.locator('#tenantId').fill('default');
   await page.locator('#username').fill('mifos');
@@ -102,6 +107,92 @@ for (const viewport of [
 ]) {
   test.describe(`optional repayment date at ${viewport.width}px`, () => {
     test.use({ viewport });
+    test('edit dates reflect the stored value without silently submitting it', async ({
+      page,
+    }, testInfo) => {
+      await signIn(page);
+      await page.route('**/api/v1/clients/7**', (route) =>
+        route.fulfill({ json: { id: 7, displayName: 'Synthetic Client' } }),
+      );
+      await page.route('**/api/v1/loanproducts**', (route) =>
+        route.fulfill({
+          json: /\/loanproducts\/3(?:\?|$)/.test(route.request().url()) ? product : [product],
+        }),
+      );
+      let storedDate: number[] | null = [2026, 4, 30];
+      await page.route('**/api/v1/loans/7**', (route) =>
+        route.fulfill({
+          json:
+            route.request().method() === 'PUT'
+              ? { loanId: 7 }
+              : {
+                  ...product,
+                  id: 7,
+                  accountNo: 'SYNTHETIC7',
+                  clientId: 7,
+                  clientName: 'Synthetic Client',
+                  loanProductId: 3,
+                  termFrequency: 12,
+                  termPeriodFrequencyType: { id: 2 },
+                  status: { id: 100, value: 'Submitted' },
+                  timeline: {
+                    submittedOnDate: [2026, 4, 1],
+                    expectedDisbursementDate: [2026, 4, 2],
+                  },
+                  expectedFirstRepaymentOnDate: storedDate,
+                  summary: {},
+                },
+        }),
+      );
+      const saveEdit = async () => {
+        const update = page.waitForRequest(
+          (request) => request.method() === 'PUT' && /\/loans\/7(?:\?|$)/.test(request.url()),
+        );
+        await page.getByRole('button', { name: 'Save', exact: true }).click();
+        const body = (await update).postDataJSON();
+        await expect(page).toHaveURL(/\/loans\/view\/7$/);
+        return body;
+      };
+
+      await page.goto('/loans/edit/7');
+      await expect(dateButton(page).getByRole('button')).toContainText('2026');
+      await dateButton(page).click();
+      const picker = page.getByTestId(pickerId);
+      await expect(picker.getByRole('button', { name: /Thursday, April 30/ })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.keyboard.press('Escape');
+      await expect(picker).not.toBeVisible();
+      await page
+        .locator('ion-item')
+        .filter({ has: dateButton(page) })
+        .screenshot({
+          path: testInfo.outputPath('stored-edit-repayment-date.png'),
+        });
+      expect(await saveEdit()).not.toHaveProperty('repaymentsStartingFromDate');
+
+      await page.goto('/loans/edit/7');
+      await dateButton(page).click();
+      await picker.getByRole('button', { name: /Wednesday, April 29/ }).click();
+      await page.keyboard.press('Escape');
+      await expect(picker).not.toBeVisible();
+      expect(await saveEdit()).toHaveProperty('repaymentsStartingFromDate', '29 April 2026');
+
+      storedDate = null;
+      await page.goto('/loans/edit/7');
+      await expect(
+        dateButton(page).getByRole('button', { name: 'Not set', exact: true }),
+      ).toBeVisible();
+      await expect(page.getByTestId('clear-repayment-start-date')).toHaveCount(0);
+      await page
+        .locator('ion-item')
+        .filter({ has: dateButton(page) })
+        .screenshot({
+          path: testInfo.outputPath('unset-edit-repayment-date.png'),
+        });
+    });
+
     test('unset, selected and cleared create dates match their submitted fields', async ({
       page,
     }, testInfo) => {

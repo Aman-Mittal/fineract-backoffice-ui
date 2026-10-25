@@ -71,6 +71,12 @@ import {
   FINERACT_LOCALE,
 } from '../../core/utils/date-formatter';
 import { createPickersReady } from '../../shared/utils/pickers-ready';
+import { toIsoFineractDate } from '../../core/adapters/api/fineract-date';
+
+// The loan read API exposes this date, but the generated response model omits it.
+type LoanResponseWithRepaymentDate = GetLoansLoanIdResponse & {
+  expectedFirstRepaymentOnDate?: string | number[] | null;
+};
 
 const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
 
@@ -489,7 +495,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                   }}</ion-label>
                   @if (pickersReady()) {
                     <ion-datetime-button datetime="repaymentsStartingFromDate-picker">
-                      @if (!isEditMode() && !repaymentsStartingFromDate) {
+                      @if (!repaymentsStartingFromDate && !storedRepaymentStartDate()) {
                         <span slot="date-target">{{
                           'LOANS.REPAYMENT_START_DATE_NOT_SET' | appTranslate
                         }}</span>
@@ -503,7 +509,8 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                         data-testid="repaymentsStartingFromDate-picker"
                         presentation="date"
                         name="repaymentsStartingFromDate"
-                        [(ngModel)]="repaymentsStartingFromDate"
+                        [ngModel]="repaymentsStartingFromDate ?? storedRepaymentStartDate()"
+                        (ngModelChange)="repaymentsStartingFromDate = $event"
                       ></ion-datetime>
                     </ng-template>
                   </ion-modal>
@@ -628,6 +635,7 @@ export class LoanFormComponent implements OnInit {
   readonly submittedOnDate = signal(this.platformDate.today());
   readonly expectedDisbursementDate = signal(this.platformDate.today());
   repaymentsStartingFromDate: string | null = null;
+  readonly storedRepaymentStartDate = signal<string | null>(null);
   readonly products = signal<GetLoanProductsResponse[]>([]);
   readonly selectedProductDetails = signal<GetLoanProductsProductIdResponse | null>(null);
 
@@ -756,7 +764,10 @@ export class LoanFormComponent implements OnInit {
   private loadLoanData() {
     if (!this.loanId) return;
     this.loansService.getLoansLoanId(this.loanId).subscribe({
-      next: (data: GetLoansLoanIdResponse) => {
+      next: (data: LoanResponseWithRepaymentDate) => {
+        // A loaded value is display state, not an officer-selected replacement.
+        this.repaymentsStartingFromDate = null;
+        this.storedRepaymentStartDate.set(toIsoFineractDate(data.expectedFirstRepaymentOnDate));
         const subDateArray = data.timeline?.submittedOnDate as unknown as number[];
         if (subDateArray) {
           this.submittedOnDate.set(formatArrayDate(subDateArray));
