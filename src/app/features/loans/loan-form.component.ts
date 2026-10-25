@@ -22,6 +22,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlatformDateService } from '../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
+import { ButtonComponent } from '../../ui/button/button.component';
 import { I18N, TranslatePipe } from '../../core/adapters';
 import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
 import { ClientSearchComponent } from '../../shared/components/client-search/client-search.component';
@@ -78,6 +79,7 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
   standalone: true,
   imports: [
     FormsModule,
+    ButtonComponent,
     TranslatePipe,
     ClientSearchComponent,
     IonIcon,
@@ -486,9 +488,13 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                     'LOANS.REPAYMENTS_STARTING_FROM_DATE' | appTranslate
                   }}</ion-label>
                   @if (pickersReady()) {
-                    <ion-datetime-button
-                      datetime="repaymentsStartingFromDate-picker"
-                    ></ion-datetime-button>
+                    <ion-datetime-button datetime="repaymentsStartingFromDate-picker">
+                      @if (!isEditMode() && !repaymentsStartingFromDate) {
+                        <span slot="date-target">{{
+                          'LOANS.REPAYMENT_START_DATE_NOT_SET' | appTranslate
+                        }}</span>
+                      }
+                    </ion-datetime-button>
                   }
                   <ion-modal [keepContentsMounted]="true">
                     <ng-template>
@@ -501,6 +507,18 @@ const OPERATION_FAILED_MESSAGE = 'Operation failed. Please try again.';
                       ></ion-datetime>
                     </ng-template>
                   </ion-modal>
+                  @if (!isEditMode() && repaymentsStartingFromDate) {
+                    <app-button
+                      type="button"
+                      intent="neutral"
+                      emphasis="quiet"
+                      size="small"
+                      data-testid="clear-repayment-start-date"
+                      (click)="repaymentsStartingFromDate = null"
+                    >
+                      {{ 'LOANS.CLEAR_REPAYMENT_START_DATE' | appTranslate }}
+                    </app-button>
+                  }
                 </ion-item>
 
                 @if (isProgressive()) {
@@ -788,6 +806,9 @@ export class LoanFormComponent implements OnInit {
       this.loan().repaymentsStartingFromDate = formatDateToFineract(
         this.repaymentsStartingFromDate,
       );
+    } else if (!this.isEditMode()) {
+      // A rejected create may have left a previously chosen date in the request object.
+      delete this.loan().repaymentsStartingFromDate;
     }
     this.loan().dateFormat = FINERACT_DATE_FORMAT;
     this.loan().locale = FINERACT_LOCALE;

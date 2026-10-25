@@ -548,6 +548,8 @@
     "CONFIRM_INACTIVATE": "Désactiver {{name}} ? Les frais ne seront plus appliqués à ce compte."
   },
   "LOANS": {
+    "REPAYMENT_START_DATE_NOT_SET": "Non renseignée",
+    "CLEAR_REPAYMENT_START_DATE": "Effacer la date de début",
     "ACCOUNT_NO": "N° de compte",
     "CLIENT_NAME": "Nom du client",
     "PRODUCT_NAME": "Nom du produit",

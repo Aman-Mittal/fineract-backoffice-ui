@@ -548,6 +548,8 @@
     "CONFIRM_INACTIVATE": "Inactivate {{name}}? The charge stops being applied to this account."
   },
   "LOANS": {
+    "REPAYMENT_START_DATE_NOT_SET": "Not set",
+    "CLEAR_REPAYMENT_START_DATE": "Clear repayment start date",
     "ACCOUNT_NO": "Account No",
     "CLIENT_NAME": "Client Name",
     "PRODUCT_NAME": "Product Name",
