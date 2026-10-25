@@ -1505,6 +1505,8 @@
       "CLOSE_AS_RESCHEDULED": "पुनर्निर्धारित के रूप में बंद करें",
       "DISBURSE_TO_SAVINGS": "बचत में संवितरण करें",
       "CHARGEBACK": "चार्जबैक",
+      "CHARGEBACK_REPAYMENT": "पुनर्भुगतान का चार्जबैक करें",
+      "VIEW_TRANSACTION": "लेनदेन देखें",
       "UNASSIGN_LOAN_OFFICER": "ऋण अधिकारी हटाएं",
       "UNDO_LAST_DISBURSAL": "अंतिम संवितरण पूर्ववत करें",
       "REVISE_APPROVED_AMOUNT": "अनुमोदित राशि संशोधित करें",
