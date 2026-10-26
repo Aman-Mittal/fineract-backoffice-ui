@@ -178,6 +178,8 @@ export interface LoanProductData {
     minPrincipal?: number;
     minimumDaysBetweenDisbursalAndFirstRepayment?: number;
     minimumGap?: number;
+    monthEndDueDateStrategy?: StringEnumOptionData;
+    monthEndDueDateStrategyOptions?: Array<StringEnumOptionData>;
     multiDisburseLoan?: boolean;
     name?: string;
     numberOfRepaymentVariationsForBorrowerCycle?: Array<LoanProductBorrowerCycleVariationData>;

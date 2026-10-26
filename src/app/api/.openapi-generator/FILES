@@ -97,6 +97,7 @@ api/offices.service.ts
 api/passwordManagement.service.ts
 api/passwordPreferences.service.ts
 api/paymentType.service.ts
+api/payoffSchedulePreview.service.ts
 api/periodicAccrualAccounting.service.ts
 api/permissions.service.ts
 api/povertyLine.service.ts
@@ -849,6 +850,7 @@ model/getSavingsAssetLiabilityType.ts
 model/getSavingsChargeCalculationType.ts
 model/getSavingsChargePaymentMode.ts
 model/getSavingsChargeTimeType.ts
+model/getSavingsChargeTransactionResponse.ts
 model/getSavingsChargesChargeTimeType.ts
 model/getSavingsChargesOptions.ts
 model/getSavingsCurrency.ts
@@ -917,6 +919,8 @@ model/getSurveyResponse.ts
 model/getSurveyResponseDatatableData.ts
 model/getTaxesComponentsCreditAccount.ts
 model/getTaxesComponentsCreditAccountType.ts
+model/getTaxesComponentsDebitAccount.ts
+model/getTaxesComponentsDebitAccountType.ts
 model/getTaxesComponentsResponse.ts
 model/getTaxesGroupResponse.ts
 model/getTaxesGroupTaxAssociations.ts
@@ -1288,6 +1292,9 @@ model/postOrganisationCreditBureauRequest.ts
 model/postPaymentAllocation.ts
 model/postPaymentAllocationOrder.ts
 model/postPaymentAllocationRule.ts
+model/postPayoffSchedulePreviewInstallment.ts
+model/postPayoffSchedulePreviewRequest.ts
+model/postPayoffSchedulePreviewResponse.ts
 model/postProductsChargesSelected.ts
 model/postProductsMarketPricePeriods.ts
 model/postProductsTypeRequest.ts
@@ -1577,6 +1584,7 @@ model/savingsAccountSummaryData.ts
 model/savingsAccountTransactionData.ts
 model/savingsAccountTransactionEnumData.ts
 model/savingsAccountTransactionsSearchResponse.ts
+model/savingsChargeTransactionData.ts
 model/savingsProductData.ts
 model/scorecard.ts
 model/scorecardData.ts
