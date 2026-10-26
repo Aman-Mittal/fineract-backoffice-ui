@@ -24,11 +24,10 @@ import { PlatformDateService } from '../../core/services/platform-date.service';
 import { FormsModule } from '@angular/forms';
 import { HelpIconComponent, StepperComponent } from '../../shared';
 import { ButtonComponent } from '../../ui/button/button.component';
-import { TranslatePipe } from '../../core/adapters';
+import { I18N, TranslatePipe } from '../../core/adapters';
 import { CreateOfficeDialogComponent } from '../../shared/components/create-office-dialog/create-office-dialog.component';
 import { DialogService } from '../../core/services/dialog.service';
 import { MutationOutcomeService } from '../../core/services/mutation-outcome.service';
-import { I18N } from '../../core/adapters';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   IonButton,
