@@ -160,6 +160,7 @@ export interface PostLoanProductsRequest {
      * Minimum percentage of the guarantee the borrower must provide from own funds
      */
     minimumGuaranteeFromOwnFunds?: number;
+    monthEndDueDateStrategy?: PostLoanProductsRequest.MonthEndDueDateStrategyEnum;
     multiDisburseLoan?: boolean;
     name?: string;
     numberOfRepaymentVariationsForBorrowerCycle?: Array<number>;
@@ -233,6 +234,11 @@ export namespace PostLoanProductsRequest {
         Interest: 'INTEREST'
     } as const;
     export type CapitalizedIncomeTypeEnum = typeof CapitalizedIncomeTypeEnum[keyof typeof CapitalizedIncomeTypeEnum];
+    export const MonthEndDueDateStrategyEnum = {
+        LastDayOfMonth: 'LAST_DAY_OF_MONTH',
+        FirstDayOfNextMonth: 'FIRST_DAY_OF_NEXT_MONTH'
+    } as const;
+    export type MonthEndDueDateStrategyEnum = typeof MonthEndDueDateStrategyEnum[keyof typeof MonthEndDueDateStrategyEnum];
 }
 
 

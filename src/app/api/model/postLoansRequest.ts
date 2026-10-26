@@ -113,6 +113,10 @@ export interface PostLoansRequest {
      * Maximum allowed outstanding balance
      */
     maxOutstandingLoanBalance?: number;
+    /**
+     * Overrides the loan product\'s month end due date strategy for this loan. It has no effect on a loan whose repayments follow a meeting calendar.
+     */
+    monthEndDueDateStrategy?: PostLoansRequest.MonthEndDueDateStrategyEnum;
     numberOfRepayments?: number;
     /**
      * Optional array of originators to associate with this loan. Each entry can reference an existing originator by \'id\' or \'externalId\'. If the global config \'enable_originator_creation_during_loan_application\' is enabled, non-existing originators will be auto-created using the provided details (name, typeId, channelTypeId).
@@ -161,6 +165,11 @@ export namespace PostLoansRequest {
         FullLeapYearFeb29PeriodOnly: 'FULL_LEAP_YEAR, FEB_29_PERIOD_ONLY'
     } as const;
     export type DaysInYearCustomStrategyEnum = typeof DaysInYearCustomStrategyEnum[keyof typeof DaysInYearCustomStrategyEnum];
+    export const MonthEndDueDateStrategyEnum = {
+        LastDayOfMonth: 'LAST_DAY_OF_MONTH',
+        FirstDayOfNextMonth: 'FIRST_DAY_OF_NEXT_MONTH'
+    } as const;
+    export type MonthEndDueDateStrategyEnum = typeof MonthEndDueDateStrategyEnum[keyof typeof MonthEndDueDateStrategyEnum];
 }
 
 
