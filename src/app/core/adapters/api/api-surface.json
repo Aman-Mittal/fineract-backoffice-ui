@@ -597,7 +597,13 @@
     "putRolesRoleId",
     "putRolesRoleIdPermissions"
   ],
-  "SCHEDULERJOBService": ["getJobs", "getJobsJobIdRunhistory", "postJobsJobId"],
+  "SCHEDULERJOBService": [
+    "getJobs",
+    "getJobsJobId",
+    "getJobsJobIdRunhistory",
+    "postJobsJobId",
+    "putJobsJobId"
+  ],
   "SMSService": [
     "deleteSmsResourceId",
     "getSms",

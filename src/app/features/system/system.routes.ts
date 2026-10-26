@@ -438,6 +438,16 @@ export const SYSTEM_ROUTES: Routes = [
       ),
   },
   {
+    path: 'scheduler-jobs/:id/edit',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'UPDATE_SCHEDULER' },
+    title: 'SCHEDULER_JOBS.EDIT_JOB',
+    loadComponent: () =>
+      import('./scheduler-jobs/scheduler-job-form.component').then(
+        (m) => m.SchedulerJobFormComponent,
+      ),
+  },
+  {
     path: 'scheduler-jobs/:id/history',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_SCHEDULER' },
