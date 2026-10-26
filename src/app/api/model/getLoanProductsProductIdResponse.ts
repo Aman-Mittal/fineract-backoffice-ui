@@ -138,6 +138,7 @@ export interface GetLoanProductsProductIdResponse {
     minNumberOfRepayments?: number;
     minPrincipal?: number;
     minimumGap?: number;
+    monthEndDueDateStrategy?: StringEnumOptionData;
     multiDisburseLoan?: boolean;
     name?: string;
     numberOfRepaymentVariationsForBorrowerCycle?: Array<number>;

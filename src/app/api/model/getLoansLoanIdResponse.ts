@@ -131,6 +131,7 @@ export interface GetLoansLoanIdResponse {
      */
     loanTermVariations?: Array<GetLoansLoanIdLoanTermVariations>;
     loanType?: GetLoansLoanIdLoanType;
+    monthEndDueDateStrategy?: StringEnumOptionData;
     netDisbursalAmount?: number;
     numberOfRepayments?: number;
     /**
