@@ -5,7 +5,7 @@
     "description": "Apache Fineract is a secure, multi-tenanted microfinance platform.\nThe goal of the Apache Fineract API is to empower developers to build apps on top of the Apache Fineract Platform.\nThe [reference app](https://cui.fineract.dev) (username: mifos, password: password) works on the same demo tenant as the interactive links in this documentation.\nUntil we complete the new REST API documentation you still have the legacy documentation available [here](https://fineract.apache.org/docs/legacy/).\nPlease check [the current Fineract documentation](https://fineract.apache.org/docs/current/) for more information.",
     "license": { "name": "Apache 2.0", "url": "http://www.apache.org/licenses/LICENSE-2.0.html" },
     "title": "Apache Fineract REST API",
-    "version": "1.16.0-SNAPSHOT"
+    "version": "1.17.0-SNAPSHOT"
   },
   "servers": [
     { "url": "/fineract-provider/api" },
@@ -272,6 +272,10 @@
     {
       "description": "API to enable clients to retrieve Loan states in a specific point in time",
       "name": "LoansPointInTime"
+    },
+    {
+      "description": "Computes a progressive-loan payoff schedule from raw inputs, without creating or referencing a loan and without persisting anything.",
+      "name": "Payoff Schedule Preview"
     },
     {
       "description": "internal loan testing API. This API should be disabled in production!!!",
@@ -5214,6 +5218,9 @@
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request: validation.msg.globalConfiguration.stringValue.is.not.one.of.expected.enumerations if stringValue is not one of the configuration's allowedValues"
           }
         },
         "summary": "Update Global Configuration by name",
@@ -5302,6 +5309,9 @@
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request: validation.msg.globalConfiguration.stringValue.is.not.one.of.expected.enumerations if stringValue is not one of the configuration's allowedValues"
           }
         },
         "summary": "Update Global Configuration",
@@ -18526,6 +18536,32 @@
         "tags": ["Payment Type"]
       }
     },
+    "/v1/payoff-schedule-preview": {
+      "post": {
+        "description": "Computes a declining-balance, equal-installment schedule with the progressive loan engine, either over a term or by applying a fixed payment each period until the amount is paid off. The term must use the frequency's unit and be an exact multiple of it, as for a regular loan. Due dates are not moved for holidays or non-working days. Requires the LOAN read permission.",
+        "operationId": "calculatePayoffSchedulePreview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PostPayoffSchedulePreviewRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PostPayoffSchedulePreviewResponse" }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Compute a payoff schedule preview",
+        "tags": ["Payoff Schedule Preview"]
+      }
+    },
     "/v1/permissions": {
       "get": {
         "description": "ARGUMENTS\nmakerCheckerableoptional, Values are true, false. Default is false.\nIf makerCheckerable=false or not supplied then a list of application permissions is returned. The \"selected\" attribute is always true in this case.\n\nIf makerCheckerable=true then the \"selected\" attribute shows whether the permission is enabled for Maker Check functionality.\n\nNote: Each Apache Fineract transaction is associated with a permission.\n\nExample Requests:\n\npermissions\n\n\npermissions?makerCheckerable=true\n\n\npermissions?fields=grouping,code",
@@ -21921,7 +21957,7 @@
         "tags": ["Savings Charges"]
       },
       "get": {
-        "description": "Retrieves a Savings account Charge\n\nExample Requests:\n\n/savingsaccounts/1/charges/5\n\n\n/savingsaccounts/1/charges/5?fields=name,amountOrPercentage",
+        "description": "Retrieves a Savings account Charge\n\nExample Requests:\n\n/savingsaccounts/1/charges/5\n\n\n/savingsaccounts/1/charges/5?fields=name,amountOrPercentage\n\nUse associations=transactions or associations=all to include recorded transaction allocations, including reversed transactions and available payment details.",
         "operationId": "retrieveOneSavingsAccountCharge",
         "parameters": [
           {
@@ -26148,7 +26184,7 @@
         "tags": ["Working Capital Loans"]
       },
       "post": {
-        "description": "Mandatory command query parameter: approve, reject, undoapproval, disburse, or undodisbursal.",
+        "description": "Mandatory command query parameter: approve, reject, undoapproval, disburse, or undodisbursal. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "stateTransitionWorkingCapitalLoanByExternalId",
         "parameters": [
           {
@@ -27027,7 +27063,7 @@
         "tags": ["Working Capital Loan Transactions"]
       },
       "post": {
-        "description": "Supported command query parameter: repayment, creditBalanceRefund, payoutRefund, goodwillCredit, discountFee, discountFeeAdjustment, chargeOff, undoChargeOff, writeOff, undoWriteOff, recoveryPayment",
+        "description": "Supported command query parameter: repayment, creditBalanceRefund, payoutRefund, goodwillCredit, discountFee, discountFeeAdjustment, chargeOff, undoChargeOff, writeOff, undoWriteOff, recoveryPayment. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "executeWorkingCapitalLoanTransactionByExternalId",
         "parameters": [
           {
@@ -27107,7 +27143,7 @@
     },
     "/v1/working-capital-loans/external-id/{loanExternalId}/transactions/external-id/{transactionExternalId}": {
       "post": {
-        "description": "Supported command query parameter: adjust, discountFee, discountFeeAdjustment, undo",
+        "description": "Supported command query parameter: adjust, adjustByDelta, discountFee, discountFeeAdjustment, undo. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "executeWorkingCapitalLoanTransactionCommandByLoanExternalIdTransactionExternalId",
         "parameters": [
           {
@@ -27160,7 +27196,7 @@
     },
     "/v1/working-capital-loans/external-id/{loanExternalId}/transactions/template": {
       "get": {
-        "description": "Supported command query parameters: disburse, repayment, goodwillCredit, creditBalanceRefund, recoveryPayment, discountFee, discountFeeAdjustment, chargeOff, prepayLoan. The optional transactionDate quotes the balance as of that date, defaulting to the business date; only what is owed is scoped to it, so the amount stays net of every payment already made.",
+        "description": "Supported command query parameters: disburse, repayment, goodwillCredit, creditBalanceRefund, recoveryPayment, discountFee, discountFeeAdjustment, chargeOff, prepayLoan. The optional transactionDate quotes the balance as of that date, defaulting to the business date; only what is owed is scoped to it, so the amount stays net of every payment already made. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "getWorkingCapitalLoanTransactionTemplateByExternalId",
         "parameters": [
           {
@@ -27247,7 +27283,7 @@
         "tags": ["Working Capital Loan Transactions"]
       },
       "post": {
-        "description": "Supported command query parameter: adjust, discountFee, discountFeeAdjustment, undo",
+        "description": "Supported command query parameter: adjust, adjustByDelta, discountFee, discountFeeAdjustment, undo. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "executeWorkingCapitalLoanTransactionCommandByLoanExternalIdTransactionId",
         "parameters": [
           {
@@ -27418,7 +27454,7 @@
         "tags": ["Working Capital Loans"]
       },
       "post": {
-        "description": "Mandatory command query parameter: approve, reject, undoapproval, disburse, or undodisbursal.",
+        "description": "Mandatory command query parameter: approve, reject, undoapproval, disburse, or undodisbursal. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "stateTransitionWorkingCapitalLoanById",
         "parameters": [
           {
@@ -28453,7 +28489,7 @@
         "tags": ["Working Capital Loan Transactions"]
       },
       "post": {
-        "description": "Supported command query parameter: repayment, creditBalanceRefund, payoutRefund, goodwillCredit, discountFee, discountFeeAdjustment, chargeOff, undoChargeOff, writeOff, undoWriteOff, recoveryPayment",
+        "description": "Supported command query parameter: repayment, creditBalanceRefund, payoutRefund, goodwillCredit, discountFee, discountFeeAdjustment, chargeOff, undoChargeOff, writeOff, undoWriteOff, recoveryPayment. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "executeWorkingCapitalLoanTransactionById",
         "parameters": [
           {
@@ -28533,7 +28569,7 @@
     },
     "/v1/working-capital-loans/{loanId}/transactions/external-id/{transactionExternalId}": {
       "post": {
-        "description": "Supported command query parameter: adjust, discountFee, discountFeeAdjustment, undo",
+        "description": "Supported command query parameter: adjust, adjustByDelta, discountFee, discountFeeAdjustment, undo. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "executeWorkingCapitalLoanTransactionCommandByLoanIdTransactionExternalId",
         "parameters": [
           {
@@ -28586,7 +28622,7 @@
     },
     "/v1/working-capital-loans/{loanId}/transactions/template": {
       "get": {
-        "description": "Supported command query parameters: disburse, repayment, goodwillCredit, creditBalanceRefund, recoveryPayment, discountFee, discountFeeAdjustment, chargeOff, prepayLoan. The optional transactionDate quotes the balance as of that date, defaulting to the business date; only what is owed is scoped to it, so the amount stays net of every payment already made.",
+        "description": "Supported command query parameters: disburse, repayment, goodwillCredit, creditBalanceRefund, recoveryPayment, discountFee, discountFeeAdjustment, chargeOff, prepayLoan. The optional transactionDate quotes the balance as of that date, defaulting to the business date; only what is owed is scoped to it, so the amount stays net of every payment already made. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "getWorkingCapitalLoanTransactionTemplateById",
         "parameters": [
           {
@@ -28673,7 +28709,7 @@
         "tags": ["Working Capital Loan Transactions"]
       },
       "post": {
-        "description": "Supported command query parameter: adjust, discountFee, discountFeeAdjustment, undo",
+        "description": "Supported command query parameter: adjust, adjustByDelta, discountFee, discountFeeAdjustment, undo. The command value is case-insensitive and hyphens are ignored, e.g. chargeOff, chargeoff and charge-off are equivalent.",
         "operationId": "executeWorkingCapitalLoanTransactionCommandByLoanIdTransactionId",
         "parameters": [
           {
@@ -32680,18 +32716,18 @@
       },
       "ExecuteWorkingCapitalLoanTransactionCommandRequest": {
         "type": "object",
-        "description": "Request for transaction command executed on a transaction named in the path: undo, adjust, discountFee or discountFeeAdjustment. For command=undo use only note and reversalExternalId. For command=adjust dateFormat / locale / transactionDate / transactionAmount / classificationId / externalId / paymentDetails are accepted.",
+        "description": "Request for transaction command executed on a transaction named in the path: undo, adjust, adjustByDelta, discountFee or discountFeeAdjustment. For command=undo use only note and reversalExternalId. For command=adjust and command=adjustByDelta dateFormat / locale / transactionDate / transactionAmount / classificationId / note / reversalExternalId / externalId / paymentDetails are accepted.",
         "properties": {
           "classificationId": {
             "type": "integer",
             "format": "int64",
-            "description": "Optional code value id for transaction classification (command=discountFee, discountFeeAdjustment, adjust)",
+            "description": "Optional code value id for transaction classification (command=discountFee, discountFeeAdjustment, adjust, adjustByDelta)",
             "example": 12
           },
           "dateFormat": { "type": "string", "example": "dd MMMM yyyy" },
           "externalId": {
             "type": "string",
-            "description": "Optional external id for the created transaction. For command=adjust this is the id of the replacement when transactionAmount > 0 (same as term-loan adjust). The reversed transaction keeps its original external id. If omitted and auto-generation is enabled, a new id is generated for the replacement.",
+            "description": "Optional external id for the created transaction. For command=adjust and command=adjustByDelta this is the id of the replacement, when there is one (same as term-loan adjust). The reversed transaction keeps its original external id. If omitted and auto-generation is enabled, a new id is generated for the replacement.",
             "example": "replacement-ext-001"
           },
           "locale": { "type": "string", "example": "en_GB" },
@@ -32701,17 +32737,17 @@
           },
           "reversalExternalId": {
             "type": "string",
-            "description": "Optional external id for the reversal (command=undo)",
+            "description": "Optional external id stamped on the reversed transaction (command=undo, adjust, adjustByDelta)",
             "example": "loan-ext-001"
           },
           "transactionAmount": {
             "type": "number",
-            "description": "Transaction amount (command=discountFee, discountFeeAdjustment); command=adjust zero reverses the existing transaction (same as undo). A positive amount reverses it and creates a replacement",
+            "description": "Transaction amount (command=discountFee, discountFeeAdjustment); command=adjust zero reverses the existing transaction (same as undo). A positive amount reverses it and creates a replacement. command=adjustByDelta: a signed delta on the existing amount (positive increases, negative decreases) - the replacement is existing + transactionAmount; a delta that cancels the existing amount only reverses it, zero is rejected (400) and a decrease beyond the existing amount is refused (403)",
             "example": 100.0
           },
           "transactionDate": {
             "type": "string",
-            "description": "Transaction date (command=discountFeeAdjustment); for command=discountFee it defaults to the date of the related disbursement and, when sent, must be equal to it; command=adjust required when transactionAmount > 0: date of the replacement transaction. Optional when transactionAmount is 0 (undo).",
+            "description": "Transaction date (command=discountFeeAdjustment); for command=discountFee it defaults to the date of the related disbursement and, when sent, must be equal to it; command=adjust required when transactionAmount > 0: date of the replacement transaction. Optional when transactionAmount is 0 (undo). command=adjustByDelta optional: moves the replacement to this date; when omitted the replacement keeps the original's date.",
             "example": "28 June 2024"
           }
         }
@@ -32720,6 +32756,11 @@
         "type": "object",
         "description": "Response for working capital loan transaction command execution",
         "properties": {
+          "changes": {
+            "type": "object",
+            "additionalProperties": { "type": "object", "example": {} },
+            "example": {}
+          },
           "clientId": { "type": "integer", "format": "int64", "example": 2 },
           "loanExternalId": { "type": "string", "example": "loan-ext-001" },
           "loanId": { "type": "integer", "format": "int64", "example": 3 },
@@ -34593,6 +34634,7 @@
         "description": "GetClientsClientIdTransactionsTransactionIdResponse",
         "properties": {
           "amount": { "type": "number", "example": 60.0 },
+          "clientChargeId": { "type": "integer", "format": "int64", "example": 42 },
           "currency": { "$ref": "#/components/schemas/GetClientTransactionsCurrency" },
           "date": { "type": "string", "format": "date" },
           "id": { "type": "integer", "format": "int64", "example": 1 },
@@ -37190,6 +37232,7 @@
           "minNumberOfRepayments": { "type": "integer", "format": "int32", "example": 5 },
           "minPrincipal": { "type": "number", "format": "double", "example": 2000.0 },
           "minimumGap": { "type": "integer", "format": "int32", "example": 0 },
+          "monthEndDueDateStrategy": { "$ref": "#/components/schemas/StringEnumOptionData" },
           "multiDisburseLoan": { "type": "boolean", "example": true },
           "name": { "type": "string", "example": "advanced accounting" },
           "numberOfRepaymentVariationsForBorrowerCycle": {
@@ -37341,6 +37384,7 @@
           "merchantBuyDownFee": { "type": "boolean", "example": false },
           "minNumberOfRepayments": { "type": "integer", "format": "int32", "example": 5 },
           "minPrincipal": { "type": "number", "format": "double", "example": 5000.0 },
+          "monthEndDueDateStrategy": { "$ref": "#/components/schemas/StringEnumOptionData" },
           "name": { "type": "string", "example": "personal loan product" },
           "numberOfRepaymentVariationsForBorrowerCycle": {
             "type": "array",
@@ -37571,6 +37615,11 @@
             "items": { "$ref": "#/components/schemas/EnumOptionData" }
           },
           "merchantBuyDownFee": { "type": "boolean", "example": false },
+          "monthEndDueDateStrategy": { "$ref": "#/components/schemas/StringEnumOptionData" },
+          "monthEndDueDateStrategyOptions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/StringEnumOptionData" }
+          },
           "numberOfRepaymentVariationsForBorrowerCycle": {
             "type": "array",
             "example": [],
@@ -38119,6 +38168,7 @@
           "goodwillCredit": { "type": "boolean", "example": false },
           "id": { "type": "integer", "format": "int64", "example": 1 },
           "initiateTransfer": { "type": "boolean", "example": false },
+          "loanWithdrawal": { "type": "boolean", "example": false },
           "merchantIssuedRefund": { "type": "boolean", "example": false },
           "payoutRefund": { "type": "boolean", "example": false },
           "recoveryRepayment": { "type": "boolean", "example": false },
@@ -38410,6 +38460,7 @@
             "items": { "$ref": "#/components/schemas/GetLoansLoanIdLoanTermVariations" }
           },
           "loanType": { "$ref": "#/components/schemas/GetLoansLoanIdLoanType" },
+          "monthEndDueDateStrategy": { "$ref": "#/components/schemas/StringEnumOptionData" },
           "netDisbursalAmount": { "type": "number", "example": 200.0 },
           "numberOfRepayments": { "type": "integer", "format": "int32", "example": 12 },
           "originators": {
@@ -40404,7 +40455,11 @@
           "id": { "type": "integer", "format": "int64", "example": 1 },
           "name": { "type": "string", "example": "Passbook fee" },
           "penalty": { "type": "boolean", "example": false },
-          "percentage": { "type": "number", "format": "double", "example": 0 }
+          "percentage": { "type": "number", "format": "double", "example": 0 },
+          "transactions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/GetSavingsChargeTransactionResponse" }
+          }
         }
       },
       "GetSavingsAccountsSavingsAccountIdChargesTemplateResponse": {
@@ -40477,6 +40532,20 @@
           "code": { "type": "string", "example": "chargeTimeType.specifiedDueDate" },
           "description": { "type": "string", "example": "Specified due date" },
           "id": { "type": "integer", "format": "int32", "example": 1 }
+        }
+      },
+      "GetSavingsChargeTransactionResponse": {
+        "type": "object",
+        "description": "Recorded transaction allocation for the selected savings account charge",
+        "properties": {
+          "allocationId": { "type": "integer", "format": "int64", "example": 7 },
+          "amount": { "type": "number", "format": "double", "example": 100.0 },
+          "amountAllocated": { "type": "number", "format": "double", "example": 25.0 },
+          "date": { "type": "string", "format": "date" },
+          "paymentDetailData": { "$ref": "#/components/schemas/PaymentDetailData" },
+          "reversed": { "type": "boolean", "example": false },
+          "transactionId": { "type": "integer", "format": "int64", "example": 42 },
+          "transactionType": { "$ref": "#/components/schemas/SavingsAccountTransactionEnumData" }
         }
       },
       "GetSavingsChargesChargeTimeType": {
@@ -41482,6 +41551,22 @@
           "id": { "type": "integer", "format": "int32", "example": 2 }
         }
       },
+      "GetTaxesComponentsDebitAccount": {
+        "type": "object",
+        "properties": {
+          "glCode": { "type": "string", "example": "100001" },
+          "id": { "type": "integer", "format": "int64", "example": 1 },
+          "name": { "type": "string", "example": "Tax Asset Account" }
+        }
+      },
+      "GetTaxesComponentsDebitAccountType": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string", "example": "accountType.asset" },
+          "id": { "type": "integer", "format": "int32", "example": 1 },
+          "value": { "type": "string", "example": "accountType.asset" }
+        }
+      },
       "GetTaxesComponentsHistories": { "type": "object" },
       "GetTaxesComponentsResponse": {
         "type": "object",
@@ -41491,6 +41576,8 @@
           "creditAccountType": {
             "$ref": "#/components/schemas/GetTaxesComponentsCreditAccountType"
           },
+          "debitAccount": { "$ref": "#/components/schemas/GetTaxesComponentsDebitAccount" },
+          "debitAccountType": { "$ref": "#/components/schemas/GetTaxesComponentsDebitAccountType" },
           "id": { "type": "integer", "format": "int64", "example": 1 },
           "name": { "type": "string", "example": "tax component 1" },
           "percentage": { "type": "number", "format": "float", "example": 10.0 },
@@ -42233,6 +42320,7 @@
             "type": "number",
             "description": "Fees moved out of the outstanding balance by a charge waiver"
           },
+          "overdueSinceDate": { "type": "string", "format": "date" },
           "overpayment": { "type": "number" },
           "penalty": { "type": "number" },
           "penaltyOutstanding": { "type": "number" },
@@ -42260,6 +42348,7 @@
           "totalDiscountFeeAdjustment": { "type": "number" },
           "totalExpectedRepayment": { "type": "number" },
           "totalOutstanding": { "type": "number" },
+          "totalPayment": { "type": "number" },
           "totalRepayment": { "type": "number" },
           "unrealizedIncomeFromDiscountFee": { "type": "number" }
         }
@@ -42677,10 +42766,25 @@
       "GlobalConfigurationPropertyData": {
         "type": "object",
         "properties": {
+          "allowedValues": {
+            "type": "array",
+            "description": "The values stringValue is restricted to, in their canonical spelling. Matching ignores case and surrounding whitespace, and an update stores the canonical spelling. Omitted if the configuration is not restricted.",
+            "example": ["eod", "real-time"],
+            "items": {
+              "type": "string",
+              "description": "The values stringValue is restricted to, in their canonical spelling. Matching ignores case and surrounding whitespace, and an update stores the canonical spelling. Omitted if the configuration is not restricted.",
+              "example": "[\"eod\",\"real-time\"]"
+            }
+          },
           "dateValue": { "type": "string", "format": "date" },
           "description": { "type": "string" },
           "enabled": { "type": "boolean" },
           "id": { "type": "integer", "format": "int64" },
+          "multipleValuesAllowed": {
+            "type": "boolean",
+            "description": "Whether stringValue holds a comma-separated list of allowedValues instead of a single one. Omitted if the configuration is not restricted.",
+            "example": false
+          },
           "name": { "type": "string" },
           "stringValue": { "type": "string" },
           "trapDoor": { "type": "boolean" },
@@ -43115,6 +43219,10 @@
           "interestRecalculationEnabled": { "type": "boolean" },
           "interestRecognitionOnDisbursementDate": { "type": "boolean" },
           "loanScheduleProcessingType": { "type": "string", "enum": ["HORIZONTAL", "VERTICAL"] },
+          "monthEndDueDateStrategy": {
+            "type": "string",
+            "enum": ["LAST_DAY_OF_MONTH", "FIRST_DAY_OF_NEXT_MONTH"]
+          },
           "nominalInterestRatePerPeriod": { "type": "number" },
           "numberOfRepayments": { "type": "integer", "format": "int32" },
           "preCloseInterestCalculationStrategy": {
@@ -44741,6 +44849,11 @@
           "minPrincipal": { "type": "number" },
           "minimumDaysBetweenDisbursalAndFirstRepayment": { "type": "integer", "format": "int32" },
           "minimumGap": { "type": "integer", "format": "int32" },
+          "monthEndDueDateStrategy": { "$ref": "#/components/schemas/StringEnumOptionData" },
+          "monthEndDueDateStrategyOptions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/StringEnumOptionData" }
+          },
           "multiDisburseLoan": { "type": "boolean" },
           "name": { "type": "string" },
           "numberOfRepaymentVariationsForBorrowerCycle": {
@@ -45090,6 +45203,10 @@
           "loanScheduleProcessingType": { "type": "string", "enum": ["HORIZONTAL", "VERTICAL"] },
           "loanScheduleType": { "type": "string", "enum": ["CUMULATIVE", "PROGRESSIVE"] },
           "merchantBuyDownFee": { "type": "boolean" },
+          "monthEndDueDateStrategy": {
+            "type": "string",
+            "enum": ["LAST_DAY_OF_MONTH", "FIRST_DAY_OF_NEXT_MONTH"]
+          },
           "nominalInterestRatePerPeriod": { "type": "number" },
           "numberOfRepayments": { "type": "integer", "format": "int32" },
           "principal": { "$ref": "#/components/schemas/Money" },
@@ -45391,6 +45508,7 @@
           "initiateTransfer": { "type": "boolean" },
           "interestPaymentWaiver": { "type": "boolean" },
           "interestRefund": { "type": "boolean" },
+          "loanWithdrawal": { "type": "boolean" },
           "merchantIssuedRefund": { "type": "boolean" },
           "payoutRefund": { "type": "boolean" },
           "reAge": { "type": "boolean" },
@@ -47587,6 +47705,11 @@
             "description": "Minimum percentage of the guarantee the borrower must provide from own funds",
             "example": 20
           },
+          "monthEndDueDateStrategy": {
+            "type": "string",
+            "enum": ["LAST_DAY_OF_MONTH", "FIRST_DAY_OF_NEXT_MONTH"],
+            "example": "LAST_DAY_OF_MONTH"
+          },
           "multiDisburseLoan": { "type": "boolean", "example": true },
           "name": { "type": "string", "example": "LP Accrual Accounting" },
           "numberOfRepaymentVariationsForBorrowerCycle": {
@@ -48351,6 +48474,12 @@
             "type": "number",
             "description": "Maximum allowed outstanding balance"
           },
+          "monthEndDueDateStrategy": {
+            "type": "string",
+            "description": "Overrides the loan product's month end due date strategy for this loan. It has no effect on a loan whose repayments follow a meeting calendar.",
+            "enum": ["LAST_DAY_OF_MONTH", "FIRST_DAY_OF_NEXT_MONTH"],
+            "example": "FIRST_DAY_OF_NEXT_MONTH"
+          },
           "numberOfRepayments": { "type": "integer", "format": "int32", "example": 12 },
           "originators": {
             "type": "array",
@@ -48504,6 +48633,117 @@
             "items": { "$ref": "#/components/schemas/PostPaymentAllocationOrder" }
           },
           "transactionType": { "type": "string", "example": "DEFAULT" }
+        }
+      },
+      "PostPayoffSchedulePreviewInstallment": {
+        "type": "object",
+        "properties": {
+          "dueDate": { "type": "string", "example": "2024-02-01" },
+          "fromDate": { "type": "string", "example": "2024-01-01" },
+          "installmentNumber": { "type": "integer", "format": "int32", "example": 1 },
+          "interestDue": { "type": "number", "example": 0.0 },
+          "outstandingPrincipalBalance": { "type": "number", "example": 83.33 },
+          "principalDue": { "type": "number", "example": 16.67 },
+          "totalDue": { "type": "number", "example": 16.67 }
+        }
+      },
+      "PostPayoffSchedulePreviewRequest": {
+        "type": "object",
+        "description": "PostPayoffSchedulePreviewRequest",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "Amount disbursed on the start date. Must be greater than 0 and have no more decimal places than the schedule (decimalPlaces).",
+            "example": 1000
+          },
+          "annualNominalInterestRate": {
+            "type": "number",
+            "description": "Annual nominal interest rate as a percentage. Defaults to 0.",
+            "example": 7.0
+          },
+          "currencyCode": {
+            "type": "string",
+            "description": "Currency code. Defaults to the organisation currency when the organisation has exactly one; required otherwise.",
+            "example": "USD"
+          },
+          "dateFormat": {
+            "type": "string",
+            "description": "Format of startDate. Required with startDate.",
+            "example": "yyyy-MM-dd"
+          },
+          "daysInMonthType": {
+            "type": "integer",
+            "format": "int32",
+            "description": "1 (actual) or 30. Defaults to actual.",
+            "example": 1
+          },
+          "daysInYearType": {
+            "type": "integer",
+            "format": "int32",
+            "description": "1 (actual), 360, 364 or 365. Defaults to actual.",
+            "example": 1
+          },
+          "decimalPlaces": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Rounding scale, 0 to 6. Defaults to the currency's decimal places.",
+            "example": 2
+          },
+          "fixedPaymentAmount": {
+            "type": "number",
+            "description": "Amount paid each period until the amount is paid off. Must exceed every period's interest and have no more decimal places than the schedule (decimalPlaces). Exactly one of term and fixedPaymentAmount is required.",
+            "example": 200
+          },
+          "frequency": {
+            "type": "string",
+            "description": "Repayment frequency as a single-unit ISO-8601 period (months, weeks or days), e.g. P1M, P2W, P14D.",
+            "example": "P1M"
+          },
+          "interestMethod": {
+            "type": "string",
+            "description": "Only DECLINING_BALANCE is supported. Defaults to DECLINING_BALANCE.",
+            "example": "DECLINING_BALANCE"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale used to parse startDate and any numbers sent as strings. Required with startDate.",
+            "example": "en"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Disbursement and schedule start date, parsed with dateFormat and locale.",
+            "example": "2024-01-01"
+          },
+          "term": {
+            "type": "string",
+            "description": "Loan term as a single-unit ISO-8601 period (months, weeks or days). Must use the unit of frequency and be an exact multiple of it. Exactly one of term and fixedPaymentAmount is required.",
+            "example": "P6M"
+          }
+        }
+      },
+      "PostPayoffSchedulePreviewResponse": {
+        "type": "object",
+        "description": "PostPayoffSchedulePreviewResponse",
+        "properties": {
+          "amount": { "type": "number", "example": 100 },
+          "annualNominalInterestRate": { "type": "number", "example": 0 },
+          "currencyCode": { "type": "string", "example": "USD" },
+          "frequency": { "type": "string", "example": "P1M" },
+          "installments": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PostPayoffSchedulePreviewInstallment" }
+          },
+          "interestMethod": { "type": "string", "example": "DECLINING_BALANCE" },
+          "numberOfInstallments": { "type": "integer", "format": "int32", "example": 6 },
+          "startDate": { "type": "string", "example": "2024-01-01" },
+          "term": {
+            "type": "string",
+            "description": "Omitted in fixed-payment-amount mode.",
+            "example": "P6M"
+          },
+          "totalInterest": { "type": "number", "example": 0.0 },
+          "totalPrincipal": { "type": "number", "example": 100.0 },
+          "totalRepayment": { "type": "number", "example": 100.0 }
         }
       },
       "PostProductsChargesSelected": {
@@ -50996,7 +51236,11 @@
           "dateValue": { "type": "string", "example": "20 September 2011" },
           "enabled": { "type": "boolean", "example": true },
           "locale": { "type": "string", "example": "en" },
-          "stringValue": { "type": "string", "example": "random text" },
+          "stringValue": {
+            "type": "string",
+            "description": "Must be one of the configuration's allowedValues, or a comma-separated list of them if multipleValuesAllowed is true, when the configuration lists allowedValues",
+            "example": "random text"
+          },
           "value": { "type": "integer", "format": "int64", "example": 2 }
         }
       },
@@ -51293,6 +51537,11 @@
             "type": "integer",
             "format": "int32",
             "example": 30
+          },
+          "monthEndDueDateStrategy": {
+            "type": "string",
+            "enum": ["LAST_DAY_OF_MONTH", "FIRST_DAY_OF_NEXT_MONTH"],
+            "example": "LAST_DAY_OF_MONTH"
           },
           "multiDisburseLoan": { "type": "boolean", "example": true },
           "name": { "type": "string", "example": "LP Accrual Accounting" },
@@ -51601,6 +51850,12 @@
           "loanType": { "type": "string", "example": "individual" },
           "locale": { "type": "string", "example": "en" },
           "maxOutstandingLoanBalance": { "type": "integer", "format": "int64", "example": 1 },
+          "monthEndDueDateStrategy": {
+            "type": "string",
+            "description": "Overrides the loan product's month end due date strategy for this loan. It has no effect on a loan whose repayments follow a meeting calendar.",
+            "enum": ["LAST_DAY_OF_MONTH", "FIRST_DAY_OF_NEXT_MONTH"],
+            "example": "FIRST_DAY_OF_NEXT_MONTH"
+          },
           "numberOfRepayments": { "type": "integer", "format": "int32", "example": 10 },
           "principal": { "type": "integer", "format": "int64", "example": 5000 },
           "productId": { "type": "integer", "format": "int64", "example": 1 },
@@ -53033,6 +53288,10 @@
           "restartFrequency": { "type": "integer", "format": "int32" },
           "restartFrequencyEnum": { "type": "integer", "format": "int32" },
           "savingsActivation": { "type": "boolean" },
+          "transactions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SavingsChargeTransactionData" }
+          },
           "withdrawalFee": { "type": "boolean" }
         }
       },
@@ -53438,6 +53697,19 @@
             "items": { "$ref": "#/components/schemas/GetSavingsAccountTransactionsPageItem" }
           },
           "total": { "type": "integer", "format": "int64", "example": 2 }
+        }
+      },
+      "SavingsChargeTransactionData": {
+        "type": "object",
+        "properties": {
+          "allocationId": { "type": "integer", "format": "int64" },
+          "amount": { "type": "number" },
+          "amountAllocated": { "type": "number" },
+          "date": { "type": "string", "format": "date" },
+          "paymentDetailData": { "$ref": "#/components/schemas/PaymentDetailData" },
+          "reversed": { "type": "boolean" },
+          "transactionId": { "type": "integer", "format": "int64" },
+          "transactionType": { "$ref": "#/components/schemas/SavingsAccountTransactionEnumData" }
         }
       },
       "SavingsHelper": { "type": "object" },
@@ -54193,6 +54465,7 @@
           "capitalizedIncomeAmortization",
           "capitalizedIncomeAdjustment",
           "contractTermination",
+          "loanWithdrawal",
           "capitalizedIncomeAmortizationAdjustment",
           "buyDownFeeAmortization",
           "buyDownFeeAmortizationAdjustment"
