@@ -271,6 +271,40 @@ export function formatCronDateTime(moment: CronDateTime): string {
   );
 }
 
+/**
+ * The wall-clock time of `date` in `timeZone`, or in the browser's zone when none is given or
+ * the zone is not one `Intl` knows.
+ */
+export function cronDateTimeIn(date: Date, timeZone?: string | null): CronDateTime {
+  if (!timeZone) return cronDateTimeOf(date);
+  let parts: Intl.DateTimeFormatPart[];
+  try {
+    parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+    }).formatToParts(date);
+  } catch {
+    return cronDateTimeOf(date);
+  }
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((p) => p.type === type)?.value);
+  return {
+    year: part('year'),
+    month: part('month'),
+    day: part('day'),
+    // Some engines print midnight as 24 even with h23.
+    hour: part('hour') % 24,
+    minute: part('minute'),
+    second: part('second'),
+  };
+}
+
 /** The browser's current wall-clock time, as a {@link CronDateTime}. */
 export function cronDateTimeOf(date: Date): CronDateTime {
   return {

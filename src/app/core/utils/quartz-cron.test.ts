@@ -20,6 +20,7 @@
 import {
   type CronDateTime,
   type CronSchedule,
+  cronDateTimeIn,
   formatCronDateTime,
   nextFireTimes,
   parseQuartzCron,
@@ -200,5 +201,25 @@ describe('nextFireTimes', () => {
   it('returns nothing for a schedule that never fires', () => {
     expect(next('0 0 0 30 2 ?')).toEqual([]);
     expect(next('0 0 0 1 1 ? 2020')).toEqual([]);
+  });
+});
+
+describe('cronDateTimeIn', () => {
+  const instant = new Date(Date.UTC(2026, 9, 26, 20, 30, 15));
+
+  it('reads the wall clock in the given zone', () => {
+    expect(cronDateTimeIn(instant, 'Asia/Kolkata')).toEqual({
+      year: 2026,
+      month: 10,
+      day: 27,
+      hour: 2,
+      minute: 0,
+      second: 15,
+    });
+    expect(cronDateTimeIn(instant, 'UTC').hour).toBe(20);
+  });
+
+  it('falls back to the browser zone for an unknown one', () => {
+    expect(cronDateTimeIn(instant, 'Not/AZone')).toEqual(cronDateTimeIn(instant, null));
   });
 });

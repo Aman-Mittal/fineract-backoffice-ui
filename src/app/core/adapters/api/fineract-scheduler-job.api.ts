@@ -58,10 +58,11 @@ export class FineractSchedulerJobApi implements SchedulerJobApi {
   update(id: number, changes: SchedulerJobUpdate): Observable<SchedulerJobUpdateOutcome> {
     return this.jobs
       .putJobsJobId(id, {
-        displayName: changes.displayName,
+        ...changes,
         // Fineract trims before validating; trimming here keeps the stored value clean too.
-        cronExpression: changes.cronExpression.trim(),
-        active: changes.active,
+        ...(changes.cronExpression === undefined
+          ? {}
+          : { cronExpression: changes.cronExpression.trim() }),
       })
       .pipe(map((response) => ({ pendingApproval: isMakerCheckerPending(response) })));
   }

@@ -208,10 +208,52 @@ test.describe('Scheduler Jobs edit', () => {
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page).toHaveURL('/system/scheduler-jobs');
-    expect(sent).toEqual({
+    // Only what changed: the name was left alone, so it is not sent back.
+    expect(sent).toEqual({ cronExpression: '0 30 1 * * ?', active: false });
+  });
+
+  test('stays on the form when Fineract refuses the change', async ({ page }) => {
+    await mockSchedulerJobs(page);
+    const job = {
+      jobId: 1,
       displayName: 'Update Loan Summary',
-      cronExpression: '0 30 1 * * ?',
-      active: false,
+      cronExpression: '0 0 0 1/1 * ? *',
+      active: true,
+      currentlyRunning: false,
+    };
+    await page.route(/\/api\/v1\/jobs\/1(\?|$)/, async (route) => {
+      if (route.request().method() === 'PUT') {
+        await route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            httpStatusCode: '400',
+            defaultUserMessage: 'Validation errors exist.',
+            errors: [
+              {
+                userMessageGlobalisationCode: 'validation.msg.jobs.cronExpression.invalid',
+                defaultUserMessage:
+                  'The parameter `cronExpression` value is not a valid cron expression',
+                parameterName: 'cronExpression',
+              },
+            ],
+          }),
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(job),
+      });
     });
+    await login(page);
+    await page.goto('/system/scheduler-jobs/1/edit');
+
+    await page.getByTestId('scheduler-job-active').uncheck();
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page).toHaveURL('/system/scheduler-jobs/1/edit');
+    await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 });

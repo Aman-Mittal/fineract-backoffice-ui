@@ -82,6 +82,14 @@ describe('FineractSchedulerJobApi', () => {
     expect(outcome).toEqual({ pendingApproval: false });
   });
 
+  it('sends only the fields it is given', async () => {
+    service.putJobsJobId.mockReturnValue(of({ resourceId: 7, changes: { active: false } }));
+
+    await firstValueFrom(api.update(7, { active: false }));
+
+    expect(service.putJobsJobId).toHaveBeenCalledWith(7, { active: false });
+  });
+
   it('reports a change maker-checker queued instead of applying', async () => {
     service.putJobsJobId.mockReturnValue(of({ commandId: 31 }));
 

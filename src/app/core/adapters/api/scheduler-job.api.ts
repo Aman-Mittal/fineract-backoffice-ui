@@ -33,11 +33,17 @@ export interface SchedulerJob {
   readonly currentlyRunning: boolean;
 }
 
-/** What editing a job can change: everything `PUT /jobs/{id}` accepts. */
+/**
+ * What editing a job can change: any of the fields `PUT /jobs/{id}` accepts.
+ *
+ * Partial on purpose. Fineract validates and applies only the parameters present, so sending
+ * just what the administrator changed keeps a concurrent edit to another field from being
+ * overwritten with a stale value.
+ */
 export interface SchedulerJobUpdate {
-  readonly displayName: string;
-  readonly cronExpression: string;
-  readonly active: boolean;
+  readonly displayName?: string;
+  readonly cronExpression?: string;
+  readonly active?: boolean;
 }
 
 /** What came of an update. */

@@ -21,11 +21,21 @@ import { Component, DestroyRef, NgZone, OnInit, computed, inject, signal } from 
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { I18N, SCHEDULER_JOB_API, TranslatePipe } from '../../../core/adapters';
+import { switchMap } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
+import {
+  I18N,
+  SCHEDULER_JOB_API,
+  type SchedulerJob,
+  type SchedulerJobUpdate,
+  TranslatePipe,
+} from '../../../core/adapters';
+import { ConfigService } from '../../../core/services/config.service';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
   type CronProblem,
-  cronDateTimeOf,
+  cronDateTimeIn,
   formatCronDateTime,
   nextFireTimes,
   parseQuartzCron,
@@ -122,7 +132,7 @@ type CronCheck =
                     }}</span>
                     @switch (cronCheck().state) {
                       @case ('valid') {
-                        <span class="hint">{{ 'SCHEDULER_JOBS.NEXT_RUNS' | appTranslate }}</span>
+                        <span class="hint">{{ nextRunsLabel() }}</span>
                         <ul class="next-runs" data-testid="scheduler-job-next-runs">
                           @for (run of nextRuns(); track run) {
                             <li>{{ run }}</li>
@@ -226,33 +236,48 @@ export class SchedulerJobFormComponent implements OnInit {
   private readonly i18n = inject(I18N);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly platformDate = inject(PlatformDateService);
+  private readonly config = inject(ConfigService);
 
   private readonly LIST_PATH = '/system/scheduler-jobs';
 
   private jobId?: number;
-  /** False when no retry can load the job (a malformed id, or a 404); the action leaves instead. */
+  /** False when no retry can load the job (a malformed id, a 403 or a 404); the action leaves. */
   readonly canRetry = signal(true);
 
   readonly displayName = signal('');
   readonly cronExpression = signal('');
   readonly active = signal(false);
   readonly currentlyRunning = signal(false);
+  /** The job as loaded, so a save sends only what the administrator changed. */
+  private readonly loaded = signal<SchedulerJob | null>(null);
 
   readonly isLoading = signal(false);
   readonly loadFailed = signal(false);
   readonly isSaving = signal(false);
 
-  /** The clock the preview counts from, re-read so a form left open does not list past runs. */
-  private readonly now = signal(new Date());
+  /** The platform's clock, re-read so a form left open does not list past runs. */
+  private readonly now = signal(this.platformDate.serverNow());
+
+  /** Quartz fires Fineract's triggers in the tenant's zone, so the preview counts in it too. */
+  private readonly timeZone = computed(() => this.config.config().tenantTimezone ?? null);
+
+  readonly nextRunsLabel = computed(() => {
+    // `translate` reads no signal; reading the language makes a switch rebuild the label.
+    this.i18n.currentLang();
+    const zone = this.timeZone();
+    return zone
+      ? this.i18n.translate('SCHEDULER_JOBS.NEXT_RUNS_IN_ZONE', { zone })
+      : this.i18n.translate('SCHEDULER_JOBS.NEXT_RUNS');
+  });
 
   readonly cronCheck = computed<CronCheck>(() => {
     const expression = this.cronExpression().trim();
     if (!expression) return { state: 'empty' };
     const parsed = parseQuartzCron(expression);
     if (!parsed.ok) return { state: 'invalid', problem: parsed.problem };
-    // Fineract fires in the tenant's time zone, which the screen does not know; the browser's
-    // clock is the nearest "now" it has, so the first run listed can be off by the zone gap.
-    const runs = nextFireTimes(parsed.schedule, cronDateTimeOf(this.now()), PREVIEW_COUNT);
+    const after = cronDateTimeIn(this.now(), this.timeZone());
+    const runs = nextFireTimes(parsed.schedule, after, PREVIEW_COUNT);
     if (runs.length === 0) return { state: 'invalid', problem: { kind: 'neverFires' } };
     return { state: 'valid', nextRuns: runs.map(formatCronDateTime) };
   });
@@ -281,19 +306,39 @@ export class SchedulerJobFormComponent implements OnInit {
     }
   });
 
-  readonly canSave = computed(
-    () =>
+  /** The fields that differ from the loaded job. Empty means there is nothing to save. */
+  readonly changes = computed<SchedulerJobUpdate>(() => {
+    const job = this.loaded();
+    if (!job) return {};
+    const displayName = this.displayName().trim();
+    const cronExpression = this.cronExpression().trim();
+    return {
+      ...(displayName === job.displayName.trim() ? {} : { displayName }),
+      ...(cronExpression === job.cronExpression.trim() ? {} : { cronExpression }),
+      ...(this.active() === job.active ? {} : { active: this.active() }),
+    };
+  });
+
+  /**
+   * A stored expression this parser refuses must not block other edits: unticking Active is how
+   * an administrator stops a job, so the cron is only required to be valid when it was changed.
+   */
+  readonly canSave = computed(() => {
+    const changes = this.changes();
+    return (
       !this.isSaving() &&
       !this.currentlyRunning() &&
-      this.displayName().trim() !== '' &&
-      this.cronCheck().state === 'valid',
-  );
+      Object.keys(changes).length > 0 &&
+      changes.displayName !== '' &&
+      (changes.cronExpression === undefined || this.cronCheck().state === 'valid')
+    );
+  });
 
   constructor() {
     // Outside the zone, so a timer that never ends does not keep the page from going stable;
     // the signal write still schedules change detection.
     const tick = inject(NgZone).runOutsideAngular(() =>
-      setInterval(() => this.now.set(new Date()), PREVIEW_REFRESH_MS),
+      setInterval(() => this.now.set(this.platformDate.serverNow()), PREVIEW_REFRESH_MS),
     );
     inject(DestroyRef).onDestroy(() => clearInterval(tick));
   }
@@ -316,6 +361,7 @@ export class SchedulerJobFormComponent implements OnInit {
     this.loadFailed.set(false);
     this.jobApi.get(this.jobId).subscribe({
       next: (job) => {
+        this.loaded.set(job);
         this.displayName.set(job.displayName);
         this.cronExpression.set(job.cronExpression);
         this.active.set(job.active);
@@ -323,8 +369,9 @@ export class SchedulerJobFormComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (error: unknown) => {
-        // A job that does not exist will not appear on retry.
-        this.canRetry.set(!(error instanceof HttpErrorResponse && error.status === 404));
+        // Neither a missing job nor a refused read changes on retry.
+        const final = error instanceof HttpErrorResponse && [403, 404].includes(error.status);
+        this.canRetry.set(!final);
         this.loadFailed.set(true);
         this.isLoading.set(false);
       },
@@ -334,19 +381,29 @@ export class SchedulerJobFormComponent implements OnInit {
   onSubmit(): void {
     // The button is disabled in these states, but a second Enter can land before it is.
     if (!this.jobId || !this.canSave()) return;
+    const jobId = this.jobId;
+    const changes = this.changes();
     this.isSaving.set(true);
+    // Fineract does not refuse a PUT while the job runs, and rescheduling clears its running
+    // flag, which can let a second run start on top. Checking again just before saving narrows
+    // that window from "since the form opened" to one round trip.
     this.jobApi
-      .update(this.jobId, {
-        displayName: this.displayName().trim(),
-        cronExpression: this.cronExpression().trim(),
-        active: this.active(),
-      })
+      .get(jobId)
+      .pipe(
+        switchMap((latest) => {
+          if (!latest.currentlyRunning) return this.jobApi.update(jobId, changes);
+          this.currentlyRunning.set(true);
+          this.isSaving.set(false);
+          void this.notifications.error(this.i18n.translate('SCHEDULER_JOBS.STARTED_RUNNING'));
+          return EMPTY;
+        }),
+      )
       .subscribe({
         next: (outcome) => {
           void this.notifications.success(
             this.i18n.translate(
               outcome.pendingApproval
-                ? 'COMMON.MUTATION_SUBMITTED_FOR_APPROVAL'
+                ? 'SCHEDULER_JOBS.SUBMITTED_FOR_APPROVAL'
                 : 'SCHEDULER_JOBS.SAVED',
             ),
           );

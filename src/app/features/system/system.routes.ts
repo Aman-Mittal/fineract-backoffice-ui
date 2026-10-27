@@ -440,7 +440,8 @@ export const SYSTEM_ROUTES: Routes = [
   {
     path: 'scheduler-jobs/:id/edit',
     canActivate: [authGuard, permissionGuard],
-    data: { permissions: 'UPDATE_SCHEDULER' },
+    // The form starts with GET /jobs/{id}, which Fineract refuses without READ_SCHEDULER.
+    data: { permissions: ['READ_SCHEDULER', 'UPDATE_SCHEDULER'], permissionsMatchAll: true },
     title: 'SCHEDULER_JOBS.EDIT_JOB',
     loadComponent: () =>
       import('./scheduler-jobs/scheduler-job-form.component').then(

@@ -2572,7 +2572,7 @@
     "DISPLAY_NAME": "Nom affiché",
     "CRON_EXPRESSION": "Expression cron",
     "CRON_HINT": "Format Quartz : seconde minute heure jour-du-mois mois jour-de-la-semaine [année]",
-    "NEXT_RUNS": "Prochaines exécutions",
+    "NEXT_RUNS": "Prochaines exécutions (heure de ce navigateur)",
     "CRON_FIELD_COUNT": "Saisissez 6 ou 7 champs séparés par des espaces : seconde, minute, heure, jour du mois, mois, jour de la semaine et une année facultative.",
     "CRON_DAY_CONFLICT": "Utilisez ? dans un seul des champs jour du mois et jour de la semaine.",
     "CRON_NEVER_FIRES": "Cette planification ne s'exécute jamais.",
@@ -2585,9 +2585,12 @@
     "CRON_FIELD_DAY_OF_WEEK": "jour de la semaine",
     "CRON_FIELD_YEAR": "année",
     "CURRENTLY_RUNNING": "Cette tâche est en cours d'exécution. Elle pourra être modifiée une fois l'exécution terminée.",
-    "SCHEDULE_WARNING": "Modifier la planification ou désactiver la tâche change le moment où elle s'exécute pour tous les comptes qu'elle traite.",
+    "SCHEDULE_WARNING": "Modifier la planification ou désactiver la tâche change le moment où elle s'exécute pour tous les comptes qu'elle traite. Enregistrer pendant une exécution peut en lancer une seconde ; le formulaire vérifie donc à nouveau juste avant l'enregistrement.",
     "LOAD_FAILED": "Impossible de charger cette tâche.",
-    "SAVED": "Tâche mise à jour."
+    "SAVED": "Tâche mise à jour.",
+    "NEXT_RUNS_IN_ZONE": "Prochaines exécutions (heure du locataire, {{zone}})",
+    "STARTED_RUNNING": "Cette tâche a démarré, rien n'a donc été enregistré. Rechargez la page une fois l'exécution terminée pour la modifier.",
+    "SUBMITTED_FOR_APPROVAL": "Soumis pour approbation. Fineract n'applique une modification de planification approuvée qu'après son redémarrage."
   },
   "PERMISSIONS": {
     "TITLE": "Autorisations de double validation",

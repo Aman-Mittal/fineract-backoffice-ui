@@ -113,10 +113,11 @@ describe('SchedulerJobFormComponent', () => {
   it('says so when maker-checker queues the change', async () => {
     await create();
     jobApi.update.mockReturnValue(of({ pendingApproval: true }));
+    component.active.set(false);
 
     component.onSubmit();
 
-    expect(notifications.success).toHaveBeenCalledWith('COMMON.MUTATION_SUBMITTED_FOR_APPROVAL');
+    expect(notifications.success).toHaveBeenCalledWith('SCHEDULER_JOBS.SUBMITTED_FOR_APPROVAL');
   });
 
   it.each([
@@ -190,5 +191,63 @@ describe('SchedulerJobFormComponent', () => {
       .click();
     expect(router.navigate).toHaveBeenCalledWith(['/system/scheduler-jobs']);
     expect(jobApi.get).toHaveBeenCalledTimes(1);
+  });
+
+  it('lets a job whose stored cron it refuses be deactivated, sending only that change', async () => {
+    await create({ ...JOB, cronExpression: '0 0 0 1 1 ? 2020' });
+    expect(component.cronCheck().state).toBe('invalid');
+    expect(component.canSave()).toBe(false);
+
+    component.active.set(false);
+    expect(component.canSave()).toBe(true);
+    component.onSubmit();
+
+    expect(jobApi.update).toHaveBeenCalledWith(7, { active: false });
+  });
+
+  it('has nothing to save until something changes', async () => {
+    await create();
+
+    expect(component.changes()).toEqual({});
+    expect(component.canSave()).toBe(false);
+  });
+
+  it('refuses to save when the job started running after the form opened', async () => {
+    await create();
+    component.active.set(false);
+    jobApi.get.mockReturnValue(of({ ...JOB, currentlyRunning: true }));
+
+    component.onSubmit();
+
+    expect(jobApi.update).not.toHaveBeenCalled();
+    expect(notifications.error).toHaveBeenCalledWith('SCHEDULER_JOBS.STARTED_RUNNING');
+    expect(component.currentlyRunning()).toBe(true);
+    expect(component.isSaving()).toBe(false);
+  });
+
+  it('stays on the form with Save available again when the platform refuses the change', async () => {
+    await create();
+    component.active.set(false);
+    jobApi.update.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400 })));
+
+    component.onSubmit();
+
+    expect(component.isSaving()).toBe(false);
+    expect(component.canSave()).toBe(true);
+    expect(notifications.success).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('offers a way back, not a retry, when the read is refused', async () => {
+    await create(new HttpErrorResponse({ status: 403 }));
+
+    expect(component.canRetry()).toBe(false);
+  });
+
+  it('labels the preview with the tenant time zone', async () => {
+    await create();
+    fixture.detectChanges();
+
+    expect(component.nextRunsLabel()).toContain('SCHEDULER_JOBS.NEXT_RUNS_IN_ZONE');
   });
 });

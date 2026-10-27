@@ -2572,7 +2572,7 @@
     "DISPLAY_NAME": "Display Name",
     "CRON_EXPRESSION": "Cron Expression",
     "CRON_HINT": "Quartz format: second minute hour day-of-month month day-of-week [year]",
-    "NEXT_RUNS": "Next runs",
+    "NEXT_RUNS": "Next runs (this browser's time)",
     "CRON_FIELD_COUNT": "Enter 6 or 7 fields separated by spaces: second, minute, hour, day-of-month, month, day-of-week and an optional year.",
     "CRON_DAY_CONFLICT": "Use ? in exactly one of day-of-month and day-of-week.",
     "CRON_NEVER_FIRES": "This schedule never runs.",
@@ -2585,9 +2585,12 @@
     "CRON_FIELD_DAY_OF_WEEK": "day-of-week",
     "CRON_FIELD_YEAR": "year",
     "CURRENTLY_RUNNING": "This job is running now. It can be edited once the run finishes.",
-    "SCHEDULE_WARNING": "Changing the schedule or deactivating the job changes when it runs for every account it processes.",
+    "SCHEDULE_WARNING": "Changing the schedule or deactivating the job changes when it runs for every account it processes. Saving while the job runs can let a second run start, so the form checks again just before saving.",
     "LOAD_FAILED": "This job could not be loaded.",
-    "SAVED": "Job updated."
+    "SAVED": "Job updated.",
+    "NEXT_RUNS_IN_ZONE": "Next runs (tenant time, {{zone}})",
+    "STARTED_RUNNING": "This job started running, so nothing was saved. Reload the page once the run finishes to edit it.",
+    "SUBMITTED_FOR_APPROVAL": "Submitted for approval. Fineract applies an approved schedule change only after it restarts."
   },
   "PERMISSIONS": {
     "TITLE": "Maker-Checker Permissions",
