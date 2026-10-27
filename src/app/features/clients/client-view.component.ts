@@ -59,6 +59,7 @@ import {
   ClientSavingsAccountResult,
 } from './client-savings-account-dialog.component';
 import { CLIENT_STATUS, ClientServicingFields } from './client-servicing.model';
+import { ClientProfileFields } from './client-profile.model';
 import {
   formatDateToFineract,
   FINERACT_DATE_FORMAT,
@@ -556,6 +557,12 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                       <span class="value">{{ client()?.lastname || '-' }}</span>
                     </div>
                     <div class="detail-item">
+                      <span class="label">{{ 'CLIENTS.DATE_OF_BIRTH' | appTranslate }}</span>
+                      <span class="value" data-testid="client-date-of-birth">{{
+                        profile().dateOfBirth | appIsoDate
+                      }}</span>
+                    </div>
+                    <div class="detail-item">
                       <span class="label">{{ 'COMMON.EXTERNAL_ID' | appTranslate }}</span>
                       <span class="value">{{ client()?.externalId || '-' }}</span>
                     </div>
@@ -577,6 +584,12 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                     <div class="detail-item">
                       <span class="label">{{ 'COMMON.EMAIL' | appTranslate }}</span>
                       <span class="value">{{ client()?.emailAddress || '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="label">{{ 'CLIENTS.MOBILE_NO' | appTranslate }}</span>
+                      <span class="value" data-testid="client-mobile-number">{{
+                        profile().mobileNo || '—'
+                      }}</span>
                     </div>
                     <div class="detail-item">
                       <span class="label">{{ 'COMMON.ACTIVATION_DATE' | appTranslate }}</span>
@@ -1182,6 +1195,10 @@ export class ClientViewComponent implements OnInit, OnDestroy {
 
   readonly clientId = signal(0);
   readonly client = signal<GetClientsClientIdResponse | null>(null);
+  /** Read-only identification fields omitted by the generated response model. */
+  readonly profile = computed<ClientProfileFields>(
+    () => (this.client() as unknown as ClientProfileFields | null) ?? {},
+  );
   /**
    * `'not-found'` covers both a missing client and one the caller lacks permission to see —
    * Fineract's 404 and 403 read the same to the user, and distinguishing them here would leak

@@ -175,6 +175,46 @@ describe('ClientViewComponent', () => {
     expect(valueFor('CLIENTS.TIMELINE_SUBMITTED')).toBe(new Date(2026, 4, 1).toLocaleDateString());
   });
 
+  describe('saved contact and identification fields', () => {
+    function showProfile(fields: {
+      mobileNo?: string | null;
+      dateOfBirth?: string | readonly number[] | null;
+    }) {
+      const response = { id: 123, displayName: 'Synthetic Client', ...fields };
+      component.client.set(response);
+      fixture.detectChanges();
+    }
+    const value = (id: string) =>
+      Array.from(fixture.nativeElement.querySelectorAll('[data-testid]') as NodeListOf<Element>)
+        .find((element) => element.getAttribute('data-testid') === id)
+        ?.textContent?.trim();
+
+    it('shows the saved phone and array DOB without opening the editor', () => {
+      showProfile({ mobileNo: '+1 202 555 0147', dateOfBirth: [1990, 5, 15] });
+      expect(value('client-mobile-number')).toBe('+1 202 555 0147');
+      expect(value('client-date-of-birth')).toBe(new Date(1990, 4, 15).toLocaleDateString());
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+    });
+    it('preserves an ISO calendar day in the displayed birthday', () => {
+      showProfile({ mobileNo: '+1 202 555 0147', dateOfBirth: '1990-05-15' });
+      expect(value('client-date-of-birth')).toBe(new Date(1990, 4, 15).toLocaleDateString());
+    });
+    it.each([{}, { mobileNo: null, dateOfBirth: null }, { mobileNo: '', dateOfBirth: [] }])(
+      'shows placeholders for missing optional contact fields: %j',
+      (fields) => {
+        showProfile(fields);
+        expect(value('client-mobile-number')).toBe('—');
+        expect(value('client-date-of-birth')).toBe('—');
+      },
+    );
+    it('does not retain the previous record phone or DOB after replacement', () => {
+      showProfile({ mobileNo: '+1 202 555 0147', dateOfBirth: [1990, 5, 15] });
+      showProfile({});
+      expect(value('client-mobile-number')).toBe('—');
+      expect(value('client-date-of-birth')).toBe('—');
+    });
+  });
+
   describe('failed load', () => {
     /**
      * A fresh instance, not the shared `fixture`/`component` from the outer `beforeEach` — that
