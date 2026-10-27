@@ -90,7 +90,7 @@ test.describe('Scheduler job edit against Fineract', () => {
     await expect(
       page
         .getByRole('row', {
-          name: new RegExp(original.displayName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+          name: original.displayName,
         })
         .first(),
     ).toContainText('2099');
@@ -105,7 +105,7 @@ test.describe('Scheduler job edit against Fineract', () => {
     expect(res.status()).toBe(400);
     const body = (await res.json()) as { errors?: { userMessageGlobalisationCode?: string }[] };
     expect(body.errors?.map((error) => error.userMessageGlobalisationCode)).toContain(
-      'validation.msg.jobs.cronExpression.invalid',
+      'validation.msg.schedulerjob.cronExpression.invalid',
     );
   });
 });

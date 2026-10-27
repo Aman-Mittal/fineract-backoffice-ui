@@ -231,7 +231,7 @@ test.describe('Scheduler Jobs edit', () => {
             defaultUserMessage: 'Validation errors exist.',
             errors: [
               {
-                userMessageGlobalisationCode: 'validation.msg.jobs.cronExpression.invalid',
+                userMessageGlobalisationCode: 'validation.msg.schedulerjob.cronExpression.invalid',
                 defaultUserMessage:
                   'The parameter `cronExpression` value is not a valid cron expression',
                 parameterName: 'cronExpression',
