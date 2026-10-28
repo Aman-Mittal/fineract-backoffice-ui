@@ -48,6 +48,7 @@ import {
 } from '../../../core/utils/date-formatter';
 import { ButtonComponent } from '../../../ui/button/button.component';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
+import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
 
 @Component({
   selector: 'app-client-family-member-form',
@@ -250,7 +251,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                     }}</ion-label>
                     @if (pickersReady()) {
                       <ion-datetime-button datetime="family-dob-picker">
-                        @if (!isEditMode && !createDateOfBirth()) {
+                        @if (!pickerDateOfBirth()) {
                           <span slot="date-target">{{
                             'CLIENTS.DATE_OF_BIRTH_NOT_SET' | appTranslate
                           }}</span>
@@ -263,12 +264,12 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
                           id="family-dob-picker"
                           data-testid="family-dob-picker"
                           presentation="date"
-                          [value]="isEditMode ? undefined : createDateOfBirth()"
+                          [value]="pickerDateOfBirth()"
                           (ionChange)="onDobChange($event)"
                         ></ion-datetime>
                       </ng-template>
                     </ion-modal>
-                    @if (!isEditMode && createDateOfBirth()) {
+                    @if (!isEditMode && pickerDateOfBirth()) {
                       <app-button
                         type="button"
                         intent="neutral"
@@ -358,19 +359,17 @@ export class ClientFamilyMemberFormComponent implements OnInit {
   readonly professionOptions = signal<CodeValueData[]>([]);
 
   dateOfBirth?: Date;
-  readonly createDateOfBirth = signal<string | null>(null);
+  readonly pickerDateOfBirth = signal<string | null>(null);
 
   clearCreateDateOfBirth(): void {
     this.dateOfBirth = undefined;
-    this.createDateOfBirth.set(null);
+    this.pickerDateOfBirth.set(null);
   }
 
   onDobChange(event: CustomEvent): void {
     if (event.detail.value) {
       this.dateOfBirth = new Date(event.detail.value as string);
-      if (!this.isEditMode) {
-        this.createDateOfBirth.set(event.detail.value as string);
-      }
+      this.pickerDateOfBirth.set(event.detail.value as string);
     }
   }
 
@@ -426,6 +425,9 @@ export class ClientFamilyMemberFormComponent implements OnInit {
           age: data.age,
           isDependent: data.isDependent,
         });
+        const loadedDate = toIsoFineractDate(data.dateOfBirth);
+        // Keep the local timestamp form expected by the existing Date-based change handler.
+        this.pickerDateOfBirth.set(loadedDate ? `${loadedDate}T00:00:00` : null);
         if (data.dateOfBirth) {
           const dob = data.dateOfBirth as unknown as number[];
           this.dateOfBirth = new Date(dob[0], dob[1] - 1, dob[2]);
