@@ -441,6 +441,35 @@ describe('ClientViewComponent', () => {
 
       expect(shareAccountServiceSpy.getAccountsType).toHaveBeenCalledTimes(1);
     });
+
+    describe('with no share accounts', () => {
+      beforeEach(() => {
+        shareAccountServiceSpy.getAccountsType.mockReturnValue(of({ pageItems: [] }) as any);
+      });
+
+      it('offers a contextual action to create a share account', () => {
+        component.onTabChange(CLIENT_TAB.shares);
+        fixture.detectChanges();
+
+        fixture.nativeElement.querySelector('[data-testid="client-create-share-account"]').click();
+
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/products/shares/create'], {
+          queryParams: { clientId: 123 },
+        });
+      });
+
+      it('disables the action without CREATE_SHAREACCOUNT', () => {
+        authServiceSpy.hasPermission.mockReturnValue(false);
+        component.onTabChange(CLIENT_TAB.shares);
+        fixture.detectChanges();
+
+        const button = fixture.nativeElement.querySelector(
+          '[data-testid="client-create-share-account"]',
+        );
+        expect(button.disabled).toBe(true);
+        expect(authServiceSpy.hasPermission).toHaveBeenCalledWith('CREATE_SHAREACCOUNT', false);
+      });
+    });
   });
 
   describe('client screens reachable from the page', () => {

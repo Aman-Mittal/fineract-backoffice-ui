@@ -258,6 +258,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                   'UNASSIGNSTAFF_CLIENT',
                   'UPDATESAVINGSACCOUNT_CLIENT',
                   'READ_CLIENTCHARGE',
+                  'ALL_FUNCTIONS_READ',
                 ]"
               >
                 <ion-icon name="settings-outline"></ion-icon>
@@ -456,6 +457,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                       button
                       (click)="onViewCollateral()"
                       data-testid="client-collateral-action"
+                      appRequiresPermission="ALL_FUNCTIONS_READ"
                     >
                       <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
                       <ion-label>{{ 'CLIENT_COLLATERAL.TITLE' | appTranslate }}</ion-label>
@@ -503,7 +505,7 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                     <ion-item
                       button
                       (click)="onCreateShare()"
-                      data-testid="client-create-share-account"
+                      data-testid="client-new-share-account-action"
                       appRequiresPermission="CREATE_SHAREACCOUNT"
                     >
                       <ion-icon slot="start" name="pie-chart-outline"></ion-icon>
@@ -1004,9 +1006,19 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
           @if (activeTab() === TAB.shares) {
             <div class="tab-content">
               @if (shareAccounts().length === 0) {
-                <p class="empty-state" data-testid="client-share-accounts-empty">
-                  {{ 'CLIENTS.NO_SHARE_ACCOUNTS' | appTranslate }}
-                </p>
+                <div class="empty-state" data-testid="client-share-accounts-empty">
+                  <ion-icon name="pie-chart-outline"></ion-icon>
+                  <p>{{ 'CLIENTS.NO_SHARE_ACCOUNTS' | appTranslate }}</p>
+                  <ion-button
+                    color="primary"
+                    data-testid="client-create-share-account"
+                    (click)="onCreateShare()"
+                    appRequiresPermission="CREATE_SHAREACCOUNT"
+                  >
+                    <ion-icon slot="start" name="add-outline"></ion-icon>
+                    {{ 'SHARE_ACCOUNTS.CREATE' | appTranslate }}
+                  </ion-button>
+                </div>
               } @else {
                 <table class="accounts-table" data-testid="client-share-accounts">
                   <tbody>
