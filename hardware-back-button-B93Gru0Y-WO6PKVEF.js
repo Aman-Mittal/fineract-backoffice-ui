@@ -1,0 +1,2 @@
+if (typeof globalThis.ngServerMode === 'undefined') globalThis.ngServerMode = typeof window === 'undefined';
+import{a,b,c,d,e}from"@nf-internal/chunk-D5UISRSB";import"@nf-internal/chunk-DTQAE2VL";import"@nf-internal/chunk-KZE7F3YI";import"@nf-internal/chunk-GMSR7DWL";export{e as MENU_BACK_BUTTON_PRIORITY,d as OVERLAY_BACK_BUTTON_PRIORITY,b as blockHardwareBackButton,a as shouldUseCloseWatcher,c as startHardwareBackButton};
