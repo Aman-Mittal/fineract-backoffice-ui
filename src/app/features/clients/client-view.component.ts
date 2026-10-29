@@ -257,6 +257,8 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                   'ASSIGNSTAFF_CLIENT',
                   'UNASSIGNSTAFF_CLIENT',
                   'UPDATESAVINGSACCOUNT_CLIENT',
+                  'READ_CLIENTCHARGE',
+                  'ALL_FUNCTIONS_READ',
                 ]"
               >
                 <ion-icon name="settings-outline"></ion-icon>
@@ -442,6 +444,24 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                         <ion-label>{{ 'ACTIONS.UNDO_WITHDRAW_CLIENT' | appTranslate }}</ion-label>
                       </ion-item>
                     }
+                    <ion-item
+                      button
+                      (click)="onViewCharges()"
+                      data-testid="client-charges-action"
+                      appRequiresPermission="READ_CLIENTCHARGE"
+                    >
+                      <ion-icon slot="start" name="receipt-outline"></ion-icon>
+                      <ion-label>{{ 'CLIENT_CHARGES.TITLE' | appTranslate }}</ion-label>
+                    </ion-item>
+                    <ion-item
+                      button
+                      (click)="onViewCollateral()"
+                      data-testid="client-collateral-action"
+                      appRequiresPermission="ALL_FUNCTIONS_READ"
+                    >
+                      <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+                      <ion-label>{{ 'CLIENT_COLLATERAL.TITLE' | appTranslate }}</ion-label>
+                    </ion-item>
                   </ion-list>
                 </ng-template>
               </ion-popover>
@@ -481,6 +501,15 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
                     >
                       <ion-icon slot="start" name="refresh-circle-outline"></ion-icon>
                       <ion-label>{{ 'ACTIONS.RECURRING_DEPOSIT' | appTranslate }}</ion-label>
+                    </ion-item>
+                    <ion-item
+                      button
+                      (click)="onCreateShare()"
+                      data-testid="client-new-share-account-action"
+                      appRequiresPermission="CREATE_SHAREACCOUNT"
+                    >
+                      <ion-icon slot="start" name="pie-chart-outline"></ion-icon>
+                      <ion-label>{{ 'ACTIONS.SHARE_ACCOUNT' | appTranslate }}</ion-label>
                     </ion-item>
                   </ion-list>
                 </ng-template>
@@ -977,9 +1006,19 @@ export type ClientTab = (typeof CLIENT_TAB)[keyof typeof CLIENT_TAB];
           @if (activeTab() === TAB.shares) {
             <div class="tab-content">
               @if (shareAccounts().length === 0) {
-                <p class="empty-state" data-testid="client-share-accounts-empty">
-                  {{ 'CLIENTS.NO_SHARE_ACCOUNTS' | appTranslate }}
-                </p>
+                <div class="empty-state" data-testid="client-share-accounts-empty">
+                  <ion-icon name="pie-chart-outline"></ion-icon>
+                  <p>{{ 'CLIENTS.NO_SHARE_ACCOUNTS' | appTranslate }}</p>
+                  <ion-button
+                    color="primary"
+                    data-testid="client-create-share-account"
+                    (click)="onCreateShare()"
+                    appRequiresPermission="CREATE_SHAREACCOUNT"
+                  >
+                    <ion-icon slot="start" name="add-outline"></ion-icon>
+                    {{ 'SHARE_ACCOUNTS.CREATE' | appTranslate }}
+                  </ion-button>
+                </div>
               } @else {
                 <table class="accounts-table" data-testid="client-share-accounts">
                   <tbody>
@@ -1629,6 +1668,20 @@ export class ClientViewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/products/recurring-deposits/create'], {
       queryParams: { clientId: this.clientId() },
     });
+  }
+
+  onCreateShare() {
+    this.router.navigate(['/products/shares/create'], {
+      queryParams: { clientId: this.clientId() },
+    });
+  }
+
+  onViewCharges() {
+    this.router.navigate(['/clients', this.clientId(), 'charges']);
+  }
+
+  onViewCollateral() {
+    this.router.navigate(['/clients', this.clientId(), 'collaterals']);
   }
 
   onSavingsTransaction(accountId: number, command: string) {
