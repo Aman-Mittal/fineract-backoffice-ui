@@ -26,7 +26,7 @@ import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
 import { ClientFamilyMemberFormComponent } from './client-family-member-form.component';
 
-describe('Family member optional create DOB', () => {
+describe('Family member optional DOB', () => {
   let fixture: ComponentFixture<ClientFamilyMemberFormComponent>;
   let component: ClientFamilyMemberFormComponent;
   let http: HttpTestingController;
@@ -132,6 +132,77 @@ describe('Family member optional create DOB', () => {
       fixture.nativeElement.querySelector('[data-testid="clear-family-date-of-birth"]'),
     ).toBeNull();
     expect(fixture.nativeElement.querySelector('[slot="date-target"]')).toBeNull();
+    component.onSubmit();
+    const request = http.expectOne(
+      (request) => request.method === 'PUT' && request.url.endsWith('/clients/7/familymembers/8'),
+    );
+    expect(request.request.body.dateOfBirth).toBe('05 January 1990');
+    request.flush({ resourceId: 8 });
+  });
+  async function loadEditMember(dateOfBirth?: number[] | null) {
+    component.isEditMode = true;
+    component.memberId = 8;
+    component.loadMemberData();
+    http
+      .expectOne(
+        (request) => request.method === 'GET' && request.url.endsWith('/clients/7/familymembers/8'),
+      )
+      .flush({
+        firstName: 'Synthetic',
+        lastName: 'Member',
+        dateOfBirth,
+      });
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  it('binds the stored calendar day to the edit picker', async () => {
+    await loadEditMember([1980, 4, 30]);
+    expect(fixture.nativeElement.querySelector('#family-dob-picker').value).toBe(
+      '1980-04-30T00:00:00',
+    );
+    expect(fixture.nativeElement.querySelector('[slot="date-target"]')).toBeNull();
+  });
+
+  for (const absent of [undefined, null]) {
+    it(`shows Not set for an edit with ${absent} DOB without fabricating a PUT date`, async () => {
+      await loadEditMember(absent);
+      const button = fixture.nativeElement.querySelector(
+        'ion-datetime-button[datetime="family-dob-picker"]',
+      );
+      expect(button.querySelector('[slot="date-target"]')?.textContent ?? '').toContain(
+        'CLIENTS.DATE_OF_BIRTH_NOT_SET',
+      );
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="clear-family-date-of-birth"]'),
+      ).toBeNull();
+      component.onSubmit();
+      const request = http.expectOne(
+        (request) => request.method === 'PUT' && request.url.endsWith('/clients/7/familymembers/8'),
+      );
+      expect(JSON.parse(request.request.serializeBody() as string)).not.toHaveProperty(
+        'dateOfBirth',
+      );
+      request.flush({ resourceId: 8 });
+    });
+  }
+
+  it('retains the existing saved-DOB payload on an unchanged edit', async () => {
+    await loadEditMember([1980, 4, 30]);
+    component.onSubmit();
+    const request = http.expectOne(
+      (request) => request.method === 'PUT' && request.url.endsWith('/clients/7/familymembers/8'),
+    );
+    expect(request.request.body.dateOfBirth).toBe('30 April 1980');
+    request.flush({ resourceId: 8 });
+  });
+
+  it('updates the edit picker and existing payload after an explicit replacement', async () => {
+    await loadEditMember([1980, 4, 30]);
+    await chooseDate();
+    expect(fixture.nativeElement.querySelector('#family-dob-picker').value).toBe(
+      '1990-01-05T00:00:00',
+    );
     component.onSubmit();
     const request = http.expectOne(
       (request) => request.method === 'PUT' && request.url.endsWith('/clients/7/familymembers/8'),
