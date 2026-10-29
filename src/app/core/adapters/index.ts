@@ -49,6 +49,7 @@ export * from './api/holiday.api';
 export * from './api/teller.api';
 export * from './api/role.api';
 export * from './api/user.api';
+export * from './api/scheduler-job.api';
 
 // The default implementations each token resolves to. Exported so a deployment swapping one
 // can name what it is replacing, and so a TestBed can ask for the real thing explicitly.
@@ -69,3 +70,4 @@ export { FineractHolidayApi } from './api/fineract-holiday.api';
 export { FineractTellerApi } from './api/fineract-teller.api';
 export { FineractRoleApi } from './api/fineract-role.api';
 export { FineractUserApi } from './api/fineract-user.api';
+export { FineractSchedulerJobApi } from './api/fineract-scheduler-job.api';
