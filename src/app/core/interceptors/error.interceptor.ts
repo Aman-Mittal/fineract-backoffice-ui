@@ -110,6 +110,8 @@ const SENSITIVE_PARAMETER_FRAGMENTS: readonly string[] = [
   'token',
   'credential',
   'otp',
+  // The SMS gateway's `tenant_app_key` (issue #790).
+  'app_key',
 ];
 
 /** Whether this error entry names a parameter whose value must not be echoed. */

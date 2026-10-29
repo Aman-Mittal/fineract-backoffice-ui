@@ -2537,7 +2537,14 @@
   },
   "EXTERNAL_SERVICES": {
     "TITLE": "External Services",
-    "SERVICE": "Service"
+    "SERVICE": "Service",
+    "SMS_HELP": "The message gateway that SMS campaigns and SMS notifications are sent through.",
+    "SECRET_SET": "Set. Leave blank to keep it.",
+    "SECRET_NOT_SET": "Not set",
+    "NO_ACCESS": "You don't have access to external service settings.",
+    "LOAD_FAILED": "The settings for this service couldn't be loaded.",
+    "SAVED": "Settings saved.",
+    "NO_CHANGES": "Nothing has changed."
   },
   "PASSWORD_PREFERENCES": {
     "TITLE": "Password Preferences"

@@ -204,6 +204,27 @@ describe('errorInterceptor', () => {
     expect(message).toContain('[repeatPassword]');
   });
 
+  it('never echoes a rejected SMS gateway app key back', () => {
+    httpClient.put(testUrl, {}).subscribe({ error: () => undefined });
+
+    httpTestingController.expectOne(testUrl).flush(
+      {
+        errors: [
+          {
+            parameterName: 'tenant_app_key',
+            defaultUserMessage: 'The parameter `tenant_app_key` is invalid.',
+            args: [{ value: 'gateway-secret-key' }],
+          },
+        ],
+      },
+      { status: 400, statusText: 'Bad Request' },
+    );
+
+    const message = notificationsSpy.error.mock.calls[0][0] as string;
+    expect(message).not.toContain('gateway-secret-key');
+    expect(message).toContain('[tenant_app_key]');
+  });
+
   it('still echoes a non-sensitive parameter, which is what the args are for', () => {
     const mockRefusal = {
       errors: [
