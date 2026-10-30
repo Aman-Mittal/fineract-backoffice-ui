@@ -2537,7 +2537,14 @@
   },
   "EXTERNAL_SERVICES": {
     "TITLE": "Services externes",
-    "SERVICE": "Service"
+    "SERVICE": "Service",
+    "SMS_HELP": "La passerelle de messages par laquelle passent les campagnes SMS et les notifications SMS.",
+    "SECRET_SET": "Défini. Laissez vide pour le conserver.",
+    "SECRET_NOT_SET": "Non défini",
+    "NO_ACCESS": "Vous n'avez pas accès aux paramètres des services externes.",
+    "LOAD_FAILED": "Impossible de charger les paramètres de ce service.",
+    "SAVED": "Paramètres enregistrés.",
+    "NO_CHANGES": "Aucune modification."
   },
   "PASSWORD_PREFERENCES": {
     "TITLE": "Préférences de mot de passe"
