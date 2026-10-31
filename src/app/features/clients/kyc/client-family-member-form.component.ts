@@ -98,10 +98,10 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
               <ion-row>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">
-                      {{ 'CLIENTS.FIRST_NAME' | appTranslate }}
-                      <span class="required-marker" aria-hidden="true">*</span>
-                    </ion-label>
+                    <ion-label position="stacked"
+                      >{{ 'CLIENTS.FIRST_NAME' | appTranslate
+                      }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                    >
                     <ion-input
                       [attr.aria-label]="'CLIENTS.FIRST_NAME' | appTranslate"
                       type="text"
@@ -147,10 +147,10 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">
-                      {{ 'CLIENTS.LAST_NAME' | appTranslate }}
-                      <span class="required-marker" aria-hidden="true">*</span>
-                    </ion-label>
+                    <ion-label position="stacked"
+                      >{{ 'CLIENTS.LAST_NAME' | appTranslate
+                      }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                    >
                     <ion-input
                       [attr.aria-label]="'CLIENTS.LAST_NAME' | appTranslate"
                       type="text"
@@ -181,10 +181,10 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">
-                      {{ 'CLIENTS.RELATIONSHIP' | appTranslate }}
-                      <span class="required-marker" aria-hidden="true">*</span>
-                    </ion-label>
+                    <ion-label position="stacked"
+                      >{{ 'CLIENTS.RELATIONSHIP' | appTranslate
+                      }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                    >
                     <ion-select
                       [attr.aria-label]="'CLIENTS.RELATIONSHIP' | appTranslate"
                       interface="popover"
