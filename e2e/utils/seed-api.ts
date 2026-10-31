@@ -136,6 +136,45 @@ export async function ensureReferenceData(api: APIRequestContext): Promise<void>
   }
 }
 
+export interface SeededCodeValue {
+  id: number;
+  name: string;
+}
+
+/**
+ * A value on a reference code, created only if the code has none.
+ *
+ * Several screens are unusable on a stock Fineract rather than broken: the platform ships the
+ * `RELATIONSHIP` code with no values, so the family member form's Relationship list is empty and
+ * the field it requires can never be filled. Seeding one value is the difference between a spec
+ * that tests the form and a spec that reports the tenant's reference data.
+ *
+ * Reuses an existing value when there is one, so a reused volume does not accumulate them.
+ */
+export async function ensureCodeValue(
+  api: APIRequestContext,
+  codeName: string,
+  valueName: string,
+): Promise<SeededCodeValue> {
+  const codes = await get<{ id: number; name: string }[]>(api, '/codes');
+  const code = codes.find((candidate) => candidate.name === codeName);
+  if (!code) {
+    throw new Error(`no reference code named ${codeName}; the platform defines it on migration`);
+  }
+
+  const existing = await get<SeededCodeValue[]>(api, `/codes/${code.id}/codevalues`);
+  if (existing.length > 0) {
+    return existing[0];
+  }
+
+  const created = await post<{ subResourceId: number }>(api, `/codes/${code.id}/codevalues`, {
+    name: valueName,
+    position: 1,
+    isActive: true,
+  });
+  return { id: created.subResourceId, name: valueName };
+}
+
 async function put<T>(api: APIRequestContext, path: string, body: unknown): Promise<T> {
   const res = await api.put(`${API_BASE}${path}`, { data: body });
   if (!res.ok()) {

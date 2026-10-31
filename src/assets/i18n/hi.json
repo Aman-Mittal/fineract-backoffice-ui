@@ -1326,6 +1326,8 @@
     "EDIT_ADDRESS": "पता संपादित करें",
     "EDIT_DOCUMENT": "दस्तावेज़ संपादित करें",
     "EDIT_FAMILY_MEMBER": "परिवार का सदस्य संपादित करें",
+    "FAMILY_MEMBER_ADDED": "परिवार का सदस्य जोड़ा गया।",
+    "FAMILY_MEMBER_UPDATED": "परिवार का सदस्य अद्यतन किया गया।",
     "EDIT_IDENTIFIER": "पहचान पत्र संपादित करें",
     "EDIT_NOTE": "टिप्पणी संपादित करें",
     "ACTIONS": {

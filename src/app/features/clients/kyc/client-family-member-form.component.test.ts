@@ -24,6 +24,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { provideFakeAdapters } from '../../../testing/adapters';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
 import { provideIonicTesting } from '../../../testing/ionic-testing';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { ClientFamilyMemberFormComponent } from './client-family-member-form.component';
 
 describe('Family member optional DOB', () => {
@@ -139,7 +140,7 @@ describe('Family member optional DOB', () => {
     expect(request.request.body.dateOfBirth).toBe('05 January 1990');
     request.flush({ resourceId: 8 });
   });
-  async function loadEditMember(dateOfBirth?: number[] | null) {
+  async function loadEditMember(dateOfBirth?: number[] | string | null) {
     component.isEditMode = true;
     component.memberId = 8;
     component.loadMemberData();
@@ -187,15 +188,24 @@ describe('Family member optional DOB', () => {
     });
   }
 
-  it('retains the existing saved-DOB payload on an unchanged edit', async () => {
-    await loadEditMember([1980, 4, 30]);
-    component.onSubmit();
-    const request = http.expectOne(
-      (request) => request.method === 'PUT' && request.url.endsWith('/clients/7/familymembers/8'),
-    );
-    expect(request.request.body.dateOfBirth).toBe('30 April 1980');
-    request.flush({ resourceId: 8 });
-  });
+  // Both shapes, because the OpenAPI document and the platform disagree about which one this
+  // endpoint sends (#653) and the form has to read whichever arrives. Measured against a real
+  // Fineract: it answers the string. Indexing that as [year, month, day] read its characters,
+  // resolved to 2 December 1901, and an unchanged edit saved that over the real birth date.
+  for (const dateOfBirth of [[1980, 4, 30], '1980-04-30'] as (number[] | string)[]) {
+    it(`retains the saved DOB on an unchanged edit, given ${JSON.stringify(dateOfBirth)}`, async () => {
+      await loadEditMember(dateOfBirth);
+      expect(fixture.nativeElement.querySelector('#family-dob-picker').value).toBe(
+        '1980-04-30T00:00:00',
+      );
+      component.onSubmit();
+      const request = http.expectOne(
+        (request) => request.method === 'PUT' && request.url.endsWith('/clients/7/familymembers/8'),
+      );
+      expect(request.request.body.dateOfBirth).toBe('30 April 1980');
+      request.flush({ resourceId: 8 });
+    });
+  }
 
   it('updates the edit picker and existing payload after an explicit replacement', async () => {
     await loadEditMember([1980, 4, 30]);
@@ -209,5 +219,155 @@ describe('Family member optional DOB', () => {
     );
     expect(request.request.body.dateOfBirth).toBe('05 January 1990');
     request.flush({ resourceId: 8 });
+  });
+});
+
+/**
+ * The add form's own guidance: which fields the platform insists on, which birth dates it will
+ * accept, and what the operator is told once the save lands.
+ */
+describe('Family member form guidance', () => {
+  let fixture: ComponentFixture<ClientFamilyMemberFormComponent>;
+  let component: ClientFamilyMemberFormComponent;
+  let http: HttpTestingController;
+  let fakes: ReturnType<typeof provideFakeAdapters>;
+  let navigate: ReturnType<typeof vi.fn>;
+
+  /** @param businessDate - the day the tenant is on, or `null` for a tenant without one. */
+  async function setup(businessDate: string | null = null): Promise<void> {
+    fakes = provideFakeAdapters();
+    fakes.businessDate.businessDate = businessDate;
+    navigate = vi.fn();
+    await TestBed.configureTestingModule({
+      imports: [ClientFamilyMemberFormComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        ...fakes.providers,
+        ...provideTranslateTesting(),
+        provideIonicTesting(),
+        { provide: Router, useValue: { navigate } },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: { get: (key: string) => (key === 'clientId' ? '7' : null) } },
+          },
+        },
+      ],
+    }).compileComponents();
+    http = TestBed.inject(HttpTestingController);
+    fixture = TestBed.createComponent(ClientFamilyMemberFormComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    http
+      .expectOne((request) => request.url.endsWith('/clients/7/familymembers/template'))
+      .flush({
+        relationshipIdOptions: [{ id: 1, name: 'Sibling' }],
+      });
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  afterEach(() => http.verify());
+
+  const query = (selector: string) => fixture.nativeElement.querySelector(selector);
+
+  /** Fills what the platform insists on: first name, last name and a relationship. */
+  async function completeRequiredFields(): Promise<void> {
+    const member = component.member();
+    member.firstName = 'Asha';
+    member.lastName = 'Kumar';
+    member.relationshipId = 1;
+    component.member.set({ ...member });
+    // Twice: `ngModel` writes the model into its control on a microtask, so the first pass
+    // renders the new values and the second recomputes the form's validity from them.
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  it('marks the fields the platform insists on and names an empty one', async () => {
+    await setup();
+
+    expect(fixture.nativeElement.querySelectorAll('.required-marker').length).toBe(3);
+    expect(query('[data-testid="family-first-name-error"]')).toBeNull();
+
+    query('#family-first-name-input').dispatchEvent(new CustomEvent('ionBlur'));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(query('[data-testid="family-first-name-error"]')).not.toBeNull();
+    expect(query('[data-testid="family-first-name-error"]').getAttribute('role')).toBe('alert');
+  });
+
+  it('says why Save is out of reach, and stops saying it once the form is valid', async () => {
+    await setup();
+
+    expect(query('[data-testid="family-submit-hint"]')).not.toBeNull();
+    expect(query('#family-submit-btn').disabled).toBe(true);
+
+    await completeRequiredFields();
+
+    expect(query('[data-testid="family-submit-hint"]')).toBeNull();
+    expect(query('#family-submit-btn').disabled).toBe(false);
+  });
+
+  it("bounds the birth date at the tenant's day, not the browser's", async () => {
+    // Fineract refuses a dateOfBirth later than its own business date, so an unbounded picker
+    // offers days the platform will reject. A date far from any plausible run of this suite,
+    // so a component that read `new Date()` instead could not pass by coincidence.
+    await setup('2020-06-15');
+
+    expect(component.maxDateOfBirth()).toBe('2020-06-15');
+    // A property binding, not an attribute: `ion-datetime` declares `max`.
+    expect(query('#family-dob-picker').max).toBe('2020-06-15');
+  });
+
+  it('falls back to the platform clock when no business date governs', async () => {
+    await setup(null);
+
+    expect(component.maxDateOfBirth()).toBe(TestBed.inject(PlatformDateService).today());
+  });
+
+  it('confirms a created member and returns to the client, not to the member', async () => {
+    await setup();
+    await completeRequiredFields();
+
+    component.onSubmit();
+    expect(component.isSaving()).toBe(true);
+    http
+      .expectOne(
+        (request) => request.method === 'POST' && request.url.endsWith('/clients/7/familymembers'),
+      )
+      // The id Fineract answers with is the family member's, which is why the route cannot be
+      // built from it: /clients/view/44 is somebody else's client.
+      .flush({ clientId: 7, resourceId: 44 });
+    await fixture.whenStable();
+
+    expect(component.isSaving()).toBe(false);
+    expect(fakes.overlay.lastToast?.message).toContain('FAMILY_MEMBER_ADDED');
+    expect(navigate).toHaveBeenCalledWith(['/clients/view', 7]);
+  });
+
+  it('keeps the operator on the form when the platform refuses the save', async () => {
+    await setup();
+    await completeRequiredFields();
+
+    component.onSubmit();
+    http
+      .expectOne(
+        (request) => request.method === 'POST' && request.url.endsWith('/clients/7/familymembers'),
+      )
+      .flush(
+        { errors: [{ defaultUserMessage: 'no' }] },
+        { status: 400, statusText: 'Bad Request' },
+      );
+    await fixture.whenStable();
+
+    // Reported by the error interceptor, not from here; what matters at this level is that the
+    // form is usable again rather than stuck behind a disabled Save.
+    expect(component.isSaving()).toBe(false);
+    expect(navigate).not.toHaveBeenCalled();
   });
 });

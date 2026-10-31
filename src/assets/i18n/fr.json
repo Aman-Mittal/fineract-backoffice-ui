@@ -962,6 +962,8 @@
     "EDIT_ADDRESS": "Modifier l'adresse",
     "EDIT_DOCUMENT": "Modifier le document",
     "EDIT_FAMILY_MEMBER": "Modifier le membre de la famille",
+    "FAMILY_MEMBER_ADDED": "Membre de la famille ajouté.",
+    "FAMILY_MEMBER_UPDATED": "Membre de la famille mis à jour.",
     "EDIT_IDENTIFIER": "Modifier la pièce d'identité",
     "EDIT_NOTE": "Modifier la note",
     "ACTIONS": {

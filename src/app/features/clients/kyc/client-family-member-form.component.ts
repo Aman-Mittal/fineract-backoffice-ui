@@ -20,7 +20,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../core/adapters';
+import { I18N, TranslatePipe } from '../../../core/adapters';
 import {
   IonCard,
   IonCardHeader,
@@ -39,6 +39,7 @@ import {
   IonDatetime,
   IonDatetimeButton,
   IonModal,
+  IonNote,
 } from '@ionic/angular/standalone';
 import { ClientFamilyMemberService, ClientFamilyMemberRequest, CodeValueData } from '../../../api';
 import {
@@ -47,8 +48,28 @@ import {
   FINERACT_LOCALE,
 } from '../../../core/utils/date-formatter';
 import { ButtonComponent } from '../../../ui/button/button.component';
+import { MutationOutcomeService } from '../../../core/services/mutation-outcome.service';
+import { PlatformDateService } from '../../../core/services/platform-date.service';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
 import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
+
+/**
+ * A calendar day as a local `Date`, from the ISO date Fineract's payloads reduce to.
+ *
+ * Measured against a real Fineract: `GET /clients/{id}/familymembers/{memberId}` answers
+ * `"dateOfBirth": "2026-10-31"`, a string, where this form previously indexed the value as
+ * `[year, month, day]`. Indexing the string read its characters instead — `'2'`, `'0'`, `'2'` —
+ * and `new Date('2', -1, '2')` resolves to 2 December 1901, which an unchanged edit then saved
+ * over the member's real birth date. Narrowed through `toIsoFineractDate` first, so either
+ * shape the platform might send arrives here as one.
+ *
+ * Local midnight, matching the timestamp handed to the picker, so the day the operator sees and
+ * the day that is saved are the same one in every zone.
+ */
+function fromIsoDate(isoDate: string): Date {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
 
 @Component({
   selector: 'app-client-family-member-form',
@@ -74,6 +95,7 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
     IonDatetime,
     IonDatetimeButton,
     IonModal,
+    IonNote,
   ],
   template: `
     <div class="form-container">
@@ -94,19 +116,37 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
               <ion-row>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{
-                      'CLIENTS.FIRST_NAME' | appTranslate
-                    }}</ion-label>
+                    <ion-label position="stacked"
+                      >{{ 'CLIENTS.FIRST_NAME' | appTranslate
+                      }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                    >
                     <ion-input
                       [attr.aria-label]="'CLIENTS.FIRST_NAME' | appTranslate"
                       type="text"
                       name="firstName"
+                      #firstName="ngModel"
                       [(ngModel)]="member().firstName"
                       required
+                      (ionBlur)="firstName.control.markAsTouched()"
+                      [attr.aria-invalid]="firstName.invalid && firstName.touched"
+                      [attr.aria-describedby]="
+                        firstName.invalid && firstName.touched ? 'family-first-name-error' : null
+                      "
                       id="family-first-name-input"
                       data-testid="family-first-name-input"
                     ></ion-input>
                   </ion-item>
+                  @if (firstName.invalid && firstName.touched) {
+                    <ion-note
+                      color="danger"
+                      class="field-error"
+                      id="family-first-name-error"
+                      role="alert"
+                      data-testid="family-first-name-error"
+                    >
+                      {{ 'COMMON.REQUIRED' | appTranslate }}
+                    </ion-note>
+                  }
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
@@ -125,31 +165,58 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{
-                      'CLIENTS.LAST_NAME' | appTranslate
-                    }}</ion-label>
+                    <ion-label position="stacked"
+                      >{{ 'CLIENTS.LAST_NAME' | appTranslate
+                      }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                    >
                     <ion-input
                       [attr.aria-label]="'CLIENTS.LAST_NAME' | appTranslate"
                       type="text"
                       name="lastName"
+                      #lastName="ngModel"
                       [(ngModel)]="member().lastName"
                       required
+                      (ionBlur)="lastName.control.markAsTouched()"
+                      [attr.aria-invalid]="lastName.invalid && lastName.touched"
+                      [attr.aria-describedby]="
+                        lastName.invalid && lastName.touched ? 'family-last-name-error' : null
+                      "
                       id="family-last-name-input"
                       data-testid="family-last-name-input"
                     ></ion-input>
                   </ion-item>
+                  @if (lastName.invalid && lastName.touched) {
+                    <ion-note
+                      color="danger"
+                      class="field-error"
+                      id="family-last-name-error"
+                      role="alert"
+                      data-testid="family-last-name-error"
+                    >
+                      {{ 'COMMON.REQUIRED' | appTranslate }}
+                    </ion-note>
+                  }
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
-                    <ion-label position="stacked">{{
-                      'CLIENTS.RELATIONSHIP' | appTranslate
-                    }}</ion-label>
+                    <ion-label position="stacked"
+                      >{{ 'CLIENTS.RELATIONSHIP' | appTranslate
+                      }}<span class="required-marker" aria-hidden="true">*</span></ion-label
+                    >
                     <ion-select
                       [attr.aria-label]="'CLIENTS.RELATIONSHIP' | appTranslate"
                       interface="popover"
                       name="relationshipId"
+                      #relationshipId="ngModel"
                       [(ngModel)]="member().relationshipId"
                       required
+                      (ionBlur)="relationshipId.control.markAsTouched()"
+                      [attr.aria-invalid]="relationshipId.invalid && relationshipId.touched"
+                      [attr.aria-describedby]="
+                        relationshipId.invalid && relationshipId.touched
+                          ? 'family-relationship-error'
+                          : null
+                      "
                       id="family-relationship-select"
                       data-testid="family-relationship-select"
                     >
@@ -158,6 +225,17 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
                       }
                     </ion-select>
                   </ion-item>
+                  @if (relationshipId.invalid && relationshipId.touched) {
+                    <ion-note
+                      color="danger"
+                      class="field-error"
+                      id="family-relationship-error"
+                      role="alert"
+                      data-testid="family-relationship-error"
+                    >
+                      {{ 'COMMON.REQUIRED' | appTranslate }}
+                    </ion-note>
+                  }
                 </ion-col>
                 <ion-col size="12" size-md="6">
                   <ion-item fill="outline">
@@ -265,6 +343,7 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
                           data-testid="family-dob-picker"
                           presentation="date"
                           [value]="pickerDateOfBirth()"
+                          [max]="maxDateOfBirth()"
                           (ionChange)="onDobChange($event)"
                         ></ion-datetime>
                       </ng-template>
@@ -313,6 +392,16 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
             </ion-grid>
 
             <div class="form-actions">
+              @if (!familyForm.form.valid) {
+                <ion-note
+                  color="medium"
+                  class="submit-hint"
+                  data-testid="family-submit-hint"
+                  aria-live="polite"
+                >
+                  {{ 'COMMON.COMPLETE_REQUIRED_FIELDS' | appTranslate }}
+                </ion-note>
+              }
               <ion-button
                 fill="clear"
                 color="medium"
@@ -326,7 +415,7 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
               <ion-button
                 color="primary"
                 type="submit"
-                [disabled]="!familyForm.form.valid"
+                [disabled]="!familyForm.form.valid || isSaving()"
                 id="family-submit-btn"
                 data-testid="family-submit-btn"
               >
@@ -338,6 +427,26 @@ import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
       </ion-card>
     </div>
   `,
+  styles: [
+    `
+      .required-marker {
+        color: var(--ion-color-danger, #eb445a);
+        margin-inline-start: 2px;
+      }
+      .field-error {
+        display: block;
+        padding-inline-start: 4px;
+        margin-top: -4px;
+        font-size: 0.8125rem;
+      }
+      .submit-hint {
+        display: block;
+        align-self: center;
+        text-align: end;
+        font-size: 0.8125rem;
+      }
+    `,
+  ],
 })
 export class ClientFamilyMemberFormComponent implements OnInit {
   /** See `createPickersReady` — the date buttons must not outrun their pickers. */
@@ -346,6 +455,9 @@ export class ClientFamilyMemberFormComponent implements OnInit {
   private readonly familyService = inject(ClientFamilyMemberService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly platformDate = inject(PlatformDateService);
+  private readonly mutationOutcome = inject(MutationOutcomeService);
+  private readonly i18n = inject(I18N);
 
   private readonly clientViewPath = '/clients/view';
 
@@ -360,6 +472,8 @@ export class ClientFamilyMemberFormComponent implements OnInit {
 
   dateOfBirth?: Date;
   readonly pickerDateOfBirth = signal<string | null>(null);
+  readonly maxDateOfBirth = signal<string | undefined>(undefined);
+  readonly isSaving = signal(false);
 
   clearCreateDateOfBirth(): void {
     this.dateOfBirth = undefined;
@@ -392,11 +506,28 @@ export class ClientFamilyMemberFormComponent implements OnInit {
     this.memberId = Number(this.route.snapshot.paramMap.get('id'));
 
     this.loadTemplate();
+    this.boundDateOfBirth();
 
     if (this.memberId) {
       this.isEditMode = true;
       this.loadMemberData();
     }
+  }
+
+  /**
+   * Bounds the picker at the platform's today, which is the day Fineract measures a birth date
+   * against: `validateForCreate` refuses a `dateOfBirth` later than
+   * `DateUtils.getBusinessLocalDate()` — the business date where that feature governs, and the
+   * tenant's own today where it does not. Unbounded, the picker offered every day of the
+   * current month and beyond, so a birth date in the future was one click away and the only
+   * thing that said no was the platform.
+   *
+   * Through `PlatformDateService.resolveToday()` rather than the browser's clock, because for a
+   * tenant east of the operator those are different days for part of every day (#758), and the
+   * browser's is the one opinion the platform does not share.
+   */
+  private boundDateOfBirth(): void {
+    this.platformDate.resolveToday().subscribe((today) => this.maxDateOfBirth.set(today));
   }
 
   loadTemplate(): void {
@@ -428,10 +559,7 @@ export class ClientFamilyMemberFormComponent implements OnInit {
         const loadedDate = toIsoFineractDate(data.dateOfBirth);
         // Keep the local timestamp form expected by the existing Date-based change handler.
         this.pickerDateOfBirth.set(loadedDate ? `${loadedDate}T00:00:00` : null);
-        if (data.dateOfBirth) {
-          const dob = data.dateOfBirth as unknown as number[];
-          this.dateOfBirth = new Date(dob[0], dob[1] - 1, dob[2]);
-        }
+        this.dateOfBirth = loadedDate ? fromIsoDate(loadedDate) : undefined;
       });
   }
 
@@ -443,19 +571,36 @@ export class ClientFamilyMemberFormComponent implements OnInit {
       locale: FINERACT_LOCALE,
     };
 
-    if (this.isEditMode) {
-      this.familyService
-        .putClientsClientIdFamilymembersFamilyMemberId(this.memberId!, this.clientId, payload)
-        .subscribe({
-          next: () => this.router.navigate([this.clientViewPath, this.clientId]),
-          error: (err) => console.error('Failed to update family member', err),
+    this.isSaving.set(true);
+
+    const saved = this.isEditMode
+      ? this.familyService.putClientsClientIdFamilymembersFamilyMemberId(
+          this.memberId!,
+          this.clientId,
+          payload,
+        )
+      : this.familyService.postClientsClientIdFamilymembers(this.clientId, payload);
+
+    saved.subscribe({
+      next: (response) => {
+        this.isSaving.set(false);
+        this.mutationOutcome.complete({
+          response,
+          successMessage: this.i18n.translate(
+            this.isEditMode ? 'CLIENTS.FAMILY_MEMBER_UPDATED' : 'CLIENTS.FAMILY_MEMBER_ADDED',
+          ),
+          // A family member has no page of its own, so the record the operator was working on
+          // is the client it belongs to. Passed explicitly: the `resourceId` these two commands
+          // return is the member's, and routing to `/clients/view/<memberId>` would open
+          // somebody else's client.
+          recordId: this.clientId,
+          recordRoute: () => [this.clientViewPath, this.clientId],
         });
-    } else {
-      this.familyService.postClientsClientIdFamilymembers(this.clientId, payload).subscribe({
-        next: () => this.router.navigate([this.clientViewPath, this.clientId]),
-        error: (err) => console.error('Failed to add family member', err),
-      });
-    }
+      },
+      // Reported by `errorInterceptor`, which turns the platform's refusal into a toast that
+      // names the field. A `console.error` here would only add a line the operator cannot see.
+      error: () => this.isSaving.set(false),
+    });
   }
 
   onCancel(): void {
