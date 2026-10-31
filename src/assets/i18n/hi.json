@@ -246,6 +246,7 @@
     "RENDER_TIME": "रेंडर समय",
     "REQUIRED": "यह फ़ील्ड आवश्यक है",
     "COMPLETE_REQUIRED_FIELDS": "जारी रखने के लिए आवश्यक फ़ील्ड भरें",
+    "COMPLETE_FIELDS": "पूरा करें: {{fields}}",
     "RESET": "रीसेट करें",
     "RESULTS_FOUND": "{{count}} परिणाम मिले",
     "RETRY": "पुनः प्रयास करें",

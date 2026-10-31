@@ -261,6 +261,7 @@
     "RENDER_TIME": "Render Time",
     "REQUIRED": "This field is required",
     "COMPLETE_REQUIRED_FIELDS": "Complete the required fields to continue",
+    "COMPLETE_FIELDS": "Complete: {{fields}}",
     "RESET": "Reset",
     "RESULTS_FOUND": "{{count}} result(s) found",
     "RETRY": "Try again",
