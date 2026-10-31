@@ -87,7 +87,7 @@ describe('WcLoansListComponent', () => {
   });
 
   it('does nothing on an empty reference', () => {
-    component.onOpenByExternalId('   ');
+    component.onOpenByExternalId(' '.repeat(3));
 
     expect(routerSpy.navigate).not.toHaveBeenCalled();
   });

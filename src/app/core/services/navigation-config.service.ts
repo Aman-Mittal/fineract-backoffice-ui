@@ -431,6 +431,14 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
         developerTool: true,
       },
       {
+        id: 'working-capital.loan-test-tools',
+        route: '/working-capital/loans/test-tools',
+        labelKey: 'WC_LOAN_TEST_TOOLS.TITLE',
+        icon: ICON_OPTIONS_OUTLINE,
+        requiredPermissions: 'READ_WORKINGCAPITALLOAN',
+        developerTool: true,
+      },
+      {
         id: 'working-capital.cob-catchup',
         route: '/working-capital/loans/cob-catchup',
         requiredPermissions: 'EXECUTEJOB_SCHEDULER',

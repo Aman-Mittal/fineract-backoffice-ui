@@ -43,6 +43,7 @@ export * from './api/loan-transaction.api';
 export * from './api/business-date.api';
 export * from './api/deposit-account.api';
 export * from './api/working-capital-loan.api';
+export * from './api/working-capital-loan-test-tools.api';
 export * from './api/deposit-product.api';
 export * from './api/staff.api';
 export * from './api/holiday-rescheduling-type';

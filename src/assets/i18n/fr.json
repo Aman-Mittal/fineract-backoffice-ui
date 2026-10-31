@@ -1951,6 +1951,15 @@
     "OTHER": "Autre",
     "VIEW_ALL_LOANS": "Voir tous les prêts de fonds de roulement"
   },
+  "WC_LOAN_TEST_TOOLS": {
+    "TITLE": "Outils de test des prêts FDR",
+    "TEST_ONLY": "Ces commandes utilisent les points de terminaison internes de Fineract, servis uniquement lorsque le backend exécute son profil de test. Sur tout autre déploiement, ils répondent 404.",
+    "LOAN_ID": "Identifiant du prêt",
+    "ACTIVATE": "Activer le prêt",
+    "REGENERATE_SCHEDULE": "Régénérer le tableau d'amortissement",
+    "NEXT_DELINQUENCY_PERIOD": "Générer la période d'impayé suivante",
+    "ACCEPTED": "La plateforme a accepté la commande."
+  },
   "WC_LOANS": {
     "CREATE": "Créer un prêt de fonds de roulement",
     "ACCOUNT_NO": "N° de compte",

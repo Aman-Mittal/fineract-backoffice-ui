@@ -1951,6 +1951,15 @@
     "OTHER": "Other",
     "VIEW_ALL_LOANS": "View all working-capital loans"
   },
+  "WC_LOAN_TEST_TOOLS": {
+    "TITLE": "WC Loan Test Tools",
+    "TEST_ONLY": "These commands use Fineract's internal endpoints, which are served only when the backend runs its test profile. On any other deployment they answer 404.",
+    "LOAN_ID": "Loan ID",
+    "ACTIVATE": "Activate loan",
+    "REGENERATE_SCHEDULE": "Regenerate amortization schedule",
+    "NEXT_DELINQUENCY_PERIOD": "Generate next delinquency period",
+    "ACCEPTED": "The platform accepted the command."
+  },
   "WC_LOANS": {
     "CREATE": "Create Working Capital Loan",
     "ACCOUNT_NO": "Account No.",

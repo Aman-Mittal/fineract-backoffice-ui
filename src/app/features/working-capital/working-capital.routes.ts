@@ -204,6 +204,19 @@ export const WORKING_CAPITAL_ROUTES: Routes = [
       ),
   },
   {
+    // `/v1/internal/**` tooling: served only under Fineract's test profile, so the route is
+    // matched only where a deployment opts in.
+    path: 'loans/test-tools',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_WORKINGCAPITALLOAN' },
+    canMatch: [developerToolsGuard],
+    title: 'WC_LOAN_TEST_TOOLS.TITLE',
+    loadComponent: () =>
+      import('./loans/wc-loan-test-tools/wc-loan-test-tools.component').then(
+        (m) => m.WcLoanTestToolsComponent,
+      ),
+  },
+  {
     path: 'loans/cob-catchup',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'EXECUTEJOB_SCHEDULER' },
