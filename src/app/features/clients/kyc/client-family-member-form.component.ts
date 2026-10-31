@@ -53,6 +53,24 @@ import { PlatformDateService } from '../../../core/services/platform-date.servic
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
 import { toIsoFineractDate } from '../../../core/adapters/api/fineract-date';
 
+/**
+ * A calendar day as a local `Date`, from the ISO date Fineract's payloads reduce to.
+ *
+ * Measured against a real Fineract: `GET /clients/{id}/familymembers/{memberId}` answers
+ * `"dateOfBirth": "2026-10-31"`, a string, where this form previously indexed the value as
+ * `[year, month, day]`. Indexing the string read its characters instead — `'2'`, `'0'`, `'2'` —
+ * and `new Date('2', -1, '2')` resolves to 2 December 1901, which an unchanged edit then saved
+ * over the member's real birth date. Narrowed through `toIsoFineractDate` first, so either
+ * shape the platform might send arrives here as one.
+ *
+ * Local midnight, matching the timestamp handed to the picker, so the day the operator sees and
+ * the day that is saved are the same one in every zone.
+ */
+function fromIsoDate(isoDate: string): Date {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
 @Component({
   selector: 'app-client-family-member-form',
   standalone: true,
@@ -541,10 +559,7 @@ export class ClientFamilyMemberFormComponent implements OnInit {
         const loadedDate = toIsoFineractDate(data.dateOfBirth);
         // Keep the local timestamp form expected by the existing Date-based change handler.
         this.pickerDateOfBirth.set(loadedDate ? `${loadedDate}T00:00:00` : null);
-        if (data.dateOfBirth) {
-          const dob = data.dateOfBirth as unknown as number[];
-          this.dateOfBirth = new Date(dob[0], dob[1] - 1, dob[2]);
-        }
+        this.dateOfBirth = loadedDate ? fromIsoDate(loadedDate) : undefined;
       });
   }
 

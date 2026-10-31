@@ -140,7 +140,7 @@ describe('Family member optional DOB', () => {
     expect(request.request.body.dateOfBirth).toBe('05 January 1990');
     request.flush({ resourceId: 8 });
   });
-  async function loadEditMember(dateOfBirth?: number[] | null) {
+  async function loadEditMember(dateOfBirth?: number[] | string | null) {
     component.isEditMode = true;
     component.memberId = 8;
     component.loadMemberData();
@@ -188,15 +188,24 @@ describe('Family member optional DOB', () => {
     });
   }
 
-  it('retains the existing saved-DOB payload on an unchanged edit', async () => {
-    await loadEditMember([1980, 4, 30]);
-    component.onSubmit();
-    const request = http.expectOne(
-      (request) => request.method === 'PUT' && request.url.endsWith('/clients/7/familymembers/8'),
-    );
-    expect(request.request.body.dateOfBirth).toBe('30 April 1980');
-    request.flush({ resourceId: 8 });
-  });
+  // Both shapes, because the OpenAPI document and the platform disagree about which one this
+  // endpoint sends (#653) and the form has to read whichever arrives. Measured against a real
+  // Fineract: it answers the string. Indexing that as [year, month, day] read its characters,
+  // resolved to 2 December 1901, and an unchanged edit saved that over the real birth date.
+  for (const dateOfBirth of [[1980, 4, 30], '1980-04-30'] as (number[] | string)[]) {
+    it(`retains the saved DOB on an unchanged edit, given ${JSON.stringify(dateOfBirth)}`, async () => {
+      await loadEditMember(dateOfBirth);
+      expect(fixture.nativeElement.querySelector('#family-dob-picker').value).toBe(
+        '1980-04-30T00:00:00',
+      );
+      component.onSubmit();
+      const request = http.expectOne(
+        (request) => request.method === 'PUT' && request.url.endsWith('/clients/7/familymembers/8'),
+      );
+      expect(request.request.body.dateOfBirth).toBe('30 April 1980');
+      request.flush({ resourceId: 8 });
+    });
+  }
 
   it('updates the edit picker and existing payload after an explicit replacement', async () => {
     await loadEditMember([1980, 4, 30]);
