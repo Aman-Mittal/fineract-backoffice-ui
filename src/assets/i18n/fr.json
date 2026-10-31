@@ -1954,6 +1954,9 @@
   "WC_LOANS": {
     "CREATE": "Créer un prêt de fonds de roulement",
     "ACCOUNT_NO": "N° de compte",
+    "OPEN_BY_EXTERNAL_ID": "Ouvrir par identifiant externe",
+    "EXTERNAL_ID_NOT_FOUND": "Aucun prêt de fonds de roulement ne porte la référence {{externalId}}",
+    "LOOKUP_FAILED": "Impossible de rechercher cette référence",
     "CLIENT": "Client",
     "CLIENT_ID": "ID client",
     "PRODUCT": "Produit",

@@ -18,15 +18,13 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { map } from 'rxjs/operators';
-import type { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { of, type Observable } from 'rxjs';
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { WorkingCapitalLoansService } from '../../../api';
 import type { GetWorkingCapitalLoansLoanIdResponse } from '../../../api';
-import type {
-  WorkingCapitalLoanSnapshot,
-  WorkingCapitalPortfolioApi,
-} from './working-capital-portfolio.api';
+import type { WorkingCapitalLoanSnapshot, WorkingCapitalLoanApi } from './working-capital-loan.api';
 
 /**
  * Maps one generated working-capital loan onto the portfolio snapshot.
@@ -72,8 +70,22 @@ function required<T>(value: T | undefined, field: string): T {
 }
 
 @Injectable({ providedIn: 'root' })
-export class FineractWorkingCapitalPortfolioApi implements WorkingCapitalPortfolioApi {
+export class FineractWorkingCapitalLoanApi implements WorkingCapitalLoanApi {
   private readonly loans = inject(WorkingCapitalLoansService);
+
+  findByExternalId(externalId: string): Observable<WorkingCapitalLoanSnapshot | null> {
+    return this.loans.getWorkingCapitalLoansExternalIdLoanExternalId(externalId).pipe(
+      map(mapWorkingCapitalLoanSnapshot),
+      catchError((error: unknown) => {
+        // A reference that matches nothing is the lookup working, so it answers `null` and
+        // lets the screen say so. Anything else is a real failure and is left to propagate.
+        if ((error as HttpErrorResponse)?.status === 404) {
+          return of(null);
+        }
+        throw error;
+      }),
+    );
+  }
 
   listLoans(): Observable<WorkingCapitalLoanSnapshot[]> {
     // `content` rather than `pageItems`: this endpoint answers a Spring page, which is why the

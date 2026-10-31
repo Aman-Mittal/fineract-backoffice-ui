@@ -18,15 +18,15 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { WorkingCapitalLoansService } from '../../../api';
 import type { GetWorkingCapitalLoansLoanIdResponse } from '../../../api';
 import {
-  FineractWorkingCapitalPortfolioApi,
+  FineractWorkingCapitalLoanApi,
   mapWorkingCapitalLoanSnapshot,
-} from './fineract-working-capital-portfolio.api';
+} from './fineract-working-capital-loan.api';
 
 /**
  * A working-capital loan as the module's existing screens see one.
@@ -111,18 +111,18 @@ describe('mapWorkingCapitalLoanSnapshot', () => {
   });
 });
 
-describe('FineractWorkingCapitalPortfolioApi', () => {
+describe('FineractWorkingCapitalLoanApi', () => {
   it('reads the page body Fineract answers with', async () => {
     const loans = { getWorkingCapitalLoans: vi.fn().mockReturnValue(of({ content: [LOAN] })) };
     TestBed.configureTestingModule({
       providers: [
-        FineractWorkingCapitalPortfolioApi,
+        FineractWorkingCapitalLoanApi,
         { provide: WorkingCapitalLoansService, useValue: loans },
       ],
     });
 
     const snapshots = await new Promise((resolve) =>
-      TestBed.inject(FineractWorkingCapitalPortfolioApi).listLoans().subscribe(resolve),
+      TestBed.inject(FineractWorkingCapitalLoanApi).listLoans().subscribe(resolve),
     );
 
     // `content`, not `pageItems`: this endpoint answers a Spring page.
@@ -130,17 +130,84 @@ describe('FineractWorkingCapitalPortfolioApi', () => {
     expect(loans.getWorkingCapitalLoans).toHaveBeenCalled();
   });
 
+  it('answers null for a reference that matches nothing', async () => {
+    const loans = {
+      getWorkingCapitalLoans: vi.fn(),
+      getWorkingCapitalLoansExternalIdLoanExternalId: vi
+        .fn()
+        .mockReturnValue(throwError(() => ({ status: 404 }))),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        FineractWorkingCapitalLoanApi,
+        { provide: WorkingCapitalLoansService, useValue: loans },
+      ],
+    });
+
+    // A typed reference that does not match is the lookup working, not a failure.
+    const found = await new Promise((resolve) =>
+      TestBed.inject(FineractWorkingCapitalLoanApi).findByExternalId('REF-1').subscribe(resolve),
+    );
+
+    expect(found).toBeNull();
+  });
+
+  it('lets a real failure through rather than reporting it as not found', async () => {
+    const loans = {
+      getWorkingCapitalLoans: vi.fn(),
+      getWorkingCapitalLoansExternalIdLoanExternalId: vi
+        .fn()
+        .mockReturnValue(throwError(() => ({ status: 500 }))),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        FineractWorkingCapitalLoanApi,
+        { provide: WorkingCapitalLoansService, useValue: loans },
+      ],
+    });
+
+    // "No such loan" and "the server broke" are different answers and the screen shows
+    // different things for them.
+    const error = await new Promise((resolve) =>
+      TestBed.inject(FineractWorkingCapitalLoanApi)
+        .findByExternalId('REF-1')
+        .subscribe({ error: resolve }),
+    );
+
+    expect(error).toEqual({ status: 500 });
+  });
+
+  it('maps the loan a reference does match', async () => {
+    const loans = {
+      getWorkingCapitalLoans: vi.fn(),
+      getWorkingCapitalLoansExternalIdLoanExternalId: vi.fn().mockReturnValue(of(LOAN)),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        FineractWorkingCapitalLoanApi,
+        { provide: WorkingCapitalLoansService, useValue: loans },
+      ],
+    });
+
+    const found = await new Promise((resolve) =>
+      TestBed.inject(FineractWorkingCapitalLoanApi).findByExternalId('REF-1').subscribe(resolve),
+    );
+
+    expect(found).toMatchObject({ id: 11, accountNo: '000011' });
+    expect(loans.getWorkingCapitalLoansExternalIdLoanExternalId).toHaveBeenCalledWith('REF-1');
+  });
+
   it('treats a page with no body as an empty book', async () => {
     const loans = { getWorkingCapitalLoans: vi.fn().mockReturnValue(of({})) };
     TestBed.configureTestingModule({
       providers: [
-        FineractWorkingCapitalPortfolioApi,
+        FineractWorkingCapitalLoanApi,
         { provide: WorkingCapitalLoansService, useValue: loans },
       ],
     });
 
     const snapshots = await new Promise((resolve) =>
-      TestBed.inject(FineractWorkingCapitalPortfolioApi).listLoans().subscribe(resolve),
+      TestBed.inject(FineractWorkingCapitalLoanApi).listLoans().subscribe(resolve),
     );
 
     expect(snapshots).toEqual([]);

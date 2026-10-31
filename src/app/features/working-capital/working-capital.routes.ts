@@ -125,6 +125,15 @@ export const WORKING_CAPITAL_ROUTES: Routes = [
       import('./loans/wc-loan-form.component').then((m) => m.WcLoanFormComponent),
   },
   {
+    // Before any `loans/:id/...` pattern, so an external id is never read as a numeric one.
+    path: 'loans/external/:externalId',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_WORKINGCAPITALLOAN' },
+    title: 'WC_LOANS.OPEN_BY_EXTERNAL_ID',
+    loadComponent: () =>
+      import('./loans/wc-loan-by-external-id.component').then((m) => m.WcLoanByExternalIdComponent),
+  },
+  {
     path: 'loans/view/:id',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_WORKINGCAPITALLOAN' },

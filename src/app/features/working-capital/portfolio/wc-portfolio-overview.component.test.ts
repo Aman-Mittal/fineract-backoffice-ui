@@ -23,9 +23,9 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import {
-  WORKING_CAPITAL_PORTFOLIO_API,
+  WORKING_CAPITAL_LOAN_API,
   type WorkingCapitalLoanSnapshot,
-  type WorkingCapitalPortfolioApi,
+  type WorkingCapitalLoanApi,
 } from '../../../core/adapters';
 import { provideFakeAdapters } from '../../../testing/adapters';
 import { provideTranslateTesting } from '../../../testing/i18n-testing';
@@ -57,7 +57,7 @@ describe('WcPortfolioOverviewComponent', () => {
   let component: WcPortfolioOverviewComponent;
   let listLoans: ReturnType<typeof vi.fn>;
 
-  async function setup(api: Partial<WorkingCapitalPortfolioApi> = {}): Promise<void> {
+  async function setup(api: Partial<WorkingCapitalLoanApi> = {}): Promise<void> {
     listLoans = vi.fn().mockReturnValue(of([loan()]));
     await TestBed.configureTestingModule({
       imports: [WcPortfolioOverviewComponent],
@@ -67,7 +67,7 @@ describe('WcPortfolioOverviewComponent', () => {
         provideIonicTesting(),
         // `routerLink` on the loans link needs the router's own providers, not a Router stub.
         provideRouter([]),
-        { provide: WORKING_CAPITAL_PORTFOLIO_API, useValue: { listLoans, ...api } },
+        { provide: WORKING_CAPITAL_LOAN_API, useValue: { listLoans, ...api } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(WcPortfolioOverviewComponent);

@@ -1711,6 +1711,9 @@
   "WC_LOANS": {
     "CREATE": "कार्यशील पूंजी ऋण बनाएं",
     "ACCOUNT_NO": "खाता संख्या",
+    "OPEN_BY_EXTERNAL_ID": "बाहरी आईडी से खोलें",
+    "EXTERNAL_ID_NOT_FOUND": "किसी कार्यशील पूंजी ऋण पर {{externalId}} संदर्भ नहीं है",
+    "LOOKUP_FAILED": "उस संदर्भ को खोजा नहीं जा सका",
     "CLIENT": "ग्राहक",
     "CLIENT_ID": "ग्राहक आईडी",
     "PRODUCT": "उत्पाद",

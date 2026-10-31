@@ -22,7 +22,7 @@ import {
   agingBandOf,
   summarisePortfolio,
   type WorkingCapitalLoanSnapshot,
-} from './working-capital-portfolio.api';
+} from './working-capital-loan.api';
 
 function loan(overrides: Partial<WorkingCapitalLoanSnapshot> = {}): WorkingCapitalLoanSnapshot {
   return {

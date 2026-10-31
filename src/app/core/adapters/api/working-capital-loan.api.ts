@@ -20,7 +20,7 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 
-import { FineractWorkingCapitalPortfolioApi } from './fineract-working-capital-portfolio.api';
+import { FineractWorkingCapitalLoanApi } from './fineract-working-capital-loan.api';
 
 /**
  * One working-capital loan, reduced to what a portfolio-level view can state.
@@ -69,16 +69,27 @@ export interface WorkingCapitalLoanSnapshot {
  * ADR 0006 keeps that rejection; this exists because the overview screen needs the list without
  * importing the generated client, and because the arithmetic below has to live somewhere tested.
  */
-export interface WorkingCapitalPortfolioApi {
+export interface WorkingCapitalLoanApi {
   /** Every working-capital loan the user may see, in the order Fineract returns them. */
   listLoans(): Observable<WorkingCapitalLoanSnapshot[]>;
+
+  /**
+   * The loan carrying this institution-assigned external id, or `null` when none does.
+   *
+   * Fineract addresses every working-capital command twice — once by its own numeric id and
+   * once by the external id the institution set — and this application only ever used the
+   * numeric half, so an operator holding their own reference had no way in. `null` rather than
+   * an error for "no such loan": a typed reference not matching is an ordinary outcome of a
+   * lookup, not a failure to report.
+   */
+  findByExternalId(externalId: string): Observable<WorkingCapitalLoanSnapshot | null>;
 }
 
-export const WORKING_CAPITAL_PORTFOLIO_API = new InjectionToken<WorkingCapitalPortfolioApi>(
-  'WorkingCapitalPortfolioApi',
+export const WORKING_CAPITAL_LOAN_API = new InjectionToken<WorkingCapitalLoanApi>(
+  'WorkingCapitalLoanApi',
   {
     providedIn: 'root',
-    factory: () => inject(FineractWorkingCapitalPortfolioApi),
+    factory: () => inject(FineractWorkingCapitalLoanApi),
   },
 );
 

@@ -24,7 +24,7 @@ import { RouterModule } from '@angular/router';
 import {
   I18N,
   TranslatePipe,
-  WORKING_CAPITAL_PORTFOLIO_API,
+  WORKING_CAPITAL_LOAN_API,
   summarisePortfolio,
   type WorkingCapitalLoanSnapshot,
 } from '../../../core/adapters';
@@ -306,7 +306,7 @@ const OTHER_DARK = '#c3c2b7';
   ],
 })
 export class WcPortfolioOverviewComponent implements OnInit {
-  private readonly portfolio = inject(WORKING_CAPITAL_PORTFOLIO_API);
+  private readonly portfolio = inject(WORKING_CAPITAL_LOAN_API);
   private readonly theme = inject(ThemeService);
   private readonly i18n = inject(I18N);
 

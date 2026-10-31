@@ -1954,6 +1954,9 @@
   "WC_LOANS": {
     "CREATE": "Create Working Capital Loan",
     "ACCOUNT_NO": "Account No.",
+    "OPEN_BY_EXTERNAL_ID": "Open by external id",
+    "EXTERNAL_ID_NOT_FOUND": "No working-capital loan has the reference {{externalId}}",
+    "LOOKUP_FAILED": "Could not look up that reference",
     "CLIENT": "Client",
     "CLIENT_ID": "Client ID",
     "PRODUCT": "Product",
