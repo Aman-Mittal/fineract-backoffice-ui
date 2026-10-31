@@ -962,6 +962,8 @@
     "EDIT_ADDRESS": "Edit Address",
     "EDIT_DOCUMENT": "Edit Document",
     "EDIT_FAMILY_MEMBER": "Edit Family Member",
+    "FAMILY_MEMBER_ADDED": "Family member added.",
+    "FAMILY_MEMBER_UPDATED": "Family member updated.",
     "EDIT_IDENTIFIER": "Edit Identifier",
     "EDIT_NOTE": "Edit Note",
     "ACTIONS": {
