@@ -1948,6 +1948,7 @@
     "AGING_90_PLUS": "Over 90 days",
     "BY_STATUS": "By status",
     "STATUS_UNKNOWN": "Not stated",
+    "OTHER": "Other",
     "VIEW_ALL_LOANS": "View all working-capital loans"
   },
   "WC_LOANS": {

@@ -1948,6 +1948,7 @@
     "AGING_90_PLUS": "Plus de 90 jours",
     "BY_STATUS": "Par statut",
     "STATUS_UNKNOWN": "Non précisé",
+    "OTHER": "Autre",
     "VIEW_ALL_LOANS": "Voir tous les prêts de fonds de roulement"
   },
   "WC_LOANS": {

@@ -22,13 +22,46 @@ import { DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 import {
+  I18N,
   TranslatePipe,
   WORKING_CAPITAL_PORTFOLIO_API,
   summarisePortfolio,
   type WorkingCapitalLoanSnapshot,
 } from '../../../core/adapters';
 import { LoadErrorComponent } from '../../../shared';
+import { BarChartComponent } from '../../../shared/components/charts/bar-chart.component';
+import {
+  DonutChartComponent,
+  type ChartData,
+} from '../../../shared/components/charts/donut-chart.component';
+import { ThemeService } from '../../../core/services/theme.service';
 import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
+
+/**
+ * Chart steps, selected per theme rather than flipped.
+ *
+ * The aging bands are an *ordinal* ramp: one hue, light to dark, so "older" reads as "darker"
+ * without asking the reader to learn five hues. The statuses are categorical, taking the fixed
+ * slot order, and a remainder beyond the slots becomes one deliberately neutral "Other" rather
+ * than a generated sixth hue.
+ *
+ * Both sets were checked with the data-visualisation validator against each surface — ordinal
+ * mode for the ramp (monotone lightness, visible step gaps, light end clearing the surface) and
+ * categorical mode for the statuses (lightness band, chroma floor, colour-vision separation).
+ * The light categorical steps sit below 3:1 on the light surface, which obliges a non-colour
+ * reading of the same data: each chart is paired with the table it summarises, and the donut
+ * labels every slice.
+ *
+ * The palette the dashboard's existing donuts use was measured too and does not pass — one of
+ * its four steps reads as grey — so it is deliberately not extended here.
+ */
+const AGING_STEPS_LIGHT = ['#86b6ef', '#5598e7', '#2a78d6', '#1c5cab', '#104281'];
+const AGING_STEPS_DARK = ['#cde2fb', '#9ec5f4', '#5598e7', '#2a78d6', '#184f95'];
+const STATUS_STEPS_LIGHT = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4'];
+const STATUS_STEPS_DARK = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181'];
+/** Outside the categorical slots on purpose: "Other" is an absence of identity, not one more. */
+const OTHER_LIGHT = '#52514e';
+const OTHER_DARK = '#c3c2b7';
 
 /**
  * The working-capital book at portfolio level.
@@ -45,7 +78,15 @@ import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
 @Component({
   selector: 'app-wc-portfolio-overview',
   standalone: true,
-  imports: [RouterModule, DecimalPipe, TranslatePipe, LoadErrorComponent, SpinnerComponent],
+  imports: [
+    RouterModule,
+    DecimalPipe,
+    TranslatePipe,
+    LoadErrorComponent,
+    SpinnerComponent,
+    BarChartComponent,
+    DonutChartComponent,
+  ],
   template: `
     <div class="overview-container">
       <h1 class="page-title">{{ 'WC_PORTFOLIO.TITLE' | appTranslate }}</h1>
@@ -116,6 +157,7 @@ import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
         <section class="panel">
           <h2 class="panel-title">{{ 'WC_PORTFOLIO.AGING_TITLE' | appTranslate }}</h2>
           <div class="panel-body">
+            <app-bar-chart [data]="agingChart()" data-testid="wc-aging-chart"></app-bar-chart>
             <table class="overview-table" data-testid="wc-portfolio-aging">
               <caption class="sr-only">
                 {{
@@ -151,6 +193,7 @@ import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
         <section class="panel">
           <h2 class="panel-title">{{ 'WC_PORTFOLIO.BY_STATUS' | appTranslate }}</h2>
           <div class="panel-body">
+            <app-donut-chart [data]="statusChart()" data-testid="wc-status-chart"></app-donut-chart>
             <table class="overview-table" data-testid="wc-portfolio-status">
               <caption class="sr-only">
                 {{
@@ -264,6 +307,8 @@ import { SpinnerComponent } from '../../../ui/spinner/spinner.component';
 })
 export class WcPortfolioOverviewComponent implements OnInit {
   private readonly portfolio = inject(WORKING_CAPITAL_PORTFOLIO_API);
+  private readonly theme = inject(ThemeService);
+  private readonly i18n = inject(I18N);
 
   readonly loans = signal<WorkingCapitalLoanSnapshot[]>([]);
   readonly isLoading = signal(false);
@@ -273,6 +318,63 @@ export class WcPortfolioOverviewComponent implements OnInit {
 
   /** Blank on a mixed-currency book, where a single code would mislabel the totals. */
   readonly currencyLabel = computed(() => this.summary().currencyCode ?? '');
+
+  /**
+   * Loan counts per aging band.
+   *
+   * Counts rather than amounts, because the table beside it already carries outstanding and
+   * delinquent money: charting one of those here would put two scales in one picture, and what
+   * a reader wants from the shape is how many loans are drifting, not a second total.
+   */
+  readonly agingChart = computed<ChartData[]>(() => {
+    const steps = this.theme.isDarkMode() ? AGING_STEPS_DARK : AGING_STEPS_LIGHT;
+    return this.summary().aging.map((row, index) => ({
+      label: this.translate(row.labelKey),
+      value: row.loans,
+      color: steps[index] ?? steps.at(-1)!,
+    }));
+  });
+
+  /**
+   * Loan counts per status, never more slices than there are categorical slots.
+   *
+   * A sixth status is not a sixth hue: the remainder folds into one deliberately neutral
+   * "Other". `byStatus` is ordered by loan count, so the slots go to the largest statuses and a
+   * status keeps its colour as long as it keeps its rank — the limit of what a fixed-order
+   * palette can promise against a book that changes.
+   */
+  readonly statusChart = computed<ChartData[]>(() => {
+    const dark = this.theme.isDarkMode();
+    const steps = dark ? STATUS_STEPS_DARK : STATUS_STEPS_LIGHT;
+    const rows = this.summary().byStatus;
+    const named = rows.slice(0, steps.length).map((row, index) => ({
+      label: row.status || this.translate('WC_PORTFOLIO.STATUS_UNKNOWN'),
+      value: row.loans,
+      color: steps[index]!,
+    }));
+    const rest = rows.slice(steps.length);
+    if (rest.length === 0) {
+      return named;
+    }
+    return [
+      ...named,
+      {
+        label: this.translate('WC_PORTFOLIO.OTHER'),
+        value: rest.reduce((total, row) => total + row.loans, 0),
+        color: dark ? OTHER_DARK : OTHER_LIGHT,
+      },
+    ];
+  });
+
+  /**
+   * Translates inside a computed, reading the current language first so the charts re-label when
+   * it changes. The chart components take plain label strings, and these two mix status names
+   * the platform supplies with keys of our own, so the pipe's key-only path cannot carry both.
+   */
+  private translate(key: string): string {
+    this.i18n.currentLang();
+    return this.i18n.translate(key);
+  }
 
   ngOnInit(): void {
     this.load();
