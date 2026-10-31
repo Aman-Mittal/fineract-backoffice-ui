@@ -3027,7 +3027,8 @@
     "CONFIG_JSON": "Configuration (JSON)",
     "SAVE": "Save Config",
     "SUCCESS": "Config saved.",
-    "PARSE_ERROR": "Invalid JSON"
+    "PARSE_ERROR": "Invalid JSON",
+    "LOAD_FAILED": "Could not load the two-factor configuration"
   },
   "SURVEY_RESPONSES": {
     "TITLE": "Survey Responses",

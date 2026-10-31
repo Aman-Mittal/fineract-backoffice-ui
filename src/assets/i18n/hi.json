@@ -3091,7 +3091,8 @@
     "CONFIG_JSON": "कॉन्फ़िगरेशन (JSON)",
     "SAVE": "कॉन्फ़िगरेशन सहेजें",
     "SUCCESS": "कॉन्फ़िगरेशन सहेजा गया।",
-    "PARSE_ERROR": "अमान्य JSON"
+    "PARSE_ERROR": "अमान्य JSON",
+    "LOAD_FAILED": "दो-कारक कॉन्फ़िगरेशन लोड नहीं हो सका"
   },
   "SURVEY_RESPONSES": {
     "TITLE": "सर्वेक्षण प्रतिक्रियाएं",

@@ -3027,7 +3027,8 @@
     "CONFIG_JSON": "Configuration (JSON)",
     "SAVE": "Enregistrer la config.",
     "SUCCESS": "Configuration enregistrée.",
-    "PARSE_ERROR": "JSON invalide"
+    "PARSE_ERROR": "JSON invalide",
+    "LOAD_FAILED": "Impossible de charger la configuration à deux facteurs"
   },
   "SURVEY_RESPONSES": {
     "TITLE": "Réponses aux enquêtes",
