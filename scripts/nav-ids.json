@@ -26,7 +26,6 @@
     "campaigns.sms",
     "centers",
     "clients",
-    "clients.search",
     "collection-sheet",
     "dashboard",
     "fintech",
@@ -135,6 +134,7 @@
     "working-capital.loan-products",
     "working-capital.loans",
     "working-capital.near-breach",
+    "working-capital.overview",
     "working-capital.wc-cob-tools"
   ]
 }

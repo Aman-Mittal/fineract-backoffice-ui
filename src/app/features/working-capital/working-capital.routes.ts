@@ -100,6 +100,17 @@ export const WORKING_CAPITAL_ROUTES: Routes = [
       ),
   },
   {
+    // The module's landing screen: the only view that reads across loans rather than into one.
+    path: 'overview',
+    canActivate: [authGuard, permissionGuard],
+    data: { permissions: 'READ_WORKINGCAPITALLOAN' },
+    title: 'WC_PORTFOLIO.TITLE',
+    loadComponent: () =>
+      import('./portfolio/wc-portfolio-overview.component').then(
+        (m) => m.WcPortfolioOverviewComponent,
+      ),
+  },
+  {
     path: 'loans',
     canActivate: [authGuard, permissionGuard],
     data: { permissions: 'READ_WORKINGCAPITALLOAN' },

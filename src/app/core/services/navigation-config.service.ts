@@ -388,6 +388,13 @@ const NAV_CONFIG: readonly NavItemConfig[] = [
     labelKey: 'nav.workingCapital',
     children: [
       {
+        id: 'working-capital.overview',
+        route: '/working-capital/overview',
+        labelKey: 'nav.wcOverview',
+        icon: ICON_GRID_OUTLINE,
+        requiredPermissions: 'READ_WORKINGCAPITALLOAN',
+      },
+      {
         id: 'working-capital.loans',
         route: '/working-capital/loans',
         labelKey: 'nav.wcLoans',
