@@ -44,6 +44,7 @@ import {
 import { toIsoDate } from '../../../core/utils/date-formatter';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { createPickersReady } from '../../../shared/utils/pickers-ready';
+import { FormFieldComponent } from '../../../ui/form-field/form-field.component';
 
 @Component({
   selector: 'app-office-form',
@@ -51,6 +52,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   imports: [
     FormsModule,
     TranslatePipe,
+    FormFieldComponent,
     IonButton,
     IonSpinner,
     IonInput,
@@ -69,7 +71,7 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
     TooltipDirective,
   ],
   template: `
-    <div class="form-container">
+    <div class="app-form-container">
       <ion-card>
         <ion-card-header>
           <ion-card-title>
@@ -84,90 +86,51 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
         <ion-card-content>
           <form #officeForm="ngForm" (ngSubmit)="onSubmit()" class="office-form">
             <div class="form-grid">
-              <div class="field">
-                <ion-item fill="outline" [appTooltip]="'HELP.OFFICE_NAME_DESC' | appTranslate">
-                  <ion-label position="stacked">
-                    <span>{{ 'OFFICES.NAME' | appTranslate }}</span
-                    ><span class="required-marker" aria-hidden="true">*</span></ion-label
-                  >
-                  <ion-input
-                    [attr.aria-label]="'OFFICES.NAME' | appTranslate"
-                    name="name"
-                    [(ngModel)]="office().name"
-                    #nameModel="ngModel"
-                    (ionBlur)="nameModel.control.markAsTouched()"
-                    required
-                    id="office-name-input"
-                    data-testid="office-name-input"
-                    [attr.aria-invalid]="nameModel.invalid && nameModel.touched"
-                    [attr.aria-describedby]="
-                      nameModel.invalid && nameModel.touched ? 'office-name-error' : null
-                    "
-                  ></ion-input>
-                </ion-item>
-                @if (nameModel.invalid && nameModel.touched) {
-                  <ion-note
-                    color="danger"
-                    class="field-error"
-                    id="office-name-error"
-                    role="alert"
-                    data-testid="office-name-error"
-                    >{{ 'COMMON.REQUIRED' | appTranslate }}</ion-note
-                  >
-                }
-              </div>
+              <app-form-field
+                label="OFFICES.NAME"
+                [required]="true"
+                hint="HELP.OFFICE_NAME_DESC"
+                [showError]="nameModel.invalid && nameModel.touched"
+                errorTestId="office-name-error"
+              >
+                <ion-input
+                  name="name"
+                  [(ngModel)]="office().name"
+                  #nameModel="ngModel"
+                  (ionBlur)="nameModel.control.markAsTouched()"
+                  required
+                  id="office-name-input"
+                  data-testid="office-name-input"
+                ></ion-input>
+              </app-form-field>
 
-              <div class="field">
-                <ion-item fill="outline" [appTooltip]="'HELP.PARENT_OFFICE_DESC' | appTranslate">
-                  <ion-label position="stacked">
-                    <span>{{ 'OFFICES.PARENT' | appTranslate }}</span
-                    ><span class="required-marker" aria-hidden="true">*</span></ion-label
-                  >
-                  <ion-select
-                    [attr.aria-label]="'OFFICES.PARENT' | appTranslate"
-                    interface="popover"
-                    name="parentId"
-                    [(ngModel)]="office().parentId"
-                    #parentIdModel="ngModel"
-                    (ionBlur)="parentIdModel.control.markAsTouched()"
-                    required
-                    id="office-parent-select"
-                    data-testid="office-parent-select"
-                    [disabled]="isEditMode()"
-                    [attr.aria-invalid]="parentIdModel.invalid && parentIdModel.touched"
-                    [attr.aria-describedby]="
-                      parentIdModel.invalid && parentIdModel.touched ? 'office-parent-error' : null
-                    "
-                  >
-                    @for (o of offices(); track o.id) {
-                      <ion-select-option [value]="o.id">{{ o.name }}</ion-select-option>
-                    }
-                  </ion-select>
-                </ion-item>
-                @if (parentIdModel.invalid && parentIdModel.touched) {
-                  <ion-note
-                    color="danger"
-                    class="field-error"
-                    id="office-parent-error"
-                    role="alert"
-                    data-testid="office-parent-error"
-                    >{{ 'COMMON.REQUIRED' | appTranslate }}</ion-note
-                  >
-                }
-              </div>
+              <app-form-field
+                label="OFFICES.PARENT"
+                [required]="true"
+                hint="HELP.PARENT_OFFICE_DESC"
+                [showError]="parentIdModel.invalid && parentIdModel.touched"
+                errorTestId="office-parent-error"
+              >
+                <ion-select
+                  interface="popover"
+                  name="parentId"
+                  [(ngModel)]="office().parentId"
+                  #parentIdModel="ngModel"
+                  (ionBlur)="parentIdModel.control.markAsTouched()"
+                  required
+                  id="office-parent-select"
+                  data-testid="office-parent-select"
+                  [disabled]="isEditMode()"
+                >
+                  @for (o of offices(); track o.id) {
+                    <ion-select-option [value]="o.id">{{ o.name }}</ion-select-option>
+                  }
+                </ion-select>
+              </app-form-field>
 
-              <div class="field">
-                <ion-item fill="outline" [appTooltip]="'HELP.EXTERNAL_ID_DESC' | appTranslate">
-                  <ion-label position="stacked">{{
-                    'OFFICES.EXTERNAL_ID' | appTranslate
-                  }}</ion-label>
-                  <ion-input
-                    [attr.aria-label]="'OFFICES.EXTERNAL_ID' | appTranslate"
-                    name="externalId"
-                    [(ngModel)]="office().externalId"
-                  ></ion-input>
-                </ion-item>
-              </div>
+              <app-form-field label="OFFICES.EXTERNAL_ID" hint="HELP.EXTERNAL_ID_DESC">
+                <ion-input name="externalId" [(ngModel)]="office().externalId"></ion-input>
+              </app-form-field>
 
               <div class="field">
                 <ion-item fill="outline" [appTooltip]="'HELP.OPENING_DATE_DESC' | appTranslate">
@@ -228,10 +191,9 @@ import { createPickersReady } from '../../../shared/utils/pickers-ready';
   `,
   styles: [
     `
-      .form-container {
-        padding: 24px;
-        max-width: 900px;
-        margin: 0 auto;
+      /* Keeps this form's own width; the padding and centring come from _common.scss. */
+      .app-form-container {
+        --app-form-max-width: 900px;
       }
       .office-form {
         display: flex;
