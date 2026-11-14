@@ -1,0 +1,2 @@
+if (typeof globalThis.ngServerMode === 'undefined') globalThis.ngServerMode = typeof window === 'undefined';
+import{a,b,c,d,e,f,g,h,i,j,k}from"@nf-internal/chunk-6JZNY27G";import"@nf-internal/chunk-2C43GCOH";import"@nf-internal/chunk-HZZSWKXS";import"@nf-internal/chunk-GMSR7DWL";export{b as KEYBOARD_DID_CLOSE,a as KEYBOARD_DID_OPEN,k as copyVisualViewport,i as keyboardDidClose,g as keyboardDidOpen,h as keyboardDidResize,c as resetKeyboardAssist,f as setKeyboardClose,e as setKeyboardOpen,d as startKeyboardAssist,j as trackViewportChanges};

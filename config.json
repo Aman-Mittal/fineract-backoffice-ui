@@ -1,0 +1,7 @@
+{
+  "fineractApiUrl": "https://sandbox.mifos.community/fineract-provider/api/v1",
+  "defaultTenant": "default",
+  "rbacEnabled": true,
+  "institutionType": "universal",
+  "allowedApiOrigins": ["https://sandbox.mifos.community/fineract-provider/api/v1"]
+}

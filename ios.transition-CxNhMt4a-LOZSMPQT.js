@@ -1,0 +1,2 @@
+if (typeof globalThis.ngServerMode === 'undefined') globalThis.ngServerMode = typeof window === 'undefined';
+import{a,b}from"@nf-internal/chunk-S72PJTW4";import"@nf-internal/chunk-J22VY2LY";import"@nf-internal/chunk-QTD5O64S";import"@nf-internal/chunk-DTQAE2VL";import"@nf-internal/chunk-ZXGUCQ42";import"@nf-internal/chunk-WNPQ27XR";import"@nf-internal/chunk-KZE7F3YI";import"@nf-internal/chunk-GMSR7DWL";export{b as iosTransitionAnimation,a as shadow};

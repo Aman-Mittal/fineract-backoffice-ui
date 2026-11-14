@@ -1,0 +1,1 @@
+import{b as t}from"./chunk-SSM2DNMH.js";import{b as e}from"./chunk-EUAOAWVZ.js";import{computed as c,inject as o}from"@angular/core";function f(i){let r=o(t),n=o(e);return c(()=>n.rbacEnabled()?(r.currentUser(),r.hasPermission(i)):!0)}export{f as a};

@@ -1,0 +1,1 @@
+import"./chunk-PZNONLPT.js";var e=[{path:"asset-owners",title:"nav.assetOwners",loadComponent:()=>import("./chunk-FU65YNRL.js").then(t=>t.ExternalAssetOwnersListComponent)},{path:"asset-owners/view/:id",title:"ASSET_OWNERS.DETAILS",loadComponent:()=>import("./chunk-HFIDV7NE.js").then(t=>t.AssetOwnerViewComponent)}];export{e as FINTECH_ROUTES};
